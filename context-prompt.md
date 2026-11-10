@@ -32,14 +32,17 @@ Two versions, always updated together and always delivered as **complete zips**,
 | Skill | Job |
 |---|---|
 | `-code` | write, edit, debug, refactor; after a change, run the changed tests first, then ask once about running the full suite in the background |
-| `-review` | change review (≤20 files) vs large review; asks about an unused-files check each time; uses the graph as a map; report in `reviews/` (git-ignored) |
+| `-review` | change review (any diff/PR/commit, or ≤20 named files) vs large review; asks about an unused-files check each time; uses the graph as a map; report in `reviews/` (git-ignored) |
 | `-docs` (v1) | diagram-first docs; always asks 4 questions (Documents, Format HTML/MD/Confluence, Graph, Examples); one file per doc in `generated-docs/` |
-| `-docs-v2` | same rules, but HTML is built from a JSON spec by a fixed builder (`build.py`) so runs look the same; used only when I say "v2" |
+| `-docs-v2` | same rules, but HTML is built from a JSON spec by a fixed builder (`build.py`): fixed section recipes, typed tables, fixed workflow `docs-v2-<repo>`; used only when I say "v2" |
 | `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a change, offers "go / graph / no"; related repos share `../<name>-graphs/` + `_combined/` |
-| `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first |
+| `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first (PII discovery step; keyed hashing for masked values) |
 | `-data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC; checks official docs sites only when unsure |
 | `-ask-me` | plans unclear tasks with me in rounds of ≤4 questions |
-| `-frontend` | UIs, dashboards, data apps |
+| `-frontend` | UI design rules (look, layout, accessibility) for dashboards, data apps; used with the build skills below |
+| `-frontend-react` | build React + TypeScript + component-library UIs; package a React component for Streamlit |
+| `-streamlit` | build, test, deploy open-source Streamlit apps on any host |
+| `-streamlit-snowflake` | Streamlit in Snowflake only (privileges, deploy, runtimes, limits); loaded with `-streamlit` |
 - **Hook:** `hooks/log-skill.py` logs skill use to `~/.claude/skill-usage.log`; `install-skill-log.py` adds it to settings.
 - **Data rules:** never open secret files (.env, keys, credentials…). Structure, not data. Examples come from tests, fixtures or code, or are synthetic. No PII in docs.
 
@@ -57,7 +60,7 @@ Two versions, always updated together and always delivered as **complete zips**,
   - data journeys for one record (old → new)
   - boxes carry detail: tag, bullets, IN/OUT, "runs as N steps", hover notes
 - **Examples:** every main flow, job pattern, rule and task gets them. Typical + edge/failure cards, journeys, or query/request/command + result. Each one cites its source (`tests/x.py:42`) and is marked synthetic when made up.
-- **Output:** `generated-docs/` (commit asked once); files tagged with a generator meta tag so the graph skips them.
+- **Output:** `generated-docs/` (commit asked once); files tagged with a generator meta tag so the graph skips them. v2 also writes an empty `.generated-by-darshan-singh-meel-docs` marker in each output folder; the graph skips any folder holding it.
 
 ## Why v2 exists and where it stands
 - **Problem:** v1 runs on the same code looked completely different: layout, where things sit, which diagrams appear.
@@ -75,10 +78,11 @@ Two versions, always updated together and always delivered as **complete zips**,
   - **Fixed recipe per section, freedom inside it.** Some differences are fine; a different-looking page is not.
   - **Minimums, not tight caps.** Too little is the problem; a bit more is fine.
   - **One fixed workflow:** plan (Opus) → build (Sonnet) → `check.py` → accuracy reviewer (Opus) + layout reviewer (Haiku, which fails the doc on any overlap) → fix → re-render only if the layout changed.
-- **Pending:** everything in `docs-v2-upgrade-prompt.md` (recipes, typed tables, amount rules, layout fixes, builder fixes, fixed workflow, rebuild and test). I'll run that prompt in Claude Code.
+- **Upgrade done** (`docs-v2-upgrade-prompt.md`): section recipes, typed tables, `labels`, amount rules, layout fixes, builder fixes (UTF-8, badges, version stamp, one review file), `check.py` edge-through-box check, fixed workflow in SKILL.md, examples rebuilt plus a stress example.
+- **Marker file decided: yes.** `build.py` writes `.generated-by-darshan-singh-meel-docs` in every output folder; the graph skill skips folders holding it.
 
 ## Open ideas, not decided yet
-- A marker file `.generated-by-darshan-singh-meel-docs` in every output folder, so the graph skips copied or renamed doc folders. Ask me first.
+- None.
 
 ## When you change anything
 - Keep v1 docs untouched unless I say otherwise.

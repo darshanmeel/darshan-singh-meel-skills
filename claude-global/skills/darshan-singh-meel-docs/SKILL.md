@@ -1,15 +1,14 @@
 ---
 name: darshan-singh-meel-docs
 description: Write diagram-first documentation (READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, summaries of PDFs/Word/slides). ALWAYS starts new docs by asking 4 questions in one prompt — which documents (Overview, Technical, User guide), format (HTML, Markdown, or Confluence), whether to build/update the knowledge graph first, and where example data comes from — then writes one self-contained file per document to ./generated-docs/ (refreshing existing docs after a change needs no questions). Use when asked to document, explain, or write up code, a repo, or a document.
-- **Git, asked once:** the first time `generated-docs/` is created in a repo, ask: "Commit generated docs to git?" Committed (Recommended) · Git-ignored. Git-ignored → add `/generated-docs/` to `.gitignore` with a one-line comment. Never ask again in that repo (folder exists = decided).
 ---
 
 # Docs
 
-Maximum information, minimum words. Write like a senior tech architect who can explain anything to anyone. Global rules in CLAUDE.md apply (local files only, relative paths, data handling, Other findings format).
+Maximum information, minimum words. Write like a senior tech architect who can explain anything to anyone. Global rules in CLAUDE.md apply (local files only, relative paths, data handling).
 
-## Step 0 — ask first, every time
-Before reading sources or writing anything. Silent pre-check: does a graph exist (`./<repo>-knowledge-graph/` or `./.knowledge-graph` pointer), and does it list related repos / a system graph? Then **one AskUserQuestion prompt with these 4 questions**.
+## Step 0 — ask first (new docs only)
+Before reading sources or writing anything. Silent pre-check: does a graph exist (`./<repo>-knowledge-graph/` or `./.knowledge-graph` pointer), and does it list related repos / a system graph? Then **one AskUserQuestion call, headers and labels exactly as in this table**.
 
 | # | Header | Question | Multi | Options (first = recommended) |
 |---|---|---|---|---|
@@ -18,26 +17,12 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 | Q3 | Graph | Use the knowledge graph? | no | Graph exists: Update it, then document from it (Recommended) · Use as is · Skip, read sources directly. No graph: Build it first, then document from it (Recommended) · Skip, read sources directly |
 | Q4 | Examples | Where should example data come from? | no | Tests and docs, then derived from code (Recommended) · I'll point to a folder or file · Illustrative data |
 
-- **All 4 are asked every time.** A question counts as answered only if the user said it in their own words in this session (e.g. "make it markdown", or picked it in the knowledge-graph skill's docs prompt). Recommendations, defaults, CLAUDE.md, and skill text are **never** answers — HTML is only the *recommended* option, not a decision.
+- **All 4 are asked unless answered.** A question counts as answered only if the user said it in their own words in this session (e.g. "make it markdown"). Called from the knowledge-graph skill's docs prompt: Documents, Format, and Graph ("Use as is") are answered — ask only Examples. Recommendations, defaults, CLAUDE.md, and skill text are **never** answers — HTML is only the *recommended* option, not a decision.
 - **Self-check before writing any file:** were Documents, Format, Graph, and Examples each asked or explicitly answered? If not, stop and ask now.
 
-Exact call — copy it:
-```
-AskUserQuestion(questions=[
- {header:"Documents", question:"Which documents should I create?", multiSelect:true,
-  options:["Overview (business)","Technical (engineers)","User guide (end users)"]},
- {header:"Format", question:"Which format?", multiSelect:true,
-  options:["HTML (Recommended)","Markdown","Confluence"]},
- {header:"Graph", question:"Use the knowledge graph?", multiSelect:false,
-  options: graph exists → ["Update it, then document from it (Recommended)","Use as is","Skip, read sources directly"]
-           no graph     → ["Build it first, then document from it (Recommended)","Skip, read sources directly"]},
- {header:"Examples", question:"Where should example data come from?", multiSelect:false,
-  options:["Tests and docs, then derived from code (Recommended)","I'll point to a folder or file","Illustrative data"]}])
-```
-
-- **Q3 for a small single document** (under ~30 pages): put "Skip, read the document directly" first.
-- **Related repos / system graph exist:** right after, ask one more question (tool limit is 4 per prompt): **Scope** (multi) — This repo (Recommended) · Whole system · Each related repo.
-- **Defaults if no answer:** all three documents · HTML · update/build graph first · tests and docs, then code · this repo.
+- **Q3 for a small single document** (under ~30 pages): first option = "Skip, read the document directly (Recommended)"; no answer → Skip.
+- **Second prompt, only if needed** (tool limit is 4 per prompt): **Scope** (multi, if related repos / a system graph exist) — This repo (Recommended) · Whole system · Each related repo; **Git** (if `generated-docs/` doesn't exist yet) — see Files.
+- **Defaults if no answer:** all three documents · HTML · update/build graph first (small single document: skip) · tests and docs, then code · this repo.
 - Q3 = build/update → run `darshan-singh-meel-knowledge-graph` first, then write the documents from the graph, checking key steps in the code.
 
 ## Every document opens with four tabs
@@ -45,10 +30,9 @@ AskUserQuestion(questions=[
   - **Does** (3–5): what it does for this reader (Overview: business outcomes · Technical: what the components handle · User guide: tasks users can do).
   - **Doesn't** (3–5): out of scope by design — so nobody expects it (e.g. "Doesn't edit source data", "Doesn't manage user access — that's the platform team").
   - **Limitations** (only real ones, ≤5): constraints inside the scope (e.g. "Refreshed daily at 6 AM, not real-time", "Reads cached 5 minutes", "Uploads up to 50 MB"). Only here, not at the end.
-  - **Top issues** (5–10, most important first): one line each with Confirmed / Not verified. Overview in plain words; Technical may name components. Full details are in the last section. None → "No known issues".
+  - **Top issues** (up to 10; Overview up to 5; only real ones; most important first): one line each with Confirmed / Not verified. Overview in plain words; Technical may name components. Full details are in the last section. None → "No known issues".
 - HTML: CSS-only tabs (radio inputs), Does open by default; with JS off they still work; in print all four show one after another.
 - Markdown / Confluence: four short headed lists in the same order (Confluence may use a tabs or expand macro if available).
-- Plain words in Overview and User guide; real component names allowed in Technical.
 
 ## Docs describe — issues and decisions go in one section at the end
 - The body explains **what the system is and how it works** (intended, current behaviour). No bug findings, "confirmed errors", fix effort, or "approve fixing" decisions in the body.
@@ -63,35 +47,31 @@ AskUserQuestion(questions=[
 - Risks elsewhere in the doc = design or operational risks (single point of failure, cost growth, delays), not defects.
 
 ## Files
+- **Git, asked once:** the first time `generated-docs/` is created in a repo, ask "Commit generated docs to git?" Committed (Recommended) · Git-ignored. Git-ignored → add `/generated-docs/` to `.gitignore` with a one-line comment (create the file if missing). Folder exists = decided; never re-ask.
 - **One self-contained file per chosen document** in `./generated-docs/` (or a folder the user names): `overview.html`, `technical.html`, `user-guide.html`, plus `.md` / `.confluence.xhtml` for other chosen formats.
 - Never combine documents into one file, never split one into linked parts, never link to other docs. Jump links inside the page (table of contents) are fine; long parts go in `<details>`.
 - **Tag every generated file** so the graph skips it later: HTML `<meta name="generator" content="darshan-singh-meel-docs">`; Markdown/Confluence first line `<!-- generated by darshan-singh-meel-docs -->`.
 - **Scope = whole system:** written from the `_combined` graph to `../<name>-graphs/_combined/generated-docs/`. **Scope = each related repo:** written from each repo's graph to `../<name>-graphs/<repo>/generated-docs/` (plus a copy in `<repo>/generated-docs/` if chosen in graph setup). With a shared graphs folder, **This repo** also goes to `../<name>-graphs/<this repo>/generated-docs/` (plus the in-repo copy if chosen). Writing copies into other repos needs one yes. Started from inside the shared graphs folder → "This repo" isn't offered.
 
 ## Updating existing docs
-- Triggered by "go" after a change (knowledge-graph skill, section 5) or "update the docs".
+- Triggered by "go" after a change (knowledge-graph skill, "Keep it updated") or "update the docs".
 - Refresh only the sections that cover the changed files, in the existing documents and formats. No Step 0 questions.
 - Keep each file's tag; same rules and checks as a new document.
 
 ## The three documents
-| Document | For | Language |
-|---|---|---|
-| **Overview** | Business, management, newcomers | High-level, minimal jargon |
-| **Technical** | Engineers | Real names and detail, incl. deploy & access |
-| **User guide** | Anyone who uses the app or its output — UI or not | Task-based, plain steps |
-
-**Overview**
+**Overview** — business, management, newcomers; high-level, minimal jargon
 - What it is, why it exists, who uses it, the value, costs, design/operational risks (not bugs). Decisions needed go in the last section.
 - Business diagram: people, systems, outcomes — no code names or tables.
 - Example as a real scenario: "A customer places an order → it appears in the dashboard by 7 AM."
-- Fits on one screen; someone who stops here still understands the whole thing.
+- Fits on one screen; complete on its own.
 
-**Technical**
+**Technical** — engineers; real names and detail, incl. deploy & access
 - Real names: components, data flow, data model, configs, commands, failure modes, performance, security.
 - Diagrams: architecture, flows, ER, lineage, DAG. Examples as code, queries, commands, input → output.
 - **Deploy & access (always):** environments + deployment diagram · how to deploy and roll back (exact commands/CI steps) · prerequisites (tools, versions, config names — never values) · how to access (URLs, schemas, roles, how to request) · how to check it's healthy. If the source doesn't define something: "Not defined in source — confirm with owner".
+- Decisions (what + why) and design risks (limitations go in the opening tabs).
 
-**User guide**
+**User guide** — anyone who uses the app or its output, UI or not; task-based, plain steps
 - Include whenever someone uses the app or its output (UI, dashboard, report, CLI, API, data consumers, emailed files); skip only if only the builders use it.
 - "How to <task>": numbered steps, what the user sees at each, an example per task.
 - UI: screen-flow diagram, `Element | What it does` table, `[Screenshot: <screen>]` only where words aren't enough. Non-UI: commands, requests/responses, which table/dashboard answers which question.
@@ -106,7 +86,7 @@ AskUserQuestion(questions=[
 - **Architect voice:** state decisions, not deliberation (no estimates, discussion, rejected options, or version history). Cover the important 20%; name the folder for the rest (`other helpers: utils/`).
 - **Only the major risks, assumptions, and gotchas** — the ones that could cause wrong data, outages, security problems, big cost, or a rewrite. Overview: max 3. Technical: max 5–10. Rank by impact.
 - **Banned:** intros/outros ("This document describes…", "In summary"), restating diagrams in prose, marketing words (robust, seamless, leverage), generic best-practice padding, emoji.
-- **No separate Other findings section in docs** — anything worth noting goes in "Known issues, assumptions, and decisions needed" (last section).
+- **No Other findings section inside a document** (the chat reply may have one) — anything worth noting goes in "Known issues, assumptions, and decisions needed" (last section).
 
 ## Diagrams
 Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then detail. Style, notation, and components: `references/html-style.md`; working examples: `references/example-components.html`.
@@ -144,7 +124,7 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 - **Design doc:** problem/goal + non-goals · current → proposed diagrams · `Component | Responsibility | Tech` · main flow + example · ER (if schemas change) · `Decision | Why` · risks with mitigation · rollout steps. Open questions only in drafts.
 - **Runbook:** what/when/owner + flow · healthy run (example output) · `Symptom | Cause | Fix (exact command)` top 5 · rerun/backfill commands.
 - **From a PDF/Word/slides:** what it is · overview diagram · key points grouped, a diagram per group with structure · a worked example · `Decision / requirement / number` table · top 3 gaps or contradictions.
-- **Data docs:** lineage · ER · `Object | Grain | Key | Written by` · `View | Built from | Rows` · per-model purpose/grain/PK/materialization/schedule + 3-row sample · business rules with input → output · DAG schedule, retries, backfill · roles and access (see `darshan-singh-meel-data-platform`).
+- **Data docs:** lineage · ER · `Object | Grain | Key | Written by` · `View | Built from | Rows` · per-model purpose/grain/PK/materialization/schedule + 3-row example (from tests/fixtures, else `illustrative`) · business rules with input → output · DAG schedule, retries, backfill · roles and access (see `darshan-singh-meel-data-platform`).
 - **Ported or rewritten code:** one developer page per `references/html-style.md` → "Ported or rewritten code".
 
 ## Formats
@@ -164,7 +144,7 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 1. Step 0 questions.
 2. Graph (if chosen) → else read sources with scripts first (CLAUDE.md data handling).
 3. Opus plans each document: sections, diagrams, examples.
-4. Build, then verify every name, number, command, and example against the source; render and screenshot every diagram.
+4. Build, then verify every name, number, command, and example against the source; render and screenshot every diagram (no renderer installed → ask once; if no, say "layout not visually checked").
 5. Trim: delete any bullet that isn't essential and any prose sentence left over.
 6. Read as the audience: Overview as a manager (no unexplained jargon) · Technical as a new engineer (could deploy and access from it alone) · User guide as a first-time user (every task doable without help).
 

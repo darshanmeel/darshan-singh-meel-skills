@@ -1,7 +1,7 @@
 # Apache Iceberg tables (Athena, Spark, Snowflake, others)
 
 - One catalog per environment (Glue, REST, or the platform's); every engine must use the same catalog for a table.
-- Hidden partitioning with transforms (`days(event_ts)`, `bucket(16, id)`); evolve partitions instead of rewriting tables.
+- Hidden partitioning with transforms (Athena `day(event_ts)`, Spark `days(event_ts)`; `bucket(16, id)`); evolve partitions instead of rewriting tables.
 - Schema evolution is by column ID: add/rename safely; never reuse a dropped column name for different data.
 - Upserts with `MERGE INTO`; choose copy-on-write (read-heavy) or merge-on-read (write-heavy) deliberately.
 - Maintenance on a schedule: compact data files, rewrite manifests, expire old snapshots, remove orphan files.

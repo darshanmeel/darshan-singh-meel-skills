@@ -15,4 +15,4 @@
 ## Deploy & access
 - DAGs deploy via CI (sync to the DAG bucket/repo or image build) — never edited on the server.
 - Connections/variables created through the secrets backend or IaC, documented by name.
-- Docs state: Airflow URL per environment, which roles can trigger/clear runs, how to backfill (`airflow dags backfill -s … -e … <dag_id>`).
+- Docs state: Airflow URL per environment, which roles can trigger/clear runs, how to backfill (3.x: `airflow backfill create --dag-id <id> --from-date … --to-date …`; 2.x: `airflow dags backfill -s … -e … <dag_id>`).

@@ -19,9 +19,9 @@
 - `unique` + `not_null` on every model's primary key (`dbt_utils.unique_combination_of_columns` for composite keys).
 - `relationships` only on critical foreign keys; `accepted_values` on status columns that drive logic.
 - 1–2 tests on the riskiest business rule. Don't test every column.
-- Use `severity: warn` or `where:` instead of deleting a failing test.
+- Never delete or weaken a failing test; `severity: warn` / `where:` only with a stated reason.
 
 ## Deploy & access
-- CI: `dbt build --select state:modified+` against a CI schema; prod runs from the orchestrator, not laptops.
-- Separate targets/profiles per environment; credentials from env vars or secrets, never in `profiles.yml` in the repo.
-- Use `grants:` config (or post-hooks) to grant to roles, not users.
+- CI against a CI schema: `dbt build --select state:modified+ --state <prod-manifest dir>` (+ `--defer`) if a manifest exists, else `--select <changed_model>+`. Prod runs from the orchestrator, not laptops.
+- Separate targets per environment; credentials from env vars or secrets, never in a committed `profiles.yml`. Verify without opening it: `git ls-files` + a script reporting key names / `env_var(` use only.
+- Grants via `grants:` config (or post-hooks).

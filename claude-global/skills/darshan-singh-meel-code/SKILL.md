@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-code
-description: Coding discipline for minimal, correct, secure, efficient changes with no AI slop. Use when writing, editing, debugging, or refactoring code — Python, SQL, dbt, Snowflake, Databricks/PySpark, Airflow, or anything else.
+description: Coding discipline for minimal, correct, secure, efficient changes with no AI slop. Use when writing, editing, debugging, or refactoring code — Python, SQL, dbt, Snowflake, Databricks/PySpark, Airflow, Azure Data Factory, Terraform, or anything else.
 ---
 
 # Minimal Coding Discipline
@@ -44,7 +44,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Never build SQL, shell commands, or paths from external input with string formatting; use parameters and proper quoting.
 - Validate external input where it enters the system. No unsafe deserialization (pickle, `yaml.load`) of untrusted data.
 - Least privilege for roles, service accounts, and permissions. No PII or secrets in logs.
-- Ask before anything destructive or hard to undo: dropping/replacing tables, deleting data or files, force-pushing, `--full-refresh` in production.
+- Ask before anything destructive or hard to undo: dropping/replacing tables, deleting data or files, force-pushing, `--full-refresh` outside dev.
 
 ## 6. Performance
 - Choose the right algorithm and data structure (set/dict lookups, not repeated scans).
@@ -60,10 +60,9 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - No comments or docstrings that restate the code; comments only explain *why*. No comments addressed to the user.
 - No placeholders, TODOs, "example usage" blocks, commented-out code, or unused parameters.
 - No new README, docs, or summary files unless asked.
-- Short, direct explanations.
 
 ## 8. Minimal tests, maximum coverage
-- Fewest tests that cover the most behavior. If 100 tests are possible, pick the few that would catch real bugs.
+- Fewest tests that cover the most behavior: the few that would catch real bugs.
 - Usually: main path, the most likely edge case, and the error path — ideally as one parametrized test.
 - Bug fix: one regression test that fails before and passes after.
 - Test behavior, not internals. Don't test the framework or library. Mock only slow/external things.
@@ -74,25 +73,24 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Need to check data (row counts, grain, old vs new)? → `darshan-singh-meel-notebook`: checks go in notebook cells; Claude never runs DDL/DML or `dbt run` — those go in the changes notebook for the user.
 - State upfront how success will be checked (test, command, query result, row count).
 - **Tests — changed code first, full suite on request:**
-  1. Run only the tests that cover the change: tests for the changed files/functions (graph `illustrates` edges if a graph exists, else by name/import), `pytest <files>` / `-k`, `dbt build --select state:modified+` (or the changed models `+`), the changed DAG's import test, `terraform validate`/`plan` for changed modules. Plus linter and type checker on changed files.
-  2. Then always ask once: "Run the full test suite in the background?" — Yes (Recommended) · No · Always this session. Yes/Always → run it as a background job and keep working; report pass/fail in one line when done (failures with `file:line`).
+  1. Run only the tests that cover the change: tests for the changed files/functions (graph `illustrates` edges if a graph exists, else by name/import), `pytest <files>` / `-k`, `dbt parse` (no connection); `dbt compile --no-introspect --select <changed_model>+` only if needed (add `--state <prod-manifest dir>` and `state:modified+` if a manifest exists), import/parse the changed DAG file (or the project's DagBag test if one exists), `terraform validate` for changed modules. Plus linter and type checker on changed files. plain `dbt compile`/`build`/`test` and `terraform plan` → command or changes notebook for the user.
+  2. Then ask once per change, unless "Always this session" was chosen (then run without asking): "Run the full test suite in the background?" — Yes (Recommended) · No · Always this session. Yes/Always → run it as a background job and keep working; report pass/fail in one line when done (failures with `file:line`).
   3. Report which tests ran (changed-only vs full) and what wasn't run.
 - Report what passed, what failed, and what wasn't verified. Don't say "done" when it isn't.
 
 ## 10. Knowledge graph
-- If `<reponame>-knowledge-graph/` exists (or `./.knowledge-graph` points to one), read its `index.md` first.
-- When done, end with the one-line update offer ("go" / "graph" / "no") — see `darshan-singh-meel-knowledge-graph`, section 5.
+- If the graph exists (folder or `./.knowledge-graph` pointer): read its `index.md` first; when done, end with the update offer ("Keep it updated" in `darshan-singh-meel-knowledge-graph`).
 
 ## 11. Larger tasks
 - Small steps, each leaving the code working. Check in when scope changes, a dependency is added, or many files are touched.
 - If the plan stops making sense, stop and say so.
 
 ## When to relax
-- Trivial edits: skip the ceremony and just do it.
 - Throwaway scripts/prototypes the user labels as such: favor speed, but never hide errors or hardcode secrets.
 - Explicit refactor/cleanup requests: the "surgical" rule applies to the requested scope.
 
 ## Final summary
+End of reply, in order: summary · Other findings · graph offer · `Skills:` line (always last).
 - **Changed:** files/models and what changed, one line each
 - **Why:** root cause or reasoning, one sentence
 - **Verified:** how it was checked and the result

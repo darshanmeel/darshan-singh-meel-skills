@@ -5,10 +5,10 @@
 - Check every join for fan-out. Aggregate or dedupe *before* joining.
 - Never use `DISTINCT` to hide duplicates from a bad join — fix the join.
 - NULL traps: `NOT IN` with a nullable subquery (use `NOT EXISTS`); `=` never matches NULL; `COUNT(col)` skips NULLs.
-- `LEFT JOIN` + `WHERE` filter on the right table = inner join. Put the filter in `ON`.
+- `LEFT JOIN` + `WHERE` filter on the right table = inner join. Put the filter in `ON` (except the anti-join `WHERE r.key IS NULL`).
 - `UNION ALL` unless dedup is intended.
 - Be explicit with integer division, decimal precision, and timezones.
-- Dedupe with `QUALIFY ROW_NUMBER() OVER (PARTITION BY key ORDER BY updated_at DESC, <tiebreaker>) = 1`.
+- Dedupe with `ROW_NUMBER() OVER (PARTITION BY key ORDER BY updated_at DESC, <tiebreaker>) = 1` — via `QUALIFY` where supported (Snowflake, Databricks), else a CTE filter.
 
 ## Minimal & readable
 - Explicit column lists; `SELECT *` only as a pass-through from the CTE above.
@@ -21,7 +21,7 @@
 - Filter and select columns early.
 - No functions on filter/join columns (`WHERE DATE(ts) = …`); use ranges so pruning works.
 - Avoid cross / non-equi joins on large tables unless required.
-- Prefer `GROUP BY key` over `DISTINCT` / `COUNT(DISTINCT)` on huge tables when equivalent.
+- On huge tables use `APPROX_COUNT_DISTINCT` (or the engine's equivalent) when an estimate is enough.
 - Partition window functions on the narrowest correct key.
 
 ## Security

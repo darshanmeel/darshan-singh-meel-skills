@@ -9,13 +9,13 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 ## Before
 - Read the code, its callers/downstream models, tests. Reuse project patterns (helpers, macros, operators, logging, tests).
 - Restate task in 1–2 lines. Data work → state grain + expected rows/shape.
-- Risky assumption or ambiguity → ask. Unclear requirements · many files · schema/interface change · several approaches → `darshan-singh-meel-ask-me` first. Clear/trivial → just do it.
-- Graph exists → read its `index.md`.
+- List assumptions; risky assumption or ambiguity → ask. Simplest approach; tradeoff only if it matters. Unclear requirements · many files · schema/interface change · several approaches → `darshan-singh-meel-ask-me` first. Clear/trivial → just do it.
+- Graph (folder or `./.knowledge-graph` pointer) exists → read its `index.md`.
 
 ## Write
 - Smallest correct change. 5 lines over 50. Finish: "can I delete any of this?" → delete.
 - Edit a line > add a function > add a file/model.
-- No speculative options, flags, future-proofing. Abstract only at 3 real uses. Stdlib over new dependency.
+- No speculative options, flags, future-proofing. Plain functions over new classes/layers; abstract only at 3 real uses. Stdlib over new dependency.
 - Touch only needed lines. No reformat, rename, reorder, "improve" nearby code. Match existing style.
 - Don't delete what you don't understand → flag it. Public interface change (signature, API, table/column, schema, DAG/task id) → only if required, call it out.
 - Remove your own debug code, temp files, dead code. Unrelated issues → mention, don't fix.
@@ -24,14 +24,14 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 - Edge cases: empty, NULL, zero, duplicates, boundaries, timezones, late data.
 - Root cause, not symptom. Reproduce first; cause in one line. No try/except, null check, retry, `DISTINCT`, sleep to hide errors.
 - Release resources on every path. Data writes and jobs idempotent.
-- No hardcoded secrets. No string-built SQL/shell/paths from input → parameters. Validate input at entry. No unsafe deserialization. Least privilege. No PII/secrets in logs.
-- Destructive or irreversible (drop/replace table, delete data/files, force-push, prod `--full-refresh`) → ask first.
-- Right data structure; no N+1; push heavy work to the engine; filter/select early. No premature optimisation.
+- No hardcoded secrets. No string-built SQL/shell/paths from input → parameters/quoting. Validate input at entry. No pickle/`yaml.load` on untrusted data. Least privilege. No PII/secrets in logs.
+- Destructive or irreversible (drop/replace table, delete data/files, force-push, `--full-refresh` outside dev) → ask first.
+- Right algorithm/data structure; no N+1; push heavy work to the engine; filter/select early; stream/limit over load-all. No premature optimisation, caching, parallelism.
 
 ## No slop
 - No single-use wrappers, managers, factories, interfaces.
 - No checks for impossible cases; no try/except around safe code; no unasked logging/prints/boilerplate.
-- Comments: why only; never addressed to the user. No placeholders, TODOs, commented-out code, unused params, unasked READMEs.
+- Comments: why only; never addressed to the user. No placeholders, TODOs, commented-out code, unused params, "example usage" blocks, unasked README/docs/summary files.
 
 ## Tests
 - Fewest tests, most behaviour: main path · likeliest edge · error path, ideally one parametrised test. Bug fix → one regression test (fails before, passes after).
@@ -41,9 +41,17 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 
 ## Verify · report
 - Data checks → `darshan-singh-meel-notebook` (cells only; DDL/DML/dbt run → user's changes notebook).
-- State success check up front (test, command, query, row count). 
-- Tests: 1. changed code only — tests for changed files/functions (graph `illustrates`, else name/import), `pytest <files>`/`-k`, `dbt build --select state:modified+`, changed DAG import, `terraform validate`/`plan`; lint + types on changed files. 2. Always ask once: "Run the full suite in the background?" Yes (rec) · No · Always this session → background job, keep working, one line when done (failures `file:line`). 3. Report changed-only vs full, and what didn't run.
-- Larger tasks: small working steps; check in on scope change, new dependency, many files; plan stops making sense → stop, say so.
-- Relax for: trivial edits · labelled throwaway scripts (still no hidden errors or secrets) · explicit refactor requests (surgical rule = requested scope).
+- State success check up front (test, command, query, row count).
+- Tests: 1. changed code only — tests for changed files/functions (graph `illustrates`, else name/import), `pytest <files>`/`-k`, `dbt parse` (no connection); `dbt compile --no-introspect --select <changed_model>+` only if needed (`--state <prod-manifest dir>` + `state:modified+` if a manifest exists), import/parse changed DAG file (or project's DagBag test), `terraform validate` (changed modules); lint + types on changed files. plain `dbt compile`/`build`/`test`, `terraform plan` → command or changes notebook for user. 2. Ask once per change, unless "Always this session" chosen (then run without asking): "Run the full suite in the background?" Yes (rec) · No · Always this session; Yes/Always → background job, keep working, one line when done (failures `file:line`). 3. Report changed-only vs full, and what didn't run.
+- Report passed · failed · not verified; never "done" when it isn't.
+
+## Larger tasks
+- Small working steps; check in on scope change, new dependency, many files; plan stops making sense → stop, say so.
+
+## Relax
+- Labelled throwaway scripts (still no hidden errors or secrets) · explicit refactor requests (surgical rule = requested scope).
+
+## Summary
+- End of reply, in order: summary · Other findings · graph offer · `Skills:` line (always last).
 - Summary: **Changed** (one line each) · **Why** (one line) · **Verified** · **Not verified / risks** · Other findings (optional).
-- Graph exists → end with the one-line `"go"` / `"graph"` / `"no"` offer.
+- Graph exists → end with the one-line `"go"` / `"graph"` / `"no"` offer ("Keep it updated" in knowledge-graph skill).

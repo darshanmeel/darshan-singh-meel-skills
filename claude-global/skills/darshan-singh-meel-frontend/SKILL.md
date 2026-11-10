@@ -1,20 +1,22 @@
 ---
 name: darshan-singh-meel-frontend
-description: Design and build app UIs — web apps, internal tools, data apps, dashboards, forms, landing pages — that are clear, distinctive, accessible, and minimal. Use when building a new UI or reshaping an existing one. Not for documentation pages (use darshan-singh-meel-docs).
+description: Design rules for app UIs — web apps, internal tools, data apps, dashboards, forms, landing pages — clear, distinctive, accessible, minimal: layout, type, color, states. Use when building a new UI or reshaping/restyling one — it sets how the UI looks and behaves; the building is done with darshan-singh-meel-frontend-react or darshan-singh-meel-streamlit (load both). Skip only for non-visual React/Streamlit work (bug fix, deploy, tests, caching). Not for documentation pages (use darshan-singh-meel-docs).
 ---
 
 # Frontend Design
 
 Design like a lead product designer: every visual choice comes from the subject and the user's job, not from a template. Build it with the same minimal-code rules as `darshan-singh-meel-code`.
 
+**Build with:** React → `darshan-singh-meel-frontend-react` · Streamlit → `darshan-singh-meel-streamlit` (+ `darshan-singh-meel-streamlit-snowflake` when hosted in Snowflake). This skill stays the design rules.
+
 ## Start from the subject
 - Name the product, the user, and the one main job of the screen before designing. If unclear, propose them and confirm (one question).
 - Follow the project's existing design system, components, and tokens if there is one. Don't invent a second style.
-- Use real content from the brief or source data; realistic placeholder data otherwise (never lorem ipsum, never foo/bar).
+- Use content from the brief; otherwise realistic synthetic data shaped by the schema (never lorem ipsum, never foo/bar).
 - The first thing users see should be the most important thing for their job: the key number, the main action, the live data.
 
 ## Plan before building (short)
-Write a compact plan, check it against the brief, then build:
+Show a compact plan in a few lines, check it against the brief, then build without waiting. Existing design system → skip Color and Type; plan Layout only.
 - **Color:** 4–6 named hex values with roles (ground, surface, ink, accent, status).
 - **Type:** 1–2 families with clear roles and a type scale; body line length < ~80 characters.
 - **Layout:** one-sentence concept + a small ASCII wireframe; alignment rules.
@@ -54,8 +56,7 @@ Write a compact plan, check it against the brief, then build:
 - Simplest stack that fits the project: plain HTML/CSS/JS for small tools; the project's framework (React, etc.) or data-app framework (e.g. Streamlit) when already in use.
 - CSS: design tokens as custom properties; low, flat selector specificity so rules don't fight; no unused styles.
 - Few components, few files; no UI library added for one widget.
-- Output to local files in the project folder only — never publish an artifact or hosted page.
 
 ## Finish with a self-critique
 - Look at the result (screenshot if available) at desktop and mobile width.
-- Remove one unnecessary decoration. Fix anything that misaligns, overflows, or reads as a default.
+- Remove any decoration that carries no meaning. Fix anything that misaligns, overflows, or reads as a default.

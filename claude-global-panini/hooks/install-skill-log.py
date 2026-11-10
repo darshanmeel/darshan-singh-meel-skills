@@ -1,14 +1,22 @@
 # Adds the skill-usage hook to ~/.claude/settings.json, keeping existing settings.
-import json, os
+# Matcher Skill|Read: Python starts after every Read; log-skill.py drops non-skill paths.
+import json, os, sys
 
 path = os.path.expanduser("~/.claude/settings.json")
-settings = json.load(open(path)) if os.path.exists(path) else {}
+os.makedirs(os.path.dirname(path), exist_ok=True)
+text = open(path, encoding="utf-8-sig").read() if os.path.exists(path) else ""
+settings = json.loads(text) if text.strip() else {}
+python = sys.executable.replace("\\", "/")
 entry = {"matcher": "Skill|Read",
-         "hooks": [{"type": "command", "command": 'python3 "$HOME/.claude/hooks/log-skill.py"'}]}
-post = settings.setdefault("hooks", {}).setdefault("PostToolUse", [])
-if entry in post:
+         "hooks": [{"type": "command", "command": f'"{python}" "$HOME/.claude/hooks/log-skill.py"'}]}
+hooks = settings.get("hooks") or {}
+settings["hooks"] = hooks
+post = hooks.get("PostToolUse") or []
+hooks["PostToolUse"] = post
+if "log-skill.py" in json.dumps(post):
     print("already installed")
 else:
     post.append(entry)
-    json.dump(settings, open(path, "w"), indent=2)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(settings, f, indent=2, ensure_ascii=False)
     print("added skill-usage hook to", path)

@@ -13,11 +13,10 @@
 - `lifecycle { prevent_destroy = true }` on stateful resources (databases, buckets, storage accounts, Snowflake databases).
 - Read the plan for `-/+` (replace) and `destroy` — flag them explicitly.
 - Bring existing resources in with `import`, don't recreate. Fix drift in code, never in the console.
-- No secrets in `.tf`/`.tfvars` committed; read from the secrets manager or CI variables; mark outputs `sensitive`.
+- No secrets in `.tf`/`.tfvars` committed; read from the secrets manager or CI variables; mark outputs `sensitive`. Never open `*.tfvars`: a committed one is flagged by path (`git ls-files`).
 
 ## Data platform specifics
 - Manage Snowflake roles, grants, warehouses, databases, and Databricks workspaces, catalogs, grants, cluster policies as code.
-- Grants to roles/groups, not users.
 - Storage: encryption, public-access block, versioning, lifecycle rules set in code (see `cloud-storage.md`).
 
 ## Checks

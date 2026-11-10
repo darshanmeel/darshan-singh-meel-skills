@@ -10,7 +10,7 @@ Built by `templates/build.py` from a spec (`templates/spec.md`) — applies all 
 - **Fully readable and printable with JavaScript off;** JS only adds enhancements.
 
 ## Zoom levels — one question each
-- **L0 overview:** people, systems, inputs, outputs, numbered interactions. ≤ ~7 boxes, readable in ~10 seconds.
+- **L0 overview:** people, systems, inputs, outputs, numbered interactions. 3–7 boxes, readable in ~10 seconds.
 - **L1 flow:** swimlanes per person/system, numbered steps, loops, decisions. The default for anything that happens in order.
 - **L2 architecture / code map:** frames per platform or entry on the left with calls left → right, real names.
 - **L3 step-by-step:** numbered main path, decision diamonds, failure branches, exact values per step.
@@ -55,13 +55,15 @@ Every diagram: a one-line key beside it and a one-line "Notice:" caption.
 - Token colours added at build time (work without JS). SQL one clause per line; CSV as a table.
 
 **Data journey** — one record through a pipeline
-- 3–5 stage cards left → right, each a small `field | value` table.
+- 3–5 stage cards left → right (≥ 240px each; > 3 stages wrap to a second row), each a small `field | value` table.
 - Changed value = amber cell, `old` struck through → `new` in green; calculated values in purple.
-- One line under each stage: what the step did. Values never wrap mid-word.
+- One line under each stage: what the step did. Long values wrap.
 
 **Opening tab box** — every document: tabs Does · Doesn't · Limitations · Top issues right after the title; CSS-only radio tabs, first tab open, all panels shown in print.
 
-**Example cards** — 2–4 per important rule or flow, same IN / OUT shape: typical, then edge / rejected / failure cases that behave differently.
+**Status badges** — only for values starting "Confirmed" or "Not verified".
+
+**Example cards** — per important rule or flow (Overview 2–6; else at least typical + one edge or failure), ≥ 260px, values wrap, same IN / OUT shape: typical, then edge / rejected / failure cases that behave differently.
 
 **ER diagram** — data model only
 - Entity cards: table name (mono), schema label, grain as subtitle, key columns with `PK` / `FK` badges, long column lists summarised (`+ 31 business columns`).
@@ -90,20 +92,16 @@ Every diagram: a one-line key beside it and a one-line "Notice:" caption.
 
 ## Building diagrams
 - Boxes absolutely positioned on a fixed canvas (grid-aligned, gaps ≥ 40px); arrows in one inline SVG layer, straight or right-angled, never crossing a box.
-- Built by a small build script kept next to the HTML, injecting each diagram between `<!--map:NAME-->` … `<!--/map:NAME-->` so it can be regenerated.
-- **Tools, best available first** (use what's installed; ask before installing anything):
-  1. Node/JavaScript — `elkjs`/`dagre` auto-layout for big graphs, `mermaid-cli` to SVG, D3 for charts, Playwright to screenshot.
-  2. Python — the build script lays out boxes; Graphviz `dot -Tsvg` for dense graphs; matplotlib for charts.
-  3. Hand-written SVG/CSS.
+- Laid out by `templates/build.py` only (stdlib Python): long names wrap after `_ . / -`, same height across a row, fan-out > 4 → one arrow into a group frame. Need something it can't draw → ask before changing it.
 - Output is always static SVG/HTML in the page, restyled to this palette — never rendered at view time.
 - Tables, lists, and bars use normal flex/grid layout.
 
 ## Checks before finishing
-- Text never overflows or touches a border: size boxes from the longest label (~7.5px per mono character at 12px, plus padding) or shorten it; tags sit inside the padding.
-- Canvas ≤ 1000px wide — no horizontal scroll; split into two diagrams instead.
-- Arrows never cross boxes or labels; parallel lines ≥ 20px apart; labels ≥ 12px, 2–4 words.
+- Text never overflows or touches a border: the build wraps long names; extreme identifiers get a middle ellipsis, full name in `tip`; tags sit inside the padding.
+- Diagram ≤ 1020px wide — wider fails the build; split into a sub-flow.
+- Arrows never cross boxes or labels; parallel lines ≥ 20px apart; labels ≥ 12px, ≤ 3 words.
 - Every example is in a proper format (table, pretty JSON, formatted SQL, command block).
-- Render and screenshot at 100% and in print preview; fix overlap, wrapping, empty space.
+- `templates/check.py` prints 0 `LAYOUT` lines; then one screenshot at 100% and in print preview.
 
 ## Ported or rewritten code (old → exact copy → new)
 One developer page:

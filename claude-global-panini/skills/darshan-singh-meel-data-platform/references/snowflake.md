@@ -2,7 +2,7 @@
 
 ## Queries & storage
 - Check the query profile before scaling a warehouse: spilling, poor pruning, exploding joins.
-- No `SELECT *` on wide tables — cost is per column scanned.
+- No `SELECT *` on wide tables — columnar storage: fewer columns = less I/O and runtime.
 - `MERGE` for upserts; `QUALIFY` for dedupe; VARIANT paths cast explicitly (`col:field::string`), `FLATTEN` for arrays.
 - Clustering keys only on very large tables with measured pruning gain — they cost credits.
 - Transient tables for staging/scratch (no Fail-safe cost).
@@ -19,7 +19,6 @@
 - Service users: `TYPE = SERVICE`, key-pair auth, one per pipeline, default role and warehouse set.
 - Masking policies for PII columns; row access policies for row-level restrictions.
 - Network policies for service users where possible.
-- Manage roles and grants in Terraform or versioned SQL scripts, not by hand.
 
 ## Cost
 - Warehouse `AUTO_SUSPEND` ~60s, `AUTO_RESUME` on; separate warehouses per workload (load, transform, BI).

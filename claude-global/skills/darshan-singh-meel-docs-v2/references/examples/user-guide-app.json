@@ -1,6 +1,12 @@
 {"type":"user-guide","app_types":["ui"],"title":"Expense app — user guide","subtitle":"web app · all names and values illustrative",
 "tabs":{"does":["Submit an expense with a receipt","Track approval status","Approve team expenses (managers)"],"doesnt":["Pay expenses — finance does","Change approved expenses"],"limitations":["Receipts up to 10 MB, PDF or image"],"top_issues":[{"text":"Totals over 10,000 may round wrongly","status":"Not verified"}]},
 "sections":{
+"How it reaches you":[{"type":"flow","numbered":false,"nodes":[
+  {"id":"u","label":"You","kind":"person","col":0,"row":0},
+  {"id":"l","label":"Company sign-in","sub":"same login as email","col":1,"row":0},
+  {"id":"h","label":"Expense app","sub":"opens on Home","kind":"entry","col":2,"row":0}],
+ "edges":[{"from":"u","to":"l","label":"open link"},{"from":"l","to":"h"}]},
+ {"type":"bullets","items":["Browser only; no install.","Managers see an extra **Approvals** tab."]}],
 "Screens":[{"type":"flow","id":"A","title":"screen map","numbered":false,"nodes":[
   {"id":"h","label":"Home","sub":"my expenses","kind":"entry","col":0,"row":0},
   {"id":"n","label":"New expense","sub":"form + receipt","col":1,"row":0,"see":"B"},
@@ -14,12 +20,12 @@
   {"id":"s","label":"Submitted","tag":"STEP 3","out":"status Pending","col":3,"row":0},
   {"id":"e","label":"Error shown","kind":"fail","sub":"field highlighted","col":2,"row":1}],
  "edges":[{"from":"f","to":"r"},{"from":"r","to":"c"},{"from":"c","to":"s","label":"yes"},{"from":"c","to":"e","label":"no","fail":true}]},
- {"type":"table","cols":["Element","What it does"],"rows":[["+ New","Opens New expense"],["Status chip","Pending · Approved · Rejected"]]}],
+ {"type":"elements","rows":[["+ New","Opens New expense"],["Status chip","Pending · Approved · Rejected"]]}],
 "How to submit an expense":[{"type":"steps","cols":["Step","You see"],"rows":[["Click **+ New**","empty form"],["Fill amount, date, category","fields turn green"],["Attach receipt, click **Submit**","Expense detail, status Pending"]]},
  {"type":"examples","items":[{"case":"typical","title":"Taxi receipt","in":[["amount","32.50"],["category","Travel"]],"out":"Status Pending","source":"tests/e2e/submit.spec.ts:12-40"},{"case":"rejected","title":"Receipt too large","in":[["receipt","14 MB PDF"]],"out":"\"File too large (max 10 MB)\"","source":"tests/e2e/submit.spec.ts:60-75"}]}],
 "How to approve team expenses":[{"type":"steps","cols":["Step","You see"],"rows":[["Open **Approvals**","team expenses, oldest first"],["Click **Approve** or **Reject**","status changes; employee gets an e-mail"]]},
  {"type":"examples","items":[{"case":"typical","title":"Approve","in":"Pending expense, 32.50","out":"Approved","synthetic":true},{"case":"edge","title":"Own expense","in":"manager's own expense","out":"Approve button hidden","source":"src/approvals/rules.ts:22"}]}],
-"Errors and messages":[{"type":"table","cols":["Message","Means","Do"],"rows":[["File too large (max 10 MB)","receipt over limit","compress or photograph it"],["Date in the future","date after today","fix the date"]]}],
-"Problems and fixes":[{"type":"table","cols":["Problem","What to do"],"rows":[["Approvals tab missing","you're not a manager — ask your admin"]]}],
+"Errors and messages":[{"type":"messages","rows":[["File too large (max 10 MB)","receipt over limit","compress or photograph it"],["Date in the future","date after today","fix the date"]]}],
+"Problems and fixes":[{"type":"problems","rows":[["Approvals tab missing","you're not a manager — ask your admin"]]}],
 "Who to contact":[{"type":"bullets","items":["App support: Not defined in source — confirm with owner."]}],
 "Known issues, assumptions, and decisions needed":[{"type":"issues","items":[{"sev":"Question","see":"a total over 10,000 off by a cent","do":"known issue — enter the exact receipt total in the note","status":"Not verified"}]}]}}

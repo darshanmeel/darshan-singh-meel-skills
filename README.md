@@ -1,14 +1,50 @@
 # Claude Code global setup
 
-- `claude-global/`: full version · `claude-global-panini/`: compressed (sūtra) version. Install one: zip its contents and `unzip -o <zip> -d ~/.claude/`, then restart Claude Code.
-- Skill-usage log (once): `python3 ~/.claude/hooks/install-skill-log.py`
+Global rules, skills and hooks for Claude Code, in two equivalent versions:
+
+| Folder | Version |
+|---|---|
+| `claude-global/` | Full, plain English |
+| `claude-global-panini/` | Same rules, compressed (sūtra style: heading sets scope, `→` = then, `·` = list, "rec" = recommended) |
+
+## Install (pick one version)
+```bash
+cp -r claude-global/. ~/.claude/          # or claude-global-panini/.
+python ~/.claude/hooks/install-skill-log.py   # once; python3 on macOS/Linux
+```
+Restart Claude Code. Existing files with the same names in `~/.claude/` are overwritten.
+
+## What's inside
+- **`CLAUDE.md`** — global rules: push back, reply style, questions, local-only output, data handling and secrets, read-only querying, network, code style, skill routing, knowledge graph, model choice.
+- **`hooks/`**
+  - `log-skill.py` — logs every skill used to `~/.claude/skill-usage.log`.
+  - `install-skill-log.py` — adds that hook to `~/.claude/settings.json` (UTF-8 safe, idempotent).
+- **`skills/`** (all prefixed `darshan-singh-meel-`)
+
+| Skill | Job |
+|---|---|
+| `code` | Write, edit, debug, refactor; changed tests first, then offer the full suite |
+| `review` | Code review: correctness, security, performance, design, AI slop |
+| `docs` | Diagram-first docs (v1): READMEs, KT, design docs, user guides, runbooks |
+| `docs-v2` | Docs built from a JSON spec by a fixed builder — same structure every run |
+| `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
+| `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
+| `data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance |
+| `ask-me` | Plan unclear tasks in short question rounds |
+| `frontend` | UI design rules: layout, type, colour, states, accessibility |
+| `frontend-react` | Build React + TypeScript UIs with a component library; React components for Streamlit |
+| `streamlit` | Build, test, deploy Streamlit apps (any host) |
+| `streamlit-snowflake` | Streamlit in Snowflake: privileges, deploy, runtimes, limits, cost |
+
+## Optional dependencies
 - Notebook cells run by Claude: `pip install nbclient nbformat ipykernel` + a database connector.
 - Docs v2 layout check: `pip install playwright && playwright install chromium`.
-- `docs-v2-upgrade-prompt.md`: paste into Claude Code (Opus) to finish docs-v2 (what's done, what's pending).
-- `context-prompt.md`: paste at the start of a new chat so Claude knows this whole setup, my preferences, and what is pending.
+
+## Prompts
+- `context-prompt.md` — paste at the start of a new chat so Claude knows this setup, the preferences, and what is pending.
+- `docs-v2-upgrade-prompt.md` — the spec the docs-v2 upgrade was built from.
 
 ## License
-
 Licensed under either of
 
 - Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))

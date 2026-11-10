@@ -17,7 +17,7 @@
 ## Unity Catalog & RBAC
 - Three-level names `catalog.schema.table`; no DBFS mounts or hardcoded workspace paths.
 - Catalog per environment (e.g. `dev`, `prod`) or per domain — follow the project.
-- Grant to groups, never users: `GRANT SELECT ON SCHEMA prod.sales TO \`analysts\``. Readers also need `USE CATALOG` and `USE SCHEMA`.
+- Grants: `GRANT SELECT ON SCHEMA prod.sales TO \`analysts\``. Readers also need `USE CATALOG` and `USE SCHEMA`.
 - Jobs run as **service principals**, not personal accounts.
 - Cloud storage via storage credentials + external locations — no access keys in code.
 - Cluster policies to limit size/cost; row filters and column masks for sensitive data.

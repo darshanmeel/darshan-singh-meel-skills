@@ -1,0 +1,4 @@
+# Review reports (local only)
+/reviews/
+# Python bytecode from test runs
+__pycache__/

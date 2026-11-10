@@ -5,12 +5,10 @@ people → groups (identity provider) → functional roles → access roles → 
 pipelines → service identity (one per pipeline) → functional role → access roles
 ```
 
-- Grant to groups/roles, never individual users.
 - Separate read, write, and admin; default to read-only.
 - One service identity per pipeline/app, scoped to exactly what it touches.
 - Environment isolation: dev roles can't write prod; prod write only for pipeline identities.
 - Sensitive data: masking / row filters at the platform level, not in each query.
-- All grants as code (Terraform or versioned scripts), reviewed in PRs.
 - No shared passwords; no long-lived keys; rotate what can't be avoided.
 - Docs state for each environment: roles, what they can do, who gets them, how to request.
 
