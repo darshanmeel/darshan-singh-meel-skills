@@ -1,0 +1,574 @@
+{
+ "type": "technical",
+ "app_types": [
+  "cli"
+ ],
+ "title": "tabkit",
+ "subtitle": "Python library + CLI · on call · CSV/JSON/INI files → records",
+ "tabs": {
+  "does": [
+   "Parses CSV, JSON and INI files into a list of records",
+   "Checks records against a schema",
+   "Converts between formats from the command line",
+   "Loads third-party formats as plugins (entry points)"
+  ],
+  "doesnt": [
+   "Doesn't stream large files: a file is read whole",
+   "Doesn't write to databases"
+  ],
+  "limitations": [
+   "Files up to the memory of the machine",
+   "INI sections become records, nested keys are not supported"
+  ],
+  "top_issues": [
+   {
+    "text": "A plugin error at import stops every command",
+    "status": "Confirmed (test)"
+   }
+  ]
+ },
+ "sections": {
+  "Overview": [
+   {
+    "type": "text",
+    "text": "A small library with a CLI: `tabkit parse`, `convert` and `validate` read a file, turn it into records and print or check them."
+   },
+   {
+    "type": "flow",
+    "id": "A",
+    "title": "library area",
+    "nodes": [
+     {
+      "id": "f",
+      "label": "input file",
+      "col": 0,
+      "row": 0,
+      "kind": "data"
+     },
+     {
+      "id": "cli",
+      "label": "tabkit CLI",
+      "col": 1,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "core",
+      "label": "parsers + validator",
+      "col": 2,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "out",
+      "label": "stdout",
+      "col": 3,
+      "row": 0,
+      "kind": "data"
+     }
+    ],
+    "edges": [
+     {
+      "from": "f",
+      "to": "cli"
+     },
+     {
+      "from": "cli",
+      "to": "core"
+     },
+     {
+      "from": "core",
+      "to": "out"
+     }
+    ],
+    "numbered": false
+   }
+  ],
+  "Architecture": [
+   {
+    "type": "flow",
+    "id": "B",
+    "title": "package area",
+    "nodes": [
+     {
+      "id": "cli",
+      "label": "src/tabkit/cli.py",
+      "col": 0,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "reg",
+      "label": "src/tabkit/registry.py",
+      "col": 1,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "parsers",
+      "label": "src/tabkit/parsers/",
+      "col": 2,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "val",
+      "label": "src/tabkit/validate.py",
+      "col": 2,
+      "row": 1,
+      "kind": "code"
+     }
+    ],
+    "edges": [
+     {
+      "from": "cli",
+      "to": "reg",
+      "label": "format"
+     },
+     {
+      "from": "reg",
+      "to": "parsers"
+     },
+     {
+      "from": "cli",
+      "to": "val"
+     }
+    ],
+    "numbered": false
+   },
+   {
+    "type": "components",
+    "rows": [
+     [
+      "CLI",
+      "argument parsing, exit codes 0 / 1 / 2",
+      "`src/tabkit/cli.py`"
+     ],
+     [
+      "Registry",
+      "format name → parser; built-ins at import, plugins from entry points",
+      "`src/tabkit/registry.py`"
+     ],
+     [
+      "Parsers",
+      "one module per format: `load`, `dump`",
+      "`src/tabkit/parsers/`"
+     ],
+     [
+      "Validator",
+      "required fields and types",
+      "`src/tabkit/validate.py`"
+     ]
+    ]
+   },
+   {
+    "type": "api",
+    "rows": [
+     [
+      "`load(path, fmt=None)`",
+      "list of row dicts",
+      "`FormatError` (unknown format), `ParseError`",
+      "`src/tabkit/__init__.py`"
+     ],
+     [
+      "`dump(rows, path, fmt=None)`",
+      "None (writes the file)",
+      "`FormatError`",
+      "`src/tabkit/__init__.py`"
+     ],
+     [
+      "`validate(rows, schema)`",
+      "list of issues (empty = valid)",
+      "never",
+      "`src/tabkit/validate.py`"
+     ]
+    ]
+   },
+   {
+    "type": "bullets",
+    "items": [
+     "Add a format: a module with `load` and `dump`, registered as an entry point in `tabkit.formats`; check with `tabkit parse sample.<ext>`."
+    ]
+   }
+  ],
+  "Commands": [
+   {
+    "type": "flow",
+    "id": "C",
+    "title": "tabkit area",
+    "nodes": [
+     {
+      "id": "cli",
+      "label": "tabkit",
+      "col": 0,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "parse",
+      "label": "parse",
+      "col": 1,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "convert",
+      "label": "convert",
+      "col": 1,
+      "row": 1,
+      "kind": "code"
+     },
+     {
+      "id": "validate",
+      "label": "validate",
+      "col": 1,
+      "row": 2,
+      "kind": "code"
+     }
+    ],
+    "edges": [
+     {
+      "from": "cli",
+      "to": "parse"
+     },
+     {
+      "from": "cli",
+      "to": "convert"
+     },
+     {
+      "from": "cli",
+      "to": "validate"
+     }
+    ],
+    "numbered": false
+   },
+   {
+    "type": "commands",
+    "rows": [
+     [
+      "`tabkit parse <file>`",
+      "print records as JSON",
+      "`tabkit parse users.csv`"
+     ],
+     [
+      "`tabkit convert <file> --to <format>`",
+      "print in another format",
+      "`tabkit convert users.csv --to json`"
+     ],
+     [
+      "`tabkit validate <file> --schema <file>`",
+      "list issues; exit 1 if any",
+      "`tabkit validate users.csv --schema users.schema.json`"
+     ]
+    ],
+    "source": "src/tabkit/cli.py:20-75"
+   }
+  ],
+  "Main flows": [
+   {
+    "type": "h3",
+    "text": "Parse: file → records → JSON on stdout"
+   },
+   {
+    "type": "steps",
+    "rows": [
+     [
+      "Pick the parser by file extension",
+      "`users.csv`",
+      "csv parser"
+     ],
+     [
+      "Read and split the file",
+      "file text",
+      "list of records"
+     ],
+     [
+      "Print as JSON",
+      "records",
+      "stdout, exit 0"
+     ]
+    ]
+   },
+   {
+    "type": "flow",
+    "id": "D",
+    "nodes": [
+     {
+      "id": "cli",
+      "label": "tabkit parse",
+      "col": 0,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "reg",
+      "label": "get_parser",
+      "col": 1,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "load",
+      "label": "csv.load",
+      "col": 2,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "out",
+      "label": "stdout",
+      "col": 3,
+      "row": 0,
+      "kind": "data"
+     }
+    ],
+    "edges": [
+     {
+      "from": "cli",
+      "to": "reg"
+     },
+     {
+      "from": "reg",
+      "to": "load"
+     },
+     {
+      "from": "load",
+      "to": "out"
+     }
+    ]
+   },
+   {
+    "type": "examples",
+    "items": [
+     {
+      "case": "typical",
+      "title": "two-row CSV",
+      "expect": "one record per row, header as keys",
+      "in": "name,age\\nAda,36\\nAlan,41",
+      "out": "[{\"name\": \"Ada\", \"age\": \"36\"}, {\"name\": \"Alan\", \"age\": \"41\"}]",
+      "source": "tests/test_csv.py:8"
+     },
+     {
+      "case": "failure",
+      "title": "unknown extension",
+      "expect": "exit 2 with the known formats",
+      "in": [
+       [
+        "file",
+        "users.xml"
+       ]
+      ],
+      "out": [
+       [
+        "exit",
+        "2"
+       ],
+       [
+        "stderr",
+        "unknown format 'xml': csv, ini, json"
+       ]
+      ],
+      "source": "tests/test_cli.py:30"
+     }
+    ]
+   },
+   {
+    "type": "h3",
+    "text": "Validate: file + schema → issues, exit 0/1"
+   },
+   {
+    "type": "steps",
+    "rows": [
+     [
+      "Parse the file",
+      "`users.csv`",
+      "records"
+     ],
+     [
+      "Check each record against the schema",
+      "records, schema",
+      "issues"
+     ],
+     [
+      "Print issues, set the exit code",
+      "issues",
+      "exit 0 (none) or 1"
+     ]
+    ]
+   },
+   {
+    "type": "flow",
+    "id": "E",
+    "nodes": [
+     {
+      "id": "cli",
+      "label": "tabkit validate",
+      "col": 0,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "parse",
+      "label": "parse file",
+      "col": 1,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "check",
+      "label": "validate_records",
+      "col": 2,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "out",
+      "label": "issues + exit code",
+      "col": 3,
+      "row": 0,
+      "kind": "data"
+     }
+    ],
+    "edges": [
+     {
+      "from": "cli",
+      "to": "parse"
+     },
+     {
+      "from": "parse",
+      "to": "check"
+     },
+     {
+      "from": "check",
+      "to": "out"
+     }
+    ]
+   },
+   {
+    "type": "examples",
+    "items": [
+     {
+      "case": "typical",
+      "title": "all fields present",
+      "expect": "no issues, exit 0",
+      "in": [
+       [
+        "record",
+        "name=Ada, age=36"
+       ]
+      ],
+      "out": [
+       [
+        "exit",
+        "0"
+       ]
+      ],
+      "source": "tests/test_validate.py:10"
+     },
+     {
+      "case": "rejected",
+      "title": "missing required field",
+      "expect": "one issue per missing field, exit 1",
+      "in": [
+       [
+        "record",
+        "name=Ada"
+       ]
+      ],
+      "out": [
+       [
+        "exit",
+        "1"
+       ],
+       [
+        "issue",
+        "row 1: age is required"
+       ]
+      ],
+      "source": "tests/test_validate.py:22"
+     }
+    ]
+   }
+  ],
+  "Configuration": [
+   {
+    "type": "config",
+    "rows": [
+     [
+      "`[project.entry-points.\"tabkit.formats\"]`",
+      "none / per plugin package",
+      "`pyproject.toml:30`",
+      "where plugins register a format"
+     ]
+    ]
+   }
+  ],
+  "Deploy and environments": [
+   {
+    "type": "steps",
+    "rows": [
+     [
+      "Install for development",
+      "`pip install -e .[test]`",
+      "developer machine"
+     ],
+     [
+      "Test",
+      "`pytest`",
+      "CI, every push"
+     ],
+     [
+      "Build and publish",
+      "`python -m build` then upload the wheel",
+      "CI, on a release tag"
+     ]
+    ]
+   }
+  ],
+  "Tests": [
+   {
+    "type": "tests",
+    "rows": [
+     [
+      "`tests/test_csv.py`",
+      "CSV load and dump"
+     ],
+     [
+      "`tests/test_cli.py`",
+      "commands, exit codes"
+     ],
+     [
+      "`tests/test_validate.py`",
+      "required fields, types"
+     ]
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "sev": "Should",
+      "kind": "missing_handling",
+      "issue": "A plugin that fails at import stops every command",
+      "where": "src/tabkit/registry.py:30",
+      "impact": "CLI unusable until the plugin is removed",
+      "status": "Confirmed (test)",
+      "fix": "catch the error per plugin and warn",
+      "test": "`tests/test_cli.py`"
+     },
+     {
+      "sev": "Question",
+      "kind": "unclear_intent",
+      "issue": "INI parser ignores duplicate keys silently",
+      "where": "src/tabkit/parsers/ini.py:18",
+      "impact": "last value wins without notice",
+      "status": "Not verified",
+      "fix": "warn on duplicates"
+     }
+    ]
+   }
+  ]
+ }
+}

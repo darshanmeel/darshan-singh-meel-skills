@@ -1,38 +1,347 @@
-{"type":"overview","app_types":["pipeline"],"title":"Orders pipeline","subtitle":"for business and newcomers · all names and values illustrative",
-"tabs":{"does":["Gives analysts one current, flat copy of every order","Updates once a day, before 06:00","Splits each order into lines, discounts and shipments"],
- "doesnt":["Doesn't take orders — the order system does","Doesn't build reports — analysts do","Doesn't manage who can read the data"],
- "limitations":["Data is up to one day old","A failed run is not retried automatically"],
- "top_issues":[{"text":"Some shipments can go missing when two share a number","status":"Confirmed"},{"text":"Removed order lines may still be counted","status":"Not verified"}]},
-"sections":{
-"What it is and why":[{"type":"labels","items":[
-  ["What","Collects every order update from the order system and keeps only the latest version of each order."],
-  ["Why","So nobody has to read raw order messages to answer a question about an order."],
-  ["Key idea","The newest update of an order replaces the older one; older updates that arrive late are ignored."],
-  ["Result","Simple tables analysts can read directly, ready every morning."]]}],
-"How it works":[{"type":"flow","nodes":[
-  {"id":"a","label":"Order system","kind":"confirm","col":0,"row":0},
-  {"id":"b","label":"Daily run","sub":"05:00","kind":"entry","bullets":["keeps the latest version"],"col":1,"row":0},
-  {"id":"c","label":"Current orders","sub":"lines, discounts, shipments","kind":"data","col":2,"row":0},
-  {"id":"d","label":"Analysts","kind":"person","col":2,"row":1}],
- "edges":[{"from":"a","to":"b","label":"updates","dashed":true},{"from":"b","to":"c","label":"latest version"},{"from":"c","to":"d","label":"read","dashed":true}],
- "key":"pill = people · dashed grey = outside this system","notice":"one run a day; nothing happens in between."},
- {"type":"steps","cols":["Step","What happens"],"rows":[["Order system sends updates","every change to an order, all day"],["Daily run at 05:00","keeps the latest version of each order"],["Analysts read","current orders, lines, discounts and shipments by 06:00"]]}],
-"Who uses it":[{"type":"people","rows":[["Analysts","Current orders, lines, discounts, shipments"],["Data team","An e-mail when a run fails"]]}],
-"Example":[{"type":"text","text":"One order, from payment to the analyst's table."},
- {"type":"journey","stages":[
-  {"title":"Customer pays","sub":"Mon 09:14","rows":[["order","O-1001"],["status","PAID"],["amount","49.90"]],"what":"Order system sends an update."},
-  {"title":"Daily run","sub":"Tue 05:00","changed":true,"rows":[["order","O-1001"],["status","PAID"],["version","latest of 2"]],"what":"Latest version kept."},
-  {"title":"Analyst sees it","sub":"Tue 06:00","rows":[["order","O-1001"],["status","PAID"],["lines","2"]],"what":"Ready in the morning."}],
-  "source":"from tests/test_load_orders.py:40-62, in business words"},
- {"type":"examples","items":[
-  {"case":"typical","title":"Newer update","in":"O-1001 paid, then shipped","out":"Analysts see SHIPPED","source":"tests/test_load_orders.py:92-118"},
-  {"case":"edge","title":"Old update arrives late","in":"an older update of O-1001 arrives after a newer one","out":"Nothing changes; the newer one stays","source":"tests/test_load_orders.py:65-90"}]}],
-"Value and cost":[{"type":"labels","items":[["Value","One trusted, current copy instead of many raw messages."],["Cost","One small daily compute job; no always-on servers."]]}],
-"Schedule":[{"type":"schedule","rows":[["Production","Every day at 05:00","Data ready by about 06:00"]]}],
-"Design and operational risks":[{"type":"bullets","items":["Up to one day behind the order system.","One failed step holds back the whole morning update."]}],
-"Words used":[{"type":"terms","items":[["Order","one purchase, with one or more lines"],["Line","one product in an order"],["Latest version","the most recent update of an order"]]}],
-"Known issues, assumptions, and decisions needed":[{"type":"issues","items":[
-  {"issue":"Shipments sharing a number — one can go missing","impact":"shipment counts may be low","status":"Confirmed"},
-  {"issue":"Lines removed later may still show","impact":"line counts may be high","status":"Not verified"}]},
- {"type":"assumptions","rows":[["The 05:00 start is local time","Data may be ready an hour earlier or later than stated"]]},
- {"type":"decisions","rows":[["Should removed lines disappear?","remove · keep","Remove, after the data team confirms","Line counts may stay high"]]}]}}
+{
+ "type": "overview",
+ "app_types": [
+  "pipeline"
+ ],
+ "title": "Orders pipeline",
+ "subtitle": "Spark on a job scheduler · daily · order events → sales views",
+ "tabs": {
+  "does": [
+   "Gives analysts one current, flat copy of every order",
+   "Updates once a day, before 06:00",
+   "Splits each order into lines, discounts and shipments"
+  ],
+  "doesnt": [
+   "Doesn't take orders — the order system does",
+   "Doesn't build reports — analysts do",
+   "Doesn't manage who can read the data"
+  ],
+  "limitations": [
+   "Data is up to one day old",
+   "A failed run is not retried automatically"
+  ],
+  "top_issues": [
+   {
+    "text": "Some shipments can go missing when two share a number",
+    "status": "Confirmed (code)"
+   },
+   {
+    "text": "Removed order lines may still be counted",
+    "status": "Not verified"
+   }
+  ]
+ },
+ "sections": {
+  "What it is and why": [
+   {
+    "type": "labels",
+    "items": [
+     [
+      "What",
+      "Collects every order update from the order system and keeps only the latest version of each order."
+     ],
+     [
+      "Why",
+      "So nobody has to read raw order messages to answer a question about an order."
+     ],
+     [
+      "Key idea",
+      "The newest update of an order replaces the older one; older updates that arrive late are ignored."
+     ],
+     [
+      "Result",
+      "Simple tables analysts can read directly, ready every morning."
+     ]
+    ]
+   }
+  ],
+  "How it works": [
+   {
+    "type": "flow",
+    "nodes": [
+     {
+      "id": "a",
+      "label": "Order system",
+      "kind": "confirm",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "b",
+      "label": "Daily run",
+      "sub": "05:00",
+      "kind": "entry",
+      "bullets": [
+       "keeps the latest version"
+      ],
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "c",
+      "label": "Current orders",
+      "sub": "lines, discounts, shipments",
+      "kind": "data",
+      "col": 2,
+      "row": 0
+     },
+     {
+      "id": "d",
+      "label": "Analysts",
+      "kind": "person",
+      "col": 2,
+      "row": 1
+     }
+    ],
+    "edges": [
+     {
+      "from": "a",
+      "to": "b",
+      "label": "updates",
+      "dashed": true
+     },
+     {
+      "from": "b",
+      "to": "c",
+      "label": "latest version"
+     },
+     {
+      "from": "c",
+      "to": "d",
+      "label": "read",
+      "dashed": true
+     }
+    ],
+    "key": "pill = people · dashed grey = outside this system",
+    "notice": "one run a day; nothing happens in between.",
+    "id": "A",
+    "title": "daily run, 3 steps"
+   },
+   {
+    "type": "steps",
+    "cols": [
+     "Step",
+     "What happens"
+    ],
+    "rows": [
+     [
+      "Order system sends updates",
+      "every change to an order, all day"
+     ],
+     [
+      "Daily run at 05:00",
+      "keeps the latest version of each order"
+     ],
+     [
+      "Analysts read",
+      "current orders, lines, discounts and shipments by 06:00"
+     ]
+    ]
+   }
+  ],
+  "Who uses it": [
+   {
+    "type": "people",
+    "rows": [
+     [
+      "Analysts",
+      "Current orders, lines, discounts, shipments"
+     ],
+     [
+      "Data team",
+      "An e-mail when a run fails"
+     ]
+    ]
+   }
+  ],
+  "Example": [
+   {
+    "type": "text",
+    "text": "One order, from payment to the analyst's table. All names and values in this example are illustrative."
+   },
+   {
+    "type": "journey",
+    "stages": [
+     {
+      "title": "Customer pays",
+      "sub": "Mon 09:14",
+      "rows": [
+       [
+        "order",
+        "O-1001"
+       ],
+       [
+        "status",
+        "PAID"
+       ],
+       [
+        "amount",
+        "49.90"
+       ]
+      ],
+      "what": "Order system sends an update."
+     },
+     {
+      "title": "Daily run",
+      "sub": "Tue 05:00",
+      "changed": true,
+      "rows": [
+       [
+        "order",
+        "O-1001"
+       ],
+       [
+        "status",
+        "PAID"
+       ],
+       [
+        "version",
+        "latest of 2"
+       ]
+      ],
+      "what": "Latest version kept."
+     },
+     {
+      "title": "Analyst sees it",
+      "sub": "Tue 06:00",
+      "rows": [
+       [
+        "order",
+        "O-1001"
+       ],
+       [
+        "status",
+        "PAID"
+       ],
+       [
+        "lines",
+        "2"
+       ]
+      ],
+      "what": "Ready in the morning."
+     }
+    ],
+    "source": "from tests/test_load_orders.py:40-62, in business words",
+    "id": "B",
+    "title": "one order, 3 stages"
+   },
+   {
+    "type": "examples",
+    "items": [
+     {
+      "case": "typical",
+      "title": "Newer update",
+      "expect": "A later update replaces the earlier one",
+      "in": "O-1001 paid, then shipped",
+      "out": "Analysts see SHIPPED",
+      "source": "tests/test_load_orders.py:92-118"
+     },
+     {
+      "case": "edge",
+      "title": "Old update arrives late",
+      "expect": "An older update never overwrites a newer one",
+      "in": "an older update of O-1001 arrives after a newer one",
+      "out": "Nothing changes; the newer one stays",
+      "source": "tests/test_load_orders.py:65-90"
+     }
+    ]
+   }
+  ],
+  "Value and cost": [
+   {
+    "type": "labels",
+    "items": [
+     [
+      "Value",
+      "One trusted, current copy instead of many raw messages."
+     ],
+     [
+      "Cost",
+      "One small daily compute job; no always-on servers."
+     ]
+    ]
+   }
+  ],
+  "Schedule": [
+   {
+    "type": "schedule",
+    "rows": [
+     [
+      "Production",
+      "Every day at 05:00",
+      "Data ready by about 06:00"
+     ]
+    ]
+   }
+  ],
+  "Design and operational risks": [
+   {
+    "type": "bullets",
+    "items": [
+     "Up to one day behind the order system.",
+     "One failed step holds back the whole morning update."
+    ]
+   }
+  ],
+  "Words used": [
+   {
+    "type": "terms",
+    "items": [
+     [
+      "Order",
+      "one purchase, with one or more lines"
+     ],
+     [
+      "Line",
+      "one product in an order"
+     ],
+     [
+      "Latest version",
+      "the most recent update of an order"
+     ]
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "issue": "Shipments sharing a number — one can go missing",
+      "impact": "shipment counts may be low",
+      "status": "Confirmed (code)",
+      "sev": "Must",
+      "kind": "data_loss"
+     },
+     {
+      "issue": "Lines removed later may still show",
+      "impact": "line counts may be high",
+      "status": "Not verified",
+      "sev": "Must",
+      "kind": "wrong_result"
+     }
+    ]
+   },
+   {
+    "type": "assumptions",
+    "rows": [
+     [
+      "The 05:00 start is local time",
+      "Data may be ready an hour earlier or later than stated"
+     ]
+    ]
+   },
+   {
+    "type": "decisions",
+    "rows": [
+     [
+      "Should removed lines disappear?",
+      "remove · keep",
+      "Remove, after the data team confirms",
+      "Line counts may stay high"
+     ]
+    ]
+   }
+  ]
+ }
+}

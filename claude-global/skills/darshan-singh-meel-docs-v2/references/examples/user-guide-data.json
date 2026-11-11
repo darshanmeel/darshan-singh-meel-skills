@@ -1,23 +1,364 @@
-{"type":"user-guide","app_types":["pipeline"],"title":"Orders data — user guide","subtitle":"4 read-only views in export.sales · all names and values illustrative",
-"tabs":{"does":["Find an order and its lines","See discounts and shipments per line","Tell current from deleted orders"],"doesnt":["Change data","Keep old versions of an order"],"limitations":["Refreshed daily by 06:00","Join keys are not enforced — always join on all of them"],"top_issues":[{"text":"A shipment can be missing when two share a number","status":"Confirmed"}]},
-"sections":{
-"How it reaches you":[{"type":"flow","nodes":[{"id":"a","label":"Order system","kind":"confirm","col":0,"row":0},{"id":"b","label":"Daily run","sub":"05:00","kind":"entry","col":1,"row":0},{"id":"c","label":"export.sales","sub":"4 views","kind":"data","col":2,"row":0}],"edges":[{"from":"a","to":"b","dashed":true},{"from":"b","to":"c"}],"notice":"one update per day."}],
-"What answers what":[{"type":"flow","id":"A","title":"view map","numbered":false,"nodes":[
-  {"id":"o","label":"orders","tag":"START HERE","sub":"1 row per order + status","kind":"entry","col":0,"row":0},
-  {"id":"l","label":"order_lines","sub":"1 row per line","col":1,"row":0,"see":"B"}],
- "edges":[{"from":"o","to":"l","label":"order_id + status"}],"key":"arrow = join key · ▸ = opens the next level"},
- {"type":"flow","id":"B","title":"below order_lines","parent":["A","order_lines"],"numbered":false,"nodes":[
-  {"id":"l","label":"order_lines","col":0,"row":0},{"id":"d","label":"line_discounts","col":1,"row":0},{"id":"s","label":"shipments","col":1,"row":1}],
- "groups":[{"label":"One per line item","nodes":["d","s"]}],
- "edges":[{"from":"l","to":"d","label":"line_no"},{"from":"l","to":"s","label":"line_no"}],"key":"every join also needs order_id + status"},
- {"type":"table","cols":["View","Answers","Join on"],"rows":[["`orders`","status, amount, dates","top level"],["`order_lines`","products and quantities","order_id, status"],["`line_discounts`","discount codes per line","order_id, status, line_no"],["`shipments`","carrier and dates per line","order_id, status, line_no"]]},
- {"type":"h3","text":"Columns every view has"},{"type":"bullets","items":["`order_id` and `status`: the join keys; always join on both."]}],
-"How to find an order and its lines":[{"type":"steps","cols":["Step","You see"],"rows":[["Query `orders` by `order_id`","one row per status"],["Join `order_lines` on order_id + status","one row per line"]]},
- {"type":"io","label":"SQL","lang":"sql","input":"SELECT o.order_id, o.status, l.line_no, l.sku\nFROM export.sales.orders o\nJOIN export.sales.order_lines l\n  ON l.order_id = o.order_id\n AND l.status = o.status\nWHERE o.order_id = 'O-1001';","result_title":"2 rows","result":{"cols":["order_id","status","line_no","sku"],"rows":[["O-1001","PAID",1,"SKU-7"],["O-1001","PAID",2,"SKU-9"]],"synthetic":[1]},"source":"row 1 from tests/test_explode_lines.py:30-48"}],
-"How to tell deleted orders":[{"type":"steps","cols":["Step","You see"],"rows":[["Query `orders` by `order_id`","the order, one row per status"],["Look at `deleted_at`","empty = current · a date = deleted"]]},
- {"type":"journey","stages":[{"title":"Order","rows":[["order_id","O-1001"],["deleted_at",null]]},{"title":"Customer deleted","changed":true,"rows":[["order_id","O-1001"],{"field":"deleted_at","old":"NULL","value":"2026-04-01"}]}],"source":"tests/test_load_orders.py:120-140"},
- {"type":"bullets","items":["Filled `deleted_at` = deleted; the row stays."]}],
-"When data is fresh":[{"type":"schedule","rows":[["prod","Daily at 05:00","Ready by about 06:00"]]}],
-"Problems and fixes":[{"type":"problems","rows":[["Order appears several times","One row per status — filter `status`"],["Rows multiply after a join","Join on all keys in the table above"]]}],
-"Who to contact":[{"type":"bullets","items":["Data owner: Not defined in source — confirm with owner."]}],
-"Known issues, assumptions, and decisions needed":[{"type":"issues","items":[{"sev":"Must","see":"a line with fewer shipments than expected","do":"known issue — report the order_id to the data team","status":"Confirmed"}]}]}}
+{
+ "type": "user-guide",
+ "app_types": [
+  "pipeline"
+ ],
+ "title": "Orders data — user guide",
+ "subtitle": "SQL views · refreshed daily · order system → 4 views in export.sales",
+ "tabs": {
+  "does": [
+   "Find an order and its lines",
+   "See discounts and shipments per line",
+   "Tell current from deleted orders"
+  ],
+  "doesnt": [
+   "Change data",
+   "Keep old versions of an order"
+  ],
+  "limitations": [
+   "Refreshed daily by 06:00",
+   "Join keys are not enforced — always join on all of them"
+  ],
+  "top_issues": [
+   {
+    "text": "A shipment can be missing when two share a number",
+    "status": "Confirmed (code)"
+   }
+  ]
+ },
+ "sections": {
+  "How it reaches you": [
+   {
+    "type": "flow",
+    "nodes": [
+     {
+      "id": "a",
+      "label": "Order system",
+      "kind": "confirm",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "b",
+      "label": "Daily run",
+      "sub": "05:00",
+      "kind": "entry",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "c",
+      "label": "export.sales",
+      "sub": "4 views",
+      "kind": "data",
+      "col": 2,
+      "row": 0
+     }
+    ],
+    "edges": [
+     {
+      "from": "a",
+      "to": "b",
+      "dashed": true
+     },
+     {
+      "from": "b",
+      "to": "c"
+     }
+    ],
+    "notice": "one update per day.",
+    "id": "A",
+    "title": "daily export, 2 steps"
+   }
+  ],
+  "What answers what": [
+   {
+    "type": "flow",
+    "id": "B",
+    "title": "sales views area",
+    "numbered": false,
+    "nodes": [
+     {
+      "id": "o",
+      "label": "orders",
+      "tag": "START HERE",
+      "sub": "1 row per order + status",
+      "kind": "entry",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "l",
+      "label": "order_lines",
+      "sub": "1 row per line",
+      "col": 1,
+      "row": 0,
+      "see": "C"
+     }
+    ],
+    "edges": [
+     {
+      "from": "o",
+      "to": "l",
+      "label": "order_id + status"
+     }
+    ],
+    "key": "arrow = join key · ▸ = opens the next level"
+   },
+   {
+    "type": "flow",
+    "id": "C",
+    "title": "inside order_lines",
+    "parent": [
+     "B",
+     "order_lines"
+    ],
+    "numbered": false,
+    "nodes": [
+     {
+      "id": "l",
+      "label": "order_lines",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "d",
+      "label": "line_discounts",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "s",
+      "label": "shipments",
+      "col": 1,
+      "row": 1
+     }
+    ],
+    "groups": [
+     {
+      "label": "One per line item",
+      "nodes": [
+       "d",
+       "s"
+      ]
+     }
+    ],
+    "edges": [
+     {
+      "from": "l",
+      "to": "d",
+      "label": "line_no"
+     },
+     {
+      "from": "l",
+      "to": "s",
+      "label": "line_no"
+     }
+    ],
+    "key": "every join also needs order_id + status"
+   },
+   {
+    "type": "table",
+    "cols": [
+     "View",
+     "Answers",
+     "Join on"
+    ],
+    "rows": [
+     [
+      "`orders`",
+      "status, amount, dates",
+      "top level"
+     ],
+     [
+      "`order_lines`",
+      "products and quantities",
+      "order_id, status"
+     ],
+     [
+      "`line_discounts`",
+      "discount codes per line",
+      "order_id, status, line_no"
+     ],
+     [
+      "`shipments`",
+      "carrier and dates per line",
+      "order_id, status, line_no"
+     ]
+    ]
+   },
+   {
+    "type": "h3",
+    "text": "Columns every view has"
+   },
+   {
+    "type": "bullets",
+    "items": [
+     "`order_id` and `status`: the join keys; always join on both."
+    ]
+   }
+  ],
+  "How to find an order and its lines": [
+   {
+    "type": "steps",
+    "cols": [
+     "Step",
+     "You see"
+    ],
+    "rows": [
+     [
+      "Query `orders` by `order_id`",
+      "one row per status"
+     ],
+     [
+      "Join `order_lines` on order_id + status",
+      "one row per line"
+     ]
+    ]
+   },
+   {
+    "type": "io",
+    "label": "SQL",
+    "lang": "sql",
+    "input": "SELECT o.order_id, o.status, l.line_no, l.sku\nFROM export.sales.orders o\nJOIN export.sales.order_lines l\n  ON l.order_id = o.order_id\n AND l.status = o.status\nWHERE o.order_id = 'O-1001';",
+    "result_title": "2 rows",
+    "result": {
+     "cols": [
+      "order_id",
+      "status",
+      "line_no",
+      "sku"
+     ],
+     "rows": [
+      [
+       "O-1001",
+       "PAID",
+       1,
+       "SKU-7"
+      ],
+      [
+       "O-1001",
+       "PAID",
+       2,
+       "SKU-9"
+      ]
+     ],
+     "synthetic": [
+      1
+     ]
+    },
+    "source": "row 1 from tests/test_explode_lines.py:30-48"
+   }
+  ],
+  "How to tell deleted orders": [
+   {
+    "type": "steps",
+    "cols": [
+     "Step",
+     "You see"
+    ],
+    "rows": [
+     [
+      "Query `orders` by `order_id`",
+      "the order, one row per status"
+     ],
+     [
+      "Look at `deleted_at`",
+      "empty = current · a date = deleted"
+     ]
+    ]
+   },
+   {
+    "type": "journey",
+    "stages": [
+     {
+      "title": "Order",
+      "rows": [
+       [
+        "order_id",
+        "O-1001"
+       ],
+       [
+        "deleted_at",
+        null
+       ]
+      ]
+     },
+     {
+      "title": "Customer deleted",
+      "changed": true,
+      "rows": [
+       [
+        "order_id",
+        "O-1001"
+       ],
+       {
+        "field": "deleted_at",
+        "old": "NULL",
+        "value": "2026-04-01"
+       }
+      ]
+     }
+    ],
+    "source": "tests/test_load_orders.py:120-140",
+    "id": "D",
+    "title": "one deleted order, 2 stages"
+   },
+   {
+    "type": "bullets",
+    "items": [
+     "Filled `deleted_at` = deleted; the row stays."
+    ]
+   }
+  ],
+  "When data is fresh": [
+   {
+    "type": "schedule",
+    "rows": [
+     [
+      "prod",
+      "Daily at 05:00",
+      "Ready by about 06:00"
+     ]
+    ]
+   }
+  ],
+  "Problems and fixes": [
+   {
+    "type": "problems",
+    "rows": [
+     [
+      "Order appears several times",
+      "One row per status — filter `status`"
+     ],
+     [
+      "Rows multiply after a join",
+      "Join on all keys in the table above"
+     ]
+    ]
+   }
+  ],
+  "Who to contact": [
+   {
+    "type": "bullets",
+    "items": [
+     "Data owner: Not defined in source — confirm with owner."
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "sev": "Must",
+      "kind": "data_loss",
+      "see": "a line with fewer shipments than expected",
+      "do": "known issue — report the order_id to the data team",
+      "status": "Confirmed (code)"
+     }
+    ]
+   }
+  ]
+ }
+}

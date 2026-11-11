@@ -1,7 +1,11 @@
-"""Render a built doc and list layout problems: overflow, overlaps, edges through boxes or on top of each other,
-cut-off values, too-wide diagrams and tables, sideways scroll.
+"""Render a built doc (every <details> opened) and list layout problems: overflow, overlaps, edges through boxes or
+on top of each other, more than 3 line crossings in one diagram, a crossing next to a label or number, a label or
+number <6 px from a line that is not its own, an arrow that ends on no box (a frame border, empty space), a decision
+box with fewer than 2 outgoing arrows, a name broken mid-word in a box or table, arrow ends crowding one box side
+(<12 px), lines crossing a group border <20 px apart, cut-off values, too-wide diagrams and tables, sideways scroll.
 
-Usage: python check.py <doc.html> [screenshot.png]
+Usage: python check.py <doc.html> [shots_dir]   (shots_dir: page.png plus one map-<n>.png per diagram, n from 1)
+Each LAYOUT line: `<section> | diagram <id> (map-<n>) | problem | text` (no diagram part outside diagrams).
 Exit 0 = clean. Needs Playwright (pip install playwright; playwright install chromium).
 """
 import sys
@@ -10,9 +14,14 @@ from pathlib import Path
 JS = r"""() => {
   const out = [], R = e => e.getBoundingClientRect();
   const hit = (a, b, pad = 1) => a.left < b.right - pad && b.left < a.right - pad && a.top < b.bottom - pad && b.top < a.bottom - pad;
-  const where = e => { const s = e.closest('section'); return s ? s.querySelector('h2').innerText : 'top'; };
+  // section, plus "diagram X (map-n)" inside a diagram: X = its id from the "Diagram X" heading, n = its map-<n>.png
+  const maps = [...document.querySelectorAll('.map')];
+  const did = m => { let x = m.closest('.map-wrap'); while (x && !(x.matches('h3') && x.id.startsWith('d-'))) x = x.previousElementSibling; return x ? x.id.slice(2) : '?'; };
+  const where = e => { const s = e.closest('section'), m = e.closest('.map'), h = s ? s.querySelector('h2').innerText : 'top';
+    return m ? `${h} | diagram ${did(m)} (map-${maps.indexOf(m) + 1})` : h; };
   const name = e => (e.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const add = (e, what) => out.push(`${where(e)} | ${what} | ${name(e)}`);
+  document.querySelectorAll('details').forEach(d => { d.open = true; });
   if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page | scrolls sideways | ');
   document.querySelectorAll('.map-wrap').forEach(w => { if (w.scrollWidth > w.clientWidth + 1) add(w, 'diagram wider than page'); });
   document.querySelectorAll('.map').forEach(m => {
@@ -45,15 +54,87 @@ JS = r"""() => {
       }
     });
     // edge on edge: parallel parts of two lines closer than 20px over more than 2px. Two lines leaving one point
-    // (ER: one key to two tables) may share their first part: that is a branch, not an overlap.
+    // (a fan-out, ER: one key to two tables) may share parts that start at one point: that is a branch, not an overlap.
     const segs = lines.map(pts => pts.slice(1).map((q, i) => [pts[i], q, i]));
+    const same = (a, b) => a && b && a[0][0] === b[0][0] && a[0][1] === b[0][1];
     segs.forEach((sa, k) => segs.slice(k + 1).forEach((sb, d) => sa.forEach(([p1, p2, i]) => sb.forEach(([q1, q2, j]) => {
       const ax = p1[1] === p2[1] ? 0 : p1[0] === p2[0] ? 1 : -1, bx = q1[1] === q2[1] ? 0 : q1[0] === q2[0] ? 1 : -1;
       if (ax < 0 || ax !== bx || Math.abs(p1[1 - ax] - q1[1 - ax]) >= 19) return;
-      if (!i && !j && p1[0] === q1[0] && p1[1] === q1[1]) return;
+      if (p1[0] === q1[0] && p1[1] === q1[1] && same(lines[k], lines[k + d + 1])) return;
       const lo = Math.max(Math.min(p1[ax], p2[ax]), Math.min(q1[ax], q2[ax])), hi = Math.min(Math.max(p1[ax], p2[ax]), Math.max(q1[ax], q2[ax]));
       if (hi - lo > 2) out.push(`${where(m)} | edges ${k + 1} and ${k + d + 2} run on top of each other (${Math.abs(p1[1 - ax] - q1[1 - ax])}px apart) | `);
     }))));
+    // lines crossing each other: a horizontal part of one line through a vertical part of another (ends excluded)
+    let crossings = 0;
+    const cpts = [];
+    segs.forEach((sa, k) => segs.slice(k + 1).forEach(sb => sa.forEach(([p1, p2]) => sb.forEach(([q1, q2]) => {
+      const [h, v] = p1[1] === p2[1] && q1[0] === q2[0] ? [[p1, p2], [q1, q2]] : q1[1] === q2[1] && p1[0] === p2[0] ? [[q1, q2], [p1, p2]] : [];
+      if (!h) return;
+      const y = h[0][1], x = v[0][0];
+      if (Math.min(h[0][0], h[1][0]) < x - 1 && x + 1 < Math.max(h[0][0], h[1][0]) && Math.min(v[0][1], v[1][1]) < y - 1 && y + 1 < Math.max(v[0][1], v[1][1])) { crossings++; cpts.push([o.left + x, o.top + y]); }
+    }))));
+    if (crossings > 3) out.push(`${where(m)} | ${crossings} line crossings in one diagram (max 3): reorder boxes, or move part into a sub-flow | `);
+    // a gap between a rectangle and a straight part of a line (page px)
+    const gap = (r, [[x1, y1], [x2, y2]]) => Math.hypot(Math.max(0, Math.min(x1, x2) - r.right, r.left - Math.max(x1, x2)),
+                                                        Math.max(0, Math.min(y1, y2) - r.bottom, r.top - Math.max(y1, y2)));
+    // a crossing right next to a label or number reads as the label belonging to the other line
+    cpts.forEach(([x, y]) => marks.forEach(l => { const r = R(l);
+      if (gap(r, [[x, y], [x, y]]) < 12) add(l, `line crossing ${Math.round(gap(r, [[x, y], [x, y]]))}px from this label or number: move boxes so lines cross away from labels`); }));
+    // a label or number close to another line (data-e = its own line, 1-based); lines leaving one point (a fan-out,
+    // ER: one key to several tables) are one branch, not another line
+    marks.forEach(l => { const own = +l.dataset.e - 1, r = R(l);
+      segs.forEach((ss, k) => { if (k === own || same(lines[k], lines[own])) return;
+        const d = Math.min(...ss.map(([p1, p2]) => gap(r, [[o.left + p1[0], o.top + p1[1]], [o.left + p2[0], o.top + p2[1]]])));
+        if (d < 6) add(l, `label/number of line ${own + 1} is ${Math.round(d)}px from line ${k + 1}`); }); });
+    // arrow ends crowding one side of a box or frame: two ends < 12px apart read as one (lines leaving one point branch)
+    const sides = {}, P = ([x, y]) => [o.left + x, o.top + y];
+    // every arrow ends on a box, a table or a fan-out frame: never on a group frame or in empty space
+    const ends = boxes.concat(frames).map(R), on = ([x, y]) => ends.some(r =>
+      (Math.abs(x - r.left) <= 2 || Math.abs(x - r.right) <= 2) && y > r.top - 2 && y < r.bottom + 2 ||
+      (Math.abs(y - r.top) <= 2 || Math.abs(y - r.bottom) <= 2) && x > r.left - 2 && x < r.right + 2);
+    lines.forEach((pts, k) => [pts[0], pts[pts.length - 1]].forEach((q, e) => { if (!on(P(q)))
+      out.push(`${where(m)} | line ${k + 1} ${e ? 'ends' : 'starts'} on no box (a frame border or empty space) | `); }));
+    // a decision needs one outgoing arrow per branch
+    m.querySelectorAll('.b.decision').forEach(b => { const r = R(b);
+      const n = lines.filter(pts => { const [x, y] = P(pts[0]); return x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2; }).length;
+      if (n < 2) add(b, `decision box with ${n} outgoing arrow${n === 1 ? '' : 's'} (want 2+, one per branch)`); });
+    lines.forEach((pts, k) => [pts[0], pts[pts.length - 1]].map(P).forEach(([x, y]) => boxes.filter(b => b.matches('.b')).concat(frames).forEach((b, i) => {
+      const r = R(b);
+      const s = Math.abs(x - r.left) <= 2 || Math.abs(x - r.right) <= 2 ? (y > r.top - 2 && y < r.bottom + 2 ? (Math.abs(x - r.left) <= 2 ? 'l' : 'r') : '')
+              : Math.abs(y - r.top) <= 2 || Math.abs(y - r.bottom) <= 2 ? (x > r.left - 2 && x < r.right + 2 ? (Math.abs(y - r.top) <= 2 ? 't' : 'b') : '') : '';
+      if (s) (sides[i + s] = sides[i + s] || []).push([s === 'l' || s === 'r' ? y : x, k, b]);
+    })));
+    Object.values(sides).forEach(v => v.forEach(([a, k, b], i) => v.slice(i + 1).forEach(([c, j]) => {
+      if (j !== k && Math.abs(a - c) < 12 && !same(lines[k], lines[j])) add(b, `arrows ${k + 1} and ${j + 1} end ${Math.round(Math.abs(a - c))}px apart on one side`);
+    })));
+    // lines crossing one border of a group frame closer than 20px (1px rounding allowed)
+    [...m.querySelectorAll('.grp:not(.fan)')].forEach(g => {
+      const r = R(g), cross = {t: [], b: [], l: [], r: []};
+      segs.forEach((ss, k) => ss.forEach(([p1, p2]) => {
+        const [x1, y1] = P(p1), [x2, y2] = P(p2);
+        if (x1 === x2 && x1 > r.left && x1 < r.right) [['t', r.top], ['b', r.bottom]].forEach(([s, v]) => { if (Math.min(y1, y2) < v && v < Math.max(y1, y2)) cross[s].push([x1, k]); });
+        if (y1 === y2 && y1 > r.top && y1 < r.bottom) [['l', r.left], ['r', r.right]].forEach(([s, v]) => { if (Math.min(x1, x2) < v && v < Math.max(x1, x2)) cross[s].push([y1, k]); });
+      }));
+      Object.values(cross).forEach(v => v.forEach(([a, k], i) => v.slice(i + 1).forEach(([c, j]) => {
+        if (j !== k && Math.abs(a - c) < 19) add(g, `edges ${k + 1} and ${j + 1} cross the group border ${Math.round(Math.abs(a - c))}px apart`);
+      })));
+    });
+  });
+  // a name broken mid-word: inside one text node (the build puts <wbr> between the parts it may break) two
+  // neighbouring letters on different lines; a break after a space or a hyphen is fine
+  document.querySelectorAll('.map .b, .map .ent, main td').forEach(el => {
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let t = w.nextNode(); t; t = w.nextNode()) {
+      const s = t.textContent, r = document.createRange();
+      let prev = null;
+      for (let i = 0; i < s.length; i++) {
+        r.setStart(t, i); r.setEnd(t, i + 1);
+        const box = r.getClientRects()[0];
+        if (!box || /\s/.test(s[i])) { prev = null; continue; }
+        if (prev && box.top > prev.top + 4 && !/[-\s]/.test(s[i - 1])) { add(el, `name broken mid-word: ${s.slice(Math.max(0, i - 12), i)}|${s.slice(i, i + 12)}`); break; }
+        prev = box;
+      }
+    }
   });
   document.querySelectorAll('main table:not(.res)').forEach(t => {
     if (t.closest('.map')) return;
@@ -67,7 +148,7 @@ JS = r"""() => {
 }"""
 
 
-def main(path, shot=None):
+def main(path, shots=None):
     sys.stdout.reconfigure(encoding="utf-8")  # box text can hold arrows; Windows consoles default to cp1252
     try:
         from playwright.sync_api import sync_playwright
@@ -77,9 +158,14 @@ def main(path, shot=None):
         b = p.chromium.launch()
         page = b.new_page(viewport={"width": 1200, "height": 900})
         page.goto(Path(path).resolve().as_uri())
-        problems = list(dict.fromkeys(page.evaluate(JS)))
-        if shot:
-            page.screenshot(path=shot, full_page=True)
+        problems = list(dict.fromkeys(page.evaluate(JS)))  # also opens every <details>
+        if shots:
+            Path(shots).mkdir(parents=True, exist_ok=True)
+            page.screenshot(path=str(Path(shots) / "page.png"), full_page=True)
+            maps = page.locator(".map")
+            for i in range(maps.count()):
+                maps.nth(i).screenshot(path=str(Path(shots) / f"map-{i + 1}.png"))
+            print(f"shots: {Path(shots).as_posix()}/page.png and {maps.count()} map-<n>.png (read every one)")
         b.close()
     for x in problems:
         print("LAYOUT", x)

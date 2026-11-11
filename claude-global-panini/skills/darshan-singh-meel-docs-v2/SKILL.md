@@ -1,25 +1,16 @@
 ---
 name: darshan-singh-meel-docs-v2
-description: Version 2 of darshan-singh-meel-docs — same questions and rules, but every HTML doc is built from a JSON spec by a fixed builder (fixed sections and a fixed block recipe per section, typed tables, sub-flows, rich boxes, required examples) and a fixed workflow, so runs look the same. Use only when the user asks for docs v2 / darshan-singh-meel-docs-v2. Writes diagram-first documentation (READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, summaries of PDFs/Word/slides). ALWAYS starts new docs by asking 4 questions in one prompt — which documents (Overview, Technical, User guide), format (HTML, Markdown, or Confluence), whether to build/update the knowledge graph first, and where example data comes from — then writes one self-contained file per document to ./generated-docs/ (refreshing existing docs after a change needs no questions). Use when asked to document, explain, or write up code, a repo, or a document.
+description: Docs v2 — darshan-singh-meel-docs on a fixed pipeline: shipped inventory script plans from the knowledge graph (inventory.json), fixed builder renders HTML from a JSON spec (fixed sections, typed tables, diagram ids/titles, required examples), fixed workflow → same code, same-looking docs. Any repo kind (pipelines, dbt, web APIs, UIs, CLIs, libraries, Terraform, ML/streaming, config/docs, monorepos). Only when the user asks for docs v2 / darshan-singh-meel-docs-v2: diagram-first READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, PDF/Word/slide summaries. New docs → ALWAYS 4 questions in one prompt (documents Overview/Technical/User guide · format HTML/Markdown/Confluence · graph first · example source) → one self-contained file per document in ./generated-docs/; refresh after a change → no questions.
 ---
 
 # Docs v2
-Max information, min words. Senior architect who can explain anything to anyone. CLAUDE.md applies.
-- Show, don't narrate: diagrams · flows · charts · tables · bullets carry content; no detailed story or prose paragraphs.
-- Every section → what · how · why (+ who · when · where where it applies).
+Max info, min words; senior architect, anyone follows.
+- Show (diagrams · tables · bullets · examples), no prose. Section → what · how · why (+ who · when · where). Global CLAUDE.md applies.
+- Exact rules · fields · columns · titles · ERROR/WARN → `references/templates/spec.md`; build enforces.
+- **`<skill>`** = this folder. Its scripts only, never a repo copy (WARN `inventory.json was written by templates X`).
 
-## 0. Ask first (new docs)
-Silent check: graph (`./<repo>-knowledge-graph/` or `./.knowledge-graph` pointer)? related repos / `_combined`? Then one prompt:
-| # | Header | Question | Multi | Options (rec first) |
-|---|---|---|---|---|
-| Q1 | Documents | Which documents? | yes | Overview (business) · Technical (engineers) · User guide (end users) |
-| Q2 | Format | Which format? | yes | HTML (rec) · Markdown · Confluence |
-| Q3 | Graph | Use the knowledge graph? | no | Exists: Update, then document from it (rec) · As is · Skip. None: Build first (rec) · Skip |
-| Q4 | Examples | Example data from? | no | Tests and docs, then code (rec) · I'll point to a folder · Illustrative |
-- All 4 asked every time. Answered = user said it in own words this session (or picked it in the graph skill's docs prompt). Recommendations, defaults, CLAUDE.md, skill text are never answers; HTML is only rec.
-- Self-check before writing any file: Documents, Format, Graph, Examples each asked or explicitly answered? No → stop, ask.
-
-Exact call — copy it:
+## Step 0 — ask, always
+Pre-check (silent): graph (`./<repo>-knowledge-graph/` or `./.knowledge-graph`)? related repos / system graph? → one prompt:
 ```
 AskUserQuestion(questions=[
  {header:"Documents", question:"Which documents should I create?", multiSelect:true,
@@ -32,171 +23,119 @@ AskUserQuestion(questions=[
  {header:"Examples", question:"Where should example data come from?", multiSelect:false,
   options:["Tests and docs, then derived from code (Recommended)","I'll point to a folder or file","Illustrative data"]}])
 ```
+- Answer = user's words this session, never defaults · recs · CLAUDE.md · skill text; self-check before any file.
+- Single doc <~30 pages → "Skip, read the document directly" first.
+- Related repos → next: **Scope** (multi) This repo (rec) · Whole system · Each related repo.
+- No answer → 3 docs · HTML · build/update graph · tests+docs, then code · this repo.
+- Build/update → `darshan-singh-meel-knowledge-graph` first. Skip → no inventory; plan + coverage unchecked (WARN); say so.
 
-- Small single document (<~30 pages) → Q3 first option "Skip, read the document directly" (rec).
-- Related repos → next prompt: Scope (multi) — This repo (rec) · Whole system · Each related repo.
-- No answer → all three · HTML · graph first · tests/docs then code · this repo.
-- Q3 build/update → run `darshan-singh-meel-knowledge-graph` first; write from the graph, check key steps in code.
+## Step 1 — inventory, never own
+- Repo root: `python <skill>/references/templates/inventory.py` → `generated-docs/_spec/inventory.json` + `facts.json`; prints `inventory (templates <ver>): …`. Same graph → same bytes.
+- No graph → stops: build, rerun. `WARN graph is stale` / graph commit ≠ HEAD → update, rerun. `note:` lines → reply "not checked".
+- **Plan = skeleton:** `profile` · `app_types` · required / not_applicable · `main_flows` (h3, order, `diagram`, `entry`, `boxes`) · `diagram_titles` · `how_tos` · `deploy` · `rerun_and_backfill` · `api` (library) · ER areas · coverage. Copy, never re-derive.
+- `facts.json`: 3 plan counts, yours kept. Other numbers → `{fact, value, how}`; `how` = one POSIX line, repo root (Git Bash).
+- Then `python <skill>/references/templates/inventory.py --check-facts` → 0 `MISMATCH` / `NOT RUN` before build.
 
-## Open with four tabs
-- Right after the title, before any diagram: tab box **Does · Doesn't · Limitations · Top issues**.
-  - Does (3–5): Overview business outcomes · Technical what components handle · User guide tasks.
-  - Doesn't (3–5): out of scope by design ("doesn't edit source data", "access managed by platform team").
-  - Limitations (real, ≤5): constraints inside scope ("daily 6 AM, not real-time", "reads cached 5 min", "uploads ≤50 MB"). Only here.
-  - Top issues (5–10, most important first): one line each + Confirmed / Not verified; Overview plain words, Technical may name components. Details in last section. None → "No known issues".
-- HTML: CSS-only radio tabs, Does open, work with JS off; print shows all four. Markdown/Confluence: four headed lists, same order (Confluence: tabs or expand macro if available).
-- Plain words in Overview, User guide; real component names in Technical.
+## Opening tabs
+- After title: **Does · Doesn't · Limitations · Top issues**.
+  - Does 3–5: outcomes (Overview) · components (Technical) · user tasks (User guide). Doesn't 3–5: out of scope by design. Limitations ≤5, real, in scope ("daily 06:00", "≤50 MB"), only here.
+  - Top issues = min(10, open Must + Should), review order, line + status, no `Fixed since review`; none → empty (build names others).
+- Subtitle `<stack> · <schedule> · <source> → <outputs>` (2 `·`, 1 `→`; none → "on demand").
+- Md/Confluence: 4 headed lists.
 
-## Describe; issues and decisions at the end
-- Body = what the system is and how it works. No bug findings, "confirmed errors", fix effort, "approve fixing".
-- Last section of every document: **Known issues, assumptions, and decisions needed** — full detail behind the Top issues tab.
-  - From: **one review only** — newest file in `reviews/` (several, unclear → ask) → spec `review`; build names it under the section + in stamp. Plus failing tests, graph `possible_issue` notes, Code-vs-docs conflicts, assumptions made while writing.
-  - Each labelled **Confirmed** (review/test proved) or **Not verified**. Never unverified as fact.
-  - Overview: every Top-issues item (WARN above ~12), plain words — what's affected, what it means ("per-app cost may be overstated; total is correct"). No paths, no fixes.
-  - Decisions needed (only if real): typed `decisions` `Decision | Options | Recommendation | If it waits` ("agent cost split · per reply / per session · per reply · splits differ by date range").
-  - Assumptions: typed `assumptions` `Assumption | Why it matters`.
-  - Technical: `issues` `Issue | Where (path:line) | Impact | Status | Suggested fix (1 line)`; optional `h3` "Unused files" + table.
-  - User guide: only what users hit — "If you see X, known issue — do Y".
-  - None → "No known issues".
-- Risks elsewhere = design/operational, not defects.
+## Last section: "Known issues, assumptions, and decisions needed"
+- Defects · effort · approvals only here; body = intended current behaviour.
+- Sources: **one review** in `review` (any `reviews/`; several + unclear → ask) · failing tests · graph `possible_issue` (Not verified) · code ≠ docs · assumptions.
+- **`sev`:** review order; Critical/High → Must, Medium → Should, rest → Other, questions → Question. No review → `kind` fixes `sev` (else ERROR): `security` · `data_loss` · `wrong_result` · `crash` = Must; `missing_handling` · `config` · `performance` · `cost` = Should; `unclear_intent` · `docs_conflict` = Question; `style` · `dead_code` · `docs` · `test_gap` = Other.
+- **Status:** `Confirmed (review)` · `Confirmed (test)` (test/run proved; `test` = `path::name` or command, else ERROR) · `Confirmed (code)` (cited code proves) · `Not verified` · `Fixed since review`. No review → not first/last. Made-up excerpt → `Not verified`.
+- Accuracy pass opens each Must/Should `where`: fixed → `Fixed since review`, out of Top issues, never Confirmed; `review X is older than the last code change` → every item.
+- Overview: top issues in plain words + reader impact, no paths. Technical: `Issue | Where (path:line) | Impact | Status | Suggested fix` (+ `unused`). User guide: user-hit only, "If you see X — do Y".
+- Names issue says missing → `absent: [names]` (no name check).
+- Optional `assumptions`, `decisions` (real). Nothing → "No known issues".
 
 ## Files
-- One self-contained file per document in `./generated-docs/`: `overview` · `technical` · `user-guide` (`.html`, `.md`, `.confluence.xhtml`).
-- Never combine, split into linked parts, or link to other docs. In-page TOC fine; long parts in `<details>`.
-- Tag every file: HTML `<meta name="generator" content="darshan-singh-meel-docs-v2">`; md/Confluence first line `<!-- generated by darshan-singh-meel-docs-v2 -->`.
-- Marker: `build.py` writes empty `.generated-by-darshan-singh-meel-docs` next to every output file; graph skips any folder holding it (copied/renamed folders stay skipped). md/Confluence only → create it yourself.
-- Version stamp under title (build): repo commit (`git rev-parse --short HEAD`, `+dirty`) · graph commit (graph `meta.json`) · review file used.
-- Git, asked once (first time `generated-docs/` is created): Committed (rec) · Git-ignored → `/generated-docs/` in `.gitignore` + 1-line comment. Folder exists = decided; never re-ask.
-- Scope whole system → from `_combined` → `../<name>-graphs/_combined/generated-docs/`. Each related repo → its graph → `../<name>-graphs/<repo>/generated-docs/` (+ copy in repo if chosen). Shared folder → This repo also → `../<name>-graphs/<this repo>/generated-docs/`. Copies into other repos → one yes. Started inside shared folder → no "This repo".
-- Refresh after a change ("go" or "update the docs") → only sections covering changed files, same documents/formats, no questions.
-  - Read `generated-docs/_spec/*.json` first; keep sections, diagram ids, box names, groups. New item → existing group/sub-flow; nothing else moves.
-  - Keep each file's tag; same rules, workflow, checks as new.
+- `./generated-docs/` (or user's): `overview.html` · `technical.html` · `user-guide.html` (+ `.md` / `.confluence.xhtml`), one self-contained file each; never combine, split, link.
+- Specs `generated-docs/_spec/<doc>.json`. Build adds generator (templates ver) · stamp (repo commit, graph commit or date + stale count, review) · `.generated-by-darshan-singh-meel-docs`. Md/Confluence: first line `<!-- generated by darshan-singh-meel-docs-v2 -->` + marker yourself.
+- First `generated-docs/` → ask once "Commit generated docs to git?" Committed (rec) · Git-ignored (`/generated-docs/` → `.gitignore`).
+- Whole system: `_combined` → `../<name>-graphs/_combined/generated-docs/`; each repo → `../<name>-graphs/<repo>/generated-docs/`; other repos → one yes.
+
+## Updating
+- "go" / "update the docs" → no Step 0; rerun inventory; edit sections on changed files only. Keep diagram ids · box names · groups; new item → its group; h3s + ER areas → new plan.
 
 ## Documents
-- Section names + order fixed; build refuses others, warns on missing required.
-- Recipe per section: allowed blocks in order, quantifiers `?` 0–1 · `*` 0+ · `+` 1+ (e.g. `text? flow steps?`). Exact strings: `references/templates/spec.md`. Wrong block/order → build error (recipe vs actual); missing minimum → WARN.
-- Free inside a recipe: item count (above minimum), boxes, steps, examples, sub-flows, wording.
-- Typed tables (`people` `schedule` `components` `rules` `config` `access` `environments` `symptoms` `tests` `choices` `elements` `endpoints` `commands` `events` `messages` `problems` `views` `assumptions` `decisions`): build writes headers, you give rows; row length checked. Columns: `spec.md`. Plain `table` only where a recipe allows.
-- `labels`: `[[label, text]]` → bullets with bold label.
+- **Overview** (business, newcomers): screen per section, no code names, top 20%. **Technical** (engineers): **complete**, row per inventory item in its typed table. **User guide** (app/output users): fixed frame, top 20% of tasks.
+- Names · order · recipes fixed (`spec.md`); free: counts above minimums · boxes · wording.
+- **Sections = plan only.** `not_applicable` → out (else ERROR); `required`, no source → "Not defined in source — confirm with owner".
 
-| Doc | For | Depth |
-|---|---|---|
-| Overview | business, newcomers | simple, no code names |
-| Technical | engineers | complete: run, change, debug |
-| User guide | anyone using app/output | fixed frame, sections kept by code |
+**Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 row, 3–7 boxes) · Who uses it · Example (journey + 2–6 cards, ≥1 non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0: input/actor → box per entry group per kind → output/store.
 
-**Overview** — simple, business words:
-| Section | Rule |
-|---|---|
-| What it is and why | `labels`, first four exactly What · Why · Key idea · Result |
-| How it works | one L0 `flow`: one row 3–7 boxes, people below, ≤2 bullets/box, no lanes/sub-flows → `steps?`. Box width by build from box count + longest arrow label (`box_w` refused): 7 boxes only without labels · 6 with 1–2 short words · 5 with ≤3 words |
-| Who uses it | `people` (Who · What they get) |
-| Example | `text?` `journey` (≥3 stages × 3 rows; warn >5 stages / 8 rows) `examples` (2–6 cards: typical + edge/failure) `bullets?` |
-| Value and cost | `labels`, each Value or Cost |
-| Schedule (batch) | `schedule` `bullets?` |
-| Design and operational risks | `bullets` (aim ≤3) |
-| Words used | `terms` |
-- No paths, code names, sub-flows. Stop here → still understands the whole.
+**Technical:** Overview · Architecture (L2 flow + `components`, box per top-level module/folder; library + `api` table Call · Returns · Raises · Where, row per `plan.api`) · plan's interface sections · Main flows · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
+- **Main flows:** per `main_flows` h3 (exact, order): `h3 steps flow* journey? examples io?`. Flow iff `diagram: true` (ERROR both ways), numbered; build titles it (`<entry>, N steps`, N = numbered arrows), no `title`. `steps` (Step · In · Out) ≥ half plan steps; row per numbered arrow, row k = arrow k. `code`/`entry` boxes = plan `boxes` or entry points; added step → plain box. Sub-flow iff box hides >5 steps or a decision; more flows per h3 only as sub-flows (`parent`). Wrong h3 → fix graph; else `h3_override {plan_h3: {title, why}}`.
+- **Coverage:** each `plan.coverage` item (incl. storage locations · business rules · processes), exact name, visible (box · step · row); `tip` uncounted; groups no `tip`. Long name → row. Several definitions → each, or count (`` `var.region` (4 modules) ``). Skip only `coverage_skip {name: why}`.
+- **Data model** (plan only: ≥2 tables/views/dbt models or any fk; else table in Architecture `components`): `er` per plan area, title `ER: <area>`, in order; `views` only if graph has views.
+- **Rules:** `rules` row per business_rule. **Operations** (plan only: pipeline · dbt · web API · streaming): h3s only `Rerun and backfill` (`rerun_and_backfill`) · exact `how_tos` (processes + `Run the tests`), plan order, each with steps. **Deploy:** each `plan.deploy` unit + `deploys` source in a steps/environments row; row per file kind (Dockerfiles one). **Configuration:** `Default (code) / deploy value`.
+- **Repeats:** box >4 out-arrows → build's "N children" frame; repeated pattern → group "Repeats for each …" + one sub-flow; each member in a row.
 
-**Technical** — complete (minimums only, no caps). All that apply, in order: Overview (`text? flow`) · Architecture (L2 `flow` + `components`) · interface slot(s) by app type — Job DAG and schedule · Screens and navigation · Endpoints · Commands · Events and messages — each `flow+` (A + sub-flows B, C…) → its typed table (`schedule` · `elements` · `endpoints` · `commands` · `events`) · Main flows · Data model (`er+` + `views`) · Business rules (`rules` + `examples?`) · Configuration (`config`) · Security and access (`access`) · Deploy and environments (`steps` + `environments`) · Operations (`symptoms`, optional `h3` "Rerun and backfill") · Performance and limits · Tests (`tests`) · Key decisions (`choices`).
-- Main flows: repeat per flow/job pattern: `h3` `text?` `steps?` `flow*` `journey?` `examples` `io*` `bullets?`.
-- Every job/endpoint/screen/command/table appears; similar ones grouped ("Repeats for each child of X").
-- Required, not in source → keep, "Not defined in source — confirm with owner".
+**User guide:** How it reaches you · Screens · What answers what · How to … (per real task) · When data is fresh · History and deletions · Errors and messages · Problems and fixes · Who to contact. No internals; tasks from screens · routes · commands · consumer queries.
 
-**User guide** — fixed frame, kept by code (minimums only):
-| Section | Keep when | Recipe |
-|---|---|---|
-| How it reaches you | always | `flow` `bullets?` `examples?` |
-| Screens | UI | `flow+` `elements` |
-| What answers what | data output · API | `text?` `flow*` `table`, optional `h3` "Columns every …" `bullets` |
-| How to <task> — one per task | always | `steps` → ≥1 of `io` · `examples` · `journey` → `bullets?` |
-| When data is fresh | batch data | `flow?` `schedule` or `table` `io?` `bullets?` |
-| History and deletions | versions, deletes, anonymisation | `text?` `journey` `bullets?` `io?` |
-| Errors and messages | UI · API · CLI | `messages` |
-| Problems and fixes · Who to contact | always | `problems` · `bullets` |
-- No internals. Tasks from real use: screens, buttons, routes, commands, consumer queries.
-- Last section, every document: `text?` `issues` `assumptions?` `decisions?`.
-
-## Writing
-- Bullets ≤~15 words, one fact. Tables for anything compared or repeated.
-- Diagram → bullets → example. ≥1 diagram per document.
-- Simplest correct explanation. Plain words; explain needed terms once ("idempotent (safe to rerun)"); spell out acronyms in Overview; analogy if it helps, never wrong.
-- Conclusion first. Concrete ("6 AM daily", not "periodic cadence").
-- Matches the source exactly. Never invent; unsure → "unclear — verify".
-- Decisions, not deliberation: no estimates, discussion, rejected options, history. Important 20%; name the folder for the rest.
-- Major risks/assumptions/gotchas only (wrong data, outage, security, big cost, rewrite), ranked; aim Overview ≤3, Technical 5–10 (guidance, not counted).
-- Banned: intros/outros, restating diagrams, marketing words (robust, seamless, leverage), padding, emoji.
-- No Other findings section — fold into Known issues, assumptions, and decisions needed (last).
-
-## Same look (HTML)
-- Never hand-write HTML/CSS/SVG → JSON spec → `python references/templates/build.py <spec> <out.html>`. Format: `references/templates/spec.md`; start from closest `references/examples/*.json`.
-- Build fixes names, order, block recipes, table headers, tabs, colours, layout, issue format, version stamp, marker. You: content, boxes, arrows, examples.
-- Files read/written UTF-8; build emits HTML entities, never raw non-ASCII.
-- Status badges only for values starting "Confirmed" · "Not verified".
-- Spec → `generated-docs/_spec/<doc>.json`; refresh = edit spec, rebuild.
-- Existing docs → see Files, refresh.
-- Fix every build error + `WARN` (missing section, recipe minimum, flow/task without example, amounts), or explain each remaining WARN in the doc.
-- `python references/templates/check.py <doc.html>` → 0 `LAYOUT` lines (overflow, overlaps, labels on boxes/frames, edges through boxes/frames/group labels, edges on edges, cut values, diagrams/tables too wide, sideways scroll).
-- Builder can't draw it → say so, ask before changing `build.py`.
-- Markdown/Confluence: same sections, order, diagrams, examples.
+## By `profile` kind
+Interface section · table | h3 unit | data model | graph diagram | io:
+- **pipeline** (Airflow, Spark, jobs): Job DAG and schedule · `schedule` | job/DAG pattern: source → written data | tables/views on `writes` | dag/job → tasks (`depends_on`, `triggers`, `schedules`); journey if column lineage | rendered command/SQL + rows
+- **dbt**: Job DAG and schedule · `schedule` | layer chain: source → mart | `dbt_model` + `fk` (+ tables) | models by `ref`, lane per layer | compiled SQL + rows
+- **web API**: Endpoints · `endpoints` | endpoint group: request → response | handler `writes` tables | route → handler → store (`exposes`, `calls`, `writes`) | request + response
+- **UI**: Screens and navigation · `elements` | user action → screen | backend tables | `ui_screen` map + endpoint calls; journey | action + what shows
+- **CLI**: Commands · `commands` | command group → output | written tables | command → functions → output (`calls`) | command + output
+- **library**: none, public modules in `components`, calls in `api` | public call → return | owned tables | module map (`imports`, `calls`) | `Call` + result
+- **Terraform**: none, roots in Architecture, `terraform_resource` in `components` | root → cloud resources | defined tables | root → modules → resources (`deploys`, `depends_on`), lane per account/env | plan excerpt `+ ~ -` (synthetic: provider behaviour Not verified)
+- **ML/streaming**: Events and messages · `events` (+ timers) | event → score / train → model artefact | feature tables; topics in flows | producer → topic → consumer (`reads`, `writes`); train vs serve lanes | event payload + result
+- **config/docs**: none, folders in Architecture, keys in `config` | change → published/applied | — | `documents`, `configures` | config before → after
+- **monorepo**: union | plan's h3s; no graph flows → one per entry group = per kind | union | lane per kind | per kind
+- Boxes = graph nodes, real names (Overview/User guide: business words in `sub`) · arrows = edges · steps = `part_of` order · failure/retry paths where graph/code has them.
 
 ## Diagrams
-| Show | Use |
-|---|---|
-| Big picture | L0 3–7 boxes, ~10 s — first in Overview, Technical |
-| Order, who does what | L1 lanes, numbered |
-| Architecture | L2 lanes per platform, real names |
-| Inside a step/job/screen | L3 sub-flow |
-| Repeated pattern | dashed group "Repeats for each …" |
-| Data model | ER only; views table; no flow |
-| One record through stages | journey |
-- **Sub-flow** when a box hides >5 steps, loop/repeat, decision, or failure path. Parent `see: "B"` → Diagram B right after ("Sub-flow of <box> in Diagram A"). ≤2 levels. One per pattern, not per item. Not in Overview.
-- **Layout** (build does it — don't fight it):
-  - Long names wrap after `_ . / -`; heights follow lines; same height across a row; extreme identifiers → middle ellipsis, full name in `tip`.
-  - Edges route through gaps, never across boxes; parallel lines ≥20 px apart, never on top. Fan-out >4 from one box → one arrow into a group frame ("12 child tasks"), children in grid.
-  - Arrow labels ≤3 words; build puts each beside / above its number or on 2 lines. No room → build fails: >3 words → shorten · else crowded gap → move boxes apart · drop labels · sub-flow.
-  - Groups never overlap; label inside, top-left.
-  - ER: by relationship tree; FK to non-adjacent table → `FK → table`; >~9 entities → one ER per area.
-  - Diagram >1020 px → build fails, names columns + boxes to move into a sub-flow.
-  - Journey: stages ≥240 px, values wrap, >3 stages → second row. Cards ≥260 px, values wrap.
-- **Boxes carry detail:** tag · 1–3 bullets · in/out · runs ("runs as 10 steps") · tip (hover). One idea each; key + notice.
-- Technical → real names; Overview/User guide → business words.
+- Big picture → L0, 3–7 boxes · order/who → L1, lanes, numbered · architecture → L2, lanes per platform/kind, `code` boxes · inside a box → sub-flow (`parent`), ≤2 levels, not Overview · data model → `er` only, views in table · one record through stages → journey.
+- Flow · ER · journey: `id` (A, B… doc order) + unique title `<entry>, <N> steps` (N = numbered arrows; Main flows: build) · `<area> area` (`numbered: false`) · `inside <box>` · `<entry>, <N> stages` · `ER: <area>`. Steps/area per section: `plan.diagram_titles`.
+- One-line `key` + `notice`. Boxes: `tag` · 1–3 `bullets` · `in`/`out` · `runs` · `see`. Technical real names; others business words. `decision` → ≥2 out-arrows.
+- Layout = build's (`spec.md` → Layout); too wide/crowded → ERROR with fix; follow it.
 
 ## Examples
-Every main flow, job pattern, important rule, user task → examples (build warns: none · Business rules cards < rules · Overview cards without edge/rejected/failure). Job patterns → `h3` in Main flows.
-- Typical, then edge/rejected/failure that differ (Overview 2–6 cards; Technical, User guide ≥ typical + one edge/failure).
-- Same form for same thing: journey (record through stages, old → new) · cards (behaviour per case) · io (query/request/command/UI action + result).
-- Source order: tests/fixtures → docs/spec → derived from code (run, else `derived from <path:line>`) → synthetic (`[synthetic]` / `synthetic: true`).
-- Cite each (`source`); mixed rows → mark the synthetic ones. Realistic, 2–5 rows, never foo/bar. No real rows, never PII; never query DB for examples.
-- Key example missing or sensitive → ask once.
-- Long values fine; journeys, cards wrap. Working specs per document + stress example (long identifiers, 12-child fan-out, 12-entity ER, 4-stage journey): `references/examples/`.
+- **Every main flow · rule · user task.** Order: tests/fixtures → docs/README → code (`derived from <path:line>`) → `synthetic: true`. Cite `source`. Realistic, 2–5 rows, no real data/PII.
+- Tests exist → card a per main flow from a test; ≤1/3 synthetic (WARN).
+- **Card:** `case` (typical · edge · rejected · failure) · `title` · `expect` (one line, wanted) · `in` · `out`, all required. Build adds id (`EXAMPLE 5.1a`); none in `tag`. Naming a missing example → ERROR.
+- Main flows: 2–3 cards per h3, a = typical, ≥1 edge/rejected/failure; no case code lacks.
+- Rules: ≥1 card each, or row → existing card ("see Example 4.3a"); >3 → build's table `Ex · Case · Expect · In · Out`. Cards elsewhere; Overview 2–6.
+- Form: record changing → journey · per-case behaviour → cards · query/request/command/call/UI action → io.
+- Key example missing / sensitive → ask once.
 
-## Other kinds (spec `type: "custom"`, same blocks/look)
-- Code explanation: what · flow · `Name | Does | Example` · one traced example · top 3 gotchas · "to change X, edit `file:function`".
-- README: purpose · architecture · quick start + expected output · 2–3 usages · `Setting | Default | Example | Purpose` · folder tree · dev commands · `Problem | Fix`.
-- Design doc: goal + non-goals · current → proposed · `Component | Responsibility | Tech` · main flow + example · ER if schemas change · `Decision | Why` · risks + mitigation · rollout. Open questions only in drafts.
-- Runbook: what/when/owner + flow · healthy run · `Symptom | Cause | Fix (command)` ≤5 · rerun/backfill.
-- From PDF/Word/slides: what it is · overview diagram · grouped key points (diagram per group) · worked example · `Decision / requirement / number` · top 3 gaps/contradictions.
-- Data docs: lineage · ER · `Object | Grain | Key | Written by` · `View | Built from | Rows` · per model purpose/grain/PK/materialization/schedule + 3-row sample · rules with input → output · DAG schedule/retries/backfill · roles and access (see `darshan-singh-meel-data-platform`).
-- Ported/rewritten code: html-style "Ported or rewritten code".
+## Writing
+- Bullets ≤~15 words, one fact; repeats → tables; diagram → bullets → example. Conclusion first, concrete ("daily 06:00"), term once, Overview spells acronyms.
+- Names · numbers · commands · boxes match source; unsure → "unclear — verify". Counts only `facts.json`: `<N> <fact name>` = its value (WARN).
+- Names in backticks, real, exact (keep backticks); synthetic → `ids_skip`. Paths from repo root; spaces → whole in backticks.
+- Pattern claims hold for all; name exceptions. Decisions, not deliberation. Major risks only (Overview ≤3, Technical 5–10).
+- Banned: intros/outros · restating diagrams · marketing · padding · emoji.
 
-## Formats
-- HTML: `build.py` — light, flat, printable, inline CSS, readable with JS off; look in html-style.
-- Markdown: Mermaid (`sequenceDiagram`, `flowchart LR`, `erDiagram`), tables, tagged code.
-- Confluence: storage XHTML; diagrams as local PNG/SVG attachments; code/expand macros; no scripts; one line on import. Never upload.
-- Word/PDF: only if asked; diagrams as images. Several formats → identical content.
+## Build (HTML)
+- Never hand-write HTML/CSS/SVG. Output folder exists (`mkdir -p`). `python <skill>/references/templates/build.py generated-docs/_spec/<doc>.json generated-docs/<doc>.html`; start from closest `references/examples/*.json` (pipeline, web app, library, user guides, stress).
+- Last line `built <out>: N sections, N WARN (templates <ver>)`. Fix each ERROR + WARN, or explain WARN in doc.
+- `python <skill>/references/templates/check.py <doc.html> <shots_dir>` → 0 `LAYOUT` (`LAYOUT <section> | diagram <id> (map-<n>) | <problem> | <text>`); writes `page.png` + `map-<n>.png`.
+- Can't draw → say so; ask before changing `build.py`.
+- Md/Confluence: same plan · sections · diagrams (Mermaid/images) · examples. Confluence: never upload; one import line. Word/PDF only if asked.
 
-## Workflow — fixed, every run: `docs-v2-<repo>`
-Ask (§0) → graph if chosen, else sources via scripts (CLAUDE.md data) → per document:
-| Phase | Per doc | Model | Does |
-|---|---|---|---|
-| 1 Plan | 1 agent | Opus | fills recipes: boxes, sub-flows, examples; no layout design |
-| 2 Build | 1 agent | Sonnet | spec → `build.py` → fixes every error + WARN |
-| 3a Auto-check | script | — | `check.py` |
-| 3b Accuracy reviewer | 1 agent, parallel with 3c | Opus | every name, number, step vs code + graph |
-| 3c Layout reviewer | 1 agent | Haiku | runs `check.py` itself → one screenshot (readability, confusing diagrams); **fails doc on any LAYOUT line** |
-| 4 Fix | 1 agent | Sonnet | applies 3a–3c → rebuild → `check.py` until 0 |
-| 5 Re-render | only if layout changed | Haiku | one screenshot to confirm |
-- Done = 0 build errors · 0 WARN (or each explained in doc) · 0 LAYOUT · accuracy reviewer passed.
-- Never invent another workflow, skip a phase, swap models. No subagents → tell user which model per phase.
-- Plan + Fix also trim (non-essential bullets, leftover prose) and read as audience: Overview as manager (no unexplained jargon) · Technical as new engineer (could deploy and access alone) · User guide as first-time user (every task without help).
+## Other kinds (`type: "custom"`)
+- **Code explanation:** what · flow · `Name | Does | Example` · traced example · top 3 gotchas · "to change X, edit `file:function`".
+- **README:** purpose · architecture diagram · quick start + output · 2–3 usages · settings · folder tree · dev commands · `Problem | Fix`.
+- **Design doc:** goal + non-goals · current → proposed · components · main flow + example · ER if schemas change · decisions · risks · rollout.
+- **Runbook:** what/when/owner + flow · healthy output · top 5 `Symptom | Cause | Fix` · rerun/backfill commands.
+- **PDF/Word/slides:** what · overview diagram · key points · worked example · requirements · top 3 gaps.
+- **Ported/rewritten code:** `references/html-style.md`.
+
+## Workflow — fixed: `docs-v2-<repo>`
+Step 0 → graph (if chosen) → Step 1 → per doc:
+1. **Plan** (Opus): `inventory.json` → facts · recipes (boxes from graph nodes/edges, sub-flows, examples, `kind` → `sev`).
+2. **Build** (Sonnet): spec → `build.py` → fix all ERROR + WARN; claims outside plan/`facts.json` → open code.
+3. a **Auto-check** (script): `check.py <doc> <shots_dir>`. b **Accuracy** (Opus, ∥ c): names · numbers · steps vs code + graph; `inventory.py --check-facts` to 0; grep each pattern member; open each Must/Should `where`; check severity + status. c **Layout** (Haiku): `check.py`, read `page.png` + **every** `map-<n>.png`; fail on any LAYOUT (crossing near label, label near foreign line, arrow on no box, decision <2 arrows, name broken mid-word, …) or confusing diagram.
+4. **Fix** (Sonnet): apply 3a–c, rebuild, `check.py` to 0; trim bullets.
+5. **Re-render** (Haiku), layout changed only: `check.py`, read changed shots.
+- **Done** = 0 ERROR · 0 WARN (or explained) · 0 LAYOUT · accuracy passed.
+- No subagents → 3b yourself, separate pass; skipped → "accuracy not reviewed", never "done". Tell user model per phase, one line.
+- Never another workflow · skipped phase · swapped model. Read as manager · new engineer (could deploy from it alone) · first-time user.

@@ -20,8 +20,8 @@ th { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.
 .lead { margin:4px 0 8px; } .src { font-size:11.5px; color:var(--muted); margin:6px 0 0; overflow-wrap:anywhere; }
 .chip { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.04em; padding:0 5px; border-radius:4px; border:1px solid; white-space:nowrap; vertical-align:1px; }
 .chip.ok { color:var(--red); border-color:var(--red); } .chip.nv { color:var(--amber-ink); border-color:var(--amber-ink); background:var(--amber); }
-.chip.syn { color:var(--lav-ink); border-color:var(--lav-ink); background:var(--lav); }
-.scroll { overflow-x:auto; } td.m { font-size:12px; overflow-wrap:anywhere; } td code { overflow-wrap:anywhere; }
+.chip.syn { color:var(--lav-ink); border-color:var(--lav-ink); background:var(--lav); } .chip.fx { color:var(--green); border-color:var(--green); }
+.scroll { overflow-x:auto; } td.m { font-size:12px; overflow-wrap:break-word; } td code { overflow-wrap:break-word; } .nw { white-space:nowrap; }
 .steps td:first-child { width:38px; text-align:center; }
 .steps .n { display:inline-block; width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff; font:600 11px/20px "IBM Plex Mono",Consolas,monospace; text-align:center; }
 .issues tr.sev td { background:var(--soft); font-weight:600; }
@@ -80,12 +80,11 @@ details { margin:8px 0; } summary { cursor:pointer; font-size:13px; color:var(--
 .kfk { border:1px solid var(--blue); color:var(--blue); font-size:9.5px; font-weight:600; padding:0 4px; border-radius:3px; }
 
 /* payloads, journeys, example cards */
-.payloads { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; margin-top:10px; }
+.payloads { display:grid; grid-template-columns:1fr; gap:12px; margin-top:10px; }
 .payload { border:1px solid var(--line); border-radius:8px; overflow:hidden; }
 .payload .h { display:flex; justify-content:space-between; gap:8px; padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); font-family:"IBM Plex Mono",Consolas,monospace; font-size:11.5px; }
 .payload .h .in { color:var(--blue); font-weight:600; } .payload .h .out { color:var(--green); font-weight:600; }
 .payload pre { margin:0; padding:10px 12px; font-size:12.5px; line-height:1.5; overflow-x:auto; }
-.payloads { grid-template-columns:1fr; }
 .res { margin:0; font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; } .res td, .res th { border:0; border-bottom:1px solid var(--line); white-space:nowrap; }
 .tk { color:var(--teal-ink); } .ts { color:var(--amber-ink); } .tn { color:var(--blue); } .tb { color:var(--lav-ink); font-weight:600; } .tc { color:var(--muted); font-style:italic; }
 .journey { display:flex; align-items:stretch; gap:0; margin-top:10px; overflow-x:auto; }
@@ -96,24 +95,31 @@ details { margin:8px 0; } summary { cursor:pointer; font-size:13px; color:var(--
 .journey table { margin:0; font-size:12px; } .journey td { border:0; border-bottom:1px solid var(--line); padding:4px 8px; overflow-wrap:anywhere; font-family:"IBM Plex Mono",Consolas,monospace; }
 .journey .stage.pad { visibility:hidden; } .jnext { font:600 11px/1 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); margin:10px 0 2px 4px; }
 .journey td:first-child { color:var(--ink); font-family:inherit; font-size:12px; } .journey td small { display:block; color:var(--muted); font-size:10.5px; font-family:"IBM Plex Mono",Consolas,monospace; }
-.journey .what { margin:0; }
 .journey .arrow { flex:0 0 28px; display:flex; align-items:center; justify-content:center; color:var(--ink); }
-.journey .what { padding:6px 10px; font-size:12px; color:var(--muted); }
+.journey .what { margin:0; padding:6px 10px; font-size:12px; color:var(--muted); }
 .chg { background:var(--amber); } .old { color:var(--muted); text-decoration:line-through; margin-right:4px; } .new { color:var(--green); font-weight:600; } .calc { color:var(--lav-ink); }
-.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:10px; }
-.card { border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:10px; align-items:start; }
+.card { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
 .card.typical { border-top:3px solid var(--green); } .card.edge { border-top:3px solid var(--amber-ink); } .card.rejected, .card.failure { border-top:3px solid var(--red); }
 .card .h { padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); } .card .h b { display:block; font-size:13px; }
 .card .tag { font-size:10px; font-weight:600; letter-spacing:.06em; }
-.card { display:flex; flex-direction:column; }
 .card .lbl2 { font-family:"IBM Plex Mono",Consolas,monospace; font-size:10px; font-weight:600; letter-spacing:.06em; color:var(--muted); padding:6px 10px 0; }
 .card table { margin:2px 0 0; font-size:12px; } .card td { border:0; border-bottom:1px solid var(--line); padding:3px 10px; font-family:"IBM Plex Mono",Consolas,monospace; }
 .card td { overflow-wrap:anywhere; } .card td .k { display:block; color:var(--muted); font-size:11px; }
 .card .res-t { margin:2px 0 0; padding:0 10px 6px; font-size:12.5px; overflow-wrap:anywhere; } .card .src { padding:0 10px 10px; margin-top:auto; }
 .card.typical .tag { color:var(--green); } .card.edge .tag { color:var(--amber-ink); } .card.rejected .tag, .card.failure .tag { color:var(--red); }
+.card .exn { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--ink); margin-right:8px; }
+/* Business rules with more than 3 examples: one table, same colours as the cards */
+.extab td { font-size:12.5px; } .extab td:nth-child(4), .extab td:nth-child(5) { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; }
+.extab td.exn { width:56px; white-space:nowrap; font:600 12px "IBM Plex Mono",Consolas,monospace; }
+.extab tr.typical td.exn { box-shadow:inset 3px 0 var(--green); } .extab tr.edge td.exn { box-shadow:inset 3px 0 var(--amber-ink); }
+.extab tr.rejected td.exn, .extab tr.failure td.exn { box-shadow:inset 3px 0 var(--red); }
+.extab .tag { display:block; font-size:10px; font-weight:600; letter-spacing:.06em; } .extab b { display:block; }
+.extab tr.typical .tag { color:var(--green); } .extab tr.edge .tag { color:var(--amber-ink); } .extab tr.rejected .tag, .extab tr.failure .tag { color:var(--red); }
+.extab .kv .k { color:var(--muted); font-size:11px; }
 
 @media (prefers-reduced-motion: reduce) { .map polyline.flow { animation:none; } }
 @media (max-width:720px) { section { padding:16px; } .terms { columns:1; } .journey { flex-direction:column; } .journey .arrow { transform:rotate(90deg); } .journey .pad { display:none; } }
 @media print { body { background:#fff; } main { padding:0; max-width:none; } section { border:0; padding:0; break-inside:avoid-page; }
   .tabs .bar { display:none; } .tabs .panel { display:block; } .tabs .panel::before { content:attr(data-title); display:block; font-weight:600; margin-top:6px; }
-  .map polyline.flow { animation:none; } .map .b[data-tip]::after { display:none; } details { display:block; } .toc { display:none; } }
+  .map polyline.flow { animation:none; } .map .b[data-tip]::after { display:none; } .toc { display:none; } }

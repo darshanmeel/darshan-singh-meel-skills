@@ -26,7 +26,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `code` | Write, edit, debug, refactor; changed tests first, then offer the full suite |
 | `review` | Code review: correctness, security, performance, design, AI slop |
 | `docs` | Diagram-first docs (v1): READMEs, KT, design docs, user guides, runbooks |
-| `docs-v2` | Docs built from a JSON spec by a fixed builder — same structure every run |
+| `docs-v2` | Docs from any repo's knowledge graph: fixed inventory → plan → builder + checks; same structure every run |
 | `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
 | `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
 | `data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance |
