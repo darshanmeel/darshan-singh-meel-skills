@@ -4,3 +4,6 @@
 __pycache__/
 # release zips (built locally, not committed)
 *.zip
+
+# local list of private names for tools/check_repo.py (never commit)
+/.private-names
