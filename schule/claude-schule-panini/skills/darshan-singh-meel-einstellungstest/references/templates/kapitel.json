@@ -1,0 +1,14 @@
+[
+ {
+  "id": "les-{{PREFIX}}-01",
+  "module": "{{MODUL}}",
+  "topic": "{{TOPIC}}",
+  "title": "{{TITEL}}",
+  "concept": "{{WARUM der Test das fragt}}\n\n{{IDEE in Alltagsworten}}\n\n{{ERSTER SCHRITT, der immer funktioniert}}",
+  "example": "{{AUFGABE wie im Test}}\n{{ZEILE 1}}\n{{ZEILE 2}}\n{{ERGEBNIS}}",
+  "example_explained": "{{SCHRITT 1 als Satz}} {{SCHRITT 2 als Satz}} {{PROBE}}",
+  "tips": ["{{TIPP 1}}", "{{TIPP 2}}", "{{TIPP 3}}", "{{TIPP 4}}"],
+  "traps": ["{{X}} ist {{Y}}, nicht {{Z}}.", "{{X}} ist {{Y}}, nicht {{Z}}."],
+  "practice_topics": ["{{TOPIC}}"]
+ }
+]

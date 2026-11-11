@@ -1,0 +1,20 @@
+{
+ "les-ma-pro-01": {
+  "title": "Percentages: share, discount, surcharge",
+  "concept": "Per cent means “out of a hundred”: 1% is one hundredth. In the aptitude test you need percentages for discounts, price increases, shares and charts – without a calculator and in about one minute per question.\n\nThere are only three quantities. The base value (G) is the whole, that is 100%. The percentage rate (p) is the share in per cent. The percentage amount (W) is the share in euros, pieces or people. They are connected like this: W = G × p ÷ 100.\n\nThe first step is therefore always the same: find out what the 100% are. After that you calculate via 10% or 1%.",
+  "example": "A pair of headphones costs €60. There is a 15% discount. How much does it cost now?\n100% = €60\n10% = €6\n5% = €3\n15% = €6 + €3 = €9\nNew price: €60 − €9 = €51",
+  "example_explained": "First you fix what 100% are: the old price, that is €60. Then you work out 10% by moving the decimal point one place to the left: €6. 5% is half of 10%, that is €3. Together 15% is exactly €9; that is the discount. But the question wants the new price, so you subtract the discount: €60 − €9 = €51. As a check you calculate 85% of €60 and get €51 again.",
+  "tips": [
+   "Calculate via 10% and 1%: for 10% you move the decimal point one place to the left, for 1% two places.",
+   "Remember the fractions: 50% is one half, 25% one quarter, 20% one fifth, 10% one tenth.",
+   "Discount in one step: with a 20% discount you pay 80%. So calculate 80% of the price directly.",
+   "Read the question twice: is the discount asked for or the new price?",
+   "Estimate before you tick: after a discount the price must be smaller, after a surcharge larger."
+  ],
+  "traps": [
+   "The base value is the value before the change, not the new value.",
+   "A 15% discount on €80 is €12, not €15.",
+   "First 10% more and then 10% less is less than at the start, not the same amount."
+  ]
+ }
+}

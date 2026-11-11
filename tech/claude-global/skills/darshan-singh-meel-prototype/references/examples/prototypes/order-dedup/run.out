@@ -1,0 +1,32 @@
+raw_orders: 8 rows, 4 orders
+     1  new  40.00  2026-03-01 09:00:00  1
+     2  new  15.50  2026-03-01 09:05:00  2
+     2  new  15.50  2026-03-01 09:05:00  2
+     3  new  99.00  2026-03-01 10:00:00  3
+     3  shipped  99.00  2026-03-02 08:00:00  4
+     3  paid  99.00  2026-03-01 12:00:00  5
+     4  new  20.00  2026-03-03 07:00:00  6
+     4  cancelled  20.00  2026-03-03 07:00:00  7
+
+a_latest_updated_at.sql: 6 rows
+     1  new  40.00  2026-03-01 09:00:00  1
+     2  new  15.50  2026-03-01 09:05:00  2
+     2  new  15.50  2026-03-01 09:05:00  2
+     3  shipped  99.00  2026-03-02 08:00:00  4
+     4  new  20.00  2026-03-03 07:00:00  6
+     4  cancelled  20.00  2026-03-03 07:00:00  7
+    one row per order: FAIL  |  final status: PASS
+
+b_updated_at_then_load_seq.sql: 4 rows
+     1  new  40.00  2026-03-01 09:00:00  1
+     2  new  15.50  2026-03-01 09:05:00  2
+     3  shipped  99.00  2026-03-02 08:00:00  4
+     4  cancelled  20.00  2026-03-03 07:00:00  7
+    one row per order: PASS  |  final status: PASS
+
+c_last_loaded.sql: 4 rows
+     1  new  40.00  2026-03-01 09:00:00  1
+     2  new  15.50  2026-03-01 09:05:00  2
+     3  paid  99.00  2026-03-01 12:00:00  5
+     4  cancelled  20.00  2026-03-03 07:00:00  7
+    one row per order: PASS  |  final status: FAIL

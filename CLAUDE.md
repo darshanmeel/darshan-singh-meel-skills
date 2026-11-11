@@ -64,7 +64,7 @@ New topic area → new top folder with the same full + panini pair (e.g. `music/
 
 ## Before every commit
 - `python tools/check_repo.py` must print `0 ERROR`. It checks:
-  - machine paths (`C:\Users\…`, `/Users/…`);
+  - machine paths (Windows, macOS or Linux home folders);
   - the private names listed in `.private-names`;
   - full/panini twins;
   - frontmatter;

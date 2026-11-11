@@ -8,7 +8,7 @@ Global rules, skills and hooks for Claude Code, in two equivalent versions:
 | `tech/claude-global-panini/` | Same rules, compressed (sūtra style: heading sets scope, `→` = then, `·` = list, "rec" = recommended) |
 
 ## School skills
-`schule/`: Hessen teaching skills (Deutsch, Mathe, sciences, Erdkunde, Geschichte, PoWi, Psychologie, DaF A1–C1, Mathe-Känguru) with reviewers. See `schule/README.md`.
+`schule/`: Hessen teaching skills (Deutsch, Mathe, sciences, Erdkunde, Geschichte, PoWi, Psychologie, DaF A1–C1, Mathe-Känguru, Einstellungstest practice) with reviewers. See `schule/README.md`.
 
 ## Install (pick one version)
 ```bash
@@ -37,6 +37,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
 | `data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance |
 | `ask-me` | Plan unclear tasks in short question rounds |
+| `prototype` | Throwaway prototypes in git-ignored `prototypes/<name>/` that answer one design question: logic (terminal app over a pure module), UI variants, data model / dbt on synthetic DuckDB, Airflow flow; `prototype-review` runs and checks them |
 | `frontend` | UI design rules: layout, type, colour, states, accessibility |
 | `frontend-react` | Build React + TypeScript UIs with a component library; React components for Streamlit |
 | `streamlit` | Build, test, deploy Streamlit apps (any host) |

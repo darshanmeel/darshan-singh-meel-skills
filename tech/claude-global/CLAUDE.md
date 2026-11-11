@@ -29,7 +29,7 @@
 
 ## Data handling
 - **Scripts do the bulk work:** write and run Python (AST, regex, dbt manifest, DDL parsing, pandas/openpyxl) to inventory, extract, count, and summarise. Read files yourself only where judgment is needed — the relevant lines or the script's summary, not whole files.
-- **Never open secret files:** `.env*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.jks`, `*.keystore`, `id_*` (SSH keys), `credentials*`, `secrets*`, `*.tfvars`, `*.tfstate*`, `.npmrc`, `.pypirc`, `.netrc`, `.git-credentials`, `.docker/config.json`, service-account `*.json` keys, `kubeconfig`, dbt `profiles.yml`, or anything whose name or path suggests secrets. Record only that the file exists. Applies to scripts, grep and scanners too: exclude these patterns; report path + rule name, value `<redacted>`.
+- **Never open secret files:** `.env*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.jks`, `*.keystore`, `id_*` (SSH keys), `credentials*`, `secrets*`, `*.tfvars`, `*.tfstate*`, `.npmrc`, `.pypirc`, `.netrc`, `.git-credentials`, `.docker/config.json`, service-account `*.json` keys, `kubeconfig`, dbt `profiles.yml` (one exception: the check script of `darshan-singh-meel-prototype` may read the key names, never the values, of a `prototypes/<name>/profiles.yml` it made from its template), or anything whose name or path suggests secrets. Record only that the file exists. Applies to scripts, grep and scanners too: exclude these patterns; report path + rule name, value `<redacted>`.
 - **Minimal data to the model:** read structure (names, types, tags, code) — not data. Graphs, docs, diagrams, and reviews never read data rows; example values come from tests, fixtures, docs, or code, or are synthetic. Real data only when the task truly needs it, through a notebook, counts/verdicts first, PII never.
 - **Never write secrets** (passwords, keys, tokens, connection strings) anywhere — names only, values as `<redacted>`.
 - **Data files (Excel, CSV, …):** profile with Python — columns, types, counts, nulls, distinct values, min/max (skip min/max and values for sensitive-looking columns). Never load whole files into the conversation.
@@ -67,6 +67,7 @@
 | Query or analyse data; develop/test a dbt model, procedure, or SQL against data | `darshan-singh-meel-notebook` |
 | Map a repo; answer "what does X do / how does Y work / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear or complex task — plan it with me first | `darshan-singh-meel-ask-me` |
+| Throwaway prototype to answer a design question (logic, UI variants, data model/dbt on DuckDB, Airflow flow) / review one | `darshan-singh-meel-prototype` / `darshan-singh-meel-prototype-review` |
 | App UI design: look, layout, accessibility (dashboards, data apps, forms, landing pages); used together with the build skills below | `darshan-singh-meel-frontend` |
 | Build a React + TypeScript UI, or a React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build, test, deploy a Streamlit app (any host) | `darshan-singh-meel-streamlit` |

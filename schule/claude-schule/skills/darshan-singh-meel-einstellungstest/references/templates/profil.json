@@ -1,0 +1,21 @@
+{
+ "key": "{{ziel-slug}}",
+ "target": "{{AUSBILDUNG, BRANCHE oder FIRMA}}",
+ "target_en": "{{TARGET in English}}",
+ "total_minutes": null,
+ "sections": [
+  {
+   "name": "{{TESTTEIL}}",
+   "name_en": "{{PART in English}}",
+   "module": "{{MODUL}}",
+   "topics": ["{{TOPIC}}"],
+   "questions": null,
+   "minutes": null,
+   "weight": 25,
+   "how": "{{So sieht die Aufgabe aus und so antwortest du.}}",
+   "how_en": "{{This is what the task looks like and this is how you answer.}}"
+  }
+ ],
+ "sources": ["{{Name der offiziellen Seite}}"],
+ "unverified": ["check: {{Seite}} - {{Annahme}}"]
+}

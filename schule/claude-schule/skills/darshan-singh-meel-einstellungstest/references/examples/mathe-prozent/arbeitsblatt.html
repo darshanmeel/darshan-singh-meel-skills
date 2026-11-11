@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Übungsblatt – Prozentrechnung (Einstellungstest)</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.optionen{list-style:none;display:flex;flex-wrap:wrap;gap:.3em 1.8em;padding:0;margin:.5em 0 0}
+.optionen li{display:flex;gap:.4em;align-items:baseline;margin:0}
+.optionen b{white-space:nowrap}
+.aufgabe[data-frage]{break-inside:avoid}
+.zeit{font-weight:400;color:var(--muted);font-size:.9em}
+.fuss{font-size:.85em;margin-top:1.5em}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Einstellungstest-Training · Mathe</span>
+<span>Name: <span class="feld"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Prozentrechnung: Übungsblatt</span><span class="en" lang="en">Percentages: practice sheet</span></span></h1>
+<p class="meta">8 Aufgaben <span class="en" lang="en">/ questions</span> · 8 min · <span class="niveau">★</span> leicht <span class="en" lang="en">/ easy</span> · <span class="niveau">★★</span> mittel <span class="en" lang="en">/ medium</span> · <span class="niveau">★★★</span> schwer <span class="en" lang="en">/ hard</span></p>
+
+<section class="kasten">
+<h2>Das brauchst du <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Genau eine der vier Antworten (A) bis (D) ist richtig. Kreise den Buchstaben ein.</p><p class="en" lang="en">Exactly one of the four answers (A) to (D) is correct. Circle the letter.</p></div>
+<div class="bi"><p>Rechne ohne Taschenrechner; Stift und Papier sind erlaubt. Stell dir einen Timer: Neben jeder Aufgabe steht die Zeit, die du im Test dafür hast.</p><p class="en" lang="en">Calculate without a calculator; pen and paper are allowed. Set yourself a timer: next to each question is the time that you have for it in the test.</p></div>
+<div class="bi"><p>Grundwert (G) = 100 %. Prozentwert W = G × p : 100. Rechne über 10 % oder 1 %.</p><p class="en" lang="en">Base value (G) = 100%. Percentage amount W = G × p ÷ 100. Calculate via 10% or 1%.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="1" data-frage="ma-pro-001" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Question 1</span> <span class="niveau" title="leicht / easy">★</span> <span class="zeit">· 30 s</span></h2>
+<div class="bi"><p>Wie viel sind 20 % von 150 €?</p><p class="en" lang="en">How much is 20% of €150?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 30 €</li>
+<li data-option="B"><b>(B)</b> 120 €</li>
+<li data-option="C"><b>(C)</b> 130 €</li>
+<li data-option="D"><b>(D)</b> 170 €</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-frage="ma-pro-002" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Question 2</span> <span class="niveau" title="leicht / easy">★</span> <span class="zeit">· 30 s</span></h2>
+<div class="bi"><p>12 von 48 Auszubildenden haben einen Führerschein. Wie viel Prozent sind das?</p><p class="en" lang="en">12 out of 48 trainees have a driving licence. What percentage is that?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 0,25 %</li>
+<li data-option="B"><b>(B)</b> 4 %</li>
+<li data-option="C"><b>(C)</b> 12 %</li>
+<li data-option="D"><b>(D)</b> 25 %</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-frage="ma-pro-003" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Question 3</span> <span class="niveau" title="leicht / easy">★</span> <span class="zeit">· 40 s</span></h2>
+<div class="bi"><p>Eine Jacke kostet 80 €. Im Schlussverkauf gibt es 15 % Rabatt. Wie viel kostet die Jacke jetzt?</p><p class="en" lang="en">A jacket costs €80. In the clearance sale there is a 15% discount. How much does the jacket cost now?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 12 €</li>
+<li data-option="B"><b>(B)</b> 65 €</li>
+<li data-option="C"><b>(C)</b> 68 €</li>
+<li data-option="D"><b>(D)</b> 92 €</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-frage="ma-pro-004" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Question 4</span> <span class="niveau" title="mittel / medium">★★</span> <span class="zeit">· 60 s</span></h2>
+<div class="bi"><p>Ein Tablet kostet statt 200 € nur noch 150 €. Um wie viel Prozent ist es günstiger geworden?</p><p class="en" lang="en">A tablet now costs only €150 instead of €200. By what percentage has it become cheaper?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 25 %</li>
+<li data-option="B"><b>(B)</b> 33,3 %</li>
+<li data-option="C"><b>(C)</b> 50 %</li>
+<li data-option="D"><b>(D)</b> 75 %</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="5" data-frage="ma-pro-005" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 5 <span class="en" lang="en">/ Question 5</span> <span class="niveau" title="mittel / medium">★★</span> <span class="zeit">· 60 s</span></h2>
+<div class="bi"><p>Mia zahlt 12 € an. Das sind 30 % des Preises. Wie hoch ist der ganze Preis?</p><p class="en" lang="en">Mia makes a down payment of €12. That is 30% of the price. How high is the whole price?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 36 €</li>
+<li data-option="B"><b>(B)</b> 40 €</li>
+<li data-option="C"><b>(C)</b> 42 €</li>
+<li data-option="D"><b>(D)</b> 360 €</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="6" data-frage="ma-pro-006" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 6 <span class="en" lang="en">/ Question 6</span> <span class="niveau" title="mittel / medium">★★</span> <span class="zeit">· 60 s</span></h2>
+<div class="bi"><p>Eine Ausbildungsvergütung von 800 € im Monat steigt um 5 %. Wie hoch ist sie danach?</p><p class="en" lang="en">A training allowance of €800 per month rises by 5%. How high is it afterwards?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 40 €</li>
+<li data-option="B"><b>(B)</b> 760 €</li>
+<li data-option="C"><b>(C)</b> 805 €</li>
+<li data-option="D"><b>(D)</b> 840 €</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="7" data-frage="ma-pro-007" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 7 <span class="en" lang="en">/ Question 7</span> <span class="niveau" title="schwer / hard">★★★</span> <span class="zeit">· 90 s</span></h2>
+<div class="bi"><p>Ein Preis von 200 € wird erst um 10 % erhöht und danach um 10 % gesenkt. Wie hoch ist der Preis am Ende?</p><p class="en" lang="en">A price of €200 is first increased by 10% and afterwards reduced by 10%. How high is the price at the end?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 180 €</li>
+<li data-option="B"><b>(B)</b> 198 €</li>
+<li data-option="C"><b>(C)</b> 200 €</li>
+<li data-option="D"><b>(D)</b> 220 €</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="8" data-frage="ma-pro-008" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 8 <span class="en" lang="en">/ Question 8</span> <span class="niveau" title="schwer / hard">★★★</span> <span class="zeit">· 90 s</span></h2>
+<div class="bi"><p>Nach 20 % Rabatt kostet ein Fahrrad 480 €. Wie viel hat es vor dem Rabatt gekostet?</p><p class="en" lang="en">After a 20% discount a bicycle costs €480. How much did it cost before the discount?</p></div>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 384 €</li>
+<li data-option="B"><b>(B)</b> 576 €</li>
+<li data-option="C"><b>(C)</b> 600 €</li>
+<li data-option="D"><b>(D)</b> 2.400 €</li>
+</ol>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>der Grundwert</td><td lang="en">base value</td><td><span class="bi"><span>das Ganze, 100 %</span><span class="en" lang="en">the whole, 100%</span></span></td></tr>
+<tr><td data-nur-de>der Prozentsatz</td><td lang="en">percentage rate</td><td><span class="bi"><span>der Anteil in Prozent</span><span class="en" lang="en">the share in per cent</span></span></td></tr>
+<tr><td data-nur-de>der Prozentwert</td><td lang="en">percentage amount</td><td><span class="bi"><span>der Anteil in Euro, Stück oder Personen</span><span class="en" lang="en">the share in euros, pieces or people</span></span></td></tr>
+<tr><td data-nur-de>der Rabatt</td><td lang="en">discount</td><td><span class="bi"><span>der Preis wird um diesen Anteil kleiner</span><span class="en" lang="en">the price becomes smaller by this share</span></span></td></tr>
+<tr><td data-nur-de>die Anzahlung</td><td lang="en">down payment</td><td><span class="bi"><span>ein erster Teil des Preises, den man vorab zahlt</span><span class="en" lang="en">a first part of the price that one pays in advance</span></span></td></tr>
+<tr><td data-nur-de>die Ausbildungsvergütung</td><td lang="en">training allowance</td><td><span class="bi"><span>das Geld, das Auszubildende jeden Monat bekommen</span><span class="en" lang="en">the money that trainees get every month</span></span></td></tr>
+</tbody>
+</table>
+</section>
+<footer class="fuss"><div class="bi"><p>Übungsmaterial. Alle Aufgaben sind neu geschrieben; es sind keine Originalaufgaben eines Testanbieters oder Unternehmens.</p><p class="en" lang="en">Practice material. All questions are newly written; they are not original questions of a test provider or company.</p></div></footer>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

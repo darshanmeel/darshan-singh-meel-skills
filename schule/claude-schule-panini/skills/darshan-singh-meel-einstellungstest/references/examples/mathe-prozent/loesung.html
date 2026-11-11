@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Prozentrechnung (Einstellungstest)</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.optionen{list-style:none;display:flex;flex-wrap:wrap;gap:.3em 1.8em;padding:0;margin:.5em 0 0}
+.optionen li{display:flex;gap:.4em;align-items:baseline;margin:0}
+.optionen b{white-space:nowrap}
+.aufgabe[data-frage]{break-inside:avoid}
+.zeit{font-weight:400;color:var(--muted);font-size:.9em}
+.fuss{font-size:.85em;margin-top:1.5em}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Einstellungstest-Training · Mathe</span>
+<span>Lösung zum Übungsblatt <span class="en" lang="en">/ Solution to the practice sheet</span></span>
+</header>
+<h1><span class="bi"><span>Prozentrechnung: Lösung</span><span class="en" lang="en">Percentages: solution</span></span></h1>
+<p class="meta">Lösungsbuchstaben <span class="en" lang="en">/ Key</span>: <b>1A · 2D · 3C · 4A · 5B · 6D · 7B · 8C</b></p>
+<div class="bi"><p>Zähle deine richtigen Antworten. Schreib zu jeder falschen Antwort auf, warum sie falsch war: verrechnet, Begriff nicht gekannt, Frage falsch gelesen oder Zeit zu knapp.</p><p class="en" lang="en">Count your correct answers. For each wrong answer write down why it was wrong: miscalculated, did not know the term, misread the question, or too little time.</p></div>
+
+<section class="aufgabe" data-aufgabe="1" data-frage="ma-pro-001" data-loesung="A">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Question 1</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (A) 30 €</b></p>
+<div class="bi"><p>10 % von 150 € sind 15 €, 20 % sind das Doppelte: 30 €.</p><p class="en" lang="en">10% of €150 is €15, 20% is double that: €30.</p></div>
+<div class="bi"><p>Typischer Fehler: 120 € ist der Rest (150 € − 30 €), nicht der Anteil.</p><p class="en" lang="en">Typical mistake: €120 is the rest (€150 − €30), not the share.</p></div>
+<div class="bi"><p>Trick: 20 % ist ein Fünftel, 150 : 5 = 30.</p><p class="en" lang="en">Trick: 20% is one fifth, 150 ÷ 5 = 30.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-frage="ma-pro-002" data-loesung="D">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Question 2</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (D) 25 %</b></p>
+<div class="bi"><p>12 von 48 ist ein Viertel, denn 48 : 4 = 12. Ein Viertel sind 25 %.</p><p class="en" lang="en">12 out of 48 is one quarter, because 48 ÷ 4 = 12. One quarter is 25%.</p></div>
+<div class="bi"><p>Typischer Fehler: 4 % entsteht, wenn du 48 : 12 rechnest; das ist der Kehrwert und kein Prozentsatz.</p><p class="en" lang="en">Typical mistake: 4% results if you calculate 48 ÷ 12; that is the reciprocal and not a percentage rate.</p></div>
+<div class="bi"><p>Trick: Kürze zuerst, 12/48 = 1/4.</p><p class="en" lang="en">Trick: simplify first, 12/48 = 1/4.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-frage="ma-pro-003" data-loesung="C">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Question 3</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (C) 68 €</b></p>
+<div class="bi"><p>10 % von 80 € sind 8 €, 5 % sind 4 €, also sind 15 % genau 12 €. Neuer Preis: 80 € − 12 € = 68 €.</p><p class="en" lang="en">10% of €80 is €8, 5% is €4, so 15% is exactly €12. New price: €80 − €12 = €68.</p></div>
+<div class="bi"><p>Typischer Fehler: 12 € ist nur der Rabatt, gefragt ist der neue Preis; 65 € entsteht, wenn du 15 € statt 15 % abziehst.</p><p class="en" lang="en">Typical mistake: €12 is only the discount, the new price is asked for; €65 results if you subtract €15 instead of 15%.</p></div>
+<div class="bi"><p>Trick: Zieh 10 % und 5 % nacheinander ab, 80 − 8 − 4 = 68.</p><p class="en" lang="en">Trick: subtract 10% and 5% one after the other, 80 − 8 − 4 = 68.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-frage="ma-pro-004" data-loesung="A">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Question 4</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (A) 25 %</b></p>
+<div class="bi"><p>Der Preis sinkt um 50 €. Der Grundwert ist der alte Preis: 50 von 200 ist ein Viertel, also 25 %.</p><p class="en" lang="en">The price falls by €50. The base value is the old price: 50 out of 200 is one quarter, that is 25%.</p></div>
+<div class="bi"><p>Typischer Fehler: 33,3 % entsteht, wenn du durch den neuen Preis 150 € teilst; der Grundwert ist aber der Wert vor der Änderung.</p><p class="en" lang="en">Typical mistake: 33.3% results if you divide by the new price of €150; but the base value is the value before the change.</p></div>
+<div class="bi"><p>Trick: Kürze 50/200 zu 1/4.</p><p class="en" lang="en">Trick: simplify 50/200 to 1/4.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="5" data-frage="ma-pro-005" data-loesung="B">
+<h2>Aufgabe 5 <span class="en" lang="en">/ Question 5</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (B) 40 €</b></p>
+<div class="bi"><p>30 % sind 12 €, also sind 10 % genau 4 € (12 : 3). 100 % sind zehnmal so viel: 40 €.</p><p class="en" lang="en">30% is €12, so 10% is exactly €4 (12 ÷ 3). 100% is ten times as much: €40.</p></div>
+<div class="bi"><p>Typischer Fehler: 36 € entsteht, wenn du 12 × 3 rechnest; damit hast du erst 90 %.</p><p class="en" lang="en">Typical mistake: €36 results if you calculate 12 × 3; with that you only have 90%.</p></div>
+<div class="bi"><p>Trick: Geh immer über 10 %, dann mal 10.</p><p class="en" lang="en">Trick: always go via 10%, then times 10.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="6" data-frage="ma-pro-006" data-loesung="D">
+<h2>Aufgabe 6 <span class="en" lang="en">/ Question 6</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (D) 840 €</b></p>
+<div class="bi"><p>10 % von 800 € sind 80 €, 5 % sind die Hälfte: 40 €. Neue Vergütung: 800 € + 40 € = 840 €.</p><p class="en" lang="en">10% of €800 is €80, 5% is half of that: €40. New allowance: €800 + €40 = €840.</p></div>
+<div class="bi"><p>Typischer Fehler: 40 € ist nur die Erhöhung, gefragt ist die neue Vergütung; 805 € entsteht, wenn du 5 € statt 5 % addierst.</p><p class="en" lang="en">Typical mistake: €40 is only the increase, the new allowance is asked for; €805 results if you add €5 instead of 5%.</p></div>
+<div class="bi"><p>Trick: 5 % ist die Hälfte von 10 %.</p><p class="en" lang="en">Trick: 5% is half of 10%.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="7" data-frage="ma-pro-007" data-loesung="B">
+<h2>Aufgabe 7 <span class="en" lang="en">/ Question 7</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (B) 198 €</b></p>
+<div class="bi"><p>Erste Änderung: 10 % von 200 € sind 20 €, der Preis steigt auf 220 €. Zweite Änderung: 10 % von 220 € sind 22 €, der Preis sinkt auf 198 €.</p><p class="en" lang="en">First change: 10% of €200 is €20, the price rises to €220. Second change: 10% of €220 is €22, the price falls to €198.</p></div>
+<div class="bi"><p>Typischer Fehler: 200 € stimmt nicht, weil sich die zweite Änderung auf den neuen Grundwert 220 € bezieht und deshalb größer ist als die erste.</p><p class="en" lang="en">Typical mistake: €200 is not correct, because the second change refers to the new base value of €220 and is therefore larger than the first.</p></div>
+<div class="bi"><p>Trick: Erst 10 % mehr, dann 10 % weniger ergibt immer 1 % weniger als am Anfang.</p><p class="en" lang="en">Trick: first 10% more, then 10% less always gives 1% less than at the start.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="8" data-frage="ma-pro-008" data-loesung="C">
+<h2>Aufgabe 8 <span class="en" lang="en">/ Question 8</span></h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: (C) 600 €</b></p>
+<div class="bi"><p>Nach 20 % Rabatt zahlst du 80 % des alten Preises: 80 % sind 480 €. Dann sind 10 % genau 60 € (480 : 8) und 100 % sind 600 €.</p><p class="en" lang="en">After a 20% discount you pay 80% of the old price: 80% is €480. Then 10% is exactly €60 (480 ÷ 8) and 100% is €600.</p></div>
+<div class="bi"><p>Typischer Fehler: 576 € entsteht, wenn du 20 % auf 480 € aufschlägst; die 20 % beziehen sich aber auf den alten Preis.</p><p class="en" lang="en">Typical mistake: €576 results if you add 20% to €480; but the 20% refer to the old price.</p></div>
+<div class="bi"><p>Trick: Setz die Antwort ein, 600 € − 120 € = 480 €.</p><p class="en" lang="en">Trick: put the answer in, €600 − €120 = €480.</p></div>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>der Grundwert</td><td lang="en">base value</td><td><span class="bi"><span>das Ganze, 100 %</span><span class="en" lang="en">the whole, 100%</span></span></td></tr>
+<tr><td data-nur-de>der Prozentsatz</td><td lang="en">percentage rate</td><td><span class="bi"><span>der Anteil in Prozent</span><span class="en" lang="en">the share in per cent</span></span></td></tr>
+<tr><td data-nur-de>der Prozentwert</td><td lang="en">percentage amount</td><td><span class="bi"><span>der Anteil in Euro, Stück oder Personen</span><span class="en" lang="en">the share in euros, pieces or people</span></span></td></tr>
+<tr><td data-nur-de>der Rabatt</td><td lang="en">discount</td><td><span class="bi"><span>der Preis wird um diesen Anteil kleiner</span><span class="en" lang="en">the price becomes smaller by this share</span></span></td></tr>
+<tr><td data-nur-de>die Anzahlung</td><td lang="en">down payment</td><td><span class="bi"><span>ein erster Teil des Preises, den man vorab zahlt</span><span class="en" lang="en">a first part of the price that one pays in advance</span></span></td></tr>
+<tr><td data-nur-de>die Ausbildungsvergütung</td><td lang="en">training allowance</td><td><span class="bi"><span>das Geld, das Auszubildende jeden Monat bekommen</span><span class="en" lang="en">the money that trainees get every month</span></span></td></tr>
+</tbody>
+</table>
+</section>
+<footer class="fuss"><div class="bi"><p>Übungsmaterial. Alle Aufgaben sind neu geschrieben; es sind keine Originalaufgaben eines Testanbieters oder Unternehmens.</p><p class="en" lang="en">Practice material. All questions are newly written; they are not original questions of a test provider or company.</p></div></footer>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

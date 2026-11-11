@@ -22,6 +22,7 @@ Restart Claude Code. Needs Python 3 for `scripts/check_material.py` (standard li
 | `schule-psychologie` | Psychologie as Hessen offers it |
 | `daf` | German as a foreign/second language A1–C1, allgemein and Beruf; Goethe, telc and DTB formats |
 | `kaenguru` | Mathe-Känguru preparation, classes 3–13; original problems, timed mock tests |
+| `einstellungstest` | Ausbildung Einstellungstest practice (Mathe, Logik, Deutsch, Englisch, IT, Konzentration, SJT …); original questions as JSON + sheets, timed mock tests; optional target (job, sector or employer) researched from public pages; output `unterricht/einstellungstest/` |
 
 Every skill has a `-review` partner (e.g. `schule-mathe-review`): it solves every task, checks facts, sums, level, the English lines and the animation, and writes `reviews/<skill>-<date>.md`.
 

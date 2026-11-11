@@ -1,0 +1,26 @@
+[
+ {
+  "id": "les-ma-pro-01",
+  "module": "mathe",
+  "topic": "Prozentrechnung",
+  "title": "Prozentrechnung: Anteil, Rabatt, Aufschlag",
+  "concept": "Prozent heißt „von hundert“: 1 % ist ein Hundertstel. Im Einstellungstest brauchst du Prozente für Rabatte, Preiserhöhungen, Anteile und Diagramme – ohne Taschenrechner und in etwa einer Minute pro Aufgabe.\n\nEs gibt nur drei Größen. Der Grundwert (G) ist das Ganze, also 100 %. Der Prozentsatz (p) ist der Anteil in Prozent. Der Prozentwert (W) ist der Anteil in Euro, Stück oder Personen. Sie hängen so zusammen: W = G × p : 100.\n\nDer erste Schritt ist deshalb immer derselbe: Finde heraus, was die 100 % sind. Danach rechnest du über 10 % oder 1 %.",
+  "example": "Ein Kopfhörer kostet 60 €. Es gibt 15 % Rabatt. Wie viel kostet er jetzt?\n100 % = 60 €\n10 % = 6 €\n5 % = 3 €\n15 % = 6 € + 3 € = 9 €\nNeuer Preis: 60 € − 9 € = 51 €",
+  "example_explained": "Zuerst legst du fest, was 100 % sind: der alte Preis, also 60 €. Dann rechnest du 10 % aus, indem du das Komma um eine Stelle nach links schiebst: 6 €. 5 % sind die Hälfte von 10 %, also 3 €. Zusammen sind 15 % genau 9 €; das ist der Rabatt. Die Frage will aber den neuen Preis, deshalb ziehst du den Rabatt ab: 60 € − 9 € = 51 €. Zur Probe rechnest du 85 % von 60 € und bekommst wieder 51 €.",
+  "tips": [
+   "Rechne über 10 % und 1 %: Für 10 % schiebst du das Komma eine Stelle nach links, für 1 % zwei Stellen.",
+   "Merke dir die Brüche: 50 % ist die Hälfte, 25 % ein Viertel, 20 % ein Fünftel, 10 % ein Zehntel.",
+   "Rabatt in einem Schritt: Bei 20 % Rabatt zahlst du 80 %. Rechne also direkt 80 % vom Preis.",
+   "Lies die Frage zweimal: Ist der Rabatt gefragt oder der neue Preis?",
+   "Überschlage vor dem Ankreuzen: Nach einem Rabatt muss der Preis kleiner sein, nach einem Aufschlag größer."
+  ],
+  "traps": [
+   "Der Grundwert ist der Wert vor der Änderung, nicht der neue Wert.",
+   "15 % Rabatt auf 80 € ist 12 €, nicht 15 €.",
+   "Erst 10 % mehr und dann 10 % weniger ist weniger als am Anfang, nicht gleich viel."
+  ],
+  "practice_topics": [
+   "Prozentrechnung"
+  ]
+ }
+]

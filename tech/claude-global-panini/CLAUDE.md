@@ -29,7 +29,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 
 ## Data
 - Scripts first: Python (ast, regex, dbt manifest, DDL, pandas/openpyxl) inventory · extract · count · summarise. Read yourself only where judgment needed — relevant lines or script summary, never whole files.
-- Never open: `.env*` `*.pem` `*.key` `*.p12` `*.pfx` `*.jks` `*.keystore` `id_*` (SSH keys) `credentials*` `secrets*` `*.tfvars` `*.tfstate*` `.npmrc` `.pypirc` `.netrc` `.git-credentials` `.docker/config.json` service-account `*.json` keys `kubeconfig` dbt `profiles.yml`, or any secret-looking name or path. Record existence only. Scripts · grep · scanners too: exclude these; report path + rule name, value `<redacted>`.
+- Never open: `.env*` `*.pem` `*.key` `*.p12` `*.pfx` `*.jks` `*.keystore` `id_*` (SSH keys) `credentials*` `secrets*` `*.tfvars` `*.tfstate*` `.npmrc` `.pypirc` `.netrc` `.git-credentials` `.docker/config.json` service-account `*.json` keys `kubeconfig` dbt `profiles.yml` (except: `darshan-singh-meel-prototype` check script → key names only of its own templated `prototypes/<name>/profiles.yml`), or any secret-looking name or path. Record existence only. Scripts · grep · scanners too: exclude these; report path + rule name, value `<redacted>`.
 - Minimal data to the model: structure (names, types, tags, code), not data. Graph, docs, diagrams, reviews never read rows; examples from tests/fixtures/docs/code or synthetic. Real data only if truly needed → notebook, counts/verdicts first, PII never.
 - Never write secrets (passwords, keys, tokens, connection strings) → names only, values `<redacted>`.
 - Data files → profile with Python (columns, types, counts, nulls, distinct, min/max; skip min/max + values of sensitive-looking columns). Never load whole files into the conversation.
@@ -66,6 +66,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Query/analyse data; develop/test dbt model, procedure, SQL against data | `darshan-singh-meel-notebook` |
 | Map repo · "what does X do / how / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear/complex task → plan with me | `darshan-singh-meel-ask-me` |
+| Throwaway prototype → answer a design question (logic · UI variants · data/dbt on DuckDB · Airflow flow) · its review | `darshan-singh-meel-prototype` · `darshan-singh-meel-prototype-review` |
 | UI design (look, layout, a11y) for dashboards, data apps, forms, landing pages; with build skills below | `darshan-singh-meel-frontend` |
 | Build React + TS UI · React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build/test/deploy Streamlit app (any host) | `darshan-singh-meel-streamlit` |

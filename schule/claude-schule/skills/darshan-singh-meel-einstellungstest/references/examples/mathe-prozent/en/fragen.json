@@ -1,0 +1,82 @@
+{
+ "ma-pro-001": {
+  "question": "How much is 20% of €150?",
+  "options": [
+   "€30",
+   "€120",
+   "€130",
+   "€170"
+  ],
+  "explanation": "10% of €150 is €15, 20% is double that: €30. Typical mistake: €120 is the rest (€150 − €30), not the share. Trick: 20% is one fifth, 150 ÷ 5 = 30."
+ },
+ "ma-pro-002": {
+  "question": "12 out of 48 trainees have a driving licence. What percentage is that?",
+  "options": [
+   "0.25%",
+   "4%",
+   "12%",
+   "25%"
+  ],
+  "explanation": "12 out of 48 is one quarter, because 48 ÷ 4 = 12. One quarter is 25%. Typical mistake: 4% results if you calculate 48 ÷ 12; that is the reciprocal and not a percentage rate. Trick: simplify first, 12/48 = 1/4."
+ },
+ "ma-pro-003": {
+  "question": "A jacket costs €80. In the clearance sale there is a 15% discount. How much does the jacket cost now?",
+  "options": [
+   "€12",
+   "€65",
+   "€68",
+   "€92"
+  ],
+  "explanation": "10% of €80 is €8, 5% is €4, so 15% is exactly €12. New price: €80 − €12 = €68. Typical mistake: €12 is only the discount, the new price is asked for; €65 results if you subtract €15 instead of 15%. Trick: subtract 10% and 5% one after the other, 80 − 8 − 4 = 68."
+ },
+ "ma-pro-004": {
+  "question": "A tablet now costs only €150 instead of €200. By what percentage has it become cheaper?",
+  "options": [
+   "25%",
+   "33.3%",
+   "50%",
+   "75%"
+  ],
+  "explanation": "The price falls by €50. The base value is the old price: 50 out of 200 is one quarter, that is 25%. Typical mistake: 33.3% results if you divide by the new price of €150; but the base value is the value before the change. Trick: simplify 50/200 to 1/4."
+ },
+ "ma-pro-005": {
+  "question": "Mia makes a down payment of €12. That is 30% of the price. How high is the whole price?",
+  "options": [
+   "€36",
+   "€40",
+   "€42",
+   "€360"
+  ],
+  "explanation": "30% is €12, so 10% is exactly €4 (12 ÷ 3). 100% is ten times as much: €40. Typical mistake: €36 results if you calculate 12 × 3; with that you only have 90%. Trick: always go via 10%, then times 10."
+ },
+ "ma-pro-006": {
+  "question": "A training allowance of €800 per month rises by 5%. How high is it afterwards?",
+  "options": [
+   "€40",
+   "€760",
+   "€805",
+   "€840"
+  ],
+  "explanation": "10% of €800 is €80, 5% is half of that: €40. New allowance: €800 + €40 = €840. Typical mistake: €40 is only the increase, the new allowance is asked for; €805 results if you add €5 instead of 5%. Trick: 5% is half of 10%."
+ },
+ "ma-pro-007": {
+  "question": "A price of €200 is first increased by 10% and afterwards reduced by 10%. How high is the price at the end?",
+  "options": [
+   "€180",
+   "€198",
+   "€200",
+   "€220"
+  ],
+  "explanation": "First change: 10% of €200 is €20, the price rises to €220. Second change: 10% of €220 is €22, the price falls to €198. Typical mistake: €200 is not correct, because the second change refers to the new base value of €220 and is therefore larger than the first. Trick: first 10% more, then 10% less always gives 1% less than at the start."
+ },
+ "ma-pro-008": {
+  "question": "After a 20% discount a bicycle costs €480. How much did it cost before the discount?",
+  "options": [
+   "€384",
+   "€576",
+   "€600",
+   "€2,400"
+  ],
+  "explanation": "After a 20% discount you pay 80% of the old price: 80% is €480. Then 10% is exactly €60 (480 ÷ 8) and 100% is €600. Typical mistake: €576 results if you add 20% to €480; but the 20% refer to the old price. Trick: put the answer in, €600 − €120 = €480."
+ }
+}

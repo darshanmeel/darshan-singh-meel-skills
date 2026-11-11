@@ -1,0 +1,10 @@
+# Prototype profile, generated from the skill template: one local DuckDB file, no secrets.
+# Allowed keys: target, outputs, type, path, schema, threads. check_prototype.py fails on anything else.
+prototype:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: prototype.duckdb
+      schema: main
+      threads: 1

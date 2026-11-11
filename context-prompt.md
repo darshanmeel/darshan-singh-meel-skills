@@ -42,6 +42,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first (PII discovery step; keyed hashing for masked values) |
 | `-data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC; checks official docs sites only when unsure |
 | `-ask-me` | plans unclear tasks with me in rounds of ≤4 questions |
+| `-prototype` (+ `-review`) | throwaway prototype answering one design question: logic · UI variants · DuckDB/dbt on synthetic data · Airflow flow, `prototypes/<name>/` |
 | `-frontend` | UI design rules (look, layout, accessibility) for dashboards, data apps; used with the build skills below |
 | `-frontend-react` | build React + TypeScript + component-library UIs; package a React component for Streamlit |
 | `-streamlit` | build, test, deploy open-source Streamlit apps on any host |
@@ -94,4 +95,4 @@ Two versions, always updated together and always delivered as **complete zips**,
 - Test what you can: run scripts, render pages, screenshot.
 
 ## School skills
-`schule/claude-schule` (+ `-panini`): Hessen teaching skills with reviewers (base `-schule`, `-schule-<fach>`, `-daf`, `-kaenguru`). Material German with the closest natural English sentence under every line; output `unterricht/<fach>/<stufe>/<thema>/`. Fable creates, Opus reviews. Zips: `schule/claude-schule.zip`, `schule/claude-schule-panini.zip`.
+`schule/claude-schule` (+ `-panini`): Hessen teaching skills with reviewers (base `-schule`, `-schule-<fach>`, `-daf`, `-kaenguru`, `-einstellungstest`). Material German with the closest natural English sentence under every line; output `unterricht/<fach>/<stufe>/<thema>/`. Fable creates, Opus reviews. Zips: `schule/claude-schule.zip`, `schule/claude-schule-panini.zip`.

@@ -1,0 +1,25 @@
+[
+ {
+  "id": "{{PREFIX}}-001",
+  "module": "{{MODUL}}",
+  "topic": "{{TOPIC wie im Kapitel}}",
+  "difficulty": 1,
+  "question": "{{FRAGE}}",
+  "options": ["{{A}}", "{{B}}", "{{C}}", "{{D}}"],
+  "answer": 0,
+  "explanation": "{{WEG}} Typischer Fehler: {{FEHLER}} Trick: {{TRICK}}",
+  "time_seconds": 30,
+  "check": "{{AUSDRUCK, nur bei berechenbaren Aufgaben; sonst Schlüssel löschen}}"
+ },
+ {
+  "id": "{{PREFIX}}-002",
+  "module": "sjt",
+  "topic": "{{TOPIC wie im Kapitel}}",
+  "difficulty": 2,
+  "question": "{{SITUATION}} Was tust du am ehesten?",
+  "options": ["{{REAKTION A}}", "{{REAKTION B}}", "{{REAKTION C}}", "{{REAKTION D}}"],
+  "answer": -1,
+  "explanation": "Darum geht es: {{KOMPETENZ}} Was jede Reaktion zeigt: {{je Reaktion ein Satz, mit Inhalt statt Buchstabe}} Arbeitgeber achten auf: {{VERHALTEN}} Wähle, was du wirklich tun würdest.",
+  "time_seconds": 60
+ }
+]
