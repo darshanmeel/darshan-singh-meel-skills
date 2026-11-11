@@ -61,6 +61,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Review v2 (fixed report: main review, then per-file detail for Must/Should) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs (README, KT, design, user guide, runbook) | `darshan-singh-meel-docs` |
 | Docs v2 (fixed builder, same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
+| Architecture review: current · problems · target (Technical shape) · impact cost/perf/maint/debt — on ask, or offered after Technical doc | `darshan-singh-meel-architecture` |
 | Query/analyse data; develop/test dbt model, procedure, SQL against data | `darshan-singh-meel-notebook` |
 | Map repo · "what does X do / how / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear/complex task → plan with me | `darshan-singh-meel-ask-me` |

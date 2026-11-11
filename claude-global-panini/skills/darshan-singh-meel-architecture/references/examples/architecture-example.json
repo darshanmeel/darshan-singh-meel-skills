@@ -1,0 +1,995 @@
+{
+  "title": "Architecture: orders-pipeline",
+  "date": "2026-11-11",
+  "subtitle": "Airflow, dbt, Snowflake · nightly 02:00 UTC · Postgres `orders` → Snowflake marts",
+  "review": "reviews/review-v2-2026-11-10-0930.html",
+  "verdict": "evolve",
+  "summary": "The stack fits the load; nightly full rebuilds and one scheduler VM drive cost and outage risk, so change how it runs, not what it runs on.",
+  "top": [
+    "C1",
+    "C2",
+    "C4"
+  ],
+  "current": {
+    "lead": "One nightly DAG copies the whole `orders` table, then rebuilds every mart from all history on an X-Large warehouse.",
+    "l0": {
+      "title": "Nightly load, big picture",
+      "nodes": [
+        {
+          "id": "pg",
+          "label": "Postgres `orders`",
+          "kind": "data",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "ex",
+          "label": "Extract",
+          "sub": "whole table",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "s3",
+          "label": "S3 raw",
+          "kind": "data",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "sf",
+          "label": "Snowflake marts",
+          "kind": "data",
+          "sub": "full refresh",
+          "col": 3,
+          "row": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "pg",
+          "to": "ex"
+        },
+        {
+          "from": "ex",
+          "to": "s3"
+        },
+        {
+          "from": "s3",
+          "to": "sf"
+        }
+      ]
+    },
+    "components": {
+      "title": "Components by platform",
+      "lanes": [
+        "Airflow VM",
+        "AWS",
+        "Snowflake"
+      ],
+      "nodes": [
+        {
+          "id": "dag",
+          "label": "orders_daily",
+          "kind": "entry",
+          "col": 0,
+          "row": 0,
+          "sub": "02:00 UTC"
+        },
+        {
+          "id": "pull",
+          "label": "pull_orders",
+          "kind": "code",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "dbt",
+          "label": "dbt build",
+          "kind": "code",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "pg",
+          "label": "Postgres orders",
+          "kind": "data",
+          "col": 0,
+          "row": 1
+        },
+        {
+          "id": "s3",
+          "label": "raw/orders/",
+          "kind": "data",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "raw",
+          "label": "raw.orders",
+          "kind": "data",
+          "col": 1,
+          "row": 2
+        },
+        {
+          "id": "marts",
+          "label": "3 marts",
+          "kind": "data",
+          "col": 2,
+          "row": 2,
+          "sub": "TRANSFORM_XL"
+        },
+        {
+          "id": "bi",
+          "label": "BI dashboards",
+          "kind": "person",
+          "col": 3,
+          "row": 2
+        }
+      ],
+      "edges": [
+        {
+          "from": "dag",
+          "to": "pull"
+        },
+        {
+          "from": "pg",
+          "to": "pull",
+          "label": "all rows",
+          "dashed": true
+        },
+        {
+          "from": "pull",
+          "to": "s3",
+          "dashed": true
+        },
+        {
+          "from": "s3",
+          "to": "raw",
+          "label": "COPY",
+          "dashed": true
+        },
+        {
+          "from": "dbt",
+          "to": "marts",
+          "label": "rebuild"
+        },
+        {
+          "from": "raw",
+          "to": "marts",
+          "dashed": true
+        },
+        {
+          "from": "marts",
+          "to": "bi",
+          "dashed": true
+        }
+      ],
+      "key": "dashed = data moves · solid = runs"
+    },
+    "runtime": [
+      [
+        "Scheduler",
+        "Airflow 2.9 on one `t3.large` VM: scheduler, worker and metadata DB together",
+        "infra/airflow/vm.tf:8"
+      ],
+      [
+        "Warehouse",
+        "`TRANSFORM_XL`, X-Large, auto-suspend 600 s",
+        "infra/snowflake/warehouses.tf:5-9"
+      ],
+      [
+        "Schedule",
+        "daily `0 2 * * *` UTC",
+        "dags/orders_daily.py:9"
+      ],
+      [
+        "Deploy",
+        "`terraform apply` from laptops; DAG and dbt code copied to the VM by `scp`",
+        "README.md:20-24"
+      ]
+    ],
+    "hotspots": [
+      {
+        "what": "dbt rebuild of 3 marts",
+        "value": "~70–80% of nightly warehouse time",
+        "kind": "estimate",
+        "assumption": "marts read all of `raw.orders`; extract and COPY take minutes",
+        "source": "dbt_project.yml:14"
+      },
+      {
+        "what": "`pull_orders` read",
+        "value": "whole table each night, held in one pandas frame",
+        "kind": "measured",
+        "source": "extract/pull_orders.py:22-30"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "id": "P1",
+      "title": "Every mart rebuilt from all history each night",
+      "area": "cost",
+      "sev": "High",
+      "evidence": [
+        "dbt_project.yml:14",
+        "models/marts/fct_orders.sql:1"
+      ],
+      "detail": "`+materialized: table` on all marts: each run rescans years of rows while only yesterday's orders change.",
+      "cost": "warehouse time grows with total history, not with daily volume"
+    },
+    {
+      "id": "P2",
+      "title": "One scheduler VM, no standby",
+      "area": "spof",
+      "sev": "High",
+      "evidence": [
+        "infra/airflow/vm.tf:8"
+      ],
+      "detail": "Scheduler, worker and metadata DB share one VM.",
+      "cost": "VM down at 02:00 means no marts that day; recovery is manual"
+    },
+    {
+      "id": "P3",
+      "title": "Whole table loaded into memory",
+      "area": "scaling",
+      "sev": "Medium",
+      "evidence": [
+        "extract/pull_orders.py:22-30"
+      ],
+      "detail": "`pd.read_sql` with no date filter and no chunks.",
+      "cost": "out of memory once `orders` outgrows the VM's 8 GB"
+    },
+    {
+      "id": "P4",
+      "title": "Revenue logic copied in 3 marts",
+      "area": "tech_debt",
+      "sev": "Medium",
+      "evidence": [
+        "models/marts/fct_orders.sql:12-20",
+        "models/marts/fct_returns.sql:8-16",
+        "models/marts/fct_refunds.sql:8-16"
+      ],
+      "detail": "Net revenue `CASE` copied; the review found the copies already differ on tax.",
+      "cost": "each rule change needs 3 edits; a missed one gives different totals per dashboard"
+    },
+    {
+      "id": "P5",
+      "title": "Infra applied by hand",
+      "area": "security",
+      "sev": "Medium",
+      "evidence": [
+        "README.md:20-24"
+      ],
+      "detail": "`terraform apply` runs from personal laptops with admin keys.",
+      "cost": "no review or audit trail of infra changes"
+    }
+  ],
+  "proposal": {
+    "lead": "Hybrid: dbt and Snowflake stay and run incrementally; the scheduler and infra deploys move; ingestion waits.",
+    "diagram": {
+      "title": "Target components",
+      "lanes": [
+        "Airflow",
+        "AWS",
+        "Snowflake"
+      ],
+      "nodes": [
+        {
+          "id": "dag",
+          "label": "orders_daily",
+          "kind": "entry",
+          "col": 0,
+          "row": 0,
+          "tag": "changed",
+          "sub": "managed, 2 schedulers"
+        },
+        {
+          "id": "pull",
+          "label": "pull_orders",
+          "kind": "code",
+          "col": 1,
+          "row": 0,
+          "tag": "changed",
+          "sub": "since watermark"
+        },
+        {
+          "id": "dbt",
+          "label": "dbt build",
+          "kind": "code",
+          "col": 2,
+          "row": 0,
+          "tag": "changed",
+          "sub": "incremental"
+        },
+        {
+          "id": "pg",
+          "label": "Postgres orders",
+          "kind": "data",
+          "col": 0,
+          "row": 1
+        },
+        {
+          "id": "s3",
+          "label": "raw/orders/dt=",
+          "kind": "data",
+          "col": 1,
+          "row": 1,
+          "tag": "changed"
+        },
+        {
+          "id": "raw",
+          "label": "raw.orders",
+          "kind": "data",
+          "col": 1,
+          "row": 2
+        },
+        {
+          "id": "int",
+          "label": "int_order_revenue",
+          "kind": "data",
+          "col": 2,
+          "row": 2,
+          "tag": "new"
+        },
+        {
+          "id": "marts",
+          "label": "3 marts",
+          "kind": "data",
+          "col": 3,
+          "row": 2,
+          "sub": "TRANSFORM_M"
+        }
+      ],
+      "edges": [
+        {
+          "from": "dag",
+          "to": "pull"
+        },
+        {
+          "from": "pg",
+          "to": "pull",
+          "label": "new rows",
+          "dashed": true
+        },
+        {
+          "from": "pull",
+          "to": "s3",
+          "dashed": true
+        },
+        {
+          "from": "s3",
+          "to": "raw",
+          "label": "COPY",
+          "dashed": true
+        },
+        {
+          "from": "raw",
+          "to": "int",
+          "dashed": true
+        },
+        {
+          "from": "int",
+          "to": "marts",
+          "label": "merge",
+          "dashed": true
+        },
+        {
+          "from": "dbt",
+          "to": "int"
+        }
+      ],
+      "key": "tag new / changed = what the changes add or alter"
+    },
+    "changes": [
+      {
+        "id": "C1",
+        "title": "Incremental marts",
+        "what": "`fct_orders`, `fct_returns`, `fct_refunds` as `incremental` with `unique_key` and a 3-day lookback; warehouse down to Medium",
+        "why": "each run scans days of rows, not years",
+        "fixes": [
+          "P1"
+        ]
+      },
+      {
+        "id": "C2",
+        "title": "Scheduler on MWAA",
+        "what": "run `orders_daily` on Amazon MWAA with 2 schedulers; retire the VM",
+        "why": "no single VM; patching and restarts move to the service",
+        "fixes": [
+          "P2"
+        ],
+        "pattern": "orchestrator-native",
+        "signal": [
+          "infra/airflow/vm.tf:8"
+        ],
+        "tool": {
+          "name": "Amazon MWAA",
+          "why": "DAG code moves unchanged; the AWS account already holds S3 raw"
+        },
+        "alternatives": [
+          {
+            "name": "Snowflake Tasks",
+            "tradeoff": "no scheduler to run; the Python extract needs a container"
+          },
+          {
+            "name": "Dagster+",
+            "tradeoff": "asset lineage across extract and dbt; a new framework"
+          },
+          {
+            "name": "Astronomer",
+            "tradeoff": "managed Airflow on any cloud; a second vendor contract"
+          }
+        ],
+        "prereq": [
+          "DAG imports checked against the MWAA Airflow version"
+        ]
+      },
+      {
+        "id": "C3",
+        "title": "Watermarked, chunked extract",
+        "what": "`pull_orders` reads rows with `updated_at` after the last watermark, 50k rows per chunk",
+        "why": "memory and run time follow daily volume",
+        "fixes": [
+          "P3"
+        ]
+      },
+      {
+        "id": "C4",
+        "title": "One shared revenue model",
+        "what": "`int_order_revenue` holds the `CASE`; the 3 marts `ref()` it",
+        "why": "one edit per rule change; totals cannot drift",
+        "fixes": [
+          "P4"
+        ]
+      },
+      {
+        "id": "C5",
+        "title": "Terraform from CI",
+        "what": "plan on pull request, apply on merge with a deploy role",
+        "why": "every infra change reviewed and logged",
+        "fixes": [
+          "P5"
+        ],
+        "pattern": "tf-ci",
+        "signal": [
+          "README.md:20-24"
+        ],
+        "tool": {
+          "name": "GitHub Actions",
+          "why": "the code is on GitHub; plan and apply sit next to the review"
+        },
+        "alternatives": [
+          {
+            "name": "HCP Terraform",
+            "tradeoff": "runs, state and policy managed; a paid tier for teams"
+          },
+          {
+            "name": "Atlantis",
+            "tradeoff": "plan and apply from PR comments; a server to host"
+          }
+        ]
+      }
+    ],
+    "options": [
+      {
+        "name": "Evolve in place",
+        "what": "C1–C5 on the current stack",
+        "gains": "lowest risk; each step ships and rolls back alone",
+        "costs": "managed Airflow adds a fixed monthly fee",
+        "chosen": true,
+        "size": "same 3 models, 1 DAG; +1 shared model, +2 workflow files (estimate)"
+      },
+      {
+        "name": "Move transforms to Spark",
+        "what": "rewrite the marts as Spark jobs",
+        "gains": "one engine for extract and transform",
+        "costs": "rewrite of every model, a second platform to run, no saving at this volume",
+        "size": "3 models (~70 lines) → ~3 Spark jobs (~200 lines, estimate); tests rewritten"
+      },
+      {
+        "name": "Run weekly",
+        "what": "cut the schedule to weekly",
+        "gains": "about 85% fewer runs, no code change",
+        "costs": "dashboards up to 7 days old",
+        "size": "no code change"
+      }
+    ],
+    "stays": [
+      "Snowflake as warehouse, dbt as transform layer",
+      "S3 as raw landing zone",
+      "mart columns the dashboards read"
+    ],
+    "moves": [
+      {
+        "component": "dbt marts",
+        "now": "dbt on Snowflake, full rebuild",
+        "decision": "keep",
+        "change": "C1",
+        "why": "dbt fits; incremental models and one shared model (C1, C4) remove the cost",
+        "alternatives": [
+          {
+            "name": "SQLMesh",
+            "tradeoff": "virtual dev environments and column lineage; migration of 3 models and macros"
+          },
+          {
+            "name": "Snowflake Dynamic Tables",
+            "tradeoff": "no scheduler for refresh; no tests, lineage or shared macros"
+          }
+        ]
+      },
+      {
+        "component": "orders_daily scheduler",
+        "now": "Airflow 2.9 on one VM",
+        "decision": "move",
+        "to": "Amazon MWAA",
+        "change": "C2",
+        "why": "the VM is the single point of failure; DAG code moves unchanged"
+      },
+      {
+        "component": "pull_orders extract",
+        "now": "Python + pandas, whole table",
+        "decision": "keep",
+        "change": "C3",
+        "why": "extract only; a watermark and chunks fix memory without a new tool",
+        "alternatives": [
+          {
+            "name": "Fivetran or Airbyte",
+            "tradeoff": "managed connector with CDC; a licence or a service to run"
+          },
+          {
+            "name": "Snowflake Openflow (Postgres CDC connector)",
+            "tradeoff": "no Python to maintain; new platform feature to learn"
+          },
+          {
+            "name": "DuckDB or Polars",
+            "tradeoff": "same script, columnar and out-of-core; still self-run"
+          }
+        ]
+      },
+      {
+        "component": "Infra deploy",
+        "now": "`terraform apply` from laptops",
+        "decision": "move",
+        "to": "Terraform in GitHub Actions",
+        "change": "C5",
+        "why": "no review or audit trail today"
+      },
+      {
+        "component": "S3 landing + COPY",
+        "now": "nightly COPY of one file",
+        "decision": "later",
+        "to": "Snowpipe auto-ingest",
+        "why": "nightly batch fits; worth it once dashboards need data within the hour",
+        "alternatives": [
+          {
+            "name": "Snowpipe Streaming",
+            "tradeoff": "seconds of latency; needs a streaming client"
+          },
+          {
+            "name": "External table on S3",
+            "tradeoff": "no load at all; slower queries on raw files"
+          }
+        ],
+        "until": "a dashboard needs orders less than 1 hour old"
+      }
+    ],
+    "components": [
+      [
+        "int_order_revenue",
+        "net revenue per order line: the one `CASE`",
+        "models/intermediate/int_order_revenue.sql (new)"
+      ],
+      [
+        "orders_daily",
+        "same DAG, run by MWAA with 2 schedulers",
+        "dags/orders_daily.py"
+      ]
+    ],
+    "technical": {
+      "Data model": [
+        {
+          "type": "er",
+          "title": "ER: revenue",
+          "entities": [
+            {
+              "id": "int",
+              "name": "int_order_revenue",
+              "cols": [
+                [
+                  "order_id",
+                  "pk"
+                ],
+                [
+                  "net_revenue",
+                  "after tax"
+                ]
+              ]
+            },
+            {
+              "id": "fct",
+              "name": "fct_orders",
+              "cols": [
+                [
+                  "order_id",
+                  "pk, merge key"
+                ],
+                [
+                  "net_revenue",
+                  "from int"
+                ]
+              ]
+            }
+          ],
+          "rels": [
+            {
+              "from": "fct",
+              "from_col": "order_id",
+              "to": "int",
+              "to_col": "order_id"
+            }
+          ]
+        }
+      ],
+      "Deploy and environments": [
+        {
+          "type": "steps",
+          "rows": [
+            [
+              "Pull request",
+              "`terraform plan` posted as a comment",
+              "GitHub Actions"
+            ],
+            [
+              "Merge to main",
+              "`terraform apply` with the deploy role",
+              "GitHub Actions"
+            ],
+            [
+              "DAG change merged",
+              "DAG synced to the MWAA bucket",
+              "GitHub Actions"
+            ]
+          ]
+        }
+      ],
+      "Operations": [
+        {
+          "type": "symptoms",
+          "rows": [
+            [
+              "Marts not ready by 03:00",
+              "a task failed; MWAA keeps its log",
+              "clear the failed task in the Airflow UI"
+            ],
+            [
+              "A day's mart rows missing",
+              "an update older than the 3-day lookback",
+              "`dbt build --full-refresh -s fct_orders`"
+            ]
+          ]
+        }
+      ],
+      "Tests": [
+        {
+          "type": "tests",
+          "rows": [
+            [
+              "dbt tests on the 3 marts",
+              "unique and not_null `order_id`; unchanged by incremental builds"
+            ],
+            [
+              "DAG import test in CI",
+              "`orders_daily` parses on the MWAA Airflow version"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "workflows": [
+    {
+      "title": "Nightly load: Postgres `orders` → `fct_orders`",
+      "changes": [
+        "C1",
+        "C3"
+      ],
+      "current": {
+        "input": "Postgres `orders`, all rows",
+        "steps": [
+          {
+            "do": "Read whole table",
+            "out": "one frame with every row",
+            "where": "extract/pull_orders.py:22"
+          },
+          {
+            "do": "Write parquet to S3",
+            "out": "`raw/orders/` one file",
+            "where": "extract/pull_orders.py:41"
+          },
+          {
+            "do": "COPY into raw",
+            "out": "`raw.orders` replaced",
+            "where": "dags/orders_daily.py:21"
+          },
+          {
+            "do": "dbt build, full refresh",
+            "out": "3 marts rebuilt",
+            "where": "dbt_project.yml:14"
+          }
+        ],
+        "output": "`fct_orders` ready ~03:30",
+        "examples": [
+          {
+            "case": "typical",
+            "title": "Night after a normal day",
+            "expect": "marts current before 06:00",
+            "in": "2.4M rows, 6k new",
+            "at": [
+              "2.4M rows in memory",
+              "1 file, 2.4M rows",
+              "2.4M rows",
+              "2.4M rows scanned ×3"
+            ],
+            "out": "done 03:30, ~90 min on XL",
+            "synthetic": true
+          }
+        ]
+      },
+      "proposed": {
+        "input": "Postgres `orders` since the watermark",
+        "steps": [
+          {
+            "do": "Read rows since watermark",
+            "out": "chunks of 50k rows",
+            "why": "the watermark skips rows already loaded"
+          },
+          {
+            "do": "Write parquet to S3",
+            "out": "`raw/orders/dt=2026-11-10/`"
+          },
+          {
+            "do": "COPY new files",
+            "out": "`raw.orders` + new rows"
+          },
+          {
+            "do": "dbt build, incremental",
+            "out": "3-day merge into 3 marts",
+            "why": "merge on `order_id` touches changed rows only"
+          }
+        ],
+        "output": "`fct_orders` ready ~02:20",
+        "examples": [
+          {
+            "case": "typical",
+            "title": "Same night, new design",
+            "expect": "same mart rows as a full refresh",
+            "in": "6k new or changed rows",
+            "at": [
+              "6k rows, 1 chunk",
+              "1 file, 6k rows",
+              "+6k rows",
+              "~20k rows merged ×3"
+            ],
+            "out": "done 02:20, ~10–15 min on M",
+            "synthetic": true
+          }
+        ]
+      }
+    },
+    {
+      "title": "Scheduler outage at 02:00 → marts",
+      "changes": [
+        "C2"
+      ],
+      "current": {
+        "input": "VM stops at 01:50",
+        "steps": [
+          {
+            "do": "02:00 run never starts",
+            "out": "0 DAG runs, no alert",
+            "where": "infra/airflow/vm.tf:8",
+            "why": "the only scheduler is on the stopped VM"
+          },
+          {
+            "do": "Users report stale dashboards",
+            "out": "ticket at ~09:00"
+          },
+          {
+            "do": "Restart VM, trigger DAG",
+            "out": "manual run 09:30"
+          }
+        ],
+        "output": "marts current ~11:00",
+        "examples": [
+          {
+            "case": "failure",
+            "title": "VM crash before the run",
+            "expect": "marts on time despite the crash",
+            "in": "VM down 01:50",
+            "at": [
+              "0 runs",
+              "ticket 09:00",
+              "run 09:30"
+            ],
+            "out": "marts 9 h late",
+            "synthetic": true
+          }
+        ]
+      },
+      "proposed": {
+        "input": "one scheduler stops at 01:50",
+        "steps": [
+          {
+            "do": "Second scheduler picks up",
+            "out": "run starts 02:00",
+            "why": "2 schedulers share the queue"
+          },
+          {
+            "do": "Run as on a normal night",
+            "out": "3 marts merged"
+          }
+        ],
+        "output": "marts current ~02:20",
+        "examples": [
+          {
+            "case": "failure",
+            "title": "Same crash, managed",
+            "expect": "standby takes over within a minute",
+            "in": "scheduler 1 down 01:50",
+            "at": [
+              "scheduler 2, 02:00",
+              "3 marts by 02:20"
+            ],
+            "out": "marts on time",
+            "synthetic": true
+          }
+        ]
+      }
+    }
+  ],
+  "impact": [
+    {
+      "change": "C1",
+      "dim": "cost",
+      "now": "X-Large, ~90 min a night",
+      "proposed": "Medium, ~10–15 min a night",
+      "saving": "~85–95% of transform credits",
+      "kind": "estimate",
+      "source": "infra/snowflake/warehouses.tf:5-9",
+      "assumption": "X-Large bills 16 credits/h, Medium 4; incremental scans 3 days, not all history",
+      "headline": true
+    },
+    {
+      "change": "C1",
+      "dim": "performance",
+      "now": "marts ready ~03:30",
+      "proposed": "~02:20",
+      "saving": "~70 min earlier",
+      "kind": "estimate",
+      "assumption": "run time follows rows scanned"
+    },
+    {
+      "change": "C2",
+      "dim": "risk",
+      "now": "1 VM: an outage skips the night",
+      "proposed": "2 schedulers, managed restarts",
+      "saving": "outage nights: manual recovery to none",
+      "kind": "estimate",
+      "assumption": "the managed service keeps one scheduler up",
+      "headline": true
+    },
+    {
+      "change": "C2",
+      "dim": "cost",
+      "now": "1 `t3.large` VM",
+      "proposed": "smallest MWAA environment class",
+      "saving": "rises: ~$300–400 a month extra",
+      "kind": "estimate",
+      "source": "infra/airflow/vm.tf:8",
+      "assumption": "list prices of the smallest MWAA class vs one t3.large VM"
+    },
+    {
+      "change": "C2",
+      "dim": "maintenance",
+      "now": "OS and Airflow patched by hand",
+      "proposed": "patched by the service",
+      "saving": "~1–2 engineer days a month",
+      "kind": "estimate",
+      "assumption": "monthly patch and restart work on the VM"
+    },
+    {
+      "change": "C3",
+      "dim": "performance",
+      "now": "every row in one frame",
+      "proposed": "50k-row chunks since watermark",
+      "saving": "memory flat as history grows",
+      "kind": "measured",
+      "source": "extract/pull_orders.py:22-30"
+    },
+    {
+      "change": "C4",
+      "dim": "tech_debt",
+      "now": "revenue `CASE` in 3 marts",
+      "proposed": "in 1 model",
+      "saving": "3 edits → 1 per rule change",
+      "kind": "measured",
+      "headline": true,
+      "fact": "marts"
+    },
+    {
+      "change": "C5",
+      "dim": "risk",
+      "now": "apply from laptops, no log",
+      "proposed": "apply on merge, logged",
+      "saving": "every infra change reviewed",
+      "kind": "measured",
+      "source": "README.md:20-24"
+    }
+  ],
+  "migration": [
+    {
+      "step": "Add `int_order_revenue`; marts `ref()` it",
+      "changes": [
+        "C4"
+      ],
+      "effort": "S",
+      "risk": "Low",
+      "rollback": "revert the PR; mart columns unchanged"
+    },
+    {
+      "step": "Terraform plan and apply in CI",
+      "changes": [
+        "C5"
+      ],
+      "effort": "S",
+      "risk": "Low",
+      "rollback": "apply from a laptop again"
+    },
+    {
+      "step": "Watermarked, chunked extract",
+      "changes": [
+        "C3"
+      ],
+      "effort": "M",
+      "risk": "Medium",
+      "rollback": "a full-read flag restores the old query"
+    },
+    {
+      "step": "Incremental marts, warehouse to Medium",
+      "changes": [
+        "C1"
+      ],
+      "effort": "M",
+      "risk": "Medium",
+      "needs": [
+        3
+      ],
+      "rollback": "`dbt build --full-refresh`, warehouse back to X-Large"
+    },
+    {
+      "step": "MWAA in parallel for 2 weeks, then retire the VM",
+      "changes": [
+        "C2"
+      ],
+      "effort": "L",
+      "risk": "Medium",
+      "rollback": "VM kept stopped for 30 days; start it again",
+      "wait": "L effort: the quick wins ship while the MWAA environment is set up"
+    }
+  ],
+  "questions": [
+    "Do dashboard users need data before 06:00? If not, C1's speed gain matters less than its cost gain.",
+    "Is an MWAA fee approved? If not, C2 becomes a standby VM with a shared metadata DB."
+  ],
+  "assumptions": [
+    [
+      "Daily new or changed rows stay under 1% of `orders`",
+      "C1 and C3 savings scale with that share"
+    ],
+    [
+      "Late updates arrive within 3 days",
+      "older edits would miss the incremental lookback"
+    ]
+  ]
+}

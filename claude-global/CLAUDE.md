@@ -62,6 +62,7 @@
 | Review v2 (fixed report: main review, then a detailed section per file with Must/Should findings) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs: READMEs, KT, design docs, user guides, runbooks | `darshan-singh-meel-docs` |
 | Docs, version 2 (fixed builder: same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
+| Architecture review: current, problems, proposed target (Technical-doc shape), impact on cost/performance/maintenance/tech debt — when I ask, or offered after a Technical doc | `darshan-singh-meel-architecture` |
 | Query or analyse data; develop/test a dbt model, procedure, or SQL against data | `darshan-singh-meel-notebook` |
 | Map a repo; answer "what does X do / how does Y work / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear or complex task — plan it with me first | `darshan-singh-meel-ask-me` |
