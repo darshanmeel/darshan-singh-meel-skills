@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Wie entsteht der Marktpreis?</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Politik und Wirtschaft · Jg. 9</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Wie entsteht der Marktpreis?</span><span class="en" lang="en">How does the market price come about?</span></span></h1>
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Bei 2 €: nachgefragte Menge 100 Schalen, angebotene Menge 20 Schalen. Bei 5 €: nachgefragte Menge 40 Schalen, angebotene Menge 80 Schalen.</p><p class="en" lang="en"><strong>Result:</strong> At €2: quantity demanded 100 punnets, quantity supplied 20 punnets. At €5: quantity demanded 40 punnets, quantity supplied 80 punnets.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Lies in M1 die Zeilen für 2 € und für 5 € ab.</p><p class="en" lang="en"><strong>Solution steps:</strong> Read off the rows for €2 and for €5 in M1.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> Die beiden Spalten werden vertauscht.</p><p class="en" lang="en"><strong>Typical mistake:</strong> The two columns are mixed up.</p></div>
+</section>
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Die Nachfragekurve N fällt von (120 Schalen | 1 €) bis (20 Schalen | 6 €). Die Angebotskurve A steigt von (0 Schalen | 1 €) bis (100 Schalen | 6 €). Die Kurven schneiden sich bei 60 Schalen und 4 €: Gleichgewichtspreis 4 €, Gleichgewichtsmenge 60 Schalen.</p><p class="en" lang="en"><strong>Result:</strong> The demand curve N (D) falls from (120 punnets | €1) to (20 punnets | €6). The supply curve A (S) rises from (0 punnets | €1) to (100 punnets | €6). The curves intersect at 60 punnets and €4: equilibrium price €4, equilibrium quantity 60 punnets.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Trage für jeden Preis aus M1 zwei Punkte ein: einen für die nachgefragte und einen für die angebotene Menge. Verbinde die Punkte jeder Reihe. Kontrolle in M1: Bei 4 € betragen beide Mengen 60 Schalen.</p><p class="en" lang="en"><strong>Solution steps:</strong> Plot two points for each price from M1: one for the quantity demanded and one for the quantity supplied. Connect the points of each series. Check in M1: At €4 both quantities amount to 60 punnets.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> Der Preis wird auf der x-Achse eingetragen. Im Preis-Mengen-Diagramm steht der Preis auf der y-Achse.</p><p class="en" lang="en"><strong>Typical mistake:</strong> The price is plotted on the x-axis. In the price-quantity diagram the price is on the y-axis.</p></div>
+<figure>
+<svg viewBox="0 0 720 420" role="img" aria-label="Preis-Mengen-Diagramm: fallende Nachfragekurve N, steigende Angebotskurve A, Schnittpunkt bei 60 Schalen und 4 Euro / price-quantity diagram: falling demand curve N (D), rising supply curve A (S), intersection at 60 punnets and 4 euros">
+<g stroke="#111" stroke-width="2"><line x1="90" y1="360" x2="690" y2="360"/><line x1="90" y1="360" x2="90" y2="30"/><line x1="90" y1="360" x2="90" y2="368"/><line x1="170" y1="360" x2="170" y2="368"/><line x1="250" y1="360" x2="250" y2="368"/><line x1="330" y1="360" x2="330" y2="368"/><line x1="410" y1="360" x2="410" y2="368"/><line x1="490" y1="360" x2="490" y2="368"/><line x1="570" y1="360" x2="570" y2="368"/><line x1="650" y1="360" x2="650" y2="368"/><line x1="82" y1="315" x2="90" y2="315"/><line x1="82" y1="270" x2="90" y2="270"/><line x1="82" y1="225" x2="90" y2="225"/><line x1="82" y1="180" x2="90" y2="180"/><line x1="82" y1="135" x2="90" y2="135"/><line x1="82" y1="90" x2="90" y2="90"/><line x1="82" y1="45" x2="90" y2="45"/></g>
+<g font-size="16" fill="#111"><text x="90" y="388" text-anchor="middle">0</text><text x="170" y="388" text-anchor="middle">20</text><text x="250" y="388" text-anchor="middle">40</text><text x="330" y="388" text-anchor="middle">60</text><text x="410" y="388" text-anchor="middle">80</text><text x="490" y="388" text-anchor="middle">100</text><text x="570" y="388" text-anchor="middle">120</text><text x="650" y="388" text-anchor="middle">140</text><text x="74" y="321" text-anchor="end">1</text><text x="74" y="276" text-anchor="end">2</text><text x="74" y="231" text-anchor="end">3</text><text x="74" y="186" text-anchor="end">4</text><text x="74" y="141" text-anchor="end">5</text><text x="74" y="96" text-anchor="end">6</text><text x="74" y="51" text-anchor="end">7</text>
+<text x="690" y="412" text-anchor="end">Menge in Schalen / quantity in punnets</text>
+<text x="100" y="24">Preis in € je Schale / price in € per punnet</text></g>
+<path id="kurveN" d="M570 315 L170 90" fill="none" stroke="#1a4480" stroke-width="4"/>
+<path id="kurveA" d="M90 315 L490 90" fill="none" stroke="#111" stroke-width="4" stroke-dasharray="12 7"/>
+<text id="nameN" x="580" y="321" font-size="18" font-weight="700" fill="#1a4480">N / D</text>
+<text id="nameA" x="500" y="96" font-size="18" font-weight="700" fill="#111">A / S</text>
+<g id="gg">
+<line x1="90" y1="180" x2="330" y2="180" stroke="#111" stroke-width="1.5" stroke-dasharray="3 5"/>
+<line x1="330" y1="180" x2="330" y2="360" stroke="#111" stroke-width="1.5" stroke-dasharray="3 5"/>
+<circle cx="330" cy="180" r="8" fill="#a64500" stroke="#111" stroke-width="2"/>
+<text x="346" y="186" font-size="17" font-weight="700" fill="#111">4 € · 60</text>
+</g>
+</svg>
+<figcaption><span class="bi"><span>Lösung zu Aufgabe 2: N durchgezogen, A gestrichelt.</span><span class="en" lang="en">Solution to task 2: N (D) solid, A (S) dashed.</span></span></figcaption>
+</figure>
+</section>
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Bei 2 € entsteht ein Nachfrageüberhang von 80 Schalen (100 − 20). Der Preis steigt, bis er den Gleichgewichtspreis von 4 € erreicht.</p><p class="en" lang="en"><strong>Result:</strong> At €2 an excess demand of 80 punnets arises (100 − 20). The price rises until it reaches the equilibrium price of €4.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Bei 2 € wollen die Käufer 100 Schalen kaufen, die Händler bieten aber nur 20 Schalen an. Viele Käufer gehen leer aus; manche sind bereit, mehr zu zahlen.</p><p class="en" lang="en"><strong>Solution steps:</strong> At €2 the buyers want to buy 100 punnets, but the sellers offer only 20 punnets. Many buyers go away empty-handed; some are willing to pay more.</p></div>
+<div class="bi"><p>Die Händler bemerken das und erhöhen den Preis. Mit steigendem Preis sinkt die nachgefragte Menge und die angebotene Menge steigt. Bei 4 € sind beide Mengen gleich groß (60 Schalen); der Überhang ist verschwunden.</p><p class="en" lang="en">The sellers notice this and raise the price. With a rising price the quantity demanded falls and the quantity supplied rises. At €4 both quantities are equal (60 punnets); the excess has disappeared.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> „Die Nachfrage sinkt.“ Richtig: Die nachgefragte Menge sinkt; die Nachfragekurve verschiebt sich nicht.</p><p class="en" lang="en"><strong>Typical mistake:</strong> “Demand falls.” Correct: The quantity demanded falls; the demand curve does not shift.</p></div>
+</section>
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Kriterien:</strong> Mindestens zwei Annahmen des Modells werden mit einem echten Wochenmarkt verglichen; am Ende steht ein begründetes Ergebnis. Beide Ergebnisse unten sind richtig, wenn sie begründet sind.</p><p class="en" lang="en"><strong>Criteria:</strong> At least two assumptions of the model are compared with a real weekly market; at the end there is a reasoned result. Both results below are correct if reasons are given for them.</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> Ergebnis A – das Modell erklärt den Preis weitgehend: Auf einem Wochenmarkt stehen mehrere Stände mit ähnlichen Erdbeeren nebeneinander, und die Käufer können die Preise leicht vergleichen. Senken Händler gegen Marktende den Preis, um nichts übrig zu behalten, passt das zum Angebotsüberhang.</p><p class="en" lang="en"><strong>Model answer:</strong> Result A – the model largely explains the price: At a weekly market several stalls with similar strawberries stand side by side, and the buyers can easily compare the prices. If sellers lower the price towards the end of the market in order to have nothing left over, this fits excess supply.</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> Ergebnis B – das Modell erklärt den Preis nur zum Teil: Die Erdbeeren sind nicht gleich (Sorte, Frische, Herkunft), nicht jeder Käufer vergleicht alle Stände, und Stammkunden kaufen aus Gewohnheit. Gibt es nur wenige Stände, kann ein einzelner Händler den Preis mitbestimmen.</p><p class="en" lang="en"><strong>Model answer:</strong> Result B – the model only partly explains the price: The strawberries are not identical (variety, freshness, origin), not every buyer compares all stalls, and regular customers buy out of habit. If there are only a few stalls, a single seller can help to determine the price.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> Eine Meinung ohne Kriterium, zum Beispiel: „Das Modell ist unrealistisch.“</p><p class="en" lang="en"><strong>Typical mistake:</strong> An opinion without a criterion, for example: “The model is unrealistic.”</p></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

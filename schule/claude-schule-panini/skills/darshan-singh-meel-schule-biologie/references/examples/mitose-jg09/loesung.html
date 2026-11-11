@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Mitose</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Biologie · Jahrgang 9</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Mitose: Aus einer Zelle werden zwei</span><span class="en" lang="en">Mitosis: One cell becomes two</span></span></h1>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Interphase E · Prophase B · Metaphase D · Anaphase A · Telophase C</p><p class="en" lang="en"><strong>Result:</strong> interphase E · prophase B · metaphase D · anaphase A · telophase C</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> E: Zellkern mit Kernhülle, keine einzelnen Chromosomen erkennbar. B: Chromosomen sichtbar, Kernhülle löst sich auf. D: Chromosomen in der Mitte der Zelle, Spindelfasern an jedem Chromosom. A: Chromatiden getrennt, auf dem Weg zu den Polen. C: zwei neue Zellkerne, die Zelle schnürt sich ein.</p><p class="en" lang="en"><strong>Solution steps:</strong> E: nucleus with nuclear envelope, no single chromosomes recognisable. B: chromosomes visible, nuclear envelope breaks down. D: chromosomes in the middle of the cell, spindle fibres at each chromosome. A: chromatids separated, on the way to the poles. C: two new nuclei, the cell constricts.</p></div>
+<div class="bi"><p>Typischer Fehler: Anaphase (A) und Telophase (C) werden vertauscht. In der Anaphase gibt es noch keine neue Kernhülle.</p><p class="en" lang="en">Typical mistake: Anaphase (A) and telophase (C) are mixed up. In anaphase there is not yet a new nuclear envelope.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> a) Metaphase: 4 Chromosomen, 8 Chromatiden. b) Jede Tochterzelle: 4 Chromosomen, 4 Chromatiden.</p><p class="en" lang="en"><strong>Result:</strong> a) Metaphase: 4 chromosomes, 8 chromatids. b) Each daughter cell: 4 chromosomes, 4 chromatids.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> a) Bild D zeigt 4 Zentromere, also 4 Chromosomen. Jedes besteht aus 2 Chromatiden: 4 · 2 = 8. b) In der Anaphase wird jedes Chromosom in seine 2 Chromatiden getrennt. Jeder Pol erhält 8 : 2 = 4 Chromatiden. Jedes ist jetzt ein Chromosom aus einem Chromatid.</p><p class="en" lang="en"><strong>Solution steps:</strong> a) Picture D shows 4 centromeres, therefore 4 chromosomes. Each consists of 2 chromatids: 4 · 2 = 8. b) In anaphase each chromosome is separated into its 2 chromatids. Each pole receives 8 : 2 = 4 chromatids. Each is now a chromosome of one chromatid.</p></div>
+<div class="bi"><p>Typischer Fehler: Chromatiden werden als Chromosomen gezählt (8 Chromosomen in der Metaphase), oder die Tochterzellen erhalten nur 2 Chromosomen. Die Mitose halbiert den Chromosomensatz nicht.</p><p class="en" lang="en">Typical mistake: Chromatids are counted as chromosomes (8 chromosomes in metaphase), or the daughter cells receive only 2 chromosomes. Mitosis does not halve the chromosome set.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis (Musterantwort):</strong> In der Interphase wird die Erbinformation verdoppelt. Jedes Chromosom besteht danach aus zwei gleichen Chromatiden. In der Anaphase werden die zwei Chromatiden jedes Chromosoms getrennt und zu entgegengesetzten Zellpolen gezogen. Jede Tochterzelle erhält so von jedem Chromosom ein Chromatid und damit die gleiche, vollständige Erbinformation wie die Mutterzelle.</p><p class="en" lang="en"><strong>Result (model answer):</strong> In interphase the genetic information is duplicated. Each chromosome then consists of two identical chromatids. In anaphase the two chromatids of each chromosome are separated and pulled to opposite cell poles. Each daughter cell thus receives one chromatid of each chromosome and with it the same, complete genetic information as the parent cell.</p></div>
+<div class="bi"><p><strong>Kriterien:</strong> Verdopplung vor der Mitose genannt · zwei gleiche Chromatiden je Chromosom · Trennung der Chromatiden und Verteilung auf beide Pole · Schluss: jede Tochterzelle hat alle Chromosomen.</p><p class="en" lang="en"><strong>Criteria:</strong> duplication before mitosis named · two identical chromatids per chromosome · separation of the chromatids and distribution to both poles · conclusion: each daughter cell has all chromosomes.</p></div>
+<div class="bi"><p>Typischer Fehler: „Die Chromosomen werden halbiert, also hat jede Zelle die halbe Erbinformation.“ Richtig: Die zwei Chromatiden sind Kopien; getrennt werden Kopien, nicht verschiedene Informationen.</p><p class="en" lang="en">Typical mistake: “The chromosomes are halved, therefore each cell has half the genetic information.” Correct: The two chromatids are copies; copies are separated, not different pieces of information.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis (Musterantwort):</strong> Hypothese: Die Mitose bleibt nach der Prophase stehen; die Metaphase wird nicht abgeschlossen und die Anaphase findet nicht statt. Begründung: Die Chromosomen verdichten sich auch ohne Spindelfasern. Die Spindelfasern ordnen aber die Chromosomen in der Äquatorialebene an und ziehen die Chromatiden zu den Polen. Ohne sie bleiben die Chromatiden zusammen. Folge: Es entstehen keine zwei Zellkerne, die Zelle teilt sich nicht und behält die verdoppelte Erbinformation (8 Chromatiden).</p><p class="en" lang="en"><strong>Result (model answer):</strong> Hypothesis: Mitosis stops after prophase; metaphase is not completed and anaphase does not take place. Reasoning: The chromosomes condense even without spindle fibres. The spindle fibres, however, arrange the chromosomes in the equatorial plane and pull the chromatids to the poles. Without them the chromatids stay together. Consequence: No two nuclei are formed, the cell does not divide and keeps the duplicated genetic information (8 chromatids).</p></div>
+<div class="bi"><p><strong>Kriterien:</strong> Phase genannt (auch richtig: „in der Metaphase“ oder „vor der Anaphase“) · Begründung mit der Aufgabe der Spindelfasern · eine Folge für die Zelle genannt.</p><p class="en" lang="en"><strong>Criteria:</strong> phase named (also correct: “in metaphase” or “before anaphase”) · reasoning with the function of the spindle fibres · one consequence for the cell named.</p></div>
+<div class="bi"><p>Typischer Fehler: „Die Chromosomen werden nicht verdoppelt.“ Die Verdopplung geschieht schon in der Interphase und braucht keine Spindelfasern.</p><p class="en" lang="en">Typical mistake: “The chromosomes are not duplicated.” The duplication already happens in interphase and needs no spindle fibres.</p></div>
+</section>
+<p class="meta">KC Hessen, Sek I Gymnasium, Biologie · Erkenntnisgewinnung, Arbeiten mit Modellen: „analysieren Sachverhalte und dynamische Prozesse mit Hilfe von Modellen“ (Ende Jg. 9/10) · Inhaltsfeld: Fortpflanzung und Entwicklung (Mitose und Meiose) <span class="en" lang="en">/ Core curriculum Hessen, lower secondary Gymnasium, Biology · Gaining knowledge, working with models: "analyse facts and dynamic processes with the help of models" (end of year 9/10) · Content field: Reproduction and development (mitosis and meiosis); own translation</span></p>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

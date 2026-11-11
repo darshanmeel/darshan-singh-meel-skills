@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Sich krankmelden (DaF A2 Beruf)</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>DaF · A2 Beruf</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Sich am Telefon krankmelden</span><span class="en" lang="en">Calling in sick on the phone</span></span></h1>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 · Lesen <span class="en" lang="en">/ Task 1 · Reading</span></h2>
+<p><strong>Ergebnis <span class="en" lang="en">/ Result</span>:</strong></p>
+<table>
+<thead><tr><th scope="col">Nr.</th><th scope="col">Lösung <span class="en" lang="en">/ Answer</span></th><th scope="col">Stelle im Gespräch <span class="en" lang="en">/ Place in the conversation</span></th></tr></thead>
+<tbody data-nur-de>
+<tr><th scope="row">1</th><td>falsch</td><td>„Ich habe Fieber und Halsschmerzen.“</td></tr>
+<tr><th scope="row">2</th><td>falsch</td><td>„Nein, noch nicht.“</td></tr>
+<tr><th scope="row">3</th><td>richtig</td><td>„Ich habe um zehn Uhr einen Termin bei meiner Hausärztin.“</td></tr>
+<tr><th scope="row">4</th><td>richtig</td><td>„Ich rufe Sie heute Nachmittag wieder an.“</td></tr>
+<tr><th scope="row">5</th><td>falsch</td><td>„… ein Attest, wenn Sie länger als zwei Tage krank sind.“</td></tr>
+</tbody>
+</table>
+<div class="bi"><p><strong>Lösungsweg:</strong> Suchen Sie das Schlüsselwort aus dem Satz im Gespräch: Schmerzen, Arzt, zehn Uhr, Nachmittag, Attest.</p><p class="en" lang="en"><strong>Solution steps:</strong> Look for the key word from the sentence in the conversation: <span lang="de">Schmerzen, Arzt, zehn Uhr, Nachmittag, Attest</span>.</p></div>
+<div class="bi"><p>Typischer Fehler: Satz 2 wird als richtig angekreuzt, weil im Gespräch „Termin“ steht. Herr Novak hat den Termin erst um zehn Uhr.</p><p class="en" lang="en">Typical mistake: Sentence 2 is ticked as true because the conversation contains <span lang="de">„Termin“</span>. Mr Novak does not have the appointment until ten o'clock.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 · Grammatik <span class="en" lang="en">/ Task 2 · Grammar</span></h2>
+<p><strong>Ergebnis <span class="en" lang="en">/ Result</span>:</strong></p>
+<ol data-nur-de>
+<li>Ich bleibe im Bett, weil ich Fieber <strong>habe</strong>.</li>
+<li>Frau Kaya kommt später, weil ihr Kind krank <strong>ist</strong>.</li>
+<li>Herr Novak geht zur Ärztin, weil er ein Attest <strong>braucht</strong>.</li>
+<li>Ich rufe an, weil ich heute nicht kommen <strong>kann</strong>.</li>
+</ol>
+<div class="bi"><p><strong>Lösungsweg:</strong> Das Verb passt zum Subjekt: ich habe, ihr Kind ist, er braucht, ich kann. In Satz 4 steht das Modalverb am Ende, der Infinitiv steht davor.</p><p class="en" lang="en"><strong>Solution steps:</strong> The verb matches the subject: <span lang="de">ich habe, ihr Kind ist, er braucht, ich kann</span>. In sentence 4 the modal verb is at the end, the infinitive is before it.</p></div>
+<p>Typischer Fehler <span class="en" lang="en">/ Typical mistake</span>: <span data-nur-de>falsch: „…, weil ich <u>kann</u> heute nicht kommen.“ · richtig: „…, weil ich heute nicht kommen <u>kann</u>.“</span></p>
+<div class="bi"><p>Grund: Im <em>weil</em>-Satz steht das Verb am Ende.</p><p class="en" lang="en">Reason: In the <em lang="de">weil</em> clause the verb is at the end.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 · Grammatik <span class="en" lang="en">/ Task 3 · Grammar</span></h2>
+<p><strong>Ergebnis <span class="en" lang="en">/ Result</span>:</strong></p>
+<ol data-nur-de>
+<li>Ich kann heute nicht arbeiten, weil ich Halsschmerzen <strong>habe</strong>.</li>
+<li>Herr Novak bleibt zu Hause, weil er Fieber <strong>hat</strong>.</li>
+<li>Ich komme morgen später, weil ich zum Arzt gehen <strong>muss</strong>.</li>
+</ol>
+<div class="bi"><p><strong>Lösungsweg:</strong> Der erste Satz bleibt gleich. Dann kommen Komma und <em>weil</em>. Das Verb aus dem zweiten Satz steht am Ende.</p><p class="en" lang="en"><strong>Solution steps:</strong> The first sentence stays the same. Then come comma and <em lang="de">weil</em>. The verb from the second sentence is at the end.</p></div>
+<div class="bi"><p>Auch richtig: Der <em>weil</em>-Satz steht vorn, dann folgt sofort das Verb des Hauptsatzes.</p><p class="en" lang="en">Also correct: The <em lang="de">weil</em> clause is at the front, then the verb of the main clause follows immediately.</p></div>
+<p data-nur-de>Weil ich Halsschmerzen habe, kann ich heute nicht arbeiten.</p>
+<p>Typischer Fehler <span class="en" lang="en">/ Typical mistake</span>: <span data-nur-de>falsch: „Herr Novak bleibt zu Hause weil er <u>hat</u> Fieber.“ · richtig: „Herr Novak bleibt zu Hause, weil er Fieber <u>hat</u>.“</span></p>
+<div class="bi"><p>Grund: Das Komma fehlt, und das Verb steht nicht am Ende.</p><p class="en" lang="en">Reason: The comma is missing, and the verb is not at the end.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 · Sprechen <span class="en" lang="en">/ Task 4 · Speaking</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Das Gespräch ist gelungen, wenn diese fünf Punkte vorkommen:</p><p class="en" lang="en"><strong>Result:</strong> The conversation is successful if these five points occur:</p></div>
+<ol>
+<li><span class="bi"><span>Beide melden sich mit Namen, B auch mit der Firma.</span><span class="en" lang="en">Both answer with their name, B also with the company.</span></span></li>
+<li><span class="bi"><span>A nennt den Grund für den Anruf, am besten mit <em>weil</em> und dem Verb am Ende.</span><span class="en" lang="en">A gives the reason for the call, ideally with <em lang="de">weil</em> and the verb at the end.</span></span></li>
+<li><span class="bi"><span>B fragt nach dem Arzt und nach der Dauer, A antwortet.</span><span class="en" lang="en">B asks about the doctor and about the duration, A answers.</span></span></li>
+<li><span class="bi"><span>A sagt, wann sie oder er wieder anruft.</span><span class="en" lang="en">A says when she or he will call again.</span></span></li>
+<li><span class="bi"><span>Beide verabschieden sich; beide sagen immer „Sie“.</span><span class="en" lang="en">Both say goodbye; both always say <span lang="de">„Sie“</span>.</span></span></li>
+</ol>
+<p><strong>Mustergespräch <span class="en" lang="en">/ Model conversation</span>:</strong></p>
+<div class="quelltext" data-nur-de>
+<p><strong>B:</strong> Firma Lindner, Jana Aydin, guten Morgen.</p>
+<p><strong>A:</strong> Guten Morgen, Frau Aydin. Hier spricht Sami Haddad. Ich möchte mich krankmelden.</p>
+<p><strong>B:</strong> Oh. Was haben Sie?</p>
+<p><strong>A:</strong> Ich kann heute leider nicht kommen, weil ich Husten und Fieber habe.</p>
+<p><strong>B:</strong> Das tut mir leid. Waren Sie schon beim Arzt?</p>
+<p><strong>A:</strong> Nein, noch nicht. Ich habe heute um elf Uhr einen Termin.</p>
+<p><strong>B:</strong> Wie lange bleiben Sie zu Hause?</p>
+<p><strong>A:</strong> Das weiß ich noch nicht. Ich rufe Sie morgen früh wieder an.</p>
+<p><strong>B:</strong> In Ordnung. Gute Besserung!</p>
+<p><strong>A:</strong> Vielen Dank. Auf Wiederhören.</p>
+</div>
+<div class="bi"><p>Typischer Fehler: A sagt „du“ zur Chefin oder sagt am Telefon „Auf Wiedersehen“.</p><p class="en" lang="en">Typical mistake: A says <span lang="de">„du“</span> to the boss or says <span lang="de">„Auf Wiedersehen“</span> on the phone.</p></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

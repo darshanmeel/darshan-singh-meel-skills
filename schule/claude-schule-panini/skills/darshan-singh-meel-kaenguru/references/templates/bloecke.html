@@ -1,0 +1,95 @@
+<!--
+Känguru blocks for the base templates (darshan-singh-meel-schule/references/templates/).
+Not a page: copy the base template (arbeitsblatt, loesung, test, erwartungshorizont), keep its head, toolbar and script,
+append the CSS below to its <style>, and replace its task blocks with the blocks below.
+Placeholders {{...}} as in the base. Rules: ../formate.md.
+-->
+
+<!-- 1  CSS: append to the template's <style> -->
+<style>
+.optionen{list-style:none;display:flex;flex-wrap:wrap;gap:.3em 1.6em;padding:0;margin:.5em 0 0}
+.optionen li{display:flex;gap:.4em;align-items:baseline;margin:0}
+.optionen b{white-space:nowrap}
+.figur{display:block;margin:.5em 0;max-width:40mm}
+.figur.breit{max-width:70mm}
+.aufgabe[data-aufgabe],.teil[data-aufgabe]{break-inside:avoid}
+.antwortzettel{table-layout:fixed;break-inside:avoid}
+.antwortzettel th,.antwortzettel td{text-align:center}
+.antwortzettel th[scope=row]{width:7.5em;text-align:left}
+.antwortzettel td{height:12mm}
+.schluessel{font-size:.9em}
+.schluessel th:nth-child(1),.schluessel td:nth-child(4),.schluessel td:nth-child(5){width:3em;text-align:center}
+.schluessel td:nth-child(2){width:5.5em}
+.schluessel tfoot{display:table-row-group}
+.fuss{font-size:.85em;margin-top:1.5em}
+</style>
+
+<!-- 2  <body>: test.html -->
+<body data-typ="test" data-sprache="de-en" data-stufe="{{jg05-06}}" data-start="{{ANZAHL}}" data-zeit="{{MINUTEN}}">
+<!--    other files: data-typ as in the base template, plus data-stufe; Klassen 3/4: class="gs" on student files only (not loesung, erwartungshorizont, stundenentwurf) -->
+<!--    meta line of test.html, maximum: {{ANZAHL}} + <span data-gesamt="{{SUMME}}">{{SUMME}} Punkte <span class="en" lang="en">/ points</span></span> = <b data-max="{{MAXIMUM}}">{{MAXIMUM}}</b> -->
+
+<!-- 3  Rules box (test.html, after the meta line) -->
+<section class="kasten">
+<h2>Regeln <span class="en" lang="en">/ Rules</span></h2>
+<div class="bi"><p>Bei jeder Aufgabe ist genau eine der fünf Antworten (A) bis (E) richtig. Trage den Buchstaben in den Antwortzettel auf der letzten Seite ein.</p><p class="en" lang="en">For each problem exactly one of the five answers (A) to (E) is correct. Enter the letter in the answer sheet on the last page.</p></div>
+<div class="bi"><p>Für eine richtige Antwort gibt es die Punkte der Aufgabe. Für eine falsche Antwort wird ein Viertel der Punkte abgezogen. Ohne Antwort gibt es 0 Punkte.</p><p class="en" lang="en">For a correct answer you get the points of the problem. For a wrong answer a quarter of the points is deducted. Without an answer you get 0 points.</p></div>
+</section>
+
+<!-- 4  Problem in test.html: one <section class="aufgabe"> per point class, one .teil per problem -->
+<section class="aufgabe">
+<h2>3-Punkte-Aufgaben <span class="en" lang="en">/ 3-point problems</span></h2>
+<div class="teil" data-aufgabe="{{NR}}" data-punkte="3" data-afb="I">
+<div class="titel"><div class="bi"><p><b>{{NR}}.</b> {{AUFGABE_DE}}</p><p class="en" lang="en">{{AUFGABE_EN}}</p></div><span class="punkte">3 P</span></div>
+<!-- figure, only when needed -->
+<svg class="figur" viewBox="0 0 {{B}} {{H}}" role="img" aria-label="{{BILD_DE}} / {{BILD_EN}}"></svg>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> {{A}}</li>
+<li data-option="B"><b>(B)</b> {{B}}</li>
+<li data-option="C"><b>(C)</b> {{C}}</li>
+<li data-option="D"><b>(D)</b> {{D}}</li>
+<li data-option="E"><b>(E)</b> <span class="bi"><span>{{E_DE}}</span><span class="en" lang="en">{{E_EN}}</span></span></li>
+</ol>
+</div>
+</section>
+
+<!-- 5  Problem in arbeitsblatt.html -->
+<section class="aufgabe" data-aufgabe="{{NR}}" data-niveau="standard" data-afb="II" data-punkte="4">
+<h2>Aufgabe {{NR}} <span class="en" lang="en">/ Problem {{NR}}</span> <span class="niveau" title="Standard / Standard">★★</span> <span class="punkte">· 4 P</span></h2>
+<div class="bi"><p>{{AUFGABE_DE}}</p><p class="en" lang="en">{{AUFGABE_EN}}</p></div>
+<ol class="optionen"><!-- five <li data-option> as in block 4 --></ol>
+</section>
+
+<!-- 6  Answer sheet (test.html, last block before the footer) -->
+<section class="kasten">
+<h2>Antwortzettel <span class="en" lang="en">/ Answer sheet</span></h2>
+<div class="bi"><p>Trage zu jeder Aufgabe einen Buchstaben ein. Lass das Feld leer, wenn du keine Antwort gibst.</p><p class="en" lang="en">Enter one letter for each problem. Leave the box empty if you give no answer.</p></div>
+<table class="antwortzettel">
+<thead><tr><th scope="row">Aufgabe <span class="en" lang="en">/ Problem</span></th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th></tr></thead>
+<tbody><tr><th scope="row">Antwort <span class="en" lang="en">/ Answer</span></th><td data-antwort="1"></td><td data-antwort="2"></td><td data-antwort="3"></td></tr></tbody>
+</table>
+<!-- more than 12 problems: one table per 12 (1-12, 13-24, 25-30) -->
+<p>Richtig <span class="en" lang="en">/ Correct</span>: <span class="feld" style="min-width:3em"></span> · Falsch <span class="en" lang="en">/ Wrong</span>: <span class="feld" style="min-width:3em"></span> · Leer <span class="en" lang="en">/ Empty</span>: <span class="feld" style="min-width:3em"></span> · Punkte <span class="en" lang="en">/ Points</span>: <span style="white-space:nowrap"><span class="feld" style="min-width:4em"></span> / <span data-max="{{MAXIMUM}}">{{MAXIMUM}}</span></span></p>
+</section>
+
+<!-- 7  Solution in loesung.html -->
+<section class="aufgabe" data-aufgabe="{{NR}}" data-loesung="{{X}}">
+<h2>Aufgabe {{NR}} <span class="en" lang="en">/ Problem {{NR}}</span> · {{P}} P</h2>
+<p><b>Lösung <span class="en" lang="en">/ Solution</span>: ({{X}}) {{WERT}}</b></p>
+<div class="bi"><p>{{SCHRITT_DE}}</p><p class="en" lang="en">{{SCHRITT_EN}}</p></div>
+<p>Strategie <span class="en" lang="en">/ Strategy</span>: {{STRATEGIE_DE}} <span class="en" lang="en">/ {{STRATEGIE_EN}}</span></p>
+<div class="bi"><p>Typische Fehler: (A) {{FEHLER_DE}}; (B) …</p><p class="en" lang="en">Typical mistakes: (A) {{FEHLER_EN}}; (B) …</p></div>
+</section>
+
+<!-- 8  Key row in erwartungshorizont.html (table class="schluessel": Nr. · Lösung · Lösungsweg, Strategie, Ablenker · AFB · P) -->
+<tr data-aufgabe="{{NR}}" data-punkte="4" data-afb="II" data-loesung="{{X}}"><th scope="row">{{NR}}</th>
+<td><b>({{X}})</b> {{WERT}}</td>
+<td><span class="bi"><span>{{SCHRITT_DE}}</span><span class="en" lang="en">{{SCHRITT_EN}}</span></span>
+<span class="bi"><span>Strategie: {{STRATEGIE_DE}}.</span><span class="en" lang="en">Strategy: {{STRATEGIE_EN}}.</span></span>
+<span class="bi"><span>Ablenker: (A) {{FEHLER_DE}}; …</span><span class="en" lang="en">Distractors: (A) {{FEHLER_EN}}; …</span></span></td>
+<td>II</td><td>4</td></tr>
+<!--    sum row: <tfoot><tr><th scope="row" colspan="4">Summe ohne Startpunkte / Sum without start points</th><td data-gesamt="{{SUMME}}">{{SUMME}}</td></tr></tfoot> -->
+<!--    Auswertung, maximum: Höchstpunktzahl: {{ANZAHL}} + {{SUMME}} = <b data-max="{{MAXIMUM}}">{{MAXIMUM}}</b> (same in the English line) -->
+
+<!-- 9  Footer of every file, also erklaerung, stundenentwurf, animation: last element of the page content -->
+<footer class="fuss"><div class="bi"><p>Übungsmaterial im Stil des Wettbewerbs. Alle Aufgaben sind neu geschrieben; es sind keine Wettbewerbsaufgaben.</p><p class="en" lang="en">Practice material in the style of the competition. All problems are newly written; they are not competition problems.</p></div></footer>

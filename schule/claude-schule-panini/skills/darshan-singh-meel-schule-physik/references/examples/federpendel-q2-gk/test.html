@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klausur – Harmonische Schwingung eines Federpendels</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="test" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Physik · Q2 Grundkurs</span>
+<span>Name: <span class="feld"></span></span>
+<span>Kurs <span class="en" lang="en">/ Course</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Harmonische Schwingung eines Federpendels</span><span class="en" lang="en">Harmonic oscillation of a spring pendulum</span></span></h1>
+<p class="meta">Klausur, Aufgabe 1 von 2 <span class="en" lang="en">/ written exam, task 1 of 2</span> · Bearbeitungszeit <span class="en" lang="en">/ Working time</span>: 45 min · Hilfsmittel <span class="en" lang="en">/ Permitted aids</span>: Taschenrechner, eingeführte Formelsammlung <span class="en" lang="en">/ calculator, formula booklet used in class</span> · Gesamt <span class="en" lang="en">/ Total</span>: <span data-gesamt="30">30 BE <span class="en" lang="en">/ marking units</span></span></p>
+<div class="bi"><p>Schreiben Sie Rechenwege und Begründungen auf. Geben Sie Ergebnisse mit Einheit und mit sinnvoller Ziffernzahl an.</p><p class="en" lang="en">Write down the calculation steps and the reasons. Give results with their unit and with a sensible number of digits.</p></div>
+
+<section class="kasten">
+<h2>Material</h2>
+<div class="bi"><p>Ein Gleiter der Masse <i>m</i> = 0,300 kg steht auf einer waagerechten Luftkissenbahn. Er ist über eine Schraubenfeder der Federkonstante <i>D</i> = 12,0 N/m mit dem Bahnende verbunden. Reibung und die Masse der Feder werden vernachlässigt.</p><p class="en" lang="en">A glider of mass <i>m</i> = 0.300 kg stands on a horizontal air track. It is connected to the end of the track via a coil spring of spring constant <i>D</i> = 12.0 N/m. Friction and the mass of the spring are neglected.</p></div>
+<div class="bi"><p>Der Gleiter wird um <i>ŝ</i> = 5,00 cm aus der Ruhelage ausgelenkt und losgelassen. Er schwingt harmonisch.</p><p class="en" lang="en">The glider is displaced by <i>ŝ</i> = 5.00 cm from the equilibrium position and released. It oscillates harmonically.</p></div>
+<figure style="margin:.4em 0">
+<svg viewBox="0 0 640 150" role="img" aria-label="Versuchsaufbau: Gleiter auf waagerechter Luftkissenbahn, links über eine Feder mit dem Bahnende verbunden; s-Achse mit Ruhelage 0 und den Umkehrpunkten bei minus 5,00 cm und plus 5,00 cm / Set-up: glider on a horizontal air track, connected on the left via a spring to the end of the track; s-axis with equilibrium position 0 and the turning points at minus 5.00 cm and plus 5.00 cm">
+<rect x="20" y="30" width="14" height="70" fill="#111"/>
+<line x1="20" y1="100" x2="620" y2="100" stroke="#111" stroke-width="3"/>
+<polyline points="34,75 60,75 70,60 90,90 110,60 130,90 150,60 170,90 190,60 210,90 230,60 250,90 260,75 290,75" fill="none" stroke="#111" stroke-width="2"/>
+<rect x="290" y="56" width="80" height="40" fill="#eef3fa" stroke="#111" stroke-width="2"/>
+<text x="330" y="82" text-anchor="middle" font-size="16">m</text>
+<text x="150" y="45" text-anchor="middle" font-size="16">D</text>
+<line x1="180" y1="125" x2="560" y2="125" stroke="#111" stroke-width="1.5"/><path d="M560 125 l-10 -5 v10 z" fill="#111"/>
+<text x="575" y="131" font-size="16">s</text>
+<g stroke="#111" stroke-width="1.5"><line x1="230" y1="118" x2="230" y2="132"/><line x1="330" y1="118" x2="330" y2="132"/><line x1="430" y1="118" x2="430" y2="132"/></g>
+<g font-size="16" text-anchor="middle"><text x="230" y="148">−5,00 cm</text><text x="330" y="148">0</text><text x="430" y="148">+5,00 cm</text></g>
+<line x1="330" y1="100" x2="330" y2="118" stroke="#111" stroke-width="1" stroke-dasharray="4 3"/>
+</svg>
+<figcaption class="meta"><span class="bi"><span>Versuchsaufbau (Skizze, nicht maßstäblich)</span><span class="en" lang="en">Set-up (sketch, not to scale)</span></span></figcaption>
+</figure>
+</section>
+
+<section class="aufgabe">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="teil" data-aufgabe="1a" data-punkte="4" data-afb="I">
+<div class="titel"><div class="bi"><p>a) <span class="op">Beschreiben Sie</span> die Energieumwandlungen während einer Periode der Schwingung.</p><p class="en" lang="en"><span class="op">Describe</span> the energy conversions during one period of the oscillation.</p></div><span class="punkte">/ 4 BE</span></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</div>
+<div class="teil" data-aufgabe="1b" data-punkte="4" data-afb="I">
+<div class="titel"><div class="bi"><p>b) <span class="op">Berechnen Sie</span> die Periodendauer <i>T</i> und die Frequenz <i>f</i> der Schwingung.</p><p class="en" lang="en"><span class="op">Calculate</span> the period <i>T</i> and the frequency <i>f</i> of the oscillation.</p></div><span class="punkte">/ 4 BE</span></div>
+<div class="karo" style="height:35mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</div>
+</section>
+
+<section class="aufgabe">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p>Die Zeitmessung beginnt, wenn der Gleiter die Ruhelage in positiver <i>s</i>-Richtung durchläuft.</p><p class="en" lang="en">The time measurement begins when the glider passes through the equilibrium position in the positive <i>s</i>-direction.</p></div>
+<div class="teil" data-aufgabe="2a" data-punkte="3" data-afb="II">
+<div class="titel"><div class="bi"><p>a) <span class="op">Bestimmen Sie</span> die Schwingungsgleichung <i>s</i>(<i>t</i>) dieser Schwingung mit Zahlenwerten.</p><p class="en" lang="en"><span class="op">Determine</span> the oscillation equation <i>s</i>(<i>t</i>) of this oscillation with numerical values.</p></div><span class="punkte">/ 3 BE</span></div>
+<div class="karo" style="height:30mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</div>
+<div class="teil" data-aufgabe="2b" data-punkte="4" data-afb="II">
+<div class="titel"><div class="bi"><p>b) <span class="op">Bestimmen Sie</span> den Zeitpunkt, zu dem der Gleiter zum ersten Mal die Auslenkung <i>s</i> = 2,50 cm erreicht.</p><p class="en" lang="en"><span class="op">Determine</span> the instant at which the glider reaches the displacement <i>s</i> = 2.50 cm for the first time.</p></div><span class="punkte">/ 4 BE</span></div>
+<div class="karo" style="height:40mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</div>
+<div class="teil" data-aufgabe="2c" data-punkte="5" data-afb="II">
+<div class="titel"><div class="bi"><p>c) <span class="op">Bestimmen Sie</span> mithilfe des Energieerhaltungssatzes die maximale Geschwindigkeit des Gleiters.</p><p class="en" lang="en"><span class="op">Determine</span> the maximum speed of the glider with the help of the law of conservation of energy.</p></div><span class="punkte">/ 5 BE</span></div>
+<div class="karo" style="height:45mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</div>
+</section>
+
+<section class="aufgabe">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p>In einem Schülerexperiment wird die Masse des Gleiters mit Zusatzmassen verändert; die Feder bleibt dieselbe. Gemessen wird jeweils die Zeit für 10 Perioden (erfundene Messwerte).</p><p class="en" lang="en">In a student experiment the mass of the glider is changed with additional masses; the spring stays the same. In each case the time for 10 periods is measured (invented measured values).</p></div>
+<table>
+<tbody>
+<tr><th scope="row"><i>m</i> in kg</th><td>0,100</td><td>0,200</td><td>0,300</td><td>0,400</td></tr>
+<tr><th scope="row">10 · <i>T</i> in s</th><td>5,8</td><td>8,1</td><td>10,0</td><td>11,4</td></tr>
+</tbody>
+</table>
+<div class="teil" data-aufgabe="3a" data-punkte="4" data-afb="II">
+<div class="titel"><div class="bi"><p>a) <span class="op">Zeigen Sie</span> mit den Messwerten, dass die Periodendauer <i>T</i> proportional zu √<i>m</i> ist.</p><p class="en" lang="en"><span class="op">Show</span> with the measured values that the period <i>T</i> is proportional to √<i>m</i>.</p></div><span class="punkte">/ 4 BE</span></div>
+<div class="karo" style="height:45mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</div>
+<div class="teil" data-aufgabe="3b" data-punkte="6" data-afb="III">
+<div class="titel"><div class="bi"><p>b) <span class="op">Beurteilen Sie</span> die Aussage: „Verdoppelt man die Amplitude, dann verdoppelt sich auch die Periodendauer, weil der Gleiter den doppelten Weg zurücklegen muss.“</p><p class="en" lang="en"><span class="op">Assess</span> the statement: “If one doubles the amplitude, then the period also doubles, because the glider has to cover double the distance.”</p></div><span class="punkte">/ 6 BE</span></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</div>
+</section>
+
+<section class="kasten">
+<h2>Bewertung <span class="en" lang="en">/ Assessment</span></h2>
+<p>Erreicht <span class="en" lang="en">/ Achieved</span>: <span class="feld" style="min-width:3em"></span> / 30 BE · Unterschrift <span class="en" lang="en">/ Signature</span>: <span class="feld"></span></p>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

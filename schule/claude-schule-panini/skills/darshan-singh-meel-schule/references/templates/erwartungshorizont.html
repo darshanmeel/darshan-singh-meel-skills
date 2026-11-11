@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erwartungshorizont – {{THEMA}}</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="erwartungshorizont" data-sprache="de-en">
+<!-- Template rules (references/formate.md):
+     - Replace every {{PLATZHALTER}}; {{X_EN}} = the closest natural English sentence for {{X}} (references/bilingual.md). Copy or delete repeatable blocks.
+     - Every German line sits in a .bi pair: first child German, second child class="en" lang="en". Short labels: German <span class="en" lang="en">/ English</span>.
+     - Text that stays German only (texts under analysis in Deutsch, DaF target-language texts): add data-nur-de to the block, no .en line.
+     - data-sprache on <body>: "de-en" (default) · "de" (German only + glossary; delete the .en elements and the en-toggle) · "en" (full English, file <name>.en.html, <html lang="en">).
+     - body class "gs" = Grundschule (larger type, wider lines). Keep the data-* attributes true: scripts/check_material.py reads them. -->
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>{{FACH}} · {{JAHRGANG}}</span>
+<span>Erwartungshorizont · nur für Lehrkräfte <span class="en" lang="en">/ Marking scheme · for teachers only</span></span>
+</header>
+<h1><span class="bi"><span>{{THEMA}}</span><span class="en" lang="en">{{THEMA_EN}}</span></span></h1>
+<p class="meta">{{ART}} · {{ZEIT}} min · KC-Bezug <span class="en" lang="en">/ curriculum reference</span>: {{KC_BEZUG}}</p>
+
+<section>
+<h2>Erwartete Leistungen <span class="en" lang="en">/ Expected performance</span></h2>
+<table>
+<thead><tr><th scope="col">Aufgabe <span class="en" lang="en">/ Task</span></th><th scope="col">Erwartete Leistung (Ergebnis, Lösungsweg, Teilpunkte) <span class="en" lang="en">/ Expected performance (result, solution steps, part points)</span></th><th scope="col">AFB</th><th scope="col">Punkte <span class="en" lang="en">/ Points</span></th></tr></thead>
+<tbody>
+<tr data-aufgabe="1a" data-punkte="2" data-afb="I"><th scope="row">1a</th><td><span class="bi"><span>{{ERWARTUNG_1A}}</span><span class="en" lang="en">{{ERWARTUNG_1A_EN}}</span></span></td><td>I</td><td>2</td></tr>
+<tr data-aufgabe="1b" data-punkte="3" data-afb="I"><th scope="row">1b</th><td><span class="bi"><span>{{ERWARTUNG_1B}}</span><span class="en" lang="en">{{ERWARTUNG_1B_EN}}</span></span></td><td>I</td><td>3</td></tr>
+<tr data-aufgabe="2a" data-punkte="4" data-afb="II"><th scope="row">2a</th><td><span class="bi"><span>{{ERWARTUNG_2A}}</span><span class="en" lang="en">{{ERWARTUNG_2A_EN}}</span></span></td><td>II</td><td>4</td></tr>
+<tr data-aufgabe="2b" data-punkte="4" data-afb="II"><th scope="row">2b</th><td><span class="bi"><span>{{ERWARTUNG_2B}}</span><span class="en" lang="en">{{ERWARTUNG_2B_EN}}</span></span></td><td>II</td><td>4</td></tr>
+<tr data-aufgabe="3" data-punkte="4" data-afb="II"><th scope="row">3</th><td><span class="bi"><span>{{ERWARTUNG_3}}</span><span class="en" lang="en">{{ERWARTUNG_3_EN}}</span></span></td><td>II</td><td>4</td></tr>
+<tr data-aufgabe="4" data-punkte="3" data-afb="III"><th scope="row">4</th><td><span class="bi"><span>{{ERWARTUNG_4}}</span><span class="en" lang="en">{{ERWARTUNG_4_EN}}</span></span></td><td>III</td><td>3</td></tr>
+</tbody>
+<tfoot><tr><th scope="row" colspan="3">Summe <span class="en" lang="en">/ Sum</span></th><td data-gesamt="20">20</td></tr></tfoot>
+</table>
+</section>
+
+<section>
+<h2>Verteilung auf die Anforderungsbereiche <span class="en" lang="en">/ Distribution across the requirement areas</span></h2>
+<table>
+<thead><tr><th scope="col">AFB</th><th scope="col">Punkte <span class="en" lang="en">/ Points</span></th><th scope="col">Anteil <span class="en" lang="en">/ Share</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">I</th><td>5</td><td>25 %</td></tr>
+<tr><th scope="row">II</th><td>12</td><td>60 %</td></tr>
+<tr><th scope="row">III</th><td>3</td><td>15 %</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2><span class="bi"><span>{{SCHLUESSEL_TITEL}}</span><span class="en" lang="en">{{SCHLUESSEL_TITEL_EN}}</span></span></h2>
+<table>
+<thead><tr><th scope="col">{{NOTE_ODER_PUNKTE}} <span class="en" lang="en">/ {{NOTE_ODER_PUNKTE_EN}}</span></th><th scope="col">ab Punkten <span class="en" lang="en">/ from points</span></th><th scope="col">ab Anteil <span class="en" lang="en">/ from share</span></th></tr></thead>
+<tbody>
+<tr data-note="1" data-ab="17"><th scope="row">1</th><td>17</td><td>85 %</td></tr>
+<tr data-note="2" data-ab="14"><th scope="row">2</th><td>14</td><td>70 %</td></tr>
+<tr data-note="3" data-ab="11"><th scope="row">3</th><td>11</td><td>55 %</td></tr>
+<tr data-note="4" data-ab="8"><th scope="row">4</th><td>8</td><td>40 %</td></tr>
+<tr data-note="5" data-ab="4"><th scope="row">5</th><td>4</td><td>20 %</td></tr>
+<tr data-note="6" data-ab="0"><th scope="row">6</th><td>0</td><td>0 %</td></tr>
+</tbody>
+</table>
+<div class="bi"><p>{{SCHLUESSEL_QUELLE}}</p><p class="en" lang="en">{{SCHLUESSEL_QUELLE_EN}}</p></div>
+<!-- Sek I: rows 1-6 with the school's key (references/bewertung.md). Oberstufe: rows 15-0 from the OAVO Anlage 9a table. data-ab = lowest points for that grade; rows fall strictly; last row 0. -->
+</section>
+
+<section>
+<h2>Hinweise zur Korrektur <span class="en" lang="en">/ Notes for marking</span></h2>
+<ul>
+<li><span class="bi"><span>{{FOLGEFEHLER}}</span><span class="en" lang="en">{{FOLGEFEHLER_EN}}</span></span></li>
+<li><span class="bi"><span>Andere richtige Lösungswege: volle Punktzahl.</span><span class="en" lang="en">Other correct solution paths: full points.</span></span></li>
+<li><span class="bi"><span>{{SPRACHE_REGEL}}</span><span class="en" lang="en">{{SPRACHE_REGEL_EN}}</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

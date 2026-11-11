@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Kettentrieb am Fahrrad</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.aufgabe{break-inside:avoid}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Naturwissenschaft und Technik (Wahlunterricht) · Jg. 9</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Kettentrieb am Fahrrad: Übersetzung und Entfaltung</span><span class="en" lang="en">Chain drive on the bicycle: transmission ratio and development</span></span></h1>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> eigene Messwerte. Die gemessene Entfaltung stimmt bis auf wenige Zentimeter mit (<i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>) · <i>U</i> überein.</p><p class="en" lang="en"><strong>Result:</strong> own measured values. The measured development agrees with (<i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>) · <i>U</i> to within a few centimetres.</p></div>
+<div class="bi"><p><strong>Lösungsweg (Beispiel):</strong> gezählt <i>z</i><sub>1</sub> = 44 und <i>z</i><sub>2</sub> = 22; gemessen <i>U</i> = 2,10 m und Entfaltung 4,15 m. Rechnung: (44 / 22) · 2,10 m = 4,20 m. Abweichung: 0,05 m, das ist etwa 1 %.</p><p class="en" lang="en"><strong>Solution steps (example):</strong> counted <i>z</i><sub>1</sub> = 44 and <i>z</i><sub>2</sub> = 22; measured <i>U</i> = 2.10 m and development 4.15 m. Calculation: (44 / 22) · 2.10 m = 4.20 m. Deviation: 0.05 m, that is about 1 %.</p></div>
+<div class="bi"><p>Ursachen der Abweichung: Die Kurbel steht am Ende nicht genau senkrecht; die Kreidemarken sind breit; der Reifen ist unter Last etwas eingedrückt.</p><p class="en" lang="en">Causes of the deviation: The crank does not stand exactly vertical at the end; the chalk marks are wide; the tyre is pressed in a little under load.</p></div>
+<div class="bi"><p>Typischer Fehler: den Durchmesser des Rades statt des Umfangs messen. Der Umfang ist etwa 3,14-mal so groß.</p><p class="en" lang="en">Typical mistake: measuring the diameter of the wheel instead of the circumference. The circumference is about 3.14 times as large.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> 2 Radumdrehungen pro Kurbelumdrehung; Entfaltung 4,20 m.</p><p class="en" lang="en"><strong>Result:</strong> 2 turns of the wheel per turn of the crank; development 4.20 m.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Gegeben: <i>z</i><sub>1</sub> = 44, <i>z</i><sub>2</sub> = 22, <i>U</i> = 2,10 m, <i>n</i><sub>1</sub> = 1. Formel: <i>n</i><sub>2</sub> = <i>n</i><sub>1</sub> · <i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>. Rechnung: <i>n</i><sub>2</sub> = 1 · 44 / 22 = 2. Entfaltung = 2 · 2,10 m = 4,20 m.</p><p class="en" lang="en"><strong>Solution steps:</strong> Given: <i>z</i><sub>1</sub> = 44, <i>z</i><sub>2</sub> = 22, <i>U</i> = 2.10 m, <i>n</i><sub>1</sub> = 1. Formula: <i>n</i><sub>2</sub> = <i>n</i><sub>1</sub> · <i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>. Calculation: <i>n</i><sub>2</sub> = 1 · 44 / 22 = 2. Development = 2 · 2.10 m = 4.20 m.</p></div>
+<div class="bi"><p>Probe: Bei einer Kurbelumdrehung laufen 44 Kettenglieder über das Kettenblatt. 44 Kettenglieder drehen das Ritzel mit 22 Zähnen zweimal.</p><p class="en" lang="en">Check: For one turn of the crank 44 chain links run over the chainring. 44 chain links turn the sprocket with 22 teeth twice.</p></div>
+<div class="bi"><p>Typischer Fehler: die Zähnezahlen vertauschen (22 / 44 = 0,5). Das Hinterrad dreht sich aber öfter als die Kurbel, weil das Ritzel kleiner ist.</p><p class="en" lang="en">Typical mistake: swapping the numbers of teeth (22 / 44 = 0.5). But the rear wheel turns more often than the crank, because the sprocket is smaller.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<table>
+<thead><tr><th scope="col">Ritzel <span class="en" lang="en">/ Sprocket</span> <i>z</i><sub>2</sub></th><th scope="col">11</th><th scope="col">16</th><th scope="col">22</th><th scope="col">32</th></tr></thead>
+<tbody>
+<tr><th scope="row">Radumdrehungen pro Kurbelumdrehung <span class="en" lang="en">/ turns of the wheel per turn of the crank</span></th><td>4</td><td>2,75</td><td>2</td><td>1,375</td></tr>
+<tr><th scope="row">Entfaltung in m <span class="en" lang="en">/ development in m</span></th><td>8,40</td><td>5,78</td><td>4,20</td><td>2,89</td></tr>
+<tr><th scope="row">Geschwindigkeit in km/h <span class="en" lang="en">/ speed in km/h</span></th><td>30,2</td><td>20,8</td><td>15,1</td><td>10,4</td></tr>
+</tbody>
+</table>
+<div class="bi"><p><strong>Lösungsweg</strong> am Beispiel <i>z</i><sub>2</sub> = 16: Radumdrehungen: 44 / 16 = 2,75. Entfaltung: 2,75 · 2,10 m = 5,775 m, gerundet 5,78 m.</p><p class="en" lang="en"><strong>Solution steps</strong> using the example <i>z</i><sub>2</sub> = 16: turns of the wheel: 44 / 16 = 2.75. Development: 2.75 · 2.10 m = 5.775 m, rounded 5.78 m.</p></div>
+<div class="bi"><p>Geschwindigkeit: 60 Kurbelumdrehungen pro Minute sind 1 Kurbelumdrehung pro Sekunde. In 1 s fährt das Fahrrad also 5,775 m: <i>v</i> = 5,775 m/s = 5,775 · 3,6 km/h = 20,8 km/h.</p><p class="en" lang="en">Speed: 60 turns of the crank per minute is 1 turn of the crank per second. So in 1 s the bicycle travels 5.775 m: <i>v</i> = 5.775 m/s = 5.775 · 3.6 km/h = 20.8 km/h.</p></div>
+<div class="bi"><p>Die Zähnezahlen sind gezählt und damit genau. Die Ergebnisse haben drei Ziffern wie der Radumfang 2,10 m.</p><p class="en" lang="en">The numbers of teeth are counted and therefore exact. The results have three digits like the wheel circumference 2.10 m.</p></div>
+<div class="bi"><p>Typischer Fehler: m/s durch 3,6 teilen. Von m/s nach km/h wird mit 3,6 multipliziert.</p><p class="en" lang="en">Typical mistake: dividing m/s by 3.6. From m/s to km/h one multiplies by 3.6.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Zwei Vorschläge erfüllen die Anforderung: 26 Zähne (12,8 km/h) und 27 Zähne (12,3 km/h).</p><p class="en" lang="en"><strong>Result:</strong> Two proposals fulfil the requirement: 26 teeth (12.8 km/h) and 27 teeth (12.3 km/h).</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Bei 1 Kurbelumdrehung pro Sekunde gilt <i>v</i> = (44 / <i>z</i><sub>2</sub>) · 2,10 m/s. In km/h: <i>v</i> = (44 / <i>z</i><sub>2</sub>) · 2,10 · 3,6 km/h = 332,64 km/h / <i>z</i><sub>2</sub>.</p><p class="en" lang="en"><strong>Solution steps:</strong> At 1 turn of the crank per second the following holds: <i>v</i> = (44 / <i>z</i><sub>2</sub>) · 2.10 m/s. In km/h: <i>v</i> = (44 / <i>z</i><sub>2</sub>) · 2.10 · 3.6 km/h = 332.64 km/h / <i>z</i><sub>2</sub>.</p></div>
+<div class="bi"><p>Grenzen: 332,64 / 13,0 = 25,6 und 332,64 / 12,0 = 27,7. Ganze Zähnezahlen dazwischen: 26 und 27. Probe: 332,64 / 26 = 12,8 und 332,64 / 27 = 12,3.</p><p class="en" lang="en">Limits: 332.64 / 13.0 = 25.6 and 332.64 / 12.0 = 27.7. Whole numbers of teeth in between: 26 and 27. Check: 332.64 / 26 = 12.8 and 332.64 / 27 = 12.3.</p></div>
+<div class="bi"><p>Kriterien für einen richtigen Vorschlag: ganze Zähnezahl; Rechnung mit Einheiten; die Geschwindigkeit liegt zwischen 12,0 km/h und 13,0 km/h. 25 Zähne (13,3 km/h) und 28 Zähne (11,9 km/h) erfüllen die Anforderung nicht.</p><p class="en" lang="en">Criteria for a correct proposal: whole number of teeth; calculation with units; the speed lies between 12.0 km/h and 13.0 km/h. 25 teeth (13.3 km/h) and 28 teeth (11.9 km/h) do not fulfil the requirement.</p></div>
+<div class="bi"><p>Typischer Fehler: ein größeres Ritzel für eine größere Geschwindigkeit wählen. Mehr Zähne am Ritzel bedeuten weniger Radumdrehungen pro Kurbelumdrehung.</p><p class="en" lang="en">Typical mistake: choosing a larger sprocket for a greater speed. More teeth on the sprocket mean fewer turns of the wheel per turn of the crank.</p></div>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>der Kettentrieb</td><td lang="en">chain drive</td><td><span class="bi"><span>zwei Zahnräder, die eine Kette verbindet</span><span class="en" lang="en">two gear wheels that a chain connects</span></span></td></tr>
+<tr><td data-nur-de>das Kettenblatt</td><td lang="en">chainring</td><td><span class="bi"><span>vorderes Zahnrad an der Kurbel</span><span class="en" lang="en">front gear wheel at the crank</span></span></td></tr>
+<tr><td data-nur-de>das Ritzel</td><td lang="en">sprocket</td><td><span class="bi"><span>hinteres Zahnrad am Hinterrad</span><span class="en" lang="en">rear gear wheel at the rear wheel</span></span></td></tr>
+<tr><td data-nur-de>die Kurbel</td><td lang="en">crank</td><td><span class="bi"><span>Hebel, an dem das Pedal sitzt</span><span class="en" lang="en">lever on which the pedal sits</span></span></td></tr>
+<tr><td data-nur-de>die Übersetzung</td><td lang="en">transmission ratio</td><td><span class="bi"><span>Verhältnis der Zähnezahlen von Kettenblatt und Ritzel</span><span class="en" lang="en">ratio of the numbers of teeth of chainring and sprocket</span></span></td></tr>
+<tr><td data-nur-de>die Entfaltung</td><td lang="en">development</td><td><span class="bi"><span>Weg des Fahrrads bei einer Kurbelumdrehung</span><span class="en" lang="en">distance of the bicycle for one turn of the crank</span></span></td></tr>
+<tr><td data-nur-de>der Radumfang</td><td lang="en">wheel circumference</td><td><span class="bi"><span>Weg des Rades bei einer Radumdrehung</span><span class="en" lang="en">distance of the wheel for one turn of the wheel</span></span></td></tr>
+<tr><td data-nur-de>die Trittfrequenz</td><td lang="en">cadence</td><td><span class="bi"><span>Anzahl der Kurbelumdrehungen pro Minute</span><span class="en" lang="en">number of turns of the crank per minute</span></span></td></tr>
+<tr><td data-nur-de>die Anforderung</td><td lang="en">requirement</td><td><span class="bi"><span>messbare Bedingung, die eine Lösung erfüllen muss</span><span class="en" lang="en">measurable condition that a solution must fulfil</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

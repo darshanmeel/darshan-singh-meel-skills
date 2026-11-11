@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animation – Umstellprobe</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+
+.buehne{border:1px solid var(--line);background:#fff;display:block;width:100%}
+.steuerung{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.6rem 0}
+.steuerung button,.steuerung select{font:inherit;min-height:44px;min-width:44px;padding:.3em .8em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+.steuerung button:disabled{opacity:.45;cursor:default}
+#btn-play{background:var(--accent);color:#fff;border-color:var(--accent);min-width:9em}
+.text{min-height:4.5em;border-left:4px solid var(--accent);padding:.2em .8em;margin:.6rem 0}
+.text p{margin:.2em 0}
+.bilder{display:none}
+.bilder figure{margin:0 0 4mm;break-inside:avoid}
+.bilder figcaption p{margin:.1em 0}
+@media print{
+html.js .spieler,html.js .text{display:none}
+html.js .bilder{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+}
+</style>
+</head>
+<body class="gs" data-typ="animation" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Deutsch · Jahrgang 3</span>
+<span>Animation</span>
+</header>
+<h1><span class="bi"><span>Die Umstellprobe</span><span class="en" lang="en">The rearrangement test</span></span></h1>
+<div class="bi"><p>Wie findest du heraus, welche Wörter zusammen ein Satzglied bilden?</p><p class="en" lang="en">How do you find out which words together form one sentence element?</p></div>
+
+<div class="spieler">
+<svg id="buehne" class="buehne" viewBox="0 0 720 240" role="img" aria-label="Der Satz „Am Morgen holt der kleine Hund die Zeitung.“ in vier beweglichen Teilen / The sentence „Am Morgen holt der kleine Hund die Zeitung.“ in four movable parts">
+<g id="g-am" transform="translate(60 0)" font-size="22" text-anchor="middle" fill="#111"><rect class="rahmen" fill="#fff" x="0" y="80" width="130" height="50" rx="6" stroke="#111" stroke-width="2" stroke-opacity="0"/><text id="am-gross" x="65" y="113" opacity="1">Am Morgen</text><text id="am-klein" x="65" y="113" opacity="0">am Morgen</text></g>
+<g id="g-holt" transform="translate(202 0)" font-size="22" text-anchor="middle" fill="#111"><rect class="rahmen" id="holt-feld" x="0" y="80" width="70" height="50" rx="6" fill="#cfe0f5" fill-opacity="0" stroke="#111" stroke-width="2" stroke-opacity="0"/><text x="35" y="113" font-weight="700">holt</text><text id="verb-label" x="35" y="156" font-size="18" opacity="0">Verb</text></g>
+<g id="g-hund" transform="translate(284 0)" font-size="22" text-anchor="middle" fill="#111"><rect class="rahmen" fill="#fff" x="0" y="80" width="200" height="50" rx="6" stroke="#111" stroke-width="2" stroke-opacity="0"/><text id="hund-klein" x="100" y="113" opacity="1">der kleine Hund</text><text id="hund-gross" x="100" y="113" opacity="0">Der kleine Hund</text></g>
+<g id="g-zeit" transform="translate(496 0)" font-size="22" text-anchor="middle" fill="#111"><rect class="rahmen" fill="#fff" x="0" y="80" width="150" height="50" rx="6" stroke="#111" stroke-width="2" stroke-opacity="0"/><text id="zeit-klein" x="75" y="113" opacity="1">die Zeitung</text><text id="zeit-gross" x="75" y="113" opacity="0">Die Zeitung</text></g>
+<text x="646" y="113" font-size="22" fill="#111">.</text>
+<text id="ergebnis" x="360" y="212" text-anchor="middle" font-size="22" font-weight="700" fill="#111" opacity="0">4 Satzglieder / 4 sentence elements</text>
+</svg>
+
+<div class="steuerung" role="group" aria-label="Steuerung der Animation / animation controls">
+<button type="button" id="btn-back" aria-label="Schritt zurück / step back">◀ Zurück <span class="en" lang="en">/ Back</span></button>
+<button type="button" id="btn-play" aria-pressed="false">Start</button>
+<button type="button" id="btn-next" aria-label="Schritt vor / step forward">Weiter <span class="en" lang="en">/ Next</span> ▶</button>
+<span id="stand" class="meta" aria-hidden="true"></span>
+<label>Tempo <span class="en" lang="en">/ Speed</span>
+<select id="tempo">
+<option value="0.5">langsam / slow</option>
+<option value="1" selected>normal</option>
+<option value="2">schnell / fast</option>
+</select>
+</label>
+</div>
+<p class="meta">Tasten: ← zurück · → weiter · Leertaste Start/Pause <span class="en" lang="en">/ Keys: ← back · → next · space bar start/pause</span></p>
+<div class="bi meta" id="hinweis" hidden><p>Bewegung ist reduziert (Systemeinstellung): Die Schritte wechseln ohne Übergang.</p><p class="en" lang="en">Motion is reduced (system setting): The steps change without transition.</p></div>
+</div>
+
+<div class="text" aria-live="polite">
+<p id="cap-de" lang="de"></p>
+<p id="cap-en" lang="en" class="en"></p>
+</div>
+
+<noscript><div class="bi kasten fehler"><p>Ohne JavaScript ist nur das Startbild zu sehen.</p><p class="en" lang="en">Without JavaScript only the start picture is to be seen.</p></div></noscript>
+
+<section class="bilder" id="bilder" aria-label="Alle Schritte als Einzelbilder (Druckansicht) / all steps as single pictures (print view)"></section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+
+(function () {
+  'use strict';
+  // ---- content: one entry per step. de = caption, en = its closest natural English sentence.
+  // set = { 'css selector inside #buehne': { svgAttribute: value } }.
+  // Numbers inside values are tweened (cx, opacity, stroke-dashoffset, transform, d, points ...); other values switch at once.
+  // Steps are cumulative: step n shows the start picture plus the changes of steps 1..n.
+  var STEPS = [
+    { de: 'Der Satz heißt: Am Morgen holt der kleine Hund die Zeitung.', en: 'The sentence is: Am Morgen holt der kleine Hund die Zeitung.', set: {} },
+    { de: 'Wir stellen um: „Der kleine Hund“ wandert an den Satzanfang. Das Verb „holt“ bleibt das zweite Satzglied.', en: 'We rearrange: „Der kleine Hund“ moves to the beginning of the sentence. The verb „holt“ remains the second sentence element.',
+      set: { '#g-hund': { transform: 'translate(60 0)' }, '#g-holt': { transform: 'translate(272 0)' }, '#g-am': { transform: 'translate(354 0)' },
+             '#am-gross': { opacity: 0 }, '#am-klein': { opacity: 1 }, '#hund-klein': { opacity: 0 }, '#hund-gross': { opacity: 1 },
+             '#holt-feld': { 'fill-opacity': 1 }, '#verb-label': { opacity: 1 } } },
+    { de: 'Wir stellen noch einmal um: „Die Zeitung“ wandert an den Satzanfang. Das Verb bleibt wieder das zweite Satzglied.', en: 'We rearrange once more: „Die Zeitung“ moves to the beginning of the sentence. The verb again remains the second sentence element.',
+      set: { '#g-zeit': { transform: 'translate(60 0)' }, '#g-holt': { transform: 'translate(222 0)' }, '#g-hund': { transform: 'translate(304 0)' }, '#g-am': { transform: 'translate(516 0)' },
+             '#hund-gross': { opacity: 0 }, '#hund-klein': { opacity: 1 }, '#zeit-klein': { opacity: 0 }, '#zeit-gross': { opacity: 1 } } },
+    { de: 'Diese Wörter sind immer zusammengeblieben. Jeder Rahmen zeigt ein Satzglied.', en: 'These words have always stayed together. Each frame shows one sentence element.',
+      set: { '.rahmen': { 'stroke-opacity': 1 } } },
+    { de: 'Zurück zum ersten Satz: Am Morgen | holt | der kleine Hund | die Zeitung. Der Satz hat vier Satzglieder.', en: 'Back to the first sentence: Am Morgen | holt | der kleine Hund | die Zeitung. The sentence has four sentence elements.',
+      set: { '#g-am': { transform: 'translate(60 0)' }, '#g-holt': { transform: 'translate(202 0)' }, '#g-hund': { transform: 'translate(284 0)' }, '#g-zeit': { transform: 'translate(496 0)' },
+             '#am-gross': { opacity: 1 }, '#am-klein': { opacity: 0 }, '#zeit-gross': { opacity: 0 }, '#zeit-klein': { opacity: 1 }, '#ergebnis': { opacity: 1 } } }
+  ];
+  var DAUER = 900;   // ms per transition at speed 1
+  var HALT = 1800;   // ms a step stays before play moves on, at speed 1
+
+  var svg = document.getElementById('buehne');
+  var el = function (id) { return document.getElementById(id); };
+  var ruhig = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var NUM = /-?\d*\.?\d+/g;
+  var i = 0, laeuft = false, timer = 0, ende = 0, raf = 0, tempo = 1;
+
+  // start picture = attribute values before any step
+  var start = [];
+  STEPS.forEach(function (s) {
+    Object.keys(s.set || {}).forEach(function (sel) {
+      Array.prototype.forEach.call(svg.querySelectorAll(sel), function (node) {
+        var rec = start.filter(function (r) { return r.node === node; })[0];
+        if (!rec) { rec = { node: node, attrs: {} }; start.push(rec); }
+        Object.keys(s.set[sel]).forEach(function (a) { if (!(a in rec.attrs)) rec.attrs[a] = node.getAttribute(a); });
+      });
+    });
+  });
+
+  function ziel(n) {   // attribute values after step n
+    var z = start.map(function (r) {
+      var a = {}; Object.keys(r.attrs).forEach(function (k) { a[k] = r.attrs[k]; });
+      return { node: r.node, attrs: a };
+    });
+    for (var k = 0; k <= n; k++) {
+      var set = STEPS[k].set || {};
+      Object.keys(set).forEach(function (sel) {
+        Array.prototype.forEach.call(svg.querySelectorAll(sel), function (node) {
+          var rec = z.filter(function (r) { return r.node === node; })[0];
+          Object.keys(set[sel]).forEach(function (a) { rec.attrs[a] = String(set[sel][a]); });
+        });
+      });
+    }
+    return z;
+  }
+
+  function mix(a, b, p) {   // value between a and b; tweens the numbers when both have the same shape
+    if (p >= 1 || a === null || b === null || a === b) return p >= 1 ? b : a;
+    var x = a.match(NUM), y = b.match(NUM);
+    if (!x || !y || x.length !== y.length || a.replace(NUM, '#') !== b.replace(NUM, '#')) return a;
+    var k = 0;
+    return b.replace(NUM, function () {
+      var v = +x[k] + (+y[k] - +x[k]) * p; k++;
+      return String(Math.round(v * 1000) / 1000);
+    });
+  }
+
+  function setze(von, nach, p) {
+    nach.forEach(function (r, idx) {
+      Object.keys(r.attrs).forEach(function (a) {
+        var v = mix(von ? von[idx][a] : null, r.attrs[a], p);
+        if (v === null) r.node.removeAttribute(a); else r.node.setAttribute(a, v);
+      });
+    });
+  }
+
+  function zeige() {
+    el('cap-de').textContent = STEPS[i].de;
+    el('cap-en').textContent = STEPS[i].en;
+    el('stand').textContent = (i + 1) + ' / ' + STEPS.length;
+    el('btn-back').disabled = i === 0;
+    el('btn-next').disabled = i === STEPS.length - 1;
+    el('btn-play').textContent = laeuft ? 'Pause' : (i === STEPS.length - 1 ? 'Nochmal / Again' : 'Start');
+    el('btn-play').setAttribute('aria-pressed', String(laeuft));
+  }
+
+  function gehe(n, bewegt) {
+    cancelAnimationFrame(raf); clearTimeout(timer); clearTimeout(ende);
+    i = Math.max(0, Math.min(STEPS.length - 1, n));
+    var nach = ziel(i), offen = true;
+    function fertig() {
+      if (!offen) return;
+      offen = false; cancelAnimationFrame(raf); clearTimeout(ende);
+      setze(null, nach, 1);
+      if (laeuft && i < STEPS.length - 1) timer = setTimeout(function () { gehe(i + 1, true); }, HALT / tempo);
+      else { laeuft = false; }
+      zeige();
+    }
+    zeige();
+    if (!bewegt || ruhig.matches) { fertig(); return; }
+    var von = nach.map(function (r) {
+      var a = {}; Object.keys(r.attrs).forEach(function (k) { a[k] = r.node.getAttribute(k); });
+      return a;
+    });
+    var t0 = null;
+    ende = setTimeout(fertig, DAUER / tempo + 60);   // finishes the step even when the browser pauses drawing (background tab)
+    raf = requestAnimationFrame(function bild(t) {
+      if (t0 === null) t0 = t;
+      var p = Math.min(1, (t - t0) / (DAUER / tempo));
+      if (p >= 1) { fertig(); return; }
+      setze(von, nach, p * p * (3 - 2 * p));
+      raf = requestAnimationFrame(bild);
+    });
+  }
+
+  function startStopp() {
+    if (laeuft) { laeuft = false; clearTimeout(timer); zeige(); return; }
+    laeuft = true;
+    if (i === STEPS.length - 1) { gehe(0, false); return; }
+    gehe(i + 1, true);
+  }
+  function schritt(d) { laeuft = false; gehe(i + d, true); }
+
+  el('btn-play').addEventListener('click', startStopp);
+  el('btn-back').addEventListener('click', function () { schritt(-1); });
+  el('btn-next').addEventListener('click', function () { schritt(1); });
+  el('tempo').addEventListener('change', function (e) { tempo = +e.target.value; });
+  document.addEventListener('keydown', function (e) {
+    var t = e.target, tag = t.tagName;
+    if (tag === 'SELECT' || tag === 'TEXTAREA' || (tag === 'INPUT' && t.type !== 'checkbox')) return;
+    if (e.key === 'ArrowRight') schritt(1);
+    else if (e.key === 'ArrowLeft') schritt(-1);
+    else if (e.key === ' ' && !/^(BUTTON|INPUT|A)$/.test(tag)) { e.preventDefault(); startStopp(); }
+  });
+  // a mouse click must not leave the focus on a control, or space would press it again (detail 0 = keyboard click: focus stays)
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest && e.target.closest('button, input[type=checkbox]');
+    if (c && e.detail) c.blur();
+  });
+
+  // key frames for print: one still picture per step, built once; the English caption follows the en-toggle
+  var bilder = el('bilder');
+  STEPS.forEach(function (s, n) {
+    setze(null, ziel(n), 1);
+    var kopie = svg.cloneNode(true);
+    kopie.removeAttribute('id');
+    kopie.setAttribute('aria-label', (n + 1) + '. ' + s.de + ' / ' + s.en);
+    Array.prototype.forEach.call(kopie.querySelectorAll('[id]'), function (node) { if (!node.closest('defs')) node.removeAttribute('id'); });
+    var fig = document.createElement('figure'), cap = document.createElement('figcaption');
+    [['de', s.de], ['en', s.en]].forEach(function (c, k) {
+      var p = document.createElement('p');
+      p.lang = c[0];
+      if (k) p.className = 'en';
+      p.textContent = (k ? '' : (n + 1) + '. ') + c[1];
+      cap.appendChild(p);
+    });
+    fig.appendChild(kopie); fig.appendChild(cap); bilder.appendChild(fig);
+  });
+
+  document.documentElement.className += ' js';
+  if (ruhig.matches) el('hinweis').hidden = false;
+  gehe(0, false);
+})();
+</script>
+</body>
+</html>

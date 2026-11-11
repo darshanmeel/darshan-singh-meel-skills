@@ -2,3 +2,5 @@
 /reviews/
 # Python bytecode from test runs
 __pycache__/
+# release zips (built locally, not committed)
+*.zip

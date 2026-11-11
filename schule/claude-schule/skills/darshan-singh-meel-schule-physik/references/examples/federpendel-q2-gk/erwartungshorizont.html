@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erwartungshorizont – Harmonische Schwingung eines Federpendels</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="erwartungshorizont" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Physik · Q2 Grundkurs</span>
+<span>Erwartungshorizont · nur für Lehrkräfte <span class="en" lang="en">/ Marking scheme · for teachers only</span></span>
+</header>
+<h1><span class="bi"><span>Harmonische Schwingung eines Federpendels</span><span class="en" lang="en">Harmonic oscillation of a spring pendulum</span></span></h1>
+<p class="meta">Klausur, Aufgabe 1 von 2 <span class="en" lang="en">/ written exam, task 1 of 2</span> · 45 min · KC-Bezug <span class="en" lang="en">/ curriculum reference</span>: <span data-nur-de>KCGO Hessen, Physik, Q2.1 Mechanische Schwingungen, GK (grundlegendes Niveau); Bildungsstandards S 7, E 6, S 2</span></p>
+
+<section>
+<h2>Erwartete Leistungen <span class="en" lang="en">/ Expected performance</span></h2>
+<table>
+<thead><tr><th scope="col">Aufgabe <span class="en" lang="en">/ Task</span></th><th scope="col">Erwartete Leistung (Ergebnis, Lösungsweg, Teilpunkte in Klammern) <span class="en" lang="en">/ Expected performance (result, solution steps, part points in brackets)</span></th><th scope="col">AFB</th><th scope="col">BE</th></tr></thead>
+<tbody>
+<tr data-aufgabe="1a" data-punkte="4" data-afb="I"><th scope="row">1a</th><td><span class="bi"><span>Im Umkehrpunkt ist die gesamte Energie Spannenergie der Feder, die kinetische Energie ist null (1). Auf dem Weg zur Ruhelage wird Spannenergie in kinetische Energie umgewandelt (1). In der Ruhelage ist die gesamte Energie kinetische Energie, die Geschwindigkeit ist maximal (1). Danach wird kinetische Energie wieder in Spannenergie umgewandelt; in einer Periode geschieht das zweimal, die Gesamtenergie bleibt konstant (1).</span><span class="en" lang="en">At the turning point the total energy is elastic potential energy of the spring, the kinetic energy is zero (1). On the way to the equilibrium position elastic potential energy is converted into kinetic energy (1). At the equilibrium position the total energy is kinetic energy, the speed is maximal (1). After that kinetic energy is converted into elastic potential energy again; in one period this happens twice, the total energy stays constant (1).</span></span></td><td>I</td><td>4</td></tr>
+<tr data-aufgabe="1b" data-punkte="4" data-afb="I"><th scope="row">1b</th><td><span class="bi"><span>Formel: <i>T</i> = 2π · √(<i>m</i> / <i>D</i>) (1). Rechnung: <i>T</i> = 2π · √(0,300 kg / 12,0 N/m) = 0,993 s (1). Formel: <i>f</i> = 1 / <i>T</i> (1). Ergebnis: <i>f</i> = 1 / 0,993 s = 1,01 Hz (1).</span><span class="en" lang="en">Formula: <i>T</i> = 2π · √(<i>m</i> / <i>D</i>) (1). Calculation: <i>T</i> = 2π · √(0.300 kg / 12.0 N/m) = 0.993 s (1). Formula: <i>f</i> = 1 / <i>T</i> (1). Result: <i>f</i> = 1 / 0.993 s = 1.01 Hz (1).</span></span></td><td>I</td><td>4</td></tr>
+<tr data-aufgabe="2a" data-punkte="3" data-afb="II"><th scope="row">2a</th><td><span class="bi"><span>Kreisfrequenz: <i>ω</i> = 2π / <i>T</i> = 6,32 1/s, ebenso aus <i>ω</i> = √(<i>D</i> / <i>m</i>) (1). Ansatz: <i>s</i>(<i>t</i>) = <i>ŝ</i> · sin(<i>ω</i> · <i>t</i>), weil der Gleiter bei <i>t</i> = 0 s in der Ruhelage ist und sich in positive Richtung bewegt (1). Ergebnis: <i>s</i>(<i>t</i>) = 5,00 cm · sin(6,32 1/s · <i>t</i>) (1).</span><span class="en" lang="en">Angular frequency: <i>ω</i> = 2π / <i>T</i> = 6.32 1/s, likewise from <i>ω</i> = √(<i>D</i> / <i>m</i>) (1). Approach: <i>s</i>(<i>t</i>) = <i>ŝ</i> · sin(<i>ω</i> · <i>t</i>), because the glider is at the equilibrium position at <i>t</i> = 0 s and moves in the positive direction (1). Result: <i>s</i>(<i>t</i>) = 5.00 cm · sin(6.32 1/s · <i>t</i>) (1).</span></span></td><td>II</td><td>3</td></tr>
+<tr data-aufgabe="2b" data-punkte="4" data-afb="II"><th scope="row">2b</th><td><span class="bi"><span>Ansatz: 2,50 cm = 5,00 cm · sin(<i>ω</i> · <i>t</i>), also sin(<i>ω</i> · <i>t</i>) = 0,500 (1). Kleinste Lösung im Bogenmaß: <i>ω</i> · <i>t</i> = π / 6 = 0,5236 (1). Umstellen: <i>t</i> = 0,5236 / 6,32 1/s (1). Ergebnis: <i>t</i> = 0,0828 s (1). Probe: π / 6 ist ein Zwölftel von 2π, also <i>t</i> = <i>T</i> / 12 = 0,0828 s.</span><span class="en" lang="en">Approach: 2.50 cm = 5.00 cm · sin(<i>ω</i> · <i>t</i>), so sin(<i>ω</i> · <i>t</i>) = 0.500 (1). Smallest solution in radians: <i>ω</i> · <i>t</i> = π / 6 = 0.5236 (1). Rearranging: <i>t</i> = 0.5236 / 6.32 1/s (1). Result: <i>t</i> = 0.0828 s (1). Check: π / 6 is one twelfth of 2π, so <i>t</i> = <i>T</i> / 12 = 0.0828 s.</span></span></td><td>II</td><td>4</td></tr>
+<tr data-aufgabe="2c" data-punkte="5" data-afb="II"><th scope="row">2c</th><td><span class="bi"><span>Gesamtenergie im Umkehrpunkt: <i>E</i> = ½ · <i>D</i> · <i>ŝ</i><sup>2</sup> (1) = ½ · 12,0 N/m · (0,0500 m)<sup>2</sup> = 0,0150 J (1). In der Ruhelage ist die gesamte Energie kinetisch: ½ · <i>m</i> · <i>v</i><sup>2</sup> = ½ · <i>D</i> · <i>ŝ</i><sup>2</sup> (1). Umstellen: <i>v</i> = <i>ŝ</i> · √(<i>D</i> / <i>m</i>) (1). Ergebnis: <i>v</i> = 0,0500 m · √(12,0 N/m / 0,300 kg) = 0,316 m/s (1).</span><span class="en" lang="en">Total energy at the turning point: <i>E</i> = ½ · <i>D</i> · <i>ŝ</i><sup>2</sup> (1) = ½ · 12.0 N/m · (0.0500 m)<sup>2</sup> = 0.0150 J (1). At the equilibrium position the total energy is kinetic: ½ · <i>m</i> · <i>v</i><sup>2</sup> = ½ · <i>D</i> · <i>ŝ</i><sup>2</sup> (1). Rearranging: <i>v</i> = <i>ŝ</i> · √(<i>D</i> / <i>m</i>) (1). Result: <i>v</i> = 0.0500 m · √(12.0 N/m / 0.300 kg) = 0.316 m/s (1).</span></span></td><td>II</td><td>5</td></tr>
+<tr data-aufgabe="3a" data-punkte="4" data-afb="II"><th scope="row">3a</th><td><span class="bi"><span>Periodendauern: <i>T</i> = 0,58 s; 0,81 s; 1,00 s; 1,14 s (1). Quotienten <i>T</i> / √<i>m</i> in s/√kg: 1,83; 1,81; 1,83; 1,80 (2). Die Quotienten sind im Rahmen der Messgenauigkeit konstant (Abweichung vom Mittelwert 1,82 unter 2 %), also ist <i>T</i> proportional zu √<i>m</i> (1). Gleichwertig: <i>T</i><sup>2</sup> / <i>m</i> ist konstant, oder die Punkte im Diagramm <i>T</i> gegen √<i>m</i> liegen auf einer Ursprungsgeraden.</span><span class="en" lang="en">Periods: <i>T</i> = 0.58 s; 0.81 s; 1.00 s; 1.14 s (1). Quotients <i>T</i> / √<i>m</i> in s/√kg: 1.83; 1.81; 1.83; 1.80 (2). The quotients are constant within the measurement accuracy (deviation from the mean value 1.82 below 2 %), so <i>T</i> is proportional to √<i>m</i> (1). Equivalent: <i>T</i><sup>2</sup> / <i>m</i> is constant, or the points in the diagram <i>T</i> against √<i>m</i> lie on a straight line through the origin.</span></span></td><td>II</td><td>4</td></tr>
+<tr data-aufgabe="3b" data-punkte="6" data-afb="III"><th scope="row">3b</th><td><span class="bi"><span>Die Aussage ist falsch (1). In <i>T</i> = 2π · √(<i>m</i> / <i>D</i>) kommt die Amplitude nicht vor (1). Der Weg verdoppelt sich zwar, aber die Rückstellkraft <i>F</i> = <i>D</i> · <i>s</i> ist bei doppelter Auslenkung doppelt so groß, deshalb sind auch Beschleunigung und Geschwindigkeit an jeder entsprechenden Stelle doppelt so groß, zum Beispiel <i>v</i><sub>max</sub> = <i>ŝ</i> · <i>ω</i> (2). Doppelter Weg mit doppelter Geschwindigkeit ergibt dieselbe Zeit (1). Grenze: Das gilt nur, solange die Feder dem linearen Kraftgesetz folgt (1).</span><span class="en" lang="en">The statement is false (1). In <i>T</i> = 2π · √(<i>m</i> / <i>D</i>) the amplitude does not occur (1). The distance does double, but the restoring force <i>F</i> = <i>D</i> · <i>s</i> is twice as large at double the displacement, therefore acceleration and speed are also twice as large at every corresponding position, for example <i>v</i><sub>max</sub> = <i>ŝ</i> · <i>ω</i> (2). Double the distance at double the speed gives the same time (1). Limit: This holds only as long as the spring follows the linear force law (1).</span></span></td><td>III</td><td>6</td></tr>
+</tbody>
+<tfoot><tr><th scope="row" colspan="3">Summe <span class="en" lang="en">/ Sum</span></th><td data-gesamt="30">30</td></tr></tfoot>
+</table>
+</section>
+
+<section>
+<h2>Verteilung auf die Anforderungsbereiche <span class="en" lang="en">/ Distribution across the requirement areas</span></h2>
+<table>
+<thead><tr><th scope="col">AFB</th><th scope="col">BE</th><th scope="col">Anteil <span class="en" lang="en">/ Share</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">I</th><td>8</td><td>27 %</td></tr>
+<tr><th scope="row">II</th><td>16</td><td>53 %</td></tr>
+<tr><th scope="row">III</th><td>6</td><td>20 %</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2><span class="bi"><span>Punkteschlüssel (0 bis 15 Punkte)</span><span class="en" lang="en">Points key (0 to 15 points)</span></span></h2>
+<table>
+<thead><tr><th scope="col">Punkte <span class="en" lang="en">/ Points</span></th><th scope="col">ab BE <span class="en" lang="en">/ from marking units</span></th><th scope="col">ab Anteil <span class="en" lang="en">/ from share</span></th></tr></thead>
+<tbody>
+<tr data-note="15" data-ab="28.5"><th scope="row">15</th><td>28,5</td><td>95 %</td></tr>
+<tr data-note="14" data-ab="27"><th scope="row">14</th><td>27</td><td>90 %</td></tr>
+<tr data-note="13" data-ab="25.5"><th scope="row">13</th><td>25,5</td><td>85 %</td></tr>
+<tr data-note="12" data-ab="24"><th scope="row">12</th><td>24</td><td>80 %</td></tr>
+<tr data-note="11" data-ab="22.5"><th scope="row">11</th><td>22,5</td><td>75 %</td></tr>
+<tr data-note="10" data-ab="21"><th scope="row">10</th><td>21</td><td>70 %</td></tr>
+<tr data-note="9" data-ab="19.5"><th scope="row">9</th><td>19,5</td><td>65 %</td></tr>
+<tr data-note="8" data-ab="18"><th scope="row">8</th><td>18</td><td>60 %</td></tr>
+<tr data-note="7" data-ab="16.5"><th scope="row">7</th><td>16,5</td><td>55 %</td></tr>
+<tr data-note="6" data-ab="15"><th scope="row">6</th><td>15</td><td>50 %</td></tr>
+<tr data-note="5" data-ab="13.5"><th scope="row">5</th><td>13,5</td><td>45 %</td></tr>
+<tr data-note="4" data-ab="12"><th scope="row">4</th><td>12</td><td>40 %</td></tr>
+<tr data-note="3" data-ab="9.9"><th scope="row">3</th><td>9,9</td><td>33 %</td></tr>
+<tr data-note="2" data-ab="8.1"><th scope="row">2</th><td>8,1</td><td>27 %</td></tr>
+<tr data-note="1" data-ab="6"><th scope="row">1</th><td>6</td><td>20 %</td></tr>
+<tr data-note="0" data-ab="0"><th scope="row">0</th><td>0</td><td>0 %</td></tr>
+</tbody>
+</table>
+<div class="bi"><p>Punkteschlüssel nach OAVO Anlage 9a; die Prozentwerte werden nicht gerundet. Die Zeilen außer 5 und 11 Punkten wurden nicht im amtlichen Text nachgelesen: vor der Benotung mit OAVO Anlage 9a vergleichen.</p><p class="en" lang="en">Points key according to OAVO Anlage 9a; the percentages are not rounded. The rows other than 5 and 11 points were not read in the official text: compare with OAVO Anlage 9a before grading.</p></div>
+<div class="bi"><p>Der Schlüssel gilt für diese Aufgabe allein. In der Klausur wird er auf die Summe beider Aufgaben angewendet.</p><p class="en" lang="en">The key applies to this task alone. In the written exam it is applied to the sum of both tasks.</p></div>
+</section>
+
+<section>
+<h2>Hinweise zur Korrektur <span class="en" lang="en">/ Notes for marking</span></h2>
+<ul>
+<li><span class="bi"><span>Folgefehler: Wer mit einem falschen Zwischenergebnis richtig weiterrechnet, erhält die späteren Punkte.</span><span class="en" lang="en">Consequential errors: Whoever continues correctly with a wrong intermediate result receives the later points.</span></span></li>
+<li><span class="bi"><span>Andere richtige Lösungswege: volle Punktzahl.</span><span class="en" lang="en">Other correct solution paths: full points.</span></span></li>
+<li><span class="bi"><span>Ziffernzahl: Abweichungen von 1 in der letzten Ziffer und Ergebnisse aus sinnvoll gerundeten Zwischenwerten sind richtig. Eine fehlende oder falsche Einheit kostet einmal pro Teilaufgabe einen halben Punkt.</span><span class="en" lang="en">Number of digits: Deviations of 1 in the last digit and results from sensibly rounded intermediate values are correct. A missing or wrong unit costs half a point once per sub-task.</span></span></li>
+<li><span class="bi"><span>2b: Wer im Gradmaß rechnet (<i>ω</i> · <i>t</i> = 30), erhält die Punkte für Ansatz und Umstellen, nicht für das Ergebnis.</span><span class="en" lang="en">2b: Whoever calculates in degrees (<i>ω</i> · <i>t</i> = 30) receives the points for approach and rearranging, not for the result.</span></span></li>
+<li><span class="bi"><span>Sprache und Form: Bei schwerwiegenden oder gehäuften Verstößen Abzug von 1 oder 2 Punkten von der Klausurnote (OAVO § 9 Abs. 12, Anlage 9b).</span><span class="en" lang="en">Language and form: For serious or frequent violations deduction of 1 or 2 points from the exam grade (OAVO § 9 Abs. 12, Anlage 9b).</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbeitsblatt – Das Mehrspeichermodell des Gedächtnisses</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Psychologie · E-Phase (E2)</span>
+<span>Name: <span class="feld"></span></span>
+<span>Kurs <span class="en" lang="en">/ Course</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Das Mehrspeichermodell des Gedächtnisses</span><span class="en" lang="en">The multi-store model of memory</span></span></h1>
+<p class="meta">Wählen Sie Ihr Niveau <span class="en" lang="en">/ Choose your level</span>: <span class="niveau">★</span> Basis <span class="en" lang="en">/ Basic</span> · <span class="niveau">★★</span> Standard · <span class="niveau">★★★</span> Herausforderung <span class="en" lang="en">/ Challenge</span></p>
+<section class="kasten">
+<h2>Das brauchen Sie <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Das Mehrspeichermodell (Atkinson &amp; Shiffrin, 1968) beschreibt drei Speicher: sensorisches Register, Kurzzeitgedächtnis und Langzeitgedächtnis.</p><p class="en" lang="en">The multi-store model (Atkinson &amp; Shiffrin, 1968) describes three stores: sensory register, short-term memory and long-term memory.</p></div><div class="bi"><p>Sensorisches Register: sehr große Kapazität, Dauer unter 1 Sekunde (visuell). Kurzzeitgedächtnis: etwa 7 ± 2 Einheiten, etwa 20 bis 30 Sekunden ohne Wiederholen. Langzeitgedächtnis: praktisch unbegrenzt.</p><p class="en" lang="en">Sensory register: very large capacity, duration under 1 second (visual). Short-term memory: about 7 ± 2 units, about 20 to 30 seconds without rehearsal. Long-term memory: practically unlimited.</p></div><div class="bi"><p>Vier Prozesse verbinden die Speicher: Aufmerksamkeit, Wiederholen, Enkodierung, Abruf.</p><p class="en" lang="en">Four processes connect the stores: attention, rehearsal, encoding, retrieval.</p></div><div class="bi"><p>Eine Einheit (Chunk) kann ein Buchstabe, ein Wort oder eine bekannte Abkürzung sein.</p><p class="en" lang="en">A unit (chunk) can be a letter, a word or a familiar abbreviation.</p></div>
+</section>
+<section>
+<h2>M1 Fallbeispiel (erfunden) <span class="en" lang="en">/ Case example (invented)</span></h2>
+<div class="quelltext">
+<div class="bi"><p>Jonas (16) bestellt am Telefon ein Ersatzteil. Die Mitarbeiterin nennt ihm eine Abholnummer mit neun Ziffern: 4 7 1 9 2 6 3 8 5. Jonas spricht die Ziffern leise vor sich hin, während er einen Stift sucht.</p><p class="en" lang="en">Jonas (16) orders a spare part by phone. The employee gives him a collection number with nine digits: 4 7 1 9 2 6 3 8 5. Jonas says the digits quietly to himself while he looks for a pen.</p></div><div class="bi"><p>Da ruft seine Schwester aus dem Flur und fragt ihn nach der Uhrzeit. Er antwortet ihr. Als er den Stift gefunden hat, weiß er nur noch die ersten drei Ziffern.</p><p class="en" lang="en">Then his sister calls from the hallway and asks him the time. He answers her. When he has found the pen, he only remembers the first three digits.</p></div>
+</div>
+</section>
+<section>
+<h2>M2 Kursversuch zur Gedächtnisspanne – Modelldaten (erfunden) <span class="en" lang="en">/ Course experiment on memory span – model data (invented)</span></h2>
+<div class="bi"><p>Zwei Gruppen mit je fünf Freiwilligen sehen 10 Sekunden lang 12 Buchstaben und schreiben danach auf, was sie behalten haben. Die Zettel sind anonym.</p><p class="en" lang="en">Two groups of five volunteers each see 12 letters for 10 seconds and afterwards write down what they have retained. The slips of paper are anonymous.</p></div><div class="bi"><p>Gruppe A sieht: W K A L U P D S K N W A. Gruppe B sieht dieselben Buchstaben als bekannte Abkürzungen: LKW PKW USA DNA.</p><p class="en" lang="en">Group A sees: W K A L U P D S K N W A. Group B sees the same letters as familiar abbreviations: LKW PKW USA DNA.</p></div><table>
+<thead><tr><th scope="col">Person</th><th scope="col"><span class="bi"><span>Gruppe A: richtig behaltene Buchstaben</span><span class="en" lang="en">Group A: letters retained correctly</span></span></th><th scope="col"><span class="bi"><span>Gruppe B: richtig behaltene Buchstaben</span><span class="en" lang="en">Group B: letters retained correctly</span></span></th></tr></thead>
+<tbody>
+<tr><td>1</td><td>5</td><td>12</td></tr>
+<tr><td>2</td><td>6</td><td>9</td></tr>
+<tr><td>3</td><td>7</td><td>12</td></tr>
+<tr><td>4</td><td>6</td><td>11</td></tr>
+<tr><td>5</td><td>6</td><td>11</td></tr>
+</tbody>
+</table>
+</section>
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Beschreiben Sie</span> den Weg einer Information vom Reiz bis ins Langzeitgedächtnis. Verwenden Sie die Prozesse aus dem Kasten.</p><p class="en" lang="en"><span class="op">Describe</span> the path of a piece of information from the stimulus to long-term memory. Use the processes from the box.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+<section class="aufgabe" data-aufgabe="2" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Erklären Sie</span> mit dem Mehrspeichermodell, warum Jonas die Abholnummer nicht mehr vollständig weiß (M1).</p><p class="en" lang="en"><span class="op">Explain</span> with the multi-store model why Jonas no longer knows the collection number completely (M1).</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Werten Sie</span> M2 mithilfe der Mittelwerte beider Gruppen und des Begriffs Chunk aus.</p><p class="en" lang="en"><span class="op">Analyse</span> M2 with the help of the means of both groups and the term chunk.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+<section class="aufgabe" data-aufgabe="4" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span></h2>
+<div class="bi"><p><span class="op">Beurteilen Sie,</span> wie gut das Mehrspeichermodell erklärt, dass man die Handlung eines spannenden Films nach einmaligem Sehen noch Wochen später kennt.</p><p class="en" lang="en"><span class="op">Assess</span> how well the multi-store model explains that one still knows the plot of an exciting film weeks later after seeing it once.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>das sensorische Register</td><td lang="en">sensory register</td><td><span class="bi"><span>Speicher, der Sinneseindrücke für sehr kurze Zeit festhält</span><span class="en" lang="en">store that holds sensory impressions for a very short time</span></span></td></tr>
+<tr><td data-nur-de>das Kurzzeitgedächtnis</td><td lang="en">short-term memory</td><td><span class="bi"><span>Speicher mit kleiner Kapazität und kurzer Dauer</span><span class="en" lang="en">store with small capacity and short duration</span></span></td></tr>
+<tr><td data-nur-de>das Langzeitgedächtnis</td><td lang="en">long-term memory</td><td><span class="bi"><span>Speicher mit praktisch unbegrenzter Kapazität und Dauer</span><span class="en" lang="en">store with practically unlimited capacity and duration</span></span></td></tr>
+<tr><td data-nur-de>die Aufmerksamkeit</td><td lang="en">attention</td><td><span class="bi"><span>Auswahl der Information, die weiterverarbeitet wird</span><span class="en" lang="en">selection of the information that is processed further</span></span></td></tr>
+<tr><td data-nur-de>das Wiederholen</td><td lang="en">rehearsal</td><td><span class="bi"><span>inneres oder lautes Wiederholen, das Information im Kurzzeitgedächtnis hält</span><span class="en" lang="en">inner or spoken repeating that keeps information in short-term memory</span></span></td></tr>
+<tr><td data-nur-de>die Enkodierung</td><td lang="en">encoding</td><td><span class="bi"><span>Übertragung ins Langzeitgedächtnis</span><span class="en" lang="en">transfer into long-term memory</span></span></td></tr>
+<tr><td data-nur-de>der Abruf</td><td lang="en">retrieval</td><td><span class="bi"><span>Zurückholen aus dem Langzeitgedächtnis</span><span class="en" lang="en">bringing back from long-term memory</span></span></td></tr>
+<tr><td data-nur-de>die Gedächtnisspanne</td><td lang="en">memory span</td><td><span class="bi"><span>Zahl der Einheiten, die man sofort richtig wiedergeben kann</span><span class="en" lang="en">number of units that one can reproduce correctly at once</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

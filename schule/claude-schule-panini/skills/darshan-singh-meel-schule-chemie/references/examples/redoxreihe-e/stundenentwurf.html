@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenentwurf – Redoxreihe der Metalle</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="stundenentwurf" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Chemie · Einführungsphase · Gymnasium</span>
+<span>Dauer <span class="en" lang="en">/ Duration</span>: 90 min</span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Redoxreihe der Metalle: Welches Metall gibt Elektronen ab?</span><span class="en" lang="en">Redox series of the metals: Which metal releases electrons?</span></span></h1>
+<p class="meta">Unterrichtsreihe <span class="en" lang="en">/ Teaching unit</span>: Redoxreaktionen · Stunde <span class="en" lang="en">/ Lesson</span> 3 / 10</p>
+
+<section>
+<h2>Bezug zum Kerncurriculum <span class="en" lang="en">/ Reference to the core curriculum</span></h2>
+<table>
+<tbody>
+<tr><th scope="row">Quelle <span class="en" lang="en">/ Source</span></th><td>KCGO Hessen, Chemie</td></tr>
+<tr><th scope="row">Kompetenzbereich <span class="en" lang="en">/ Competence area</span></th><td><span class="bi"><span>Erkenntnisgewinnungskompetenz (E); Sachkompetenz (S)</span><span class="en" lang="en">competence in gaining knowledge (E); subject competence (S)</span></span></td></tr>
+<tr><th scope="row">Kompetenz / Bildungsstandard <span class="en" lang="en">/ Competence / educational standard</span></th><td><span class="bi"><span>E 5: Die Lernenden führen qualitative und quantitative experimentelle Untersuchungen - den chemischen Arbeitsweisen und Sicherheitsregeln entsprechend - durch, protokollieren sie und werten diese aus. S 16: Die Lernenden entwickeln Reaktionsgleichungen.</span><span class="en" lang="en">E 5: The learners carry out qualitative and quantitative experimental investigations - in accordance with the chemical working methods and safety rules - record them and evaluate them. S 16: The learners develop reaction equations.</span></span></td></tr>
+<tr><th scope="row">Inhaltsfeld / Themenfeld <span class="en" lang="en">/ Content field / topic field</span></th><td><span class="bi"><span>E.1 Redoxreaktionen: Ermitteln einer verkürzten Redoxreihe der Metalle (Metallabscheidungen aus Metallsalzlösungen einschließlich der Kennzeichnung von Elektronendonator/-akzeptor-Paaren)</span><span class="en" lang="en">E.1 Redox reactions: determining a shortened redox series of the metals (metal depositions from metal salt solutions including the marking of electron donor/acceptor pairs)</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta">Wortlaut des KCGO; die englische Zeile ist eine eigene Übersetzung <span class="en" lang="en">/ Wording of the KCGO; the English line is our own translation</span></p>
+</section>
+
+<section>
+<h2>Lernziele <span class="en" lang="en">/ Learning goals</span></h2>
+<div class="bi"><p><strong>Stundenziel:</strong> Die Lernenden ermitteln experimentell eine verkürzte Redoxreihe der Metalle Zink, Eisen und Kupfer und stellen die Metallabscheidungen als Elektronenübergänge in Reaktionsgleichungen dar.</p><p class="en" lang="en"><strong>Lesson goal:</strong> The learners determine experimentally a shortened redox series of the metals zinc, iron and copper and represent the metal depositions as electron transfers in reaction equations.</p></div>
+<ul>
+<li><span class="bi"><span>Die Lernenden führen den Versuch sicher durch und beschreiben ihre Beobachtungen auf der Stoffebene.</span><span class="en" lang="en">The learners carry out the experiment safely and describe their observations on the substance level.</span></span> <span class="meta">(AFB I, E)</span></li>
+<li><span class="bi"><span>Die Lernenden stellen Teilgleichungen und Gesamtgleichung auf und kennzeichnen Elektronendonator und Elektronenakzeptor.</span><span class="en" lang="en">The learners set up half equations and overall equation and mark electron donor and electron acceptor.</span></span> <span class="meta">(AFB II, S)</span></li>
+<li><span class="bi"><span>Die Lernenden leiten aus den Beobachtungen die Reihenfolge der Metalle ab.</span><span class="en" lang="en">The learners derive the order of the metals from the observations.</span></span> <span class="meta">(AFB II, E)</span></li>
+<li><span class="bi"><span>Die Lernenden beurteilen mit der Redoxreihe eine Aussage zu einem nicht durchgeführten Versuch.</span><span class="en" lang="en">The learners assess with the redox series a statement about an experiment that was not carried out.</span></span> <span class="meta">(AFB III, S)</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Lernvoraussetzungen <span class="en" lang="en">/ Learning prerequisites</span></h2>
+<ul>
+<li><span class="bi"><span>Erweiterter Redoxbegriff aus der Sekundarstufe I und aus Stunde 2: Oxidation als Elektronenabgabe, Reduktion als Elektronenaufnahme.</span><span class="en" lang="en">Extended concept of redox from lower secondary level and from lesson 2: oxidation as release of electrons, reduction as uptake of electrons.</span></span></li>
+<li><span class="bi"><span>Aufbau einfacher Ionen und ihre Ladungen; Salze bestehen aus Ionen.</span><span class="en" lang="en">Structure of simple ions and their charges; salts consist of ions.</span></span></li>
+<li><span class="bi"><span>Die allgemeine Sicherheitsunterweisung dieses Halbjahres ist erfolgt und dokumentiert.</span><span class="en" lang="en">The general safety instruction of this half-year has taken place and is documented.</span></span></li>
+</ul>
+</section>
+
+<section>
+<h2>Verlaufsplan <span class="en" lang="en">/ Lesson sequence</span></h2>
+<table data-dauer="90">
+<thead><tr><th scope="col">Phase</th><th scope="col">Zeit <span class="en" lang="en">/ Time</span></th><th scope="col">Geschehen (Lehrkraft / Lernende) <span class="en" lang="en">/ What happens (teacher / learners)</span></th><th scope="col">Sozialform <span class="en" lang="en">/ Social form</span></th><th scope="col">Medien, Material <span class="en" lang="en">/ Media, materials</span></th></tr></thead>
+<tbody>
+<tr data-min="8"><th scope="row">Einstieg <span class="en" lang="en">/ Opening</span></th><td>8 min</td><td><span class="bi"><span>Die Lehrkraft zeigt einen Eisennagel, der kurz in Kupfer(II)-sulfat-Lösung getaucht war. Die Lernenden beschreiben den rotbraunen Belag und formulieren die Fragestellung des Versuchs.</span><span class="en" lang="en">The teacher shows an iron nail that was briefly dipped into copper(II) sulfate solution. The learners describe the red-brown coating and formulate the question of the experiment.</span></span></td><td>UG</td><td><span class="bi"><span>Eisennagel, Kupfer(II)-sulfat-Lösung, Dokumentenkamera</span><span class="en" lang="en">iron nail, copper(II) sulfate solution, document camera</span></span></td></tr>
+<tr data-min="30"><th scope="row">Erarbeitung 1 <span class="en" lang="en">/ Working phase 1</span></th><td>30 min</td><td><span class="bi"><span>Sicherheitsunterweisung zum Versuch anhand der Tabelle „Sicherheit“. Die Lernenden führen den Versuch durch und protokollieren ihre Beobachtungen (Aufgabe 1). Die Lehrkraft beaufsichtigt und kontrolliert die Entsorgung.</span><span class="en" lang="en">Safety instruction for the experiment using the table “Safety”. The learners carry out the experiment and record their observations (task 1). The teacher supervises and checks the disposal.</span></span></td><td>PA</td><td><span class="bi"><span>arbeitsblatt.html; Tüpfelplatten, Lösungen, Metallstücke, Schutzbrillen, Sammelbehälter</span><span class="en" lang="en">arbeitsblatt.html; spotting tiles, solutions, metal pieces, safety goggles, waste container</span></span></td></tr>
+<tr data-min="12"><th scope="row">Sicherung 1 <span class="en" lang="en">/ Securing the results 1</span></th><td>12 min</td><td><span class="bi"><span>Die Gruppen vergleichen ihre Beobachtungen; die Tabelle wird an der Tafel gesichert. Abweichungen werden besprochen (Zink in Eisen(II)-sulfat-Lösung reagiert langsam).</span><span class="en" lang="en">The groups compare their observations; the table is secured on the board. Deviations are discussed (zinc in iron(II) sulfate solution reacts slowly).</span></span></td><td>UG</td><td><span class="bi"><span>Tafel, loesung.html</span><span class="en" lang="en">board, loesung.html</span></span></td></tr>
+<tr data-min="20"><th scope="row">Erarbeitung 2 <span class="en" lang="en">/ Working phase 2</span></th><td>20 min</td><td><span class="bi"><span>Die Lernenden deuten die Beobachtungen auf der Teilchenebene: Teilgleichungen und Gesamtgleichung (Aufgabe 2), Reihenfolge der Metalle (Aufgabe 3). Schnelle Gruppen bearbeiten Aufgabe 4.</span><span class="en" lang="en">The learners interpret the observations on the particle level: half equations and overall equation (task 2), order of the metals (task 3). Fast groups work on task 4.</span></span></td><td>PA</td><td><span class="bi"><span>arbeitsblatt.html</span><span class="en" lang="en">arbeitsblatt.html</span></span></td></tr>
+<tr data-min="10"><th scope="row">Sicherung 2 <span class="en" lang="en">/ Securing the results 2</span></th><td>10 min</td><td><span class="bi"><span>Zwei Gruppen stellen Gleichungen und Redoxreihe vor; Tafelbild und Merksatz werden übernommen.</span><span class="en" lang="en">Two groups present equations and redox series; board notes and key sentence are copied.</span></span></td><td>UG</td><td><span class="bi"><span>Tafel</span><span class="en" lang="en">board</span></span></td></tr>
+<tr data-min="7"><th scope="row">Transfer <span class="en" lang="en">/ Transfer</span></th><td>7 min</td><td><span class="bi"><span>Aufgabe 4 wird im Plenum besprochen: Vorhersage für Kupfer in Silbernitrat-Lösung, Erweiterung der Redoxreihe um Silber. 2 Minuten Puffer.</span><span class="en" lang="en">Task 4 is discussed in plenary: prediction for copper in silver nitrate solution, extension of the redox series by silver. 2 minutes buffer.</span></span></td><td>UG</td><td><span class="bi"><span>arbeitsblatt.html, loesung.html</span><span class="en" lang="en">arbeitsblatt.html, loesung.html</span></span></td></tr>
+<tr data-min="3"><th scope="row">Abschluss <span class="en" lang="en">/ Closing</span></th><td>3 min</td><td><span class="bi"><span>Hausaufgabe stellen; Kontrolle, dass die Arbeitsplätze sauber und alle Hände gewaschen sind.</span><span class="en" lang="en">Set the homework; check that the workplaces are clean and all hands are washed.</span></span></td><td>LV</td><td><span class="bi"><span>–</span><span class="en" lang="en">–</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta">PA Partnerarbeit <span class="en" lang="en">/ pair work</span> · UG Unterrichtsgespräch <span class="en" lang="en">/ class discussion</span> · LV Lehrervortrag <span class="en" lang="en">/ teacher talk</span></p>
+</section>
+
+<section>
+<h2>Versuch: Sicherheit und erwartete Beobachtungen <span class="en" lang="en">/ Experiment: safety and expected observations</span></h2>
+<table>
+<tbody>
+<tr><th scope="row">Versuchsart <span class="en" lang="en">/ Type of experiment</span></th><td><span class="bi"><span>Schülerversuch in Partnerarbeit, Einführungsphase</span><span class="en" lang="en">student experiment in pair work, introductory phase</span></span></td></tr>
+<tr><th scope="row">Stoffe <span class="en" lang="en">/ Substances</span></th><td><span class="bi"><span>Zinksulfat-Lösung, Eisen(II)-sulfat-Lösung, Kupfer(II)-sulfat-Lösung, je <i>c</i> = 0,1 mol/L, je etwa 10 Tropfen (ca. 0,5 mL) pro Ansatz; Stücke von Zinkblech, Eisennagel, Kupferblech</span><span class="en" lang="en">zinc sulfate solution, iron(II) sulfate solution, copper(II) sulfate solution, each <i>c</i> = 0.1 mol/L, about 10 drops (approx. 0.5 mL) each per test; pieces of zinc sheet, iron nail, copper sheet</span></span></td></tr>
+<tr><th scope="row">Einstufung (GHS) <span class="en" lang="en">/ Classification (GHS)</span></th><td><span class="bi"><span>Einstufung für diese Konzentration prüfen (DEGINTU / Sicherheitsdatenblatt)</span><span class="en" lang="en">check classification for this concentration (DEGINTU / safety data sheet)</span></span></td></tr>
+<tr><th scope="row">Schülerversuch erlaubt? <span class="en" lang="en">/ Student experiment allowed?</span></th><td><span class="bi"><span>Ja, wenn die Einstufung der Lösungen keine Kategorie nennt, die RiSU I-3.6, Tabelle 3b für Schülerversuche ausschließt - mit der Einstufung prüfen</span><span class="en" lang="en">Yes, if the classification of the solutions names no category that RiSU I-3.6, table 3b excludes for student experiments - check with the classification</span></span></td></tr>
+<tr><th scope="row">Gefahren <span class="en" lang="en">/ Hazards</span></th><td><span class="bi"><span>Spritzer in die Augen, Hautkontakt mit den Lösungen</span><span class="en" lang="en">splashes into the eyes, skin contact with the solutions</span></span></td></tr>
+<tr><th scope="row">Schutz <span class="en" lang="en">/ Protection</span></th><td><span class="bi"><span>Schutzbrille tragen; kleine Mengen in der Tüpfelplatte; nach dem Versuch Hände waschen</span><span class="en" lang="en">wear safety goggles; small amounts in the spotting tile; wash hands after the experiment</span></span></td></tr>
+<tr><th scope="row">Substitution <span class="en" lang="en">/ Substitution</span></th><td><span class="bi"><span>Verdünnte Lösungen und Tüpfelplatte statt Reagenzgläsern; Silbernitrat-Lösung wird nicht eingesetzt, Silber erscheint nur als gegebene Information (Aufgabe 4)</span><span class="en" lang="en">Dilute solutions and spotting tile instead of test tubes; silver nitrate solution is not used, silver appears only as given information (task 4)</span></span></td></tr>
+<tr><th scope="row">Entsorgung <span class="en" lang="en">/ Disposal</span></th><td><span class="bi"><span>Metallstücke abspülen und sammeln (Feststoffabfall); Lösungen in den Sammelbehälter für Schwermetallsalz-Lösungen, nicht in den Ausguss</span><span class="en" lang="en">rinse the metal pieces and collect them (solid waste); solutions into the waste container for heavy-metal salt solutions, not into the sink</span></span></td></tr>
+<tr><th scope="row">Sammelbehälter <span class="en" lang="en">/ Waste container</span></th><td><span class="bi"><span>Bezeichnung laut Entsorgungskonzept der Schule prüfen</span><span class="en" lang="en">check the name according to the school's disposal concept</span></span></td></tr>
+</tbody>
+</table>
+<div class="bi"><p><strong>Entwurf - ersetzt nicht die Gefährdungsbeurteilung der Lehrkraft.</strong></p><p class="en" lang="en"><strong>Draft - does not replace the teacher's risk assessment.</strong></p></div>
+<div class="teil"><table>
+<thead><tr><th scope="col">Metall <span class="en" lang="en">/ Metal</span> ↓ · Lösung <span class="en" lang="en">/ Solution</span> →</th><th scope="col">Zinksulfat <span class="en" lang="en">/ zinc sulfate</span><br>Zn<sup>2+</sup>(aq)</th><th scope="col">Eisen(II)-sulfat <span class="en" lang="en">/ iron(II) sulfate</span><br>Fe<sup>2+</sup>(aq)</th><th scope="col">Kupfer(II)-sulfat <span class="en" lang="en">/ copper(II) sulfate</span><br>Cu<sup>2+</sup>(aq)</th></tr></thead>
+<tbody>
+<tr><th scope="row">Zink <span class="en" lang="en">/ zinc</span> Zn</th><td style="text-align:center">–</td><td><span class="bi"><span>dunkelgrauer bis schwarzer Belag auf dem Zink (langsam)</span><span class="en" lang="en">dark grey to black coating on the zinc (slowly)</span></span></td><td><span class="bi"><span>rotbrauner Belag auf dem Zink; die blaue Lösung wird heller</span><span class="en" lang="en">red-brown coating on the zinc; the blue solution becomes paler</span></span></td></tr>
+<tr><th scope="row">Eisen <span class="en" lang="en">/ iron</span> Fe</th><td><span class="bi"><span>keine Veränderung</span><span class="en" lang="en">no change</span></span></td><td style="text-align:center">–</td><td><span class="bi"><span>rotbrauner Belag auf dem Eisen; die blaue Lösung wird heller</span><span class="en" lang="en">red-brown coating on the iron; the blue solution becomes paler</span></span></td></tr>
+<tr><th scope="row">Kupfer <span class="en" lang="en">/ copper</span> Cu</th><td><span class="bi"><span>keine Veränderung</span><span class="en" lang="en">no change</span></span></td><td><span class="bi"><span>keine Veränderung</span><span class="en" lang="en">no change</span></span></td><td style="text-align:center">–</td></tr>
+</tbody>
+</table></div>
+<div class="bi"><p><strong>Vorbereitung:</strong> Eisen(II)-sulfat-Lösung frisch ansetzen (sie wird an der Luft gelbbraun). Metallstücke vor der Stunde blank schmirgeln.</p><p class="en" lang="en"><strong>Preparation:</strong> Prepare the iron(II) sulfate solution freshly (it turns yellow-brown in air). Sand the metal pieces bright before the lesson.</p></div>
+</section>
+
+<section>
+<h2>Differenzierung <span class="en" lang="en">/ Differentiation</span></h2>
+<table>
+<thead><tr><th scope="col">Niveau <span class="en" lang="en">/ Level</span></th><th scope="col">Aufgabe / Hilfe <span class="en" lang="en">/ Task / support</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">Basis <span class="en" lang="en">/ Basic</span></th><td><span class="bi"><span>Aufgaben 1 und 2 mit Hilfekarte: Wortliste für Beobachtungen (Belag, Farbe der Lösung) und Gerüst der Teilgleichungen mit Lücken.</span><span class="en" lang="en">Tasks 1 and 2 with a help card: word list for observations (coating, colour of the solution) and frame of the half equations with gaps.</span></span></td></tr>
+<tr><th scope="row">Standard</th><td><span class="bi"><span>Aufgaben 1 bis 3 ohne Hilfekarte.</span><span class="en" lang="en">Tasks 1 to 3 without help card.</span></span></td></tr>
+<tr><th scope="row">Herausforderung <span class="en" lang="en">/ Challenge</span></th><td><span class="bi"><span>Zusätzlich Aufgabe 4: Urteil über einen nicht durchgeführten Versuch mit einem vierten Metall.</span><span class="en" lang="en">In addition task 4: judgement on an experiment that was not carried out, with a fourth metal.</span></span></td></tr>
+<tr><th scope="row">Sprache / Inklusion <span class="en" lang="en">/ Language / inclusion</span></th><td><span class="bi"><span>Fachbegriffe Deutsch | Englisch auf dem Arbeitsblatt; Beobachtungen dürfen in Stichworten stehen; Farbänderungen werden zu zweit beschrieben.</span><span class="en" lang="en">Subject terms German | English on the worksheet; observations may be written in key words; colour changes are described in pairs.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="kasten">
+<h2>Sicherung: Tafelbild / Merksatz <span class="en" lang="en">/ Securing the results: board notes / key sentence</span></h2>
+<div class="bi"><p>Redoxreihe der Metalle (verkürzt): Zn &gt; Fe &gt; Cu. Von links nach rechts nimmt die Fähigkeit der Metall-Atome ab, Elektronen abzugeben.</p><p class="en" lang="en">Redox series of the metals (shortened): Zn &gt; Fe &gt; Cu. From left to right the ability of the metal atoms to release electrons decreases.</p></div>
+<div class="bi"><p>Oxidation: Zn(s) → Zn<sup>2+</sup>(aq) + 2 e<sup>−</sup> · Reduktion: Cu<sup>2+</sup>(aq) + 2 e<sup>−</sup> → Cu(s) · Gesamtgleichung: Zn(s) + Cu<sup>2+</sup>(aq) → Zn<sup>2+</sup>(aq) + Cu(s)</p><p class="en" lang="en">Oxidation: Zn(s) → Zn<sup>2+</sup>(aq) + 2 e<sup>−</sup> · Reduction: Cu<sup>2+</sup>(aq) + 2 e<sup>−</sup> → Cu(s) · Overall equation: Zn(s) + Cu<sup>2+</sup>(aq) → Zn<sup>2+</sup>(aq) + Cu(s)</p></div>
+<div class="bi"><p>Merksatz: Die Atome eines Metalls geben Elektronen an die Ionen der Metalle ab, die in der Redoxreihe rechts von ihm stehen.</p><p class="en" lang="en">Key sentence: The atoms of a metal release electrons to the ions of the metals that are to the right of it in the redox series.</p></div>
+</section>
+
+<section>
+<h2>Hausaufgabe <span class="en" lang="en">/ Homework</span></h2>
+<div class="bi"><p>Stellen Sie für die Reaktion von Eisen mit Kupfer(II)-sulfat-Lösung die Teilgleichungen und die Gesamtgleichung auf.</p><p class="en" lang="en">Set up the half equations and the overall equation for the reaction of iron with copper(II) sulfate solution.</p></div>
+<div class="bi"><p>Lösung: Fe(s) + Cu<sup>2+</sup>(aq) → Fe<sup>2+</sup>(aq) + Cu(s)</p><p class="en" lang="en">Solution: Fe(s) + Cu<sup>2+</sup>(aq) → Fe<sup>2+</sup>(aq) + Cu(s)</p></div>
+<p class="meta">ca. 10 min</p>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>die Redoxreaktion</td><td lang="en">redox reaction</td><td><span class="bi"><span>Reaktion, bei der Elektronen von einem Teilchen auf ein anderes übergehen</span><span class="en" lang="en">reaction in which electrons pass from one particle to another</span></span></td></tr>
+<tr><td data-nur-de>die Oxidation</td><td lang="en">oxidation</td><td><span class="bi"><span>Abgabe von Elektronen</span><span class="en" lang="en">release of electrons</span></span></td></tr>
+<tr><td data-nur-de>die Reduktion</td><td lang="en">reduction</td><td><span class="bi"><span>Aufnahme von Elektronen</span><span class="en" lang="en">uptake of electrons</span></span></td></tr>
+<tr><td data-nur-de>der Elektronendonator (das Reduktionsmittel)</td><td lang="en">electron donor (reducing agent)</td><td><span class="bi"><span>Teilchen, das Elektronen abgibt</span><span class="en" lang="en">particle that releases electrons</span></span></td></tr>
+<tr><td data-nur-de>der Elektronenakzeptor (das Oxidationsmittel)</td><td lang="en">electron acceptor (oxidising agent)</td><td><span class="bi"><span>Teilchen, das Elektronen aufnimmt</span><span class="en" lang="en">particle that takes up electrons</span></span></td></tr>
+<tr><td data-nur-de>die Teilgleichung</td><td lang="en">half equation</td><td><span class="bi"><span>Gleichung nur für die Oxidation oder nur für die Reduktion, mit Elektronen</span><span class="en" lang="en">equation only for the oxidation or only for the reduction, with electrons</span></span></td></tr>
+<tr><td data-nur-de>der Belag</td><td lang="en">coating</td><td><span class="bi"><span>dünne Schicht eines Feststoffs auf einer Oberfläche</span><span class="en" lang="en">thin layer of a solid on a surface</span></span></td></tr>
+<tr><td data-nur-de>die Redoxreihe der Metalle</td><td lang="en">redox series (reactivity series) of the metals</td><td><span class="bi"><span>Reihenfolge der Metalle nach ihrer Fähigkeit, Elektronen abzugeben</span><span class="en" lang="en">order of the metals by their ability to release electrons</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Material <span class="en" lang="en">/ Materials</span></h2>
+<ul>
+<li><span class="bi"><span>arbeitsblatt.html: Versuchsvorschrift mit Sicherheitstabelle und Aufgaben 1 bis 4</span><span class="en" lang="en">arbeitsblatt.html: experiment instructions with safety table and tasks 1 to 4</span></span></li>
+<li><span class="bi"><span>loesung.html: erwartete Beobachtungen, Gleichungen, Musterantworten</span><span class="en" lang="en">loesung.html: expected observations, equations, model answers</span></span></li>
+<li><span class="bi"><span>Je Gruppe: Tüpfelplatte, Pinzette, 2 Schutzbrillen, 2 Stücke von jedem Metall, die drei Lösungen in Tropfflaschen</span><span class="en" lang="en">Per group: spotting tile, tweezers, 2 pairs of safety goggles, 2 pieces of each metal, the three solutions in dropping bottles</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

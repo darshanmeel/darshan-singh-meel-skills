@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbeitsblatt – Klimadiagramm Frankfurt am Main</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Erdkunde · Jg. 7</span>
+<span>Name: <span class="feld"></span></span>
+<span>Klasse <span class="en" lang="en">/ Class</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Ein Klimadiagramm auswerten: Frankfurt am Main</span><span class="en" lang="en">Evaluating a climate diagram: Frankfurt am Main</span></span></h1>
+<p class="meta">Wähle dein Niveau <span class="en" lang="en">/ Choose your level</span>: <span class="niveau">★</span> Basis <span class="en" lang="en">/ Basic</span> · <span class="niveau">★★</span> Standard · <span class="niveau">★★★</span> Herausforderung <span class="en" lang="en">/ Challenge</span></p>
+
+<section class="kasten">
+<h2>Das brauchst du <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Die Linie zeigt die Monatsmitteltemperatur (linke Achse, °C). Die Säulen zeigen den Monatsniederschlag (rechte Achse, mm).</p><p class="en" lang="en">The line shows the mean monthly temperature (left axis, °C). The columns show the monthly precipitation (right axis, mm).</p></div>
+<div class="bi"><p>Die Achsen sind so eingeteilt, dass 10 °C auf derselben Höhe stehen wie 20 mm.</p><p class="en" lang="en">The axes are divided so that 10 °C stands at the same height as 20 mm.</p></div>
+<div class="bi"><p>Ein Monat ist humid (feucht), wenn die Niederschlagssäule über die Temperaturlinie hinausragt. Er ist arid (trocken), wenn die Säule unter der Temperaturlinie endet.</p><p class="en" lang="en">A month is humid (moist) when the precipitation column rises above the temperature line. It is arid (dry) when the column ends below the temperature line.</p></div>
+</section>
+
+<section>
+<h2>M1 Klimadiagramm <span class="en" lang="en">/ Climate diagram</span></h2>
+<figure style="margin:0;max-width:150mm">
+<svg viewBox="0 0 600 446" role="img" aria-label="Klimadiagramm Frankfurt/Main: Jahresmittel 11,1 °C, Jahresniederschlag 599 mm / climate diagram Frankfurt/Main: annual mean 11.1 °C, annual precipitation 599 mm" font-family="Segoe UI,Arial,sans-serif" font-size="15">
+<text x="70" y="28" font-size="18" font-weight="700">Frankfurt/Main (100 m)</text>
+<text x="502" y="28" text-anchor="end" font-size="16">11,1 °C · 599 mm</text>
+<text x="62" y="56" text-anchor="end">°C</text><text x="510" y="56">mm</text>
+<line x1="70" y1="350.0" x2="502" y2="350.0" stroke="#b8b8b8" stroke-width="1"/>
+<text x="62" y="355.0" text-anchor="end">0</text>
+<text x="510" y="355.0">0</text>
+<line x1="70" y1="280.0" x2="502" y2="280.0" stroke="#b8b8b8" stroke-width="1"/>
+<text x="62" y="285.0" text-anchor="end">10</text>
+<text x="510" y="285.0">20</text>
+<line x1="70" y1="210.0" x2="502" y2="210.0" stroke="#b8b8b8" stroke-width="1"/>
+<text x="62" y="215.0" text-anchor="end">20</text>
+<text x="510" y="215.0">40</text>
+<line x1="70" y1="140.0" x2="502" y2="140.0" stroke="#b8b8b8" stroke-width="1"/>
+<text x="62" y="145.0" text-anchor="end">30</text>
+<text x="510" y="145.0">60</text>
+<line x1="70" y1="70.0" x2="502" y2="70.0" stroke="#b8b8b8" stroke-width="1"/>
+<text x="62" y="75.0" text-anchor="end">40</text>
+<text x="510" y="75.0">80</text>
+<rect x="74.0" y="196.0" width="28.0" height="154.0" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="88.0" y="370" text-anchor="middle">J</text>
+<rect x="110.0" y="213.5" width="28.0" height="136.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="124.0" y="370" text-anchor="middle">F</text>
+<rect x="146.0" y="213.5" width="28.0" height="136.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="160.0" y="370" text-anchor="middle">M</text>
+<rect x="182.0" y="220.5" width="28.0" height="129.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="196.0" y="370" text-anchor="middle">A</text>
+<rect x="218.0" y="140.0" width="28.0" height="210.0" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="232.0" y="370" text-anchor="middle">M</text>
+<rect x="254.0" y="157.5" width="28.0" height="192.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="268.0" y="370" text-anchor="middle">J</text>
+<rect x="290.0" y="126.0" width="28.0" height="224.0" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="304.0" y="370" text-anchor="middle">J</text>
+<rect x="326.0" y="136.5" width="28.0" height="213.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="340.0" y="370" text-anchor="middle">A</text>
+<rect x="362.0" y="182.0" width="28.0" height="168.0" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="376.0" y="370" text-anchor="middle">S</text>
+<rect x="398.0" y="175.0" width="28.0" height="175.0" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="412.0" y="370" text-anchor="middle">O</text>
+<rect x="434.0" y="185.5" width="28.0" height="164.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="448.0" y="370" text-anchor="middle">N</text>
+<rect x="470.0" y="157.5" width="28.0" height="192.5" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="484.0" y="370" text-anchor="middle">D</text>
+<polyline fill="none" stroke="#a11212" stroke-width="3" points="88.0,333.9 124.0,328.3 160.0,302.4 196.0,272.3 232.0,244.3 268.0,220.5 304.0,206.5 340.0,210.0 376.0,241.5 412.0,275.1 448.0,307.3 484.0,328.3"/>
+<circle cx="88.0" cy="333.9" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="124.0" cy="328.3" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="160.0" cy="302.4" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="196.0" cy="272.3" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="232.0" cy="244.3" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="268.0" cy="220.5" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="304.0" cy="206.5" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="340.0" cy="210.0" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="376.0" cy="241.5" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="412.0" cy="275.1" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="448.0" cy="307.3" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<circle cx="484.0" cy="328.3" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<line x1="70" y1="350.0" x2="502" y2="350.0" stroke="#111" stroke-width="2"/>
+<line x1="70" y1="70" x2="70" y2="350" stroke="#111" stroke-width="2"/><line x1="502" y1="70" x2="502" y2="350" stroke="#111" stroke-width="2"/>
+<line x1="70" y1="400" x2="104" y2="400" stroke="#a11212" stroke-width="3"/><circle cx="87" cy="400" r="4" fill="#fff" stroke="#a11212" stroke-width="2"/>
+<text x="112" y="405">Temperatur / temperature</text>
+<rect x="320" y="391" width="20" height="18" fill="#a9c4e8" stroke="#1a4480" stroke-width="1.5"/>
+<text x="348" y="405">Niederschlag / precipitation</text>
+</svg>
+<figcaption class="meta"><span class="bi"><span>Oben links: Station und Höhe über dem Meer. Oben rechts: Jahresmitteltemperatur und Jahresniederschlag. Monate: Januar (J) bis Dezember (D).</span><span class="en" lang="en">Top left: station and height above sea level. Top right: mean annual temperature and annual precipitation. Months: January (J) to December (D).</span></span></figcaption>
+</figure>
+</section>
+
+<section style="break-inside:avoid">
+<h2>M2 Werte zum Diagramm <span class="en" lang="en">/ Values for the diagram</span></h2>
+<table>
+<thead><tr><th scope="row">Monat <span class="en" lang="en">/ Month</span></th><th scope="col">J</th><th scope="col">F</th><th scope="col">M</th><th scope="col">A</th><th scope="col">M</th><th scope="col">J</th><th scope="col">J</th><th scope="col">A</th><th scope="col">S</th><th scope="col">O</th><th scope="col">N</th><th scope="col">D</th></tr></thead>
+<tbody>
+<tr><th scope="row">Temperatur <span class="en" lang="en">/ Temperature</span> (°C)</th><td>2,3</td><td>3,1</td><td>6,8</td><td>11,1</td><td>15,1</td><td>18,5</td><td>20,5</td><td>20,0</td><td>15,5</td><td>10,7</td><td>6,1</td><td>3,1</td></tr>
+<tr><th scope="row">Niederschlag <span class="en" lang="en">/ Precipitation</span> (mm)</th><td>44</td><td>39</td><td>39</td><td>37</td><td>60</td><td>55</td><td>64</td><td>61</td><td>48</td><td>50</td><td>47</td><td>55</td></tr>
+</tbody>
+</table>
+<div class="bi meta"><p>Quelle: Deutscher Wetterdienst (DWD), vieljährige Mittelwerte 1991–2020, Station Frankfurt/Main (100 m über dem Meer). Niederschlag auf ganze Millimeter gerundet, Jahresmittel aus den zwölf Monatswerten berechnet. Abgerufen 2026.</p><p class="en" lang="en">Source: Deutscher Wetterdienst (DWD), multi-year mean values 1991–2020, station Frankfurt/Main (100 m above sea level). Precipitation rounded to whole millimetres, annual mean calculated from the twelve monthly values. Retrieved 2026.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Nenne</span> den wärmsten und den kältesten Monat, jeweils mit der Monatsmitteltemperatur.</p><p class="en" lang="en"><span class="op">Name</span> the warmest and the coldest month, each with its mean monthly temperature.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Berechne</span> die Jahresamplitude der Temperatur. Schreibe die Rechnung auf.</p><p class="en" lang="en"><span class="op">Calculate</span> the annual temperature range. Write down the calculation.</p></div>
+<div class="karo" style="height:20mm" role="img" aria-label="Kästchenfeld zum Rechnen / squared field for calculating"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="I">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Beschreibe</span> den Jahresgang des Niederschlags. Gehe auf den niederschlagsreichsten Monat, den niederschlagsärmsten Monat und die Verteilung über das Jahr ein.</p><p class="en" lang="en"><span class="op">Describe</span> the annual course of the precipitation. Refer to the month with the most precipitation, the month with the least precipitation and the distribution over the year.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Erkläre</span> mithilfe von M1 und der Regel im Kasten, warum in Frankfurt am Main alle zwölf Monate humid sind.</p><p class="en" lang="en"><span class="op">Explain</span>, with the help of M1 and the rule in the box, why all twelve months are humid in Frankfurt am Main.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="5" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 5 <span class="en" lang="en">/ Task 5</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span></h2>
+<div class="bi"><p>Jemand behauptet: „Im Sommer ist es in Frankfurt am Main am trockensten, weil es dann am wärmsten ist.“</p><p class="en" lang="en">Someone claims: “In summer it is driest in Frankfurt am Main, because it is warmest then.”</p></div>
+<div class="bi"><p><span class="op">Überprüfe</span> diese Aussage mit den Werten aus M2. Vergleiche dazu Januar und Juli.</p><p class="en" lang="en"><span class="op">Check</span> this statement critically with the values from M2. For this, compare January and July.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>das Klimadiagramm</td><td lang="en">climate diagram</td><td><span class="bi"><span>Diagramm mit Temperatur und Niederschlag eines Ortes für die zwölf Monate</span><span class="en" lang="en">diagram with temperature and precipitation of a place for the twelve months</span></span></td></tr>
+<tr><td data-nur-de>der Niederschlag</td><td lang="en">precipitation</td><td><span class="bi"><span>Wasser, das aus der Luft auf die Erde fällt (Regen, Schnee, Hagel)</span><span class="en" lang="en">water that falls from the air onto the earth (rain, snow, hail)</span></span></td></tr>
+<tr><td data-nur-de>die Monatsmitteltemperatur</td><td lang="en">mean monthly temperature</td><td><span class="bi"><span>Durchschnitt der Temperatur eines Monats über viele Jahre</span><span class="en" lang="en">average of the temperature of a month over many years</span></span></td></tr>
+<tr><td data-nur-de>die Jahresamplitude</td><td lang="en">annual temperature range</td><td><span class="bi"><span>Unterschied zwischen dem wärmsten und dem kältesten Monat</span><span class="en" lang="en">difference between the warmest and the coldest month</span></span></td></tr>
+<tr><td data-nur-de>der Jahresgang</td><td lang="en">annual course</td><td><span class="bi"><span>Verlauf eines Wertes von Januar bis Dezember</span><span class="en" lang="en">course of a value from January to December</span></span></td></tr>
+<tr><td data-nur-de>humid</td><td lang="en">humid</td><td><span class="bi"><span>feucht: Es fällt mehr Niederschlag, als verdunsten kann.</span><span class="en" lang="en">moist: More precipitation falls than can evaporate.</span></span></td></tr>
+<tr><td data-nur-de>arid</td><td lang="en">arid</td><td><span class="bi"><span>trocken: Es kann mehr Wasser verdunsten, als Niederschlag fällt.</span><span class="en" lang="en">dry: More water can evaporate than precipitation falls.</span></span></td></tr>
+<tr><td data-nur-de>die Verdunstung</td><td lang="en">evaporation</td><td><span class="bi"><span>Wasser geht als Wasserdampf in die Luft über.</span><span class="en" lang="en">Water passes into the air as water vapour.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

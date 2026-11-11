@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erklärung – Geradengleichung aus zwei Punkten</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="erklaerung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf"><span>Mathematik · Jg. 8</span><span>Erklärung <span class="en" lang="en">/ Explanation</span></span></header>
+<h1><span class="bi"><span>Geradengleichung aus zwei Punkten</span><span class="en" lang="en">Equation of a straight line from two points</span></span></h1>
+<div class="bi"><p><strong>Darum geht es:</strong> Zwei Punkte legen eine Gerade fest. Aus ihren Koordinaten berechnest du zuerst die Steigung <var>m</var>, dann den y-Achsenabschnitt <var>b</var>.</p><p class="en" lang="en"><strong>This is what it is about:</strong> Two points determine a straight line. From their coordinates you first calculate the gradient <var>m</var>, then the y-intercept <var>b</var>.</p></div>
+<figure>
+<svg viewBox="20 20 180 260" style="width:72mm" role="img" aria-label="Koordinatensystem mit der Geraden durch A(1|−2) und B(4|7) und dem Steigungsdreieck: 3 nach rechts, 9 nach oben / coordinate system with the straight line through A(1|−2) and B(4|7) and the gradient triangle: 3 to the right, 9 up">
+<g stroke="#b8b8b8" stroke-width="0.5"><line x1="40" y1="260" x2="40" y2="40"/><line x1="60" y1="260" x2="60" y2="40"/><line x1="80" y1="260" x2="80" y2="40"/><line x1="100" y1="260" x2="100" y2="40"/><line x1="120" y1="260" x2="120" y2="40"/><line x1="140" y1="260" x2="140" y2="40"/><line x1="160" y1="260" x2="160" y2="40"/><line x1="40" y1="260" x2="160" y2="260"/><line x1="40" y1="240" x2="160" y2="240"/><line x1="40" y1="220" x2="160" y2="220"/><line x1="40" y1="200" x2="160" y2="200"/><line x1="40" y1="180" x2="160" y2="180"/><line x1="40" y1="160" x2="160" y2="160"/><line x1="40" y1="140" x2="160" y2="140"/><line x1="40" y1="120" x2="160" y2="120"/><line x1="40" y1="100" x2="160" y2="100"/><line x1="40" y1="80" x2="160" y2="80"/><line x1="40" y1="60" x2="160" y2="60"/><line x1="40" y1="40" x2="160" y2="40"/></g>
+<g stroke="#111" stroke-width="1.5"><line x1="40" y1="200" x2="168" y2="200"/><line x1="60" y1="260" x2="60" y2="32"/></g>
+<path d="M174 200l-8 -4v8z M60 26l-4 8h8z" fill="#111"/>
+<g font-size="10"><text x="80" y="214" text-anchor="middle">1</text><text x="100" y="214" text-anchor="middle">2</text><text x="120" y="214" text-anchor="middle">3</text><text x="54" y="244" text-anchor="end">−2</text><text x="54" y="164" text-anchor="end">2</text><text x="54" y="124" text-anchor="end">4</text><text x="54" y="84" text-anchor="end">6</text><text x="170" y="214" font-style="italic">x</text><text x="68" y="34" font-style="italic">y</text></g>
+<line x1="74" y1="258" x2="146" y2="42" stroke="#1a4480" stroke-width="2"/>
+<path d="M80 240H140V60" fill="none" stroke="#a64500" stroke-width="2" stroke-dasharray="5 3"/>
+<circle cx="80" cy="240" r="3"/><circle cx="140" cy="60" r="3"/>
+<g font-size="11"><text x="90" y="234">A(1|−2)</text><text x="134" y="62" text-anchor="end">B(4|7)</text>
+<text x="110.0" y="253" text-anchor="middle" fill="#a64500">3</text><text x="146" y="154.0" fill="#a64500">9</text></g>
+</svg>
+<figcaption><span class="bi"><span>Steigungsdreieck zwischen A und B: 3 nach rechts, 9 nach oben. 1 Kästchen ≙ 1 Einheit.</span><span class="en" lang="en">Gradient triangle between A and B: 3 to the right, 9 up. 1 square ≙ 1 unit.</span></span></figcaption>
+</figure>
+<section><h2>Schritt für Schritt <span class="en" lang="en">/ Step by step</span></h2>
+<ol>
+<li><span class="bi"><span>Berechne die Steigung: Unterschied der y-Werte durch Unterschied der x-Werte, <span style="white-space:nowrap"><var>m</var> = (<var>y</var><sub>B</sub> − <var>y</var><sub>A</sub>) : (<var>x</var><sub>B</sub> − <var>x</var><sub>A</sub>)</span>.</span><span class="en" lang="en">Calculate the gradient: the difference of the y-values divided by the difference of the x-values, <span style="white-space:nowrap"><var>m</var> = (<var>y</var><sub>B</sub> − <var>y</var><sub>A</sub>) : (<var>x</var><sub>B</sub> − <var>x</var><sub>A</sub>)</span>.</span></span></li>
+<li><span class="bi"><span>Setze <var>m</var> und die Koordinaten eines Punktes in <span style="white-space:nowrap"><var>y</var> = <var>m</var> · <var>x</var> + <var>b</var></span> ein und löse nach <var>b</var> auf.</span><span class="en" lang="en">Substitute <var>m</var> and the coordinates of one point into <span style="white-space:nowrap"><var>y</var> = <var>m</var> · <var>x</var> + <var>b</var></span> and solve for <var>b</var>.</span></span></li>
+<li><span class="bi"><span>Schreibe die Funktionsgleichung auf.</span><span class="en" lang="en">Write down the equation of the function.</span></span></li>
+<li><span class="bi"><span>Probe: Setze den anderen Punkt ein.</span><span class="en" lang="en">Check: substitute the other point.</span></span></li>
+</ol></section>
+<section data-aufgabe="B" data-check="(7+2)/(4-1) == 3; wert('3*x-5', 1) == -2; wert('3*x-5', 4) == 7; (4-1)/(7+2) == 1/3"><h2>Beispiel <span class="en" lang="en">/ Example</span></h2>
+<div class="bi"><p>Die Gerade <var>g</var> verläuft durch A(1|−2) und B(4|7). Bestimme die Funktionsgleichung.</p><p class="en" lang="en">The straight line <var>g</var> passes through A(1|−2) and B(4|7). Determine the equation of the function.</p></div>
+<div><span style="white-space:nowrap"><var>m</var> = (7 − (−2)) : (4 − 1) = 9 : 3 = 3</span></div>
+<div><span style="white-space:nowrap">−2 = 3 · 1 + <var>b</var> ⇔ <var>b</var> = −5</span></div>
+<div><span style="white-space:nowrap"><var>g</var>(<var>x</var>) = 3x − 5</span></div>
+<div class="bi"><p>Probe mit B: <span style="white-space:nowrap">3 · 4 − 5 = 7</span>. Das stimmt.</p><p class="en" lang="en">Check with B: <span style="white-space:nowrap">3 · 4 − 5 = 7</span>. That is correct.</p></div>
+</section>
+<section class="kasten"><h2>Merke <span class="en" lang="en">/ Remember</span></h2>
+<div class="bi"><p><span style="white-space:nowrap"><var>m</var> = (<var>y</var><sub>B</sub> − <var>y</var><sub>A</sub>) : (<var>x</var><sub>B</sub> − <var>x</var><sub>A</sub>)</span>. Die Reihenfolge der Punkte ist in beiden Differenzen dieselbe.</p><p class="en" lang="en"><span style="white-space:nowrap"><var>m</var> = (<var>y</var><sub>B</sub> − <var>y</var><sub>A</sub>) : (<var>x</var><sub>B</sub> − <var>x</var><sub>A</sub>)</span>. The order of the points is the same in both differences.</p></div>
+</section>
+<section class="kasten fehler"><h2>Typische Fehler <span class="en" lang="en">/ Typical mistakes</span></h2>
+<table><thead><tr><th scope="col">Falsch <span class="en" lang="en">/ Wrong</span></th><th scope="col">Richtig <span class="en" lang="en">/ Right</span></th><th scope="col">Warum <span class="en" lang="en">/ Why</span></th></tr></thead>
+<tbody><tr><td><span style="white-space:nowrap"><var>m</var> = (4 − 1) : (7 − (−2)) = 3 : 9</span></td><td><span style="white-space:nowrap"><var>m</var> = (7 − (−2)) : (4 − 1) = 9 : 3</span></td><td><span class="bi"><span>Die Steigung ist der Unterschied der y-Werte durch den Unterschied der x-Werte, nicht umgekehrt.</span><span class="en" lang="en">The gradient is the difference of the y-values divided by the difference of the x-values, not the other way round.</span></span></td></tr></tbody></table>
+</section>
+<section><h2>Probier es selbst <span class="en" lang="en">/ Try it yourself</span></h2>
+<ol>
+<li data-aufgabe="P1" data-check="(-3-1)/(4-2) == -2; wert('-2*x+5', 2) == 1; wert('-2*x+5', 4) == -3"><span class="bi"><span>Die Gerade verläuft durch P(2|1) und Q(4|−3). Bestimme die Funktionsgleichung.</span><span class="en" lang="en">The straight line passes through P(2|1) and Q(4|−3). Determine the equation of the function.</span></span></li>
+<li data-aufgabe="P2" data-check="(5-1)/(2+6) == 1/2; wert('0.5*x+4', -6) == 1; wert('0.5*x+4', 2) == 5"><span class="bi"><span>Die Gerade verläuft durch P(−6|1) und Q(2|5). Bestimme die Funktionsgleichung.</span><span class="en" lang="en">The straight line passes through P(−6|1) and Q(2|5). Determine the equation of the function.</span></span></li>
+<li data-aufgabe="P3" data-check="(9-3)/(4-1) == 2"><span class="bi"><span>Die Gerade durch A(1|3) und B(4|<var>c</var>) hat die Steigung 2. Bestimme <var>c</var>.</span><span class="en" lang="en">The straight line through A(1|3) and B(4|<var>c</var>) has the gradient 2. Determine <var>c</var>.</span></span></li>
+</ol>
+<p class="meta">Lösungen <span class="en" lang="en">/ Solutions</span>: 1) <span style="white-space:nowrap"><var>y</var> = −2x + 5</span> · 2) <span style="white-space:nowrap"><var>y</var> = 0,5x + 4</span> · 3) <span style="white-space:nowrap"><var>c</var> = 9</span></p>
+</section>
+<section><h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table><thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>die Steigung</td><td lang="en">gradient</td><td><span class="bi"><span>gibt an, um wie viel <var>y</var> wächst, wenn <var>x</var> um 1 wächst</span><span class="en" lang="en">states by how much <var>y</var> increases when <var>x</var> increases by 1</span></span></td></tr>
+<tr><td data-nur-de>der y-Achsenabschnitt</td><td lang="en">y-intercept</td><td><span class="bi"><span><var>y</var>-Wert, bei dem die Gerade die <var>y</var>-Achse schneidet</span><span class="en" lang="en"><var>y</var>-value at which the straight line intersects the <var>y</var>-axis</span></span></td></tr>
+<tr><td data-nur-de>das Steigungsdreieck</td><td lang="en">gradient triangle</td><td><span class="bi"><span>rechtwinkliges Dreieck an der Geraden, an dem man beide Unterschiede abliest</span><span class="en" lang="en">right-angled triangle on the straight line from which both differences are read</span></span></td></tr>
+<tr><td data-nur-de>die Funktionsgleichung</td><td lang="en">equation of the function</td><td><span class="bi"><span>Gleichung der Form <var>y</var> = <var>m</var> · <var>x</var> + <var>b</var></span><span class="en" lang="en">equation of the form <var>y</var> = <var>m</var> · <var>x</var> + <var>b</var></span></span></td></tr>
+</tbody></table></section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

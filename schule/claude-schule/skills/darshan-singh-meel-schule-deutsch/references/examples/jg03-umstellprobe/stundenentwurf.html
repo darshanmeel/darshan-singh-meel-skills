@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenentwurf – Satzglieder finden mit der Umstellprobe</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="stundenentwurf" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Deutsch · Jahrgang 3 · Grundschule</span>
+<span>Dauer <span class="en" lang="en">/ Duration</span>: 45 min</span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Satzglieder finden mit der Umstellprobe</span><span class="en" lang="en">Finding sentence elements with the rearrangement test</span></span></h1>
+<p class="meta">Unterrichtsreihe <span class="en" lang="en">/ Teaching unit</span>: Satzglieder · Stunde <span class="en" lang="en">/ Lesson</span> 1 / 5</p>
+
+<section>
+<h2>Bezug zum Kerncurriculum <span class="en" lang="en">/ Reference to the core curriculum</span></h2>
+<table>
+<tbody>
+<tr><th scope="row">Quelle <span class="en" lang="en">/ Source</span></th><td><span class="bi"><span>KC Hessen, Primarstufe, Deutsch</span><span class="en" lang="en">Core curriculum of Hessen, primary level, German</span></span></td></tr>
+<tr><th scope="row">Kompetenzbereich <span class="en" lang="en">/ Competence area</span></th><td><span class="bi"><span>Sprache und Sprachgebrauch untersuchen und reflektieren</span><span class="en" lang="en">Examining and reflecting on language and language use</span></span></td></tr>
+<tr><th scope="row">Kompetenz / Bildungsstandard <span class="en" lang="en">/ Competence / educational standard</span></th><td><span class="bi"><span>„Sprache mithilfe geeigneter Proben und Verfahren untersuchen“ (Bildungsstandard Ende Jg. 4)</span><span class="en" lang="en">“examine language with the help of suitable tests and procedures” (educational standard, end of year 4)</span></span></td></tr>
+<tr><th scope="row">Inhaltsfeld / Themenfeld <span class="en" lang="en">/ Content field / topic field</span></th><td><span class="bi"><span>Sprachformen und -strukturen: Satzglieder; Umstellprobe</span><span class="en" lang="en">Language forms and structures: sentence elements; rearrangement test</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta"><span class="bi"><span>Wortlaut des Kerncurriculums: Deutsch wie gedruckt. Die englische Zeile ist eine eigene Übersetzung.</span><span class="en" lang="en">Wording of the core curriculum: German as printed. The English line is our own translation.</span></span></p>
+</section>
+
+<section>
+<h2>Lernziele <span class="en" lang="en">/ Learning goals</span></h2>
+<div class="bi"><p><strong>Stundenziel:</strong> Die Lernenden ermitteln die Satzglieder eines Aussagesatzes mit der Umstellprobe.</p><p class="en" lang="en"><strong>Lesson goal:</strong> The learners determine the sentence elements of a statement with the rearrangement test.</p></div>
+<ul>
+<li><span class="bi"><span>Die Lernenden trennen die Satzglieder eines Satzes mit Strichen ab.</span><span class="en" lang="en">The learners separate the sentence elements of a sentence with lines.</span></span> <span class="meta">(AFB I, Sprache untersuchen; Aufgabe 1)</span></li>
+<li><span class="bi"><span>Die Lernenden stellen Aussagesätze um und lassen das Verb als zweites Satzglied stehen.</span><span class="en" lang="en">The learners rearrange statements and leave the verb standing as the second sentence element.</span></span> <span class="meta">(AFB II, Sprache untersuchen; Aufgabe 2)</span></li>
+<li><span class="bi"><span>Die Lernenden begründen mit der Umstellprobe, warum mehrere Wörter ein Satzglied bilden.</span><span class="en" lang="en">The learners give reasons, using the rearrangement test, why several words form one sentence element.</span></span> <span class="meta">(AFB III, Sprache untersuchen; Aufgabe 3)</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Lernvoraussetzungen <span class="en" lang="en">/ Learning prerequisites</span></h2>
+<ul>
+<li><span class="bi"><span>Die Klasse kennt Nomen, Verb und Adjektiv und findet das Verb im Satz.</span><span class="en" lang="en">The class knows noun, verb and adjective and finds the verb in the sentence.</span></span></li>
+<li><span class="bi"><span>Die Klasse schreibt Satzanfänge groß und setzt Satzschlusszeichen.</span><span class="en" lang="en">The class capitalises the beginnings of sentences and uses end-of-sentence punctuation marks.</span></span></li>
+<li><span class="bi"><span>Der Begriff „Satzglied“ ist neu.</span><span class="en" lang="en">The term „Satzglied“ is new.</span></span></li>
+</ul>
+</section>
+
+<section>
+<h2>Verlaufsplan <span class="en" lang="en">/ Lesson sequence</span></h2>
+<table data-dauer="45">
+<thead><tr><th scope="col">Phase</th><th scope="col">Zeit <span class="en" lang="en">/ Time</span></th><th scope="col">Geschehen (Lehrkraft / Lernende) <span class="en" lang="en">/ What happens (teacher / learners)</span></th><th scope="col">Sozialform <span class="en" lang="en">/ Social form</span></th><th scope="col">Medien, Material <span class="en" lang="en">/ Media, materials</span></th></tr></thead>
+<tbody>
+<tr data-min="4"><th scope="row">Einstieg <span class="en" lang="en">/ Opening</span></th><td>4 min</td><td><span class="bi"><span>Vier Kinder halten je einen Satzstreifen und stellen sich in neuer Reihenfolge auf. Die Klasse liest jeden Satz vor.</span><span class="en" lang="en">Four children each hold a sentence strip and line up in a new order. The class reads each sentence aloud.</span></span></td><td>UG</td><td><span class="bi"><span>vier Satzstreifen: Am Morgen · holt · der kleine Hund · die Zeitung</span><span class="en" lang="en">four sentence strips: Am Morgen · holt · der kleine Hund · die Zeitung</span></span></td></tr>
+<tr data-min="20"><th scope="row">Erarbeitung <span class="en" lang="en">/ Working phase</span></th><td>20 min</td><td><span class="bi"><span>Die Lehrkraft zeigt die Animation Schritt für Schritt (5 min). Die Lernenden nennen, was zusammenbleibt und welches Satzglied das Verb ist. Danach bearbeiten sie das Arbeitsblatt auf ihrem Niveau (15 min).</span><span class="en" lang="en">The teacher shows the animation step by step (5 min). The learners name what stays together and which sentence element the verb is. Afterwards they work on the worksheet at their level (15 min).</span></span></td><td>UG, EA</td><td><span class="bi"><span>animation.html, arbeitsblatt.html</span><span class="en" lang="en">animation.html, arbeitsblatt.html</span></span></td></tr>
+<tr data-min="10"><th scope="row">Sicherung <span class="en" lang="en">/ Securing the results</span></th><td>10 min</td><td><span class="bi"><span>Die Lernenden vergleichen Aufgabe 1 und 2 an der Tafel. Die Klasse formuliert den Merksatz und schreibt ihn ins Heft.</span><span class="en" lang="en">The learners compare tasks 1 and 2 on the board. The class formulates the key sentence and writes it in the exercise book.</span></span></td><td>UG, EA</td><td><span class="bi"><span>Tafel, Heft, loesung.html</span><span class="en" lang="en">board, exercise book, loesung.html</span></span></td></tr>
+<tr data-min="8"><th scope="row">Transfer <span class="en" lang="en">/ Transfer</span></th><td>8 min</td><td><span class="bi"><span>Jedes Kind schreibt einen eigenen Satz. Der Partner oder die Partnerin stellt ihn um und trennt die Satzglieder ab. Aufgabe 3 wird vorgestellt (2 min Puffer).</span><span class="en" lang="en">Each child writes a sentence of its own. The partner rearranges it and separates the sentence elements. Task 3 is presented (2 min buffer).</span></span></td><td>PA</td><td><span class="bi"><span>Heft</span><span class="en" lang="en">exercise book</span></span></td></tr>
+<tr data-min="3"><th scope="row">Abschluss <span class="en" lang="en">/ Closing</span></th><td>3 min</td><td><span class="bi"><span>Blitzlicht: „Woran erkenne ich ein Satzglied?“</span><span class="en" lang="en">Quick round: “How do I recognise a sentence element?”</span></span></td><td>UG</td><td><span class="bi"><span>keine</span><span class="en" lang="en">none</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta">EA Einzelarbeit <span class="en" lang="en">/ individual work</span> · PA Partnerarbeit <span class="en" lang="en">/ pair work</span> · GA Gruppenarbeit <span class="en" lang="en">/ group work</span> · UG Unterrichtsgespräch <span class="en" lang="en">/ class discussion</span> · LV Lehrervortrag <span class="en" lang="en">/ teacher talk</span></p>
+</section>
+
+<section>
+<h2>Differenzierung <span class="en" lang="en">/ Differentiation</span></h2>
+<table>
+<thead><tr><th scope="col">Niveau <span class="en" lang="en">/ Level</span></th><th scope="col">Aufgabe / Hilfe <span class="en" lang="en">/ Task / support</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">Basis <span class="en" lang="en">/ Basic</span></th><td><span class="bi"><span>Aufgabe 1: Der umgestellte Satz steht daneben. Satzstreifen zum Legen liegen bereit.</span><span class="en" lang="en">Task 1: The rearranged sentence stands beside it. Sentence strips for laying out are ready.</span></span></td></tr>
+<tr><th scope="row">Standard</th><td><span class="bi"><span>Aufgaben 1 und 2: selbst umstellen und die Satzglieder zählen.</span><span class="en" lang="en">Tasks 1 and 2: rearrange on their own and count the sentence elements.</span></span></td></tr>
+<tr><th scope="row">Herausforderung <span class="en" lang="en">/ Challenge</span></th><td><span class="bi"><span>Aufgabe 3 zuerst: eine falsche Behauptung mit der Umstellprobe widerlegen. Danach ein eigener Satz mit fünf Satzgliedern.</span><span class="en" lang="en">Task 3 first: refute a false claim with the rearrangement test. Afterwards a sentence of their own with five sentence elements.</span></span></td></tr>
+<tr><th scope="row">Sprache / Inklusion <span class="en" lang="en">/ Language / inclusion</span></th><td><span class="bi"><span>DaZ: Wortspeicher an der Tafel (das Satzglied, die Satzglieder; umstellen: Ich stelle den Satz um.). LRS: In Aufgabe 2 dürfen Satzstreifen gelegt statt Sätze geschrieben werden.</span><span class="en" lang="en">German as a second language: word bank on the board (das Satzglied, die Satzglieder; umstellen: Ich stelle den Satz um.). Reading and spelling difficulties: In task 2 sentence strips may be laid out instead of writing sentences.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="kasten">
+<h2>Sicherung: Tafelbild / Merksatz <span class="en" lang="en">/ Securing the results: board notes / key sentence</span></h2>
+<div class="bi"><p>Satzglieder sind die Bausteine eines Satzes. Wörter, die bei der Umstellprobe zusammenbleiben, bilden ein Satzglied. Im Aussagesatz ist das Verb das zweite Satzglied.</p><p class="en" lang="en">Sentence elements are the building blocks of a sentence. Words that stay together in the rearrangement test form one sentence element. In a statement the verb is the second sentence element.</p></div>
+<p data-nur-de lang="de">Am Morgen | holt | der kleine Hund | die Zeitung.<br>Der kleine Hund | holt | am Morgen | die Zeitung.</p>
+</section>
+
+<section>
+<h2>Hausaufgabe <span class="en" lang="en">/ Homework</span></h2>
+<div class="bi"><p>Schreibe zwei eigene Sätze auf. Stelle jeden Satz einmal um.</p><p class="en" lang="en">Write down two sentences of your own. Rearrange each sentence once.</p></div>
+<p class="meta">ca. 10 min</p>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>der Satz, die Sätze</td><td lang="en">sentence</td><td><span class="bi"><span>Er beginnt mit einem großen Buchstaben und endet mit einem Satzzeichen.</span><span class="en" lang="en">It begins with a capital letter and ends with a punctuation mark.</span></span></td></tr>
+<tr><td data-nur-de>das Satzglied, die Satzglieder</td><td lang="en">sentence element</td><td><span class="bi"><span>Baustein eines Satzes: ein Wort oder mehrere Wörter, die zusammengehören.</span><span class="en" lang="en">Building block of a sentence: one word or several words that belong together.</span></span></td></tr>
+<tr><td data-nur-de>umstellen</td><td lang="en">to rearrange</td><td><span class="bi"><span>Die Reihenfolge der Satzglieder ändern.</span><span class="en" lang="en">To change the order of the sentence elements.</span></span></td></tr>
+<tr><td data-nur-de>die Umstellprobe</td><td lang="en">rearrangement test</td><td><span class="bi"><span>Probe: Du stellst den Satz um und siehst, welche Wörter zusammenbleiben.</span><span class="en" lang="en">Test: You rearrange the sentence and see which words stay together.</span></span></td></tr>
+<tr><td data-nur-de>das Verb, die Verben</td><td lang="en">verb</td><td><span class="bi"><span>Wort, das sagt, was jemand tut. Im Aussagesatz ist es das zweite Satzglied.</span><span class="en" lang="en">Word that says what someone does. In a statement it is the second sentence element.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Material <span class="en" lang="en">/ Materials</span></h2>
+<ul>
+<li><span class="bi"><span>arbeitsblatt.html: drei Aufgaben auf drei Niveaus</span><span class="en" lang="en">arbeitsblatt.html: three tasks at three levels</span></span></li>
+<li><span class="bi"><span>loesung.html: Lösungen mit Lösungsweg und typischen Fehlern</span><span class="en" lang="en">loesung.html: solutions with solution steps and typical mistakes</span></span></li>
+<li><span class="bi"><span>animation.html: Umstellprobe in fünf Schritten</span><span class="en" lang="en">animation.html: rearrangement test in five steps</span></span></li>
+<li><span class="bi"><span>vier Satzstreifen aus Papier (selbst hergestellt)</span><span class="en" lang="en">four sentence strips made of paper (self-made)</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Redoxreihe der Metalle</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Chemie · Einführungsphase</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Redoxreihe der Metalle: Welches Metall gibt Elektronen ab?</span><span class="en" lang="en">Redox series of the metals: Which metal releases electrons?</span></span></h1>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis (erwartete Beobachtungen):</strong></p><p class="en" lang="en"><strong>Result (expected observations):</strong></p></div>
+<div class="teil"><table>
+<thead><tr><th scope="col">Metall <span class="en" lang="en">/ Metal</span> ↓ · Lösung <span class="en" lang="en">/ Solution</span> →</th><th scope="col">Zinksulfat <span class="en" lang="en">/ zinc sulfate</span><br>Zn<sup>2+</sup>(aq)</th><th scope="col">Eisen(II)-sulfat <span class="en" lang="en">/ iron(II) sulfate</span><br>Fe<sup>2+</sup>(aq)</th><th scope="col">Kupfer(II)-sulfat <span class="en" lang="en">/ copper(II) sulfate</span><br>Cu<sup>2+</sup>(aq)</th></tr></thead>
+<tbody>
+<tr><th scope="row">Zink <span class="en" lang="en">/ zinc</span> Zn</th><td style="text-align:center">–</td><td><span class="bi"><span>dunkelgrauer bis schwarzer Belag auf dem Zink (langsam)</span><span class="en" lang="en">dark grey to black coating on the zinc (slowly)</span></span></td><td><span class="bi"><span>rotbrauner Belag auf dem Zink; die blaue Lösung wird heller</span><span class="en" lang="en">red-brown coating on the zinc; the blue solution becomes paler</span></span></td></tr>
+<tr><th scope="row">Eisen <span class="en" lang="en">/ iron</span> Fe</th><td><span class="bi"><span>keine Veränderung</span><span class="en" lang="en">no change</span></span></td><td style="text-align:center">–</td><td><span class="bi"><span>rotbrauner Belag auf dem Eisen; die blaue Lösung wird heller</span><span class="en" lang="en">red-brown coating on the iron; the blue solution becomes paler</span></span></td></tr>
+<tr><th scope="row">Kupfer <span class="en" lang="en">/ copper</span> Cu</th><td><span class="bi"><span>keine Veränderung</span><span class="en" lang="en">no change</span></span></td><td><span class="bi"><span>keine Veränderung</span><span class="en" lang="en">no change</span></span></td><td style="text-align:center">–</td></tr>
+</tbody>
+</table></div>
+<div class="bi"><p><strong>Hinweis:</strong> Der Belag auf dem Zink in Eisen(II)-sulfat-Lösung entsteht langsam; nach fünf Minuten ist er oft nur als dunkle Verfärbung zu sehen.</p><p class="en" lang="en"><strong>Note:</strong> The coating on the zinc in iron(II) sulfate solution forms slowly; after five minutes it can often be seen only as a dark discoloration.</p></div>
+<div class="bi"><p>Typischer Fehler: In der Tabelle steht eine Deutung („Kupfer-Ionen werden reduziert“) statt einer Beobachtung („rotbrauner Belag“).</p><p class="en" lang="en">Typical mistake: The table contains an interpretation (“copper ions are reduced”) instead of an observation (“red-brown coating”).</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Oxidation: Zn(s) → Zn<sup>2+</sup>(aq) + 2 e<sup>−</sup> · Reduktion: Cu<sup>2+</sup>(aq) + 2 e<sup>−</sup> → Cu(s) · Gesamtgleichung: Zn(s) + Cu<sup>2+</sup>(aq) → Zn<sup>2+</sup>(aq) + Cu(s)</p><p class="en" lang="en"><strong>Result:</strong> Oxidation: Zn(s) → Zn<sup>2+</sup>(aq) + 2 e<sup>−</sup> · Reduction: Cu<sup>2+</sup>(aq) + 2 e<sup>−</sup> → Cu(s) · Overall equation: Zn(s) + Cu<sup>2+</sup>(aq) → Zn<sup>2+</sup>(aq) + Cu(s)</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Der rotbraune Belag ist Kupfer: Kupfer(II)-Ionen nehmen je 2 Elektronen auf (Elektronenakzeptor, Oxidationsmittel). Die Elektronen stammen von Zink-Atomen, die als Zink-Ionen in Lösung gehen (Elektronendonator, Reduktionsmittel). Abgegebene und aufgenommene Elektronen sind gleich viele (2), deshalb werden die Teilgleichungen ohne Faktor addiert. Kontrolle: Zn 1/1, Cu 1/1, Ladung 2+ auf beiden Seiten.</p><p class="en" lang="en"><strong>Solution steps:</strong> The red-brown coating is copper: copper(II) ions take up 2 electrons each (electron acceptor, oxidising agent). The electrons come from zinc atoms, which go into solution as zinc ions (electron donor, reducing agent). The electrons released and taken up are equal in number (2), therefore the half equations are added without a factor. Check: Zn 1/1, Cu 1/1, charge 2+ on both sides.</p></div>
+<div class="bi"><p>Typischer Fehler: Die Elektronen bleiben in der Gesamtgleichung stehen, oder Kupfersulfat wird als Molekül CuSO<sub>4</sub> auf der Teilchenebene geschrieben.</p><p class="en" lang="en">Typical mistake: The electrons remain in the overall equation, or copper sulfate is written as a molecule CuSO<sub>4</sub> on the particle level.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Zink &gt; Eisen &gt; Kupfer (Zink ist der stärkste Elektronendonator, Kupfer der schwächste).</p><p class="en" lang="en"><strong>Result:</strong> zinc &gt; iron &gt; copper (zinc is the strongest electron donor, copper the weakest).</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Zink bildet einen Belag in Eisen(II)-sulfat- und in Kupfer(II)-sulfat-Lösung: Zink-Atome geben Elektronen an Eisen(II)- und an Kupfer(II)-Ionen ab. Eisen bildet nur in Kupfer(II)-sulfat-Lösung einen Belag: Eisen-Atome geben Elektronen an Kupfer(II)-Ionen ab, aber nicht an Zink-Ionen. Kupfer zeigt in keiner Lösung eine Veränderung: Kupfer-Atome geben an keines der beiden anderen Ionen Elektronen ab.</p><p class="en" lang="en"><strong>Solution steps:</strong> Zinc forms a coating in iron(II) sulfate and in copper(II) sulfate solution: zinc atoms release electrons to iron(II) and to copper(II) ions. Iron forms a coating only in copper(II) sulfate solution: iron atoms release electrons to copper(II) ions, but not to zinc ions. Copper shows no change in any solution: copper atoms release electrons to neither of the two other ions.</p></div>
+<div class="bi"><p>Typischer Fehler: Die Reihe wird nach dem Metall geordnet, das sich abscheidet („Kupfer ist am stärksten“). Der stärkere Elektronendonator ist das Metall, das in Lösung geht.</p><p class="en" lang="en">Typical mistake: The series is ordered by the metal that is deposited (“copper is the strongest”). The stronger electron donor is the metal that goes into solution.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis (Musterantwort):</strong> Die Aussage ist falsch. Silber-Atome geben keine Elektronen an Kupfer(II)-Ionen ab; Silber ist also ein schwächerer Elektronendonator als Kupfer und steht in der Redoxreihe hinter Kupfer: Zn &gt; Fe &gt; Cu &gt; Ag. Dann geben Kupfer-Atome Elektronen an Silber-Ionen ab: Cu(s) + 2 Ag<sup>+</sup>(aq) → Cu<sup>2+</sup>(aq) + 2 Ag(s). Zu erwarten sind ein silbrig-grauer Belag auf dem Kupfer und eine Lösung, die langsam blau wird.</p><p class="en" lang="en"><strong>Result (model answer):</strong> The statement is false. Silver atoms release no electrons to copper(II) ions; silver is therefore a weaker electron donor than copper and comes after copper in the redox series: Zn &gt; Fe &gt; Cu &gt; Ag. Then copper atoms release electrons to silver ions: Cu(s) + 2 Ag<sup>+</sup>(aq) → Cu<sup>2+</sup>(aq) + 2 Ag(s). A silvery-grey coating on the copper and a solution that slowly turns blue are to be expected.</p></div>
+<div class="bi"><p><strong>Kriterien:</strong> Urteil genannt · Platz von Silber aus dem Material abgeleitet · Umkehrschluss mit der Redoxreihe begründet · Gleichung in Atomen und Ladungen ausgeglichen (2 Silber-Ionen je Kupfer-Atom) · erwartete Beobachtung auf der Stoffebene.</p><p class="en" lang="en"><strong>Criteria:</strong> judgement stated · position of silver derived from the material · converse justified with the redox series · equation balanced in atoms and charges (2 silver ions per copper atom) · expected observation on the substance level.</p></div>
+<div class="bi"><p>Typischer Fehler: Cu + Ag<sup>+</sup> → Cu<sup>2+</sup> + Ag. Die Ladungen sind nicht ausgeglichen (links 1+, rechts 2+).</p><p class="en" lang="en">Typical mistake: Cu + Ag<sup>+</sup> → Cu<sup>2+</sup> + Ag. The charges are not balanced (left 1+, right 2+).</p></div>
+</section>
+<p class="meta">KCGO Hessen, Chemie · E 5, S 16 · E.1 Redoxreaktionen: Ermitteln einer verkürzten Redoxreihe der Metalle <span class="en" lang="en">/ KCGO Hessen, Chemistry · E 5, S 16 · E.1 Redox reactions: determining a shortened redox series of the metals; own translation</span></p>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

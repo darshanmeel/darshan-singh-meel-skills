@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenentwurf – Brüche mit verschiedenen Nennern addieren</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="stundenentwurf" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Mathematik · Jg. 6 · Gymnasium</span>
+<span>Dauer <span class="en" lang="en">/ Duration</span>: 45 min</span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Brüche mit verschiedenen Nennern addieren</span><span class="en" lang="en">Adding fractions with different denominators</span></span></h1>
+<p class="meta">Unterrichtsreihe <span class="en" lang="en">/ Teaching unit</span>: Bruchrechnung: Addieren und Subtrahieren <span class="en" lang="en">/ Fraction arithmetic: adding and subtracting</span> · Stunde <span class="en" lang="en">/ Lesson</span> 3 / 8</p>
+
+<section>
+<h2>Bezug zum Kerncurriculum <span class="en" lang="en">/ Reference to the core curriculum</span></h2>
+<table>
+<tbody>
+<tr><th scope="row">Quelle <span class="en" lang="en">/ Source</span></th><td data-nur-de>KC Hessen, Sek I Gymnasium, Mathematik</td></tr>
+<tr><th scope="row">Kompetenzbereich <span class="en" lang="en">/ Competence area</span></th><td><span class="bi"><span>Umgehen mit symbolischen, formalen und technischen Elementen; Darstellen</span><span class="en" lang="en">Working with symbolic, formal and technical elements; representing</span></span></td></tr>
+<tr><th scope="row">Kompetenz / Bildungsstandard <span class="en" lang="en">/ Competence / educational standard</span></th><td><span class="bi"><span>Die Lernenden führen Lösungs- und Kontrollverfahren aus. Die Lernenden verwenden unterschiedliche Darstellungsformen und beschreiben Beziehungen zwischen ihnen. (Ende Jg. 6)</span><span class="en" lang="en">The learners carry out solution and checking procedures. The learners use different forms of representation and describe relationships between them. (end of year 6)</span></span></td></tr>
+<tr><th scope="row">Inhaltsfeld / Themenfeld <span class="en" lang="en">/ Content field / topic field</span></th><td><span class="bi"><span>Operationen und ihre Eigenschaften (Leitidee Zahl und Operation), Jg. 5/6: Grundaufgaben der Bruchrechnung</span><span class="en" lang="en">Operations and their properties (guiding idea Number and operation), years 5/6: basic tasks of fraction arithmetic</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta">KC-Wortlaut deutsch wie gedruckt; die englische Zeile ist eine eigene Übersetzung. <span class="en" lang="en">/ KC wording in German as printed; the English line is our own translation.</span></p>
+</section>
+
+<section>
+<h2>Lernziele <span class="en" lang="en">/ Learning goals</span></h2>
+<div class="bi"><p><strong>Stundenziel:</strong> Die Lernenden addieren zwei ungleichnamige Brüche, indem sie beide auf einen gemeinsamen Nenner erweitern.</p><p class="en" lang="en"><strong>Lesson goal:</strong> The learners add two unlike fractions by expanding both to a common denominator.</p></div>
+<ul>
+<li><span class="bi"><span>Die Lernenden erweitern zwei Brüche auf einen gemeinsamen Nenner und addieren die Zähler.</span><span class="en" lang="en">The learners expand two fractions to a common denominator and add the numerators.</span></span> <span class="meta">(AFB I, Umgehen mit symbolischen, formalen und technischen Elementen)</span></li>
+<li><span class="bi"><span>Die Lernenden kürzen das Ergebnis und schreiben es als gemischte Zahl.</span><span class="en" lang="en">The learners simplify the result and write it as a mixed number.</span></span> <span class="meta">(AFB I, Umgehen mit symbolischen, formalen und technischen Elementen)</span></li>
+<li><span class="bi"><span>Die Lernenden lösen eine Sachaufgabe mit ungleichnamigen Brüchen und begründen ihre Antwort mit der Rechnung.</span><span class="en" lang="en">The learners solve a word problem with unlike fractions and give reasons for their answer with the calculation.</span></span> <span class="meta">(AFB II, Modellieren)</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Lernvoraussetzungen <span class="en" lang="en">/ Learning prerequisites</span></h2>
+<ul>
+<li><span class="bi"><span>Die Lernenden stellen Brüche als Teil eines Ganzen am Rechteck dar.</span><span class="en" lang="en">The learners represent fractions as part of a whole on the rectangle.</span></span></li>
+<li><span class="bi"><span>Sie erweitern und kürzen Brüche.</span><span class="en" lang="en">They expand and simplify fractions.</span></span></li>
+<li><span class="bi"><span>Sie addieren gleichnamige Brüche (Stunde 2 der Reihe).</span><span class="en" lang="en">They add like fractions (lesson 2 of the unit).</span></span></li>
+<li><span class="bi"><span>Sie bestimmen das kgV zweier Zahlen.</span><span class="en" lang="en">They determine the lcm of two numbers.</span></span></li>
+</ul>
+</section>
+
+<section>
+<h2>Verlaufsplan <span class="en" lang="en">/ Lesson sequence</span></h2>
+<table data-dauer="45">
+<thead><tr><th scope="col">Phase</th><th scope="col">Zeit <span class="en" lang="en">/ Time</span></th><th scope="col">Geschehen (Lehrkraft / Lernende) <span class="en" lang="en">/ What happens (teacher / learners)</span></th><th scope="col">Sozialform <span class="en" lang="en">/ Social form</span></th><th scope="col">Medien, Material <span class="en" lang="en">/ Media, materials</span></th></tr></thead>
+<tbody>
+<tr data-min="4"><th scope="row">Einstieg <span class="en" lang="en">/ Opening</span></th><td>4 min</td><td><span class="bi"><span>Die Lehrkraft zeigt die Aufgabe <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math></span> mit zwei gleich großen Rechtecken (Animation, Schritt 1). Die Lernenden nennen Vermutungen zum Ergebnis; die Lehrkraft notiert sie ohne Wertung, auch <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span>.</span><span class="en" lang="en">The teacher shows the task <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math></span> with two rectangles of equal size (animation, step 1). The learners state conjectures about the result; the teacher notes them without judging, including <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span>.</span></span></td><td>UG</td><td><span class="bi"><span>animation.html, Beamer, Tafel</span><span class="en" lang="en">animation.html, projector, board</span></span></td></tr>
+<tr data-min="17"><th scope="row">Erarbeitung <span class="en" lang="en">/ Working phase</span></th><td>17 min</td><td><span class="bi"><span>Die Lernenden teilen zu zweit beide Rechtecke so weiter, dass alle Teile gleich groß sind, und lesen die neuen Brüche ab. Danach zeigt die Lehrkraft die Schritte 2 bis 6 der Animation; die Lernenden formulieren die Regel in eigenen Worten.</span><span class="en" lang="en">In pairs, the learners divide both rectangles further so that all parts are of equal size, and read off the new fractions. Afterwards the teacher shows steps 2 to 6 of the animation; the learners formulate the rule in their own words.</span></span></td><td>PA, UG</td><td><span class="bi"><span>Kästchenpapier, animation.html</span><span class="en" lang="en">squared paper, animation.html</span></span></td></tr>
+<tr data-min="7"><th scope="row">Sicherung <span class="en" lang="en">/ Securing the results</span></th><td>7 min</td><td><span class="bi"><span>Die Lehrkraft schreibt den Merksatz und das Beispiel an; die Lernenden übernehmen beides ins Heft. Die Vermutung <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span> wird mit dem Bild widerlegt: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span> ist kleiner als <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math></span>.</span><span class="en" lang="en">The teacher writes the key sentence and the example on the board; the learners copy both into their exercise books. The conjecture <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span> is refuted with the picture: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span> is smaller than <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math></span>.</span></span></td><td>UG</td><td><span class="bi"><span>Tafel, Heft</span><span class="en" lang="en">board, exercise book</span></span></td></tr>
+<tr data-min="15"><th scope="row">Transfer</th><td>15 min</td><td><span class="bi"><span>Die Lernenden bearbeiten das Arbeitsblatt auf ihrem Niveau: ★ Aufgabe 1, ★★ Aufgaben 2 und 3, ★★★ Aufgabe 4. Sie vergleichen mit der ausgelegten Lösung (2 min Puffer eingeschlossen).</span><span class="en" lang="en">The learners work on the worksheet at their level: ★ task 1, ★★ tasks 2 and 3, ★★★ task 4. They compare with the solution laid out (2 min buffer included).</span></span></td><td>EA</td><td><span class="bi"><span>arbeitsblatt.html, loesung.html</span><span class="en" lang="en">arbeitsblatt.html, loesung.html</span></span></td></tr>
+<tr data-min="2"><th scope="row">Abschluss <span class="en" lang="en">/ Closing</span></th><td>2 min</td><td><span class="bi"><span>Zwei Lernende nennen je einen Schritt der Regel; die Lehrkraft stellt die Hausaufgabe.</span><span class="en" lang="en">Two learners each name one step of the rule; the teacher sets the homework.</span></span></td><td>UG</td><td><span class="bi"><span>Tafel</span><span class="en" lang="en">board</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta">EA Einzelarbeit <span class="en" lang="en">/ individual work</span> · PA Partnerarbeit <span class="en" lang="en">/ pair work</span> · GA Gruppenarbeit <span class="en" lang="en">/ group work</span> · UG Unterrichtsgespräch <span class="en" lang="en">/ class discussion</span> · LV Lehrervortrag <span class="en" lang="en">/ teacher talk</span></p>
+</section>
+
+<section>
+<h2>Differenzierung <span class="en" lang="en">/ Differentiation</span></h2>
+<table>
+<thead><tr><th scope="col">Niveau <span class="en" lang="en">/ Level</span></th><th scope="col">Aufgabe / Hilfe <span class="en" lang="en">/ Task / support</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">Basis <span class="en" lang="en">/ Basic</span></th><td><span class="bi"><span>Aufgabe 1: Ein Nenner ist ein Vielfaches des anderen; das Beispiel im Kasten dient als Muster.</span><span class="en" lang="en">Task 1: One denominator is a multiple of the other; the example in the box serves as a model.</span></span></td></tr>
+<tr><th scope="row">Standard</th><td><span class="bi"><span>Aufgaben 2 und 3: Der gemeinsame Nenner wird selbst gefunden; das Ergebnis wird gekürzt.</span><span class="en" lang="en">Tasks 2 and 3: The common denominator is found independently; the result is simplified.</span></span></td></tr>
+<tr><th scope="row">Herausforderung <span class="en" lang="en">/ Challenge</span></th><td><span class="bi"><span>Aufgabe 4: umgekehrte Fragestellung mit mehreren Lösungen; der Lösungsweg wird erklärt.</span><span class="en" lang="en">Task 4: reversed question with several solutions; the solution path is explained.</span></span></td></tr>
+<tr><th scope="row">Sprache / Inklusion <span class="en" lang="en">/ Language / inclusion</span></th><td><span class="bi"><span>Wortspeicher an der Tafel: der Zähler, der Nenner, erweitern, kürzen, gleichnamig. Satzanfang für Aufgabe 3: „Die Schorle passt (nicht) in die Flasche, weil …“</span><span class="en" lang="en">Word bank on the board: der Zähler (numerator), der Nenner (denominator), erweitern (to expand), kürzen (to simplify), gleichnamig (like). Sentence starter for task 3: „Die Schorle passt (nicht) in die Flasche, weil …“ (“The spritzer fits (does not fit) into the bottle because …”)</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="kasten">
+<h2>Sicherung: Tafelbild / Merksatz <span class="en" lang="en">/ Securing the results: board notes / key sentence</span></h2>
+<div class="bi"><p><strong>Ungleichnamige Brüche addieren</strong></p><p class="en" lang="en"><strong>Adding unlike fractions</strong></p></div>
+<ol>
+<li><span class="bi"><span>Beide Brüche auf einen gemeinsamen Nenner erweitern.</span><span class="en" lang="en">Expand both fractions to a common denominator.</span></span></li>
+<li><span class="bi"><span>Die Zähler addieren, den Nenner beibehalten.</span><span class="en" lang="en">Add the numerators, keep the denominator.</span></span></li>
+<li><span class="bi"><span>Das Ergebnis kürzen.</span><span class="en" lang="en">Simplify the result.</span></span></li>
+</ol>
+<p>Beispiel <span class="en" lang="en">/ Example</span>: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span></p>
+</section>
+
+<section>
+<h2>Hausaufgabe <span class="en" lang="en">/ Homework</span></h2>
+<div class="bi"><p>Rechne Aufgabe 2 des Arbeitsblatts zu Ende. Wer Aufgabe 2 fertig hat, bearbeitet Aufgabe 3 oder 4.</p><p class="en" lang="en">Finish task 2 of the worksheet. Whoever has finished task 2 works on task 3 or 4.</p></div>
+<p class="meta">ca. 10 min</p>
+</section>
+
+<section style="break-inside:avoid">
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>der Zähler, die Zähler</td><td lang="en">numerator</td><td><span class="bi"><span>Zahl über dem Bruchstrich</span><span class="en" lang="en">number above the fraction bar</span></span></td></tr>
+<tr><td data-nur-de>der Nenner, die Nenner</td><td lang="en">denominator</td><td><span class="bi"><span>Zahl unter dem Bruchstrich</span><span class="en" lang="en">number below the fraction bar</span></span></td></tr>
+<tr><td data-nur-de>gleichnamige Brüche</td><td lang="en">like fractions</td><td><span class="bi"><span>Brüche mit gleichem Nenner</span><span class="en" lang="en">fractions with the same denominator</span></span></td></tr>
+<tr><td data-nur-de>ungleichnamige Brüche</td><td lang="en">unlike fractions</td><td><span class="bi"><span>Brüche mit verschiedenen Nennern</span><span class="en" lang="en">fractions with different denominators</span></span></td></tr>
+<tr><td data-nur-de>erweitern</td><td lang="en">to expand (a fraction)</td><td><span class="bi"><span>Zähler und Nenner mit der gleichen Zahl multiplizieren</span><span class="en" lang="en">to multiply numerator and denominator by the same number</span></span></td></tr>
+<tr><td data-nur-de>kürzen</td><td lang="en">to simplify (a fraction)</td><td><span class="bi"><span>Zähler und Nenner durch die gleiche Zahl dividieren</span><span class="en" lang="en">to divide numerator and denominator by the same number</span></span></td></tr>
+<tr><td data-nur-de>der gemeinsame Nenner</td><td lang="en">common denominator</td><td><span class="bi"><span>Nenner, auf den beide Brüche erweitert werden können</span><span class="en" lang="en">denominator to which both fractions can be expanded</span></span></td></tr>
+<tr><td data-nur-de>die gemischte Zahl, die gemischten Zahlen</td><td lang="en">mixed number</td><td><span class="bi"><span>ganze Zahl und Bruch zusammen, zum Beispiel <span style="white-space:nowrap">1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span></span><span class="en" lang="en">whole number and fraction together, for example <span style="white-space:nowrap">1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span></span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Material <span class="en" lang="en">/ Materials</span></h2>
+<ul>
+<li><span class="bi"><span>arbeitsblatt.html (ein Blatt pro Kind) und loesung.html (drei Exemplare zum Auslegen)</span><span class="en" lang="en">arbeitsblatt.html (one sheet per child) and loesung.html (three copies to lay out)</span></span></li>
+<li><span class="bi"><span>animation.html (6 Schritte, über den Beamer)</span><span class="en" lang="en">animation.html (6 steps, via the projector)</span></span></li>
+<li><span class="bi"><span>Kästchenpapier für die Partnerarbeit</span><span class="en" lang="en">squared paper for the pair work</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

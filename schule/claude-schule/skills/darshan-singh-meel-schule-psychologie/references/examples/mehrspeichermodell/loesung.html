@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Das Mehrspeichermodell des Gedächtnisses</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Psychologie · E-Phase (E2)</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Das Mehrspeichermodell des Gedächtnisses</span><span class="en" lang="en">The multi-store model of memory</span></span></h1>
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Reiz → sensorisches Register → (Aufmerksamkeit) → Kurzzeitgedächtnis → (Enkodierung) → Langzeitgedächtnis; Wiederholen hält die Information im Kurzzeitgedächtnis, Abruf holt sie aus dem Langzeitgedächtnis zurück.</p><p class="en" lang="en"><strong>Result:</strong> Stimulus → sensory register → (attention) → short-term memory → (encoding) → long-term memory; rehearsal keeps the information in short-term memory, retrieval brings it back from long-term memory.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Ein Reiz gelangt über die Sinnesorgane ins sensorische Register und bleibt dort weniger als 1 Sekunde (visuell). Nur die Information, auf die sich die Aufmerksamkeit richtet, gelangt ins Kurzzeitgedächtnis.</p><p class="en" lang="en"><strong>Solution steps:</strong> A stimulus reaches the sensory register via the sense organs and stays there for less than 1 second (visual). Only the information to which attention is directed reaches short-term memory.</p></div>
+<div class="bi"><p>Dort bleibt sie etwa 20 bis 30 Sekunden, durch Wiederholen länger. Durch Enkodierung gelangt sie ins Langzeitgedächtnis; beim Abruf kehrt sie ins Kurzzeitgedächtnis zurück.</p><p class="en" lang="en">There it stays for about 20 to 30 seconds, longer through rehearsal. Through encoding it reaches long-term memory; during retrieval it returns to short-term memory.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> Sensorisches Register und Kurzzeitgedächtnis werden gleichgesetzt. Das Register liegt vor der Aufmerksamkeit und hält Information weniger als 1 Sekunde.</p><p class="en" lang="en"><strong>Typical mistake:</strong> Sensory register and short-term memory are treated as the same. The register lies before attention and holds information for less than 1 second.</p></div>
+</section>
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Die Nummer war nur im Kurzzeitgedächtnis. Als Jonas seiner Schwester antwortet, hört das Wiederholen auf und neue Information kommt hinzu; ein Teil der Ziffern geht verloren, bevor er enkodiert ist.</p><p class="en" lang="en"><strong>Result:</strong> The number was only in short-term memory. When Jonas answers his sister, the rehearsal stops and new information is added; part of the digits is lost before it is encoded.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Neun Ziffern liegen an der oberen Grenze der Gedächtnisspanne (etwa 7 ± 2 Einheiten). Jonas hält sie durch Wiederholen im Kurzzeitgedächtnis („spricht leise vor sich hin“).</p><p class="en" lang="en"><strong>Solution steps:</strong> Nine digits lie at the upper limit of the memory span (about 7 ± 2 units). Jonas keeps them in short-term memory through rehearsal (“says quietly to himself”).</p></div>
+<div class="bi"><p>Frage und Antwort zur Uhrzeit unterbrechen das Wiederholen und belegen selbst Platz im Kurzzeitgedächtnis. Ohne Wiederholen gehen Einheiten nach etwa 20 bis 30 Sekunden verloren. Die ersten Ziffern hat Jonas am häufigsten wiederholt; das passt dazu, dass gerade sie bleiben.</p><p class="en" lang="en">The question and answer about the time interrupt the rehearsal and themselves take up space in short-term memory. Without rehearsal, units are lost after about 20 to 30 seconds. Jonas has repeated the first digits most often; this fits the fact that precisely these remain.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> „Jonas hat ein schlechtes Langzeitgedächtnis.“ Die Nummer war noch nicht im Langzeitgedächtnis.</p><p class="en" lang="en"><strong>Typical mistake:</strong> “Jonas has a poor long-term memory.” The number was not yet in long-term memory.</p></div>
+</section>
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Mittelwert Gruppe A: 30 : 5 = 6,0 Buchstaben. Mittelwert Gruppe B: 55 : 5 = 11,0 Buchstaben. Gruppe B behält im Mittel 5,0 Buchstaben mehr.</p><p class="en" lang="en"><strong>Result:</strong> Mean of group A: 30 ÷ 5 = 6.0 letters. Mean of group B: 55 ÷ 5 = 11.0 letters. Group B retains on average 5.0 letters more.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Summe A: 5 + 6 + 7 + 6 + 6 = 30. Summe B: 12 + 9 + 12 + 11 + 11 = 55. Für Gruppe A sind die 12 Buchstaben 12 Einheiten – mehr als die Gedächtnisspanne von etwa 7 ± 2; der Mittelwert 6,0 liegt in diesem Bereich.</p><p class="en" lang="en"><strong>Solution steps:</strong> Sum A: 5 + 6 + 7 + 6 + 6 = 30. Sum B: 12 + 9 + 12 + 11 + 11 = 55. For group A the 12 letters are 12 units – more than the memory span of about 7 ± 2; the mean of 6.0 lies within this range.</p></div>
+<div class="bi"><p>Für Gruppe B bilden die 12 Buchstaben nur 4 Chunks (LKW, PKW, USA, DNA); 4 Einheiten passen in die Gedächtnisspanne. Einschränkung: nur fünf Personen je Gruppe, und die Gruppen können sich unterscheiden. Die Daten stützen die Erklärung, sie beweisen sie nicht.</p><p class="en" lang="en">For group B the 12 letters form only 4 chunks (LKW, PKW, USA, DNA); 4 units fit into the memory span. Limitation: only five persons per group, and the groups may differ. The data support the explanation, they do not prove it.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> Die Gedächtnisspanne wird in Buchstaben gezählt statt in Einheiten.</p><p class="en" lang="en"><strong>Typical mistake:</strong> The memory span is counted in letters instead of in units.</p></div>
+</section>
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Kriterien:</strong> Erwartet werden eine Stärke und eine Grenze des Modells am Beispiel und ein begründetes Ergebnis. Beide Ergebnisse unten sind richtig, wenn sie begründet sind.</p><p class="en" lang="en"><strong>Criteria:</strong> Expected are one strength and one limit of the model in the example and a reasoned result. Both results below are correct if reasons are given for them.</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> Ergebnis A – das Modell erklärt es nur zum Teil: Es erklärt, dass der Film Aufmerksamkeit erhält und so ins Kurzzeitgedächtnis gelangt. Nach dem Modell hängt die Übertragung ins Langzeitgedächtnis aber vom Wiederholen ab – die Handlung wird nicht wiederholt und bleibt trotzdem. Falls im Kurs behandelt: Der Ansatz der Verarbeitungstiefe (Craik &amp; Lockhart, 1972) erklärt das besser, denn bedeutungsvolle Inhalte werden tiefer verarbeitet.</p><p class="en" lang="en"><strong>Model answer:</strong> Result A – the model explains it only partly: It explains that the film receives attention and thus reaches short-term memory. According to the model, however, the transfer into long-term memory depends on rehearsal – the plot is not rehearsed and nevertheless remains. If covered in the course: The levels-of-processing approach (Craik &amp; Lockhart, 1972) explains this better, because meaningful content is processed more deeply.</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> Ergebnis B – das Modell erklärt es weitgehend: Wer einen spannenden Film sieht, denkt während des Films und danach über die Handlung nach und spricht darüber. Das lässt sich als Wiederholen verstehen, das die Enkodierung ermöglicht. Offen bleibt, warum einmaliges Nachdenken stärker wirkt als mehrfaches bloßes Aufsagen.</p><p class="en" lang="en"><strong>Model answer:</strong> Result B – the model largely explains it: Whoever sees an exciting film thinks about the plot during the film and afterwards and talks about it. This can be understood as rehearsal, which makes the encoding possible. It remains open why thinking about it once has a stronger effect than merely reciting several times.</p></div>
+<div class="bi"><p><strong>Typischer Fehler:</strong> Das Modell wird als „falsch“ bezeichnet. Ein Modell erklärt manche Beobachtungen gut und andere nicht.</p><p class="en" lang="en"><strong>Typical mistake:</strong> The model is called “wrong”. A model explains some observations well and others not.</p></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

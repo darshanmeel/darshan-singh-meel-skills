@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbeitsblatt – Geschwindigkeit messen und berechnen</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.aufgabe{break-inside:avoid}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Physik · Jg. 7</span>
+<span>Name: <span class="feld"></span></span>
+<span>Klasse <span class="en" lang="en">/ Class</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Geschwindigkeit messen und berechnen</span><span class="en" lang="en">Measuring and calculating speed</span></span></h1>
+<p class="meta">Wähle dein Niveau <span class="en" lang="en">/ Choose your level</span>: <span class="niveau">★</span> Basis <span class="en" lang="en">/ Basic</span> · <span class="niveau">★★</span> Standard · <span class="niveau">★★★</span> Herausforderung <span class="en" lang="en">/ Challenge</span></p>
+
+<section class="kasten">
+<h2>Das brauchst du <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Geschwindigkeit = Weg : Zeit, als Formel: <i>v</i> = <i>s</i> / <i>t</i>.</p><p class="en" lang="en">Speed = distance : time, as a formula: <i>v</i> = <i>s</i> / <i>t</i>.</p></div>
+<div class="bi"><p>Einheit: 1 m/s (Meter pro Sekunde). Umrechnung: 1 m/s = 3,6 km/h.</p><p class="en" lang="en">Unit: 1 m/s (metre per second). Conversion: 1 m/s = 3.6 km/h.</p></div>
+<div class="bi"><p>Runde das Ergebnis sinnvoll: nicht mehr Ziffern, als die Messwerte haben.</p><p class="en" lang="en">Round the result sensibly: not more digits than the measured values have.</p></div>
+</section>
+
+<section>
+<h2>Versuch: Wie schnell gehst du? <span class="en" lang="en">/ Experiment: How fast do you walk?</span></h2>
+<div class="bi"><p><strong>Art:</strong> Schülerexperiment in Vierergruppen. <strong>Material:</strong> Maßband (mindestens 10 m), Kreide oder Klebeband, Stoppuhr.</p><p class="en" lang="en"><strong>Type:</strong> student experiment in groups of four. <strong>Materials:</strong> measuring tape (at least 10 m), chalk or adhesive tape, stopwatch.</p></div>
+<figure style="margin:.4em 0">
+<svg viewBox="0 0 640 150" role="img" aria-label="Versuchsaufbau: Gehstrecke von 10,0 m zwischen Startlinie und Ziellinie, Anlauf von 2 m vor der Startlinie / Set-up: walking track of 10.0 m between starting line and finishing line, run-up of 2 m before the starting line">
+<line x1="20" y1="100" x2="620" y2="100" stroke="#111" stroke-width="2"/>
+<line x1="120" y1="40" x2="120" y2="112" stroke="#111" stroke-width="4"/>
+<line x1="580" y1="40" x2="580" y2="112" stroke="#111" stroke-width="4"/>
+<text x="120" y="30" text-anchor="middle" font-size="16">Start</text>
+<text x="570" y="30" text-anchor="middle" font-size="16">Ziel / Finish</text>
+<circle cx="40" cy="62" r="9" fill="none" stroke="#111" stroke-width="2"/><line x1="40" y1="71" x2="40" y2="100" stroke="#111" stroke-width="2"/>
+<line x1="56" y1="80" x2="104" y2="80" stroke="#111" stroke-width="2"/><path d="M104 80 l-10 -5 v10 z" fill="#111"/>
+<line x1="20" y1="128" x2="120" y2="128" stroke="#111" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="70" y="146" text-anchor="middle" font-size="16">2 m</text>
+<line x1="120" y1="128" x2="580" y2="128" stroke="#111" stroke-width="1.5"/>
+<path d="M120 128 l10 -5 v10 z M580 128 l-10 -5 v10 z" fill="#111"/>
+<text x="350" y="146" text-anchor="middle" font-size="16">s = 10,0 m</text>
+<circle cx="604" cy="70" r="12" fill="none" stroke="#111" stroke-width="2"/><line x1="604" y1="70" x2="604" y2="62" stroke="#111" stroke-width="2"/><line x1="604" y1="70" x2="610" y2="73" stroke="#111" stroke-width="2"/>
+</svg>
+<figcaption class="meta"><span class="bi"><span>Aufbau (Skizze, nicht maßstäblich)</span><span class="en" lang="en">Set-up (sketch, not to scale)</span></span></figcaption>
+</figure>
+<ol>
+<li><span class="bi"><span>Markiert die Startlinie und die Ziellinie im Abstand von 10,0 m.</span><span class="en" lang="en">Mark the starting line and the finishing line at a distance of 10.0 m.</span></span></li>
+<li><span class="bi"><span>Eine Person geht in normalem Tempo. Sie beginnt 2 m vor der Startlinie, damit sie an der Startlinie schon gleichmäßig geht.</span><span class="en" lang="en">One person walks at a normal pace. This person begins 2 m before the starting line, so that he or she already walks steadily at the starting line.</span></span></li>
+<li><span class="bi"><span>Stoppt die Zeit von der Startlinie bis zur Ziellinie.</span><span class="en" lang="en">Time the walk from the starting line to the finishing line.</span></span></li>
+<li><span class="bi"><span>Wiederholt die Messung, bis ihr drei Zeiten derselben Person habt.</span><span class="en" lang="en">Repeat the measurement until you have three times for the same person.</span></span></li>
+</ol>
+<h3>Sicherheit <span class="en" lang="en">/ Safety</span></h3>
+<table>
+<tbody>
+<tr><th scope="row">Gefahr <span class="en" lang="en">/ Hazard</span></th><td><span class="bi"><span>Zusammenstoß auf der Gehstrecke; Stolpern über Taschen.</span><span class="en" lang="en">Collision on the walking track; tripping over bags.</span></span></td></tr>
+<tr><th scope="row">Maßnahme <span class="en" lang="en">/ Measure</span></th><td><span class="bi"><span>Die Gehstrecken liegen nebeneinander mit 1 m Abstand, alle gehen in dieselbe Richtung; gehen, nicht rennen; Taschen an die Wand stellen.</span><span class="en" lang="en">The walking tracks lie side by side with 1 m spacing, all walk in the same direction; walk, do not run; put bags against the wall.</span></span></td></tr>
+<tr><th scope="row">Wer <span class="en" lang="en">/ Who</span></th><td><span class="bi"><span>Schülerexperiment in Vierergruppen: Eine Person geht, eine gibt das Startzeichen, eine stoppt die Zeit, eine schreibt auf. Die Lehrkraft beaufsichtigt alle Strecken.</span><span class="en" lang="en">Student experiment in groups of four: One person walks, one gives the start signal, one takes the time, one writes it down. The teacher supervises all tracks.</span></span></td></tr>
+<tr><th scope="row">Stopp <span class="en" lang="en">/ Stop</span></th><td><span class="bi"><span>Kreuzt jemand die Strecke: Messung abbrechen und wiederholen.</span><span class="en" lang="en">If someone crosses the track: stop the measurement and repeat it.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Ermittle</span> mit dem Versuch die Gehgeschwindigkeit: Trage die drei Zeiten ein, bilde den Mittelwert und berechne <i>v</i> in m/s.</p><p class="en" lang="en"><span class="op">Determine</span> the walking speed with the experiment: Enter the three times, work out the mean value and calculate <i>v</i> in m/s.</p></div>
+<table>
+<thead><tr><th scope="col">Messung <span class="en" lang="en">/ Measurement</span></th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">Mittelwert <span class="en" lang="en">/ Mean value</span></th></tr></thead>
+<tbody>
+<tr><th scope="row"><i>s</i> in m</th><td>10,0</td><td>10,0</td><td>10,0</td><td>10,0</td></tr>
+<tr><th scope="row"><i>t</i> in s</th><td style="height:10mm"></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+<div class="karo" style="height:25mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Berechne</span> die Geschwindigkeit von Mia in m/s: Sie fährt mit dem Fahrrad 45 m in 7,5 s.</p><p class="en" lang="en"><span class="op">Calculate</span> the speed of Mia in m/s: She rides 45 m in 7.5 s on her bicycle.</p></div>
+<div class="karo" style="height:25mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p>Tom läuft neben Mia her. Die Tabelle zeigt, wo er zu welcher Zeit ist (erfundene Messwerte).</p><p class="en" lang="en">Tom runs alongside Mia. The table shows where he is at which time (invented measured values).</p></div>
+<table>
+<tbody>
+<tr><th scope="row"><i>t</i> in s</th><td>0</td><td>2,5</td><td>5,0</td><td>7,5</td></tr>
+<tr><th scope="row"><i>s</i> in m</th><td>0</td><td>10,2</td><td>19,8</td><td>30,1</td></tr>
+</tbody>
+</table>
+<div class="bi"><p><span class="op">Bestimme</span> Toms Geschwindigkeit mit einem t-s-Diagramm: Zeichne die Messpunkte als Kreuze (1 cm für 1 s, 1 cm für 5 m), lege eine Ausgleichsgerade durch die Punkte und lies an einem Steigungsdreieck Weg und Zeit ab.</p><p class="en" lang="en"><span class="op">Determine</span> Tom's speed with a t-s diagram: Draw the measured points as crosses (1 cm for 1 s, 1 cm for 5 m), put a best-fit line through the points and read off distance and time from a slope triangle.</p></div>
+<div class="karo" style="height:80mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span></h2>
+<div class="bi"><p>Neuer Start: Mia fährt mit 6,0 m/s, Tom läuft mit 4,0 m/s. Beide starten gleichzeitig, aber Tom startet 20 m vor Mia.</p><p class="en" lang="en">New start: Mia rides at 6.0 m/s, Tom runs at 4.0 m/s. Both start at the same time, but Tom starts 20 m ahead of Mia.</p></div>
+<div class="bi"><p><span class="op">Bestimme</span> mit einer Rechnung oder einem t-s-Diagramm, nach welcher Zeit Mia Tom einholt und welchen Weg sie bis dahin gefahren ist.</p><p class="en" lang="en"><span class="op">Determine</span> with a calculation or a t-s diagram after what time Mia catches up with Tom and what distance she has ridden by then.</p></div>
+<div class="karo" style="height:45mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>die Geschwindigkeit</td><td lang="en">speed</td><td><span class="bi"><span>Weg, den ein Körper in einer Zeit zurücklegt, geteilt durch diese Zeit</span><span class="en" lang="en">distance that a body covers in a time, divided by this time</span></span></td></tr>
+<tr><td data-nur-de>der Weg, die Strecke</td><td lang="en">distance</td><td><span class="bi"><span>Länge der Bahn zwischen Start und Ziel</span><span class="en" lang="en">length of the path between start and finish</span></span></td></tr>
+<tr><td data-nur-de>die Zeit</td><td lang="en">time</td><td><span class="bi"><span>Dauer der Bewegung, gemessen mit der Stoppuhr</span><span class="en" lang="en">duration of the motion, measured with the stopwatch</span></span></td></tr>
+<tr><td data-nur-de>der Messwert</td><td lang="en">measured value</td><td><span class="bi"><span>Zahl mit Einheit, die man beim Messen abliest</span><span class="en" lang="en">number with unit that one reads off when measuring</span></span></td></tr>
+<tr><td data-nur-de>der Mittelwert</td><td lang="en">mean value</td><td><span class="bi"><span>Summe der Messwerte geteilt durch ihre Anzahl</span><span class="en" lang="en">sum of the measured values divided by their number</span></span></td></tr>
+<tr><td data-nur-de>das t-s-Diagramm</td><td lang="en">t-s diagram (distance-time graph)</td><td><span class="bi"><span>Diagramm mit der Zeit nach rechts und dem Weg nach oben</span><span class="en" lang="en">diagram with the time to the right and the distance upwards</span></span></td></tr>
+<tr><td data-nur-de>die Steigung</td><td lang="en">slope</td><td><span class="bi"><span>gibt an, wie steil eine Gerade ist</span><span class="en" lang="en">states how steep a straight line is</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

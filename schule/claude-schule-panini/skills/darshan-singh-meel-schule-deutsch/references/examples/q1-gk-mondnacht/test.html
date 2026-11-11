@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klausur – Naturlyrik der Romantik: Mondnacht</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="test" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Deutsch · Q1 · Grundkurs</span>
+<span>Name: <span class="feld"></span></span>
+<span>Kurs <span class="en" lang="en">/ Course</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Klausur: Naturlyrik der Romantik</span><span class="en" lang="en">Written exam: Nature poetry of the Romantic period</span></span></h1>
+<p class="meta">Klausur · Bearbeitungszeit <span class="en" lang="en">/ Working time</span>: 90 min · Hilfsmittel <span class="en" lang="en">/ Permitted aids</span>: Wörterbuch der deutschen Rechtschreibung <span class="en" lang="en">/ dictionary of German spelling</span> · Verstehensleistung <span class="en" lang="en">/ comprehension performance</span>: <span data-gesamt="60">60 BE</span> (Bewertungseinheiten <span class="en" lang="en">/ marking units</span>)</p>
+<div class="bi"><p>Schreiben Sie einen zusammenhängenden Text auf den Klausurbogen. Belegen Sie Ihre Aussagen mit Versangaben.</p><p class="en" lang="en">Write a coherent text on the exam paper. Support your statements with verse references.</p></div>
+<div class="bi"><p>Bewertet werden die Verstehensleistung (70 %) und die Darstellungsleistung (30 %); Fehler in der Sprachrichtigkeit können zu einem Abzug führen.</p><p class="en" lang="en">The comprehension performance (70 %) and the presentation performance (30 %) are assessed; errors in language correctness can lead to a deduction.</p></div>
+
+<div class="quelltext" data-nur-de lang="de">
+<h3>Material: Joseph von Eichendorff, Mondnacht</h3>
+<p><span style="display:inline-block;width:2.2em">1</span>Es war, als hätt’ der Himmel<br>
+<span style="display:inline-block;width:2.2em">2</span>Die Erde still geküsst,<br>
+<span style="display:inline-block;width:2.2em">3</span>Dass sie im Blütenschimmer<br>
+<span style="display:inline-block;width:2.2em">4</span>Von ihm nun träumen müsst’.</p>
+<p><span style="display:inline-block;width:2.2em">5</span>Die Luft ging durch die Felder,<br>
+<span style="display:inline-block;width:2.2em">6</span>Die Ähren wogten sacht,<br>
+<span style="display:inline-block;width:2.2em">7</span>Es rauschten leis die Wälder,<br>
+<span style="display:inline-block;width:2.2em">8</span>So sternklar war die Nacht.</p>
+<p><span style="display:inline-block;width:2.2em">9</span>Und meine Seele spannte<br>
+<span style="display:inline-block;width:2.2em">10</span>Weit ihre Flügel aus,<br>
+<span style="display:inline-block;width:2.2em">11</span>Flog durch die stillen Lande,<br>
+<span style="display:inline-block;width:2.2em">12</span>Als flöge sie nach Haus.</p>
+</div>
+<p class="meta" data-nur-de lang="de">Joseph von Eichendorff (1788–1857): Mondnacht (Erstdruck 1837). Gemeinfrei. Schreibung modernisiert; Verszählung für diese Klausur ergänzt. Wortlaut vor dem Einsatz mit der Kursausgabe vergleichen.</p>
+
+<section class="aufgabe">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="teil" data-aufgabe="1a" data-punkte="8" data-afb="I">
+<div class="titel"><div class="bi"><p>a) <span class="op">Fassen</span> Sie den Inhalt des Gedichts strophenweise <span class="op">zusammen</span>.</p><p class="en" lang="en">a) <span class="op">Summarize</span> the content of the poem stanza by stanza.</p></div><span class="punkte">/ 8 BE</span></div>
+</div>
+<div class="teil" data-aufgabe="1b" data-punkte="10" data-afb="I">
+<div class="titel"><div class="bi"><p>b) <span class="op">Beschreiben</span> Sie die äußere Form des Gedichts (Strophen, Verse, Reimschema, Metrum, Kadenzen).</p><p class="en" lang="en">b) <span class="op">Describe</span> the outer form of the poem (stanzas, verses, rhyme scheme, metre, cadences).</p></div><span class="punkte">/ 10 BE</span></div>
+</div>
+</section>
+
+<section class="aufgabe">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="teil" data-aufgabe="2" data-punkte="26" data-afb="II">
+<div class="titel"><div class="bi"><p><span class="op">Analysieren</span> Sie die sprachliche Gestaltung des Gedichts in ihrer Funktion für die Darstellung der Natur und des lyrischen Ichs.</p><p class="en" lang="en"><span class="op">Analyse</span> the linguistic form of the poem in its function for the depiction of nature and of the lyrical I.</p></div><span class="punkte">/ 26 BE</span></div>
+</div>
+</section>
+
+<section class="aufgabe">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="teil" data-aufgabe="3" data-punkte="16" data-afb="III">
+<div class="titel"><div class="bi"><p><span class="op">Interpretieren</span> Sie das Gedicht auf der Grundlage Ihrer Ergebnisse. Beziehen Sie das Naturbild der Romantik ein.</p><p class="en" lang="en"><span class="op">Interpret</span> the poem on the basis of your results. Include the image of nature of the Romantic period.</p></div><span class="punkte">/ 16 BE</span></div>
+</div>
+</section>
+
+<section class="kasten">
+<h2>Bewertung <span class="en" lang="en">/ Assessment</span></h2>
+<p>Verstehensleistung <span class="en" lang="en">/ Comprehension performance</span>: <span class="feld" style="min-width:3em"></span> / 60 BE → <span class="feld" style="min-width:3em"></span> Punkte <span class="en" lang="en">/ points</span></p>
+<p>Darstellungsleistung <span class="en" lang="en">/ Presentation performance</span>: <span class="feld" style="min-width:3em"></span> Punkte <span class="en" lang="en">/ points</span> · Fehlerindex <span class="en" lang="en">/ error index</span>: <span class="feld" style="min-width:3em"></span></p>
+<p>Gesamt <span class="en" lang="en">/ Total</span>: <span class="feld" style="min-width:3em"></span> Punkte <span class="en" lang="en">/ points</span> · Unterschrift <span class="en" lang="en">/ Signature</span>: <span class="feld"></span></p>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

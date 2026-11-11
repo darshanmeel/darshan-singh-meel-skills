@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbeitsblatt – Die Grundrechte von 1849</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Geschichte · Q1 (Grundkurs)</span>
+<span>Name: <span class="feld"></span></span>
+<span>Kurs <span class="en" lang="en">/ Course</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Die Grundrechte von 1849 – eine bleibende Errungenschaft?</span><span class="en" lang="en">The basic rights of 1849 – a lasting achievement?</span></span></h1>
+<p class="meta">Wählen Sie Ihr Niveau <span class="en" lang="en">/ Choose your level</span>: <span class="niveau">★</span> Basis <span class="en" lang="en">/ Basic</span> · <span class="niveau">★★</span> Standard · <span class="niveau">★★★</span> Herausforderung <span class="en" lang="en">/ Challenge</span></p>
+
+<section class="kasten">
+<h2>Das brauchen Sie <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Eine Quellenanalyse hat drei Schritte: die Quelle formal beschreiben (Gattung, Verfasser, Datum, Adressat), den Inhalt wiedergeben, die Quelle in den historischen Zusammenhang einordnen.</p><p class="en" lang="en">A source analysis has three steps: describing the source formally (type of source, author, date, addressee), reproducing the content, putting the source into the historical context.</p></div>
+<div class="bi"><p>Ein Sachurteil misst an den Maßstäben der damaligen Zeit. Ein Werturteil misst an heutigen Maßstäben.</p><p class="en" lang="en">A factual judgement measures by the standards of that time. A value judgement measures by today’s standards.</p></div>
+<div class="bi"><p>Die Daten der Revolution von 1848/49 zeigt die Zeitleiste M3 (als Animation in der Datei animation.html).</p><p class="en" lang="en">The dates of the revolution of 1848/49 are shown by the timeline M3 (as an animation in the file animation.html).</p></div>
+</section>
+
+<section style="break-inside:avoid">
+<h2>M1 Quelle: Verfassung des Deutschen Reiches vom 28. März 1849 (Auszüge) <span class="en" lang="en">/ Source: Constitution of the German Reich of 28 March 1849 (excerpts)</span></h2>
+<div class="quelltext" data-nur-de lang="de">
+<p data-nur-de>§ 137 (1) Vor dem Gesetze gilt kein Unterschied der Stände. Der Adel als Stand ist aufgehoben.</p>
+<p data-nur-de>§ 137 (3) Die Deutschen sind vor dem Gesetze gleich.</p>
+<p data-nur-de>§ 144 (1) Jeder Deutsche hat volle Glaubens- und Gewissensfreiheit.</p>
+<p data-nur-de>§ 161 (1) Die Deutschen haben das Recht, sich friedlich und ohne Waffen zu versammeln; einer besonderen Erlaubnis dazu bedarf es nicht.</p>
+</div>
+<div class="bi meta"><p>Aus Abschnitt VI der Verfassung (Grundrechte). Zitiert nach: Deutscher Bundestag, Historische Ausstellung, „Die deutschen Verfassungen. Synopse ausgewählter Bestimmungen aus den Verfassungen von 1849, 1871, 1919, 1949“ (Redaktionsdatum Mai 2006). Die Absatznummern stammen aus der Synopse. Rechtschreibung wie in der Synopse (modernisiert). Gemeinfrei.</p><p class="en" lang="en">From section VI of the constitution (basic rights). Quoted from: Deutscher Bundestag, Historische Ausstellung, “Die deutschen Verfassungen. Synopse ausgewählter Bestimmungen aus den Verfassungen von 1849, 1871, 1919, 1949” (editorial date May 2006). The paragraph numbers come from the synopsis. Spelling as in the synopsis (modernised). In the public domain.</p></div>
+</section>
+
+<section style="break-inside:avoid">
+<h2>M2 Quelle: Grundgesetz für die Bundesrepublik Deutschland vom 23. Mai 1949 (Auszüge) <span class="en" lang="en">/ Source: Basic Law for the Federal Republic of Germany of 23 May 1949 (excerpts)</span></h2>
+<div class="quelltext" data-nur-de lang="de">
+<p data-nur-de>Art. 3 (1) Alle Menschen sind vor dem Gesetz gleich.</p>
+<p data-nur-de>Art. 3 (2) Männer und Frauen sind gleichberechtigt.</p>
+<p data-nur-de>Art. 4 (1) Die Freiheit des Glaubens, des Gewissens und die Freiheit des religiösen und weltanschaulichen Bekenntnisses sind unverletzlich.</p>
+<p data-nur-de>Art. 8 (1) Alle Deutschen haben das Recht, sich ohne Anmeldung oder Erlaubnis friedlich und ohne Waffen zu versammeln.</p>
+</div>
+<div class="bi meta"><p>Art. 3 (2): Wortlaut von 1949; die heutige Fassung hat einen zweiten Satz. Zitiert nach derselben Synopse des Deutschen Bundestages. Amtliches Werk, gemeinfrei.</p><p class="en" lang="en">Art. 3 (2): wording of 1949; today’s version has a second sentence. Quoted from the same synopsis of the Deutscher Bundestag. Official work, in the public domain.</p></div>
+</section>
+
+<section style="break-inside:avoid">
+<h2>M3 Darstellung: Zeitleiste der Revolution von 1848/49 <span class="en" lang="en">/ Account: Timeline of the revolution of 1848/49</span></h2>
+<figure style="margin:0">
+<svg viewBox="0 0 760 316" role="img" aria-label="Zeitleiste von 3.1848 bis 8.1849 mit 5 Ereignissen / timeline from 3.1848 to 8.1849 with 5 events" font-family="Segoe UI,Arial,sans-serif">
+<line x1="60" y1="170" x2="700" y2="170" stroke="#111" stroke-width="2"/>
+<line x1="60.0" y1="164" x2="60.0" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="97.6" y1="164" x2="97.6" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="135.3" y1="160" x2="135.3" y2="180" stroke="#111" stroke-width="2"/>
+<text x="135.3" y="200" font-size="16" text-anchor="middle">5/1848</text>
+<line x1="172.9" y1="164" x2="172.9" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="210.6" y1="164" x2="210.6" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="248.2" y1="164" x2="248.2" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="285.9" y1="160" x2="285.9" y2="180" stroke="#111" stroke-width="2"/>
+<text x="285.9" y="152" font-size="16" text-anchor="middle">9/1848</text>
+<line x1="323.5" y1="164" x2="323.5" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="361.2" y1="164" x2="361.2" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="398.8" y1="164" x2="398.8" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="436.5" y1="160" x2="436.5" y2="180" stroke="#111" stroke-width="2"/>
+<text x="436.5" y="200" font-size="16" text-anchor="middle">1/1849</text>
+<line x1="474.1" y1="164" x2="474.1" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="511.8" y1="164" x2="511.8" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="549.4" y1="164" x2="549.4" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="587.1" y1="160" x2="587.1" y2="180" stroke="#111" stroke-width="2"/>
+<text x="587.1" y="152" font-size="16" text-anchor="middle">5/1849</text>
+<line x1="624.7" y1="164" x2="624.7" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="662.4" y1="164" x2="662.4" y2="176" stroke="#111" stroke-width="2"/>
+<line x1="700.0" y1="164" x2="700.0" y2="176" stroke="#111" stroke-width="2"/>
+<g id="e1"><line x1="81.0" y1="66" x2="81.0" y2="170" stroke="#1a4480" stroke-width="2"/><circle cx="81.0" cy="170" r="8" fill="#fff" stroke="#1a4480" stroke-width="4"/><text x="179.6" y="40" text-anchor="middle" font-size="17" font-weight="700">18.3.1848</text><text x="179.6" y="60" text-anchor="middle" font-size="16">Berlin: Straßenkämpfe / street fighting</text></g>
+<g id="e2"><line x1="156.3" y1="213" x2="156.3" y2="170" stroke="#1a4480" stroke-width="2"/><circle cx="156.3" cy="170" r="8" fill="#fff" stroke="#1a4480" stroke-width="4"/><text x="179.6" y="232" text-anchor="middle" font-size="17" font-weight="700">18.5.1848</text><text x="179.6" y="252" text-anchor="middle" font-size="16">Nationalversammlung / National Assembly</text></g>
+<g id="e3"><line x1="545.2" y1="121" x2="545.2" y2="170" stroke="#1a4480" stroke-width="2"/><circle cx="545.2" cy="170" r="8" fill="#fff" stroke="#1a4480" stroke-width="4"/><text x="545.2" y="95" text-anchor="middle" font-size="17" font-weight="700">28.3.1849</text><text x="545.2" y="115" text-anchor="middle" font-size="16">Verfassung / constitution</text></g>
+<g id="e4"><line x1="551.9" y1="263" x2="551.9" y2="170" stroke="#1a4480" stroke-width="2"/><circle cx="551.9" cy="170" r="8" fill="#fff" stroke="#1a4480" stroke-width="4"/><text x="551.9" y="282" text-anchor="middle" font-size="17" font-weight="700">3.4.1849</text><text x="551.9" y="302" text-anchor="middle" font-size="16">Ablehnung der Krone / rejection of the crown</text></g>
+<g id="e5"><line x1="645.7" y1="213" x2="645.7" y2="170" stroke="#1a4480" stroke-width="2"/><circle cx="645.7" cy="170" r="8" fill="#fff" stroke="#1a4480" stroke-width="4"/><text x="645.7" y="232" text-anchor="middle" font-size="17" font-weight="700">18.6.1849</text><text x="645.7" y="252" text-anchor="middle" font-size="16">Ende / end</text></g>
+</svg>
+</figure>
+<div class="bi meta"><p>Maßstabsgetreu: Start 1. März 1848, Ende 1. August 1849; jeder Strich ist ein Monatserster. Erstellt für diese Aufgabe. Daten nach: Deutscher Bundestag, Seite zur Parlamentsgeschichte 1848/49 und Textarchiv „27. März 1849: Paulskirche verabschiedet Verfassung des Deutschen Reiches“.</p><p class="en" lang="en">True to scale: start 1 March 1848, end 1 August 1849; each tick is the first day of a month. Made for this task. Dates according to: Deutscher Bundestag, page on the history of parliament 1848/49 and text archive “27. März 1849: Paulskirche verabschiedet Verfassung des Deutschen Reiches”.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Geben</span> Sie die Bestimmungen aus M1 in eigenen Worten <span class="op">wieder</span>.</p><p class="en" lang="en"><span class="op">Reproduce</span> the provisions from M1 in your own words.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Ordnen</span> Sie M1 in den historischen Zusammenhang der Revolution von 1848/49 <span class="op">ein</span>. Nutzen Sie dazu die Zeitleiste M3.</p><p class="en" lang="en"><span class="op">Put</span> M1 <span class="op">into the</span> historical <span class="op">context</span> of the revolution of 1848/49. For this, use the timeline M3.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Vergleichen</span> Sie M1 und M2 im Hinblick auf die Träger der Rechte und auf den Inhalt der Rechte.</p><p class="en" lang="en"><span class="op">Compare</span> M1 and M2 with regard to the holders of the rights and to the content of the rights.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span></h2>
+<div class="bi"><p><span class="op">Beurteilen</span> Sie in einem Sachurteil, inwiefern die Grundrechte von 1849 trotz des Scheiterns der Revolution eine „bleibende Errungenschaft“ sind.</p><p class="en" lang="en"><span class="op">Assess</span> in a factual judgement to what extent the basic rights of 1849 are a “lasting achievement” despite the failure of the revolution.</p></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section>
+<h2>Fachbegriffe und Wörter der Quelle <span class="en" lang="en">/ Subject terms and words of the source</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>das Grundrecht</td><td lang="en">basic right</td><td><span class="bi"><span>Recht, das die Verfassung jedem Einzelnen gegenüber dem Staat garantiert</span><span class="en" lang="en">right that the constitution guarantees to every individual vis-à-vis the state</span></span></td></tr>
+<tr><td data-nur-de>die Nationalversammlung</td><td lang="en">National Assembly</td><td><span class="bi"><span>gewähltes Parlament, das 1848/49 in der Frankfurter Paulskirche eine Verfassung ausarbeitete</span><span class="en" lang="en">elected parliament that worked out a constitution in St Paul’s Church in Frankfurt in 1848/49</span></span></td></tr>
+<tr><td data-nur-de>die Reichsverfassung</td><td lang="en">Imperial Constitution</td><td><span class="bi"><span>Verfassung des Deutschen Reiches vom 28. März 1849</span><span class="en" lang="en">Constitution of the German Reich of 28 March 1849</span></span></td></tr>
+<tr><td data-nur-de>der Stand, die Stände</td><td lang="en">estate, estates</td><td><span class="bi"><span>gesellschaftliche Gruppe mit eigenen Rechten durch Geburt (Adel, Bürger, Bauern)</span><span class="en" lang="en">social group with rights of its own by birth (nobility, burghers, peasants)</span></span></td></tr>
+<tr><td data-nur-de>der Adel</td><td lang="en">nobility</td><td><span class="bi"><span>Stand mit ererbten Vorrechten</span><span class="en" lang="en">estate with inherited privileges</span></span></td></tr>
+<tr><td data-nur-de>aufgehoben</td><td lang="en">abolished</td><td><span class="bi"><span>abgeschafft, nicht mehr gültig</span><span class="en" lang="en">done away with, no longer valid</span></span></td></tr>
+<tr><td data-nur-de>die Gewissensfreiheit</td><td lang="en">freedom of conscience</td><td><span class="bi"><span>Recht, nach der eigenen inneren Überzeugung zu leben</span><span class="en" lang="en">right to live according to one’s own inner conviction</span></span></td></tr>
+<tr><td data-nur-de>es bedarf (einer Erlaubnis) nicht</td><td lang="en">(permission) is not required</td><td><span class="bi"><span>man braucht (eine Erlaubnis) nicht</span><span class="en" lang="en">one does not need (permission)</span></span></td></tr>
+<tr><td data-nur-de>die Errungenschaft</td><td lang="en">achievement</td><td><span class="bi"><span>etwas Wertvolles, das durch Anstrengung erreicht wurde</span><span class="en" lang="en">something valuable that was reached through effort</span></span></td></tr>
+<tr><td data-nur-de>das Sachurteil · das Werturteil</td><td lang="en">factual judgement · value judgement</td><td><span class="bi"><span>Urteil nach Maßstäben der damaligen Zeit · Urteil nach heutigen Maßstäben</span><span class="en" lang="en">judgement by standards of that time · judgement by today’s standards</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

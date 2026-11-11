@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Brüche mit verschiedenen Nennern addieren</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Mathematik · Jg. 6</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Brüche mit verschiedenen Nennern addieren</span><span class="en" lang="en">Adding fractions with different denominators</span></span></h1>
+
+<section class="aufgabe" data-aufgabe="1" data-check="1/4+1/2==3/4; 1/4+2/4==3/4; 2/3+1/6==5/6; 4/6+1/6==5/6; 3/10+2/5==7/10; 3/10+4/10==7/10; 2/6==1/3; 1/3 &lt; 1/2">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> a) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math></span> &emsp; b) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span> &emsp; c) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math></span></p><p class="en" lang="en"><strong>Result:</strong> a) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math></span> &emsp; b) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span> &emsp; c) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math></span></p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Nur der Bruch mit dem kleineren Nenner wird erweitert.</p><p class="en" lang="en"><strong>Solution steps:</strong> Only the fraction with the smaller denominator is expanded.</p></div>
+<p>a) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math></span> &emsp; b) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span> &emsp; c) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math></span></p>
+<div class="bi"><p>Typischer Fehler: Zähler und Nenner werden einzeln addiert: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>. Das Ergebnis <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math></span> ist kleiner als <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math></span> und kann deshalb nicht stimmen.</p><p class="en" lang="en">Typical mistake: Numerators and denominators are added separately: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>. The result <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math></span> is smaller than <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math></span> and therefore cannot be right.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-check="1/3+1/4==7/12; 4/12+3/12==7/12; 3/4+5/6==19/12; 9/12+10/12==19/12; 19/12==1+7/12; 7/10+2/15==5/6; 21/30+4/30==25/30; 25/30==5/6; kgv(3,4)==12; kgv(4,6)==12; kgv(10,15)==30; 18/24+20/24==38/24; 38/24==1+7/12">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> a) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> &emsp; b) <span style="white-space:nowrap">1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> &emsp; c) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span></p><p class="en" lang="en"><strong>Result:</strong> a) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> &emsp; b) <span style="white-space:nowrap">1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> &emsp; c) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span></p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Der kleinste gemeinsame Nenner ist das kgV der beiden Nenner: 12, 12 und 30.</p><p class="en" lang="en"><strong>Solution steps:</strong> The least common denominator is the lcm of the two denominators: 12, 12 and 30.</p></div>
+<p>a) <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>3</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span></p>
+<p>b) <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>9</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>10</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>19</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> = 1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></p>
+<p>c) <math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>10</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>15</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>21</mn></mrow><mrow><mn>30</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>30</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>25</mn></mrow><mrow><mn>30</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></p>
+<div class="bi"><p>Mit dem Nenner 24 ist der Weg bei b) länger, aber auch richtig: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>18</mn></mrow><mrow><mn>24</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>20</mn></mrow><mrow><mn>24</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>38</mn></mrow><mrow><mn>24</mn></mrow></mfrac></math> = 1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span>.</p><p class="en" lang="en">With the denominator 24, the path in b) is longer but also correct: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>18</mn></mrow><mrow><mn>24</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>20</mn></mrow><mrow><mn>24</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>38</mn></mrow><mrow><mn>24</mn></mrow></mfrac></math> = 1<math displaystyle="true"><mfrac><mrow><mn>7</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span>.</p></div>
+<div class="bi"><p>Typischer Fehler: Das Ergebnis wird nicht gekürzt: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>25</mn></mrow><mrow><mn>30</mn></mrow></mfrac></math></span> statt <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>.</p><p class="en" lang="en">Typical mistake: The result is not simplified: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>25</mn></mrow><mrow><mn>30</mn></mrow></mfrac></math></span> instead of <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>5</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-check="3/4+2/5==23/20; 15/20+8/20==23/20; 23/20==1+3/20; 23/20 > 1">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Die Schorle passt nicht in die Flasche: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math></span> Liter + <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span> Liter = <span style="white-space:nowrap">1<math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math></span> Liter, das ist mehr als 1 Liter.</p><p class="en" lang="en"><strong>Result:</strong> The spritzer does not fit into the bottle: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math></span> litre + <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math></span> litre = <span style="white-space:nowrap">1<math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math></span> litres, that is more than 1 litre.</p></div>
+<p><strong>Lösungsweg <span class="en" lang="en">/ Solution steps</span>:</strong> <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>15</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>8</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>23</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math> = 1<math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math></p>
+<div class="bi"><p>Das sind <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math></span> Liter zu viel.</p><p class="en" lang="en">That is <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>20</mn></mrow></mfrac></math></span> litre too much.</p></div>
+<div class="bi"><p>Typischer Fehler: Die Rechnung steht da, aber der Vergleich mit 1 Liter und der Antwortsatz fehlen.</p><p class="en" lang="en">Typical mistake: The calculation is there, but the comparison with 1 litre and the answer sentence are missing.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-check="1/4+4/6==11/12; 3/4+1/6==11/12; 3/12+8/12==11/12; 9/12+2/12==11/12; 3*1+2*4==11; 3*3+2*1==11; (11-3*2)%2==1; 3*4 > 11">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Es gibt zwei Möglichkeiten: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span> und <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>.</p><p class="en" lang="en"><strong>Result:</strong> There are two possibilities: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span> and <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Beide Brüche werden auf den Nenner 12 erweitert: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mi>a</mi></mrow><mrow><mn>4</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>3</mn><mo>·</mo><mi>a</mi></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> und <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mi>b</mi></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>2</mn><mo>·</mo><mi>b</mi></mrow><mrow><mn>12</mn></mrow></mfrac></math></span>. Für die Zähler gilt dann <span style="white-space:nowrap">3 · <var>a</var> + 2 · <var>b</var> = 11</span>.</p><p class="en" lang="en"><strong>Solution steps:</strong> Both fractions are expanded to the denominator 12: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mi>a</mi></mrow><mrow><mn>4</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>3</mn><mo>·</mo><mi>a</mi></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> and <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mi>b</mi></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>2</mn><mo>·</mo><mi>b</mi></mrow><mrow><mn>12</mn></mrow></mfrac></math></span>. For the numerators, <span style="white-space:nowrap">3 · <var>a</var> + 2 · <var>b</var> = 11</span> then holds.</p></div>
+<div class="bi"><p>Probiere <span style="white-space:nowrap"><var>a</var></span> = 1, 2, 3: <span style="white-space:nowrap"><var>a</var> = 1</span> ergibt <span style="white-space:nowrap"><var>b</var> = 4</span>. <span style="white-space:nowrap"><var>a</var> = 2</span> ergibt <span style="white-space:nowrap">2 · <var>b</var> = 5</span>, das geht nicht. <span style="white-space:nowrap"><var>a</var> = 3</span> ergibt <span style="white-space:nowrap"><var>b</var> = 1</span>. Ab <span style="white-space:nowrap"><var>a</var> = 4</span> ist <span style="white-space:nowrap">3 · <var>a</var></span> schon größer als 11.</p><p class="en" lang="en">Try <span style="white-space:nowrap"><var>a</var></span> = 1, 2, 3: <span style="white-space:nowrap"><var>a</var> = 1</span> gives <span style="white-space:nowrap"><var>b</var> = 4</span>. <span style="white-space:nowrap"><var>a</var> = 2</span> gives <span style="white-space:nowrap">2 · <var>b</var> = 5</span>, that does not work. <span style="white-space:nowrap"><var>a</var> = 3</span> gives <span style="white-space:nowrap"><var>b</var> = 1</span>. From <span style="white-space:nowrap"><var>a</var> = 4</span> on, <span style="white-space:nowrap">3 · <var>a</var></span> is already greater than 11.</p></div>
+<p>Probe <span class="en" lang="en">/ Check</span>: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>4</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>8</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>11</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span> &emsp; <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>9</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>2</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math> = <math displaystyle="true"><mfrac><mrow><mn>11</mn></mrow><mrow><mn>12</mn></mrow></mfrac></math></span></p>
+<div class="bi"><p>Wer nur gekürzte Brüche zulässt, erhält eine Lösung: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>.</p><p class="en" lang="en">Whoever allows only simplified fractions gets one solution: <span style="white-space:nowrap"><math displaystyle="true"><mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac></math> + <math displaystyle="true"><mfrac><mrow><mn>1</mn></mrow><mrow><mn>6</mn></mrow></mfrac></math></span>.</p></div>
+<div class="bi"><p>Typischer Fehler: Nach der ersten gefundenen Lösung wird aufgehört.</p><p class="en" lang="en">Typical mistake: The work is stopped after the first solution found.</p></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

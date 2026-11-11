@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Geschwindigkeit messen und berechnen</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.aufgabe{break-inside:avoid}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Physik · Jg. 7</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Geschwindigkeit messen und berechnen</span><span class="en" lang="en">Measuring and calculating speed</span></span></h1>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> eigene Messwerte. Beim normalen Gehen liegt <i>v</i> zwischen etwa 1,1 m/s und 1,7 m/s.</p><p class="en" lang="en"><strong>Result:</strong> own measured values. In normal walking <i>v</i> lies between about 1.1 m/s and 1.7 m/s.</p></div>
+<div class="bi"><p><strong>Lösungsweg (Beispiel):</strong> Gegeben: <i>s</i> = 10,0 m; gemessene Zeiten 7,2 s, 7,0 s und 7,1 s. Mittelwert: <i>t</i> = (7,2 s + 7,0 s + 7,1 s) : 3 = 7,1 s.</p><p class="en" lang="en"><strong>Solution steps (example):</strong> Given: <i>s</i> = 10.0 m; measured times 7.2 s, 7.0 s and 7.1 s. Mean value: <i>t</i> = (7.2 s + 7.0 s + 7.1 s) : 3 = 7.1 s.</p></div>
+<div class="bi"><p>Rechnung: <i>v</i> = <i>s</i> / <i>t</i> = 10,0 m / 7,1 s = 1,4 m/s. Antwortsatz: Die Gehgeschwindigkeit beträgt 1,4 m/s.</p><p class="en" lang="en">Calculation: <i>v</i> = <i>s</i> / <i>t</i> = 10.0 m / 7.1 s = 1.4 m/s. Answer sentence: The walking speed is 1.4 m/s.</p></div>
+<div class="bi"><p>Typischer Fehler: Zeit durch Weg teilen (7,1 s / 10,0 m). Dann hat das Ergebnis die Einheit s/m und ist keine Geschwindigkeit.</p><p class="en" lang="en">Typical mistake: dividing time by distance (7.1 s / 10.0 m). Then the result has the unit s/m and is not a speed.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> <i>v</i> = 6,0 m/s.</p><p class="en" lang="en"><strong>Result:</strong> <i>v</i> = 6.0 m/s.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Gegeben: <i>s</i> = 45 m, <i>t</i> = 7,5 s. Gesucht: <i>v</i>. Formel: <i>v</i> = <i>s</i> / <i>t</i>. Rechnung: <i>v</i> = 45 m / 7,5 s = 6,0 m/s. Antwortsatz: Mia fährt mit 6,0 m/s.</p><p class="en" lang="en"><strong>Solution steps:</strong> Given: <i>s</i> = 45 m, <i>t</i> = 7.5 s. To find: <i>v</i>. Formula: <i>v</i> = <i>s</i> / <i>t</i>. Calculation: <i>v</i> = 45 m / 7.5 s = 6.0 m/s. Answer sentence: Mia rides at 6.0 m/s.</p></div>
+<div class="bi"><p>Probe: 6,0 m/s · 7,5 s = 45 m. Vergleich: 6,0 m/s sind etwa 22 km/h, das passt zu einem Fahrrad.</p><p class="en" lang="en">Check: 6.0 m/s · 7.5 s = 45 m. Comparison: 6.0 m/s is about 22 km/h, that fits a bicycle.</p></div>
+<div class="bi"><p>Typischer Fehler: das Ergebnis ohne Einheit aufschreiben (6,0 statt 6,0 m/s).</p><p class="en" lang="en">Typical mistake: writing down the result without unit (6.0 instead of 6.0 m/s).</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> <i>v</i> = 4,0 m/s.</p><p class="en" lang="en"><strong>Result:</strong> <i>v</i> = 4.0 m/s.</p></div>
+<figure style="margin:.4em 0">
+<svg viewBox="0 0 580 300" role="img" aria-label="t-s-Diagramm von Tom: vier Messpunkte als Kreuze, Ausgleichsgerade durch den Ursprung, Steigungsdreieck mit 5,0 s und 20 m / t-s diagram of Tom: four measured points as crosses, best-fit line through the origin, slope triangle with 5.0 s and 20 m">
+<line x1="120" y1="250" x2="120" y2="40" stroke="#b8b8b8"/><line x1="170" y1="250" x2="170" y2="40" stroke="#b8b8b8"/><line x1="220" y1="250" x2="220" y2="40" stroke="#b8b8b8"/><line x1="270" y1="250" x2="270" y2="40" stroke="#b8b8b8"/><line x1="320" y1="250" x2="320" y2="40" stroke="#b8b8b8"/><line x1="370" y1="250" x2="370" y2="40" stroke="#b8b8b8"/><line x1="420" y1="250" x2="420" y2="40" stroke="#b8b8b8"/><line x1="470" y1="250" x2="470" y2="40" stroke="#b8b8b8"/><line x1="70" y1="220" x2="470" y2="220" stroke="#b8b8b8"/><line x1="70" y1="190" x2="470" y2="190" stroke="#b8b8b8"/><line x1="70" y1="160" x2="470" y2="160" stroke="#b8b8b8"/><line x1="70" y1="130" x2="470" y2="130" stroke="#b8b8b8"/><line x1="70" y1="100" x2="470" y2="100" stroke="#b8b8b8"/><line x1="70" y1="70" x2="470" y2="70" stroke="#b8b8b8"/><line x1="70" y1="40" x2="470" y2="40" stroke="#b8b8b8"/>
+<line x1="70" y1="250" x2="490" y2="250" stroke="#111" stroke-width="2"/><line x1="70" y1="250" x2="70" y2="25" stroke="#111" stroke-width="2"/>
+<text x="70" y="270" text-anchor="middle" font-size="16">0</text><text x="120" y="270" text-anchor="middle" font-size="16">1</text><text x="170" y="270" text-anchor="middle" font-size="16">2</text><text x="220" y="270" text-anchor="middle" font-size="16">3</text><text x="270" y="270" text-anchor="middle" font-size="16">4</text><text x="320" y="270" text-anchor="middle" font-size="16">5</text><text x="370" y="270" text-anchor="middle" font-size="16">6</text><text x="420" y="270" text-anchor="middle" font-size="16">7</text><text x="470" y="270" text-anchor="middle" font-size="16">8</text><text x="60" y="255" text-anchor="end" font-size="16">0</text><text x="60" y="195" text-anchor="end" font-size="16">10</text><text x="60" y="135" text-anchor="end" font-size="16">20</text><text x="60" y="75" text-anchor="end" font-size="16">30</text>
+<text x="498" y="270" font-size="16">t in s</text><text x="20" y="22" font-size="16">s in m</text>
+<line x1="70" y1="250" x2="470" y2="58" stroke="#1a4480" stroke-width="2.5"/>
+<path d="M64 244 l12 12 m0 -12 l-12 12" stroke="#111" stroke-width="2" fill="none"/><path d="M189.0 182.8 l12 12 m0 -12 l-12 12" stroke="#111" stroke-width="2" fill="none"/><path d="M314.0 125.19999999999999 l12 12 m0 -12 l-12 12" stroke="#111" stroke-width="2" fill="none"/><path d="M439.0 63.400000000000006 l12 12 m0 -12 l-12 12" stroke="#111" stroke-width="2" fill="none"/>
+<path d="M120 226 H370 V106" fill="none" stroke="#a64500" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="245.0" y="218" text-anchor="middle" font-size="16" fill="#a64500">Δt = 5,0 s</text>
+<text x="378" y="171" font-size="16" fill="#a64500">Δs = 20 m</text>
+</svg>
+<figcaption class="meta"><span class="bi"><span>t-s-Diagramm von Tom mit Ausgleichsgerade und Steigungsdreieck</span><span class="en" lang="en">t-s diagram of Tom with best-fit line and slope triangle</span></span></figcaption>
+</figure>
+<div class="bi"><p><strong>Lösungsweg:</strong> Die Kreuze liegen fast auf einer Geraden durch den Ursprung. Steigungsdreieck an der Ausgleichsgeraden: Δ<i>t</i> = 5,0 s und Δ<i>s</i> = 20 m. Rechnung: <i>v</i> = Δ<i>s</i> / Δ<i>t</i> = 20 m / 5,0 s = 4,0 m/s.</p><p class="en" lang="en"><strong>Solution steps:</strong> The crosses lie almost on a straight line through the origin. Slope triangle at the best-fit line: Δ<i>t</i> = 5.0 s and Δ<i>s</i> = 20 m. Calculation: <i>v</i> = Δ<i>s</i> / Δ<i>t</i> = 20 m / 5.0 s = 4.0 m/s.</p></div>
+<div class="bi"><p>Probe mit dem letzten Messwert: 30,1 m / 7,5 s = 4,0 m/s. Abgelesene Werte zwischen 3,9 m/s und 4,1 m/s sind richtig.</p><p class="en" lang="en">Check with the last measured value: 30.1 m / 7.5 s = 4.0 m/s. Read-off values between 3.9 m/s and 4.1 m/s are correct.</p></div>
+<div class="bi"><p>Typischer Fehler: die Punkte von Kreuz zu Kreuz verbinden. Messwerte streuen, deshalb zeichnet man eine Gerade, die möglichst nah an allen Punkten liegt.</p><p class="en" lang="en">Typical mistake: connecting the points from cross to cross. Measured values scatter, therefore one draws a straight line that lies as close as possible to all points.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Mia holt Tom nach 10 s ein. Sie ist bis dahin 60 m gefahren.</p><p class="en" lang="en"><strong>Result:</strong> Mia catches up with Tom after 10 s. She has ridden 60 m by then.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> In jeder Sekunde fährt Mia 6,0 m und Tom läuft 4,0 m. Mia kommt Tom also in jeder Sekunde um 2,0 m näher. Zeit für 20 m Vorsprung: <i>t</i> = 20 m / 2,0 m/s = 10 s. Mias Weg: <i>s</i> = 6,0 m/s · 10 s = 60 m.</p><p class="en" lang="en"><strong>Solution steps:</strong> In every second Mia rides 6.0 m and Tom runs 4.0 m. So Mia comes 2.0 m closer to Tom in every second. Time for 20 m lead: <i>t</i> = 20 m / 2.0 m/s = 10 s. Mia's distance: <i>s</i> = 6.0 m/s · 10 s = 60 m.</p></div>
+<div class="bi"><p>Probe: Tom ist nach 10 s bei 20 m + 4,0 m/s · 10 s = 60 m. Im t-s-Diagramm schneiden sich die beiden Geraden im Punkt (10 s | 60 m).</p><p class="en" lang="en">Check: After 10 s Tom is at 20 m + 4.0 m/s · 10 s = 60 m. In the t-s diagram the two straight lines intersect at the point (10 s | 60 m).</p></div>
+<div class="bi"><p>Typischer Fehler: 20 m durch Mias Geschwindigkeit teilen (20 m / 6,0 m/s). In dieser Zeit ist Tom aber weitergelaufen.</p><p class="en" lang="en">Typical mistake: dividing 20 m by Mia's speed (20 m / 6.0 m/s). In this time, however, Tom has run on.</p></div>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>die Geschwindigkeit</td><td lang="en">speed</td><td><span class="bi"><span>Weg, den ein Körper in einer Zeit zurücklegt, geteilt durch diese Zeit</span><span class="en" lang="en">distance that a body covers in a time, divided by this time</span></span></td></tr>
+<tr><td data-nur-de>der Weg, die Strecke</td><td lang="en">distance</td><td><span class="bi"><span>Länge der Bahn zwischen Start und Ziel</span><span class="en" lang="en">length of the path between start and finish</span></span></td></tr>
+<tr><td data-nur-de>die Zeit</td><td lang="en">time</td><td><span class="bi"><span>Dauer der Bewegung, gemessen mit der Stoppuhr</span><span class="en" lang="en">duration of the motion, measured with the stopwatch</span></span></td></tr>
+<tr><td data-nur-de>der Messwert</td><td lang="en">measured value</td><td><span class="bi"><span>Zahl mit Einheit, die man beim Messen abliest</span><span class="en" lang="en">number with unit that one reads off when measuring</span></span></td></tr>
+<tr><td data-nur-de>der Mittelwert</td><td lang="en">mean value</td><td><span class="bi"><span>Summe der Messwerte geteilt durch ihre Anzahl</span><span class="en" lang="en">sum of the measured values divided by their number</span></span></td></tr>
+<tr><td data-nur-de>das t-s-Diagramm</td><td lang="en">t-s diagram (distance-time graph)</td><td><span class="bi"><span>Diagramm mit der Zeit nach rechts und dem Weg nach oben</span><span class="en" lang="en">diagram with the time to the right and the distance upwards</span></span></td></tr>
+<tr><td data-nur-de>die Steigung</td><td lang="en">slope</td><td><span class="bi"><span>gibt an, wie steil eine Gerade ist</span><span class="en" lang="en">states how steep a straight line is</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

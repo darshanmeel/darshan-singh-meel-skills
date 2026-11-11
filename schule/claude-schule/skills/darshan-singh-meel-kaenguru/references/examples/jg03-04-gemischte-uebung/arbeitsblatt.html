@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Übungsblatt – Känguru-Training Klassen 3/4</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+/* Kaenguru: answer options A-E, answer sheet */
+.optionen{list-style:none;display:flex;flex-wrap:wrap;gap:.3em 1.6em;padding:0;margin:.5em 0 0}
+.optionen li{display:flex;gap:.4em;align-items:baseline;margin:0}
+.optionen b{white-space:nowrap}
+.figur{display:block;margin:.5em 0;max-width:40mm}
+.antwortzettel{table-layout:fixed;break-inside:avoid}
+.antwortzettel th,.antwortzettel td{text-align:center}
+.antwortzettel th[scope=row]{width:7.5em;text-align:left}
+.antwortzettel td{height:12mm}
+.schluessel{font-size:.9em}
+.schluessel th:nth-child(1),.schluessel td:nth-child(4),.schluessel td:nth-child(5){width:3em;text-align:center}
+.schluessel td:nth-child(2){width:5.5em}
+.aufgabe[data-aufgabe]{break-inside:avoid}
+.fuss{font-size:.85em;margin-top:1.5em}
+.schluessel tfoot{display:table-row-group}
+</style>
+</head>
+<body class="gs" data-typ="arbeitsblatt" data-sprache="de-en" data-stufe="jg03-04">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Mathematik · Känguru-Training · Klassen 3/4</span>
+<span>Name: <span class="feld"></span></span>
+<span>Klasse <span class="en" lang="en">/ Class</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Gemischte Übung 1</span><span class="en" lang="en">Mixed practice 1</span></span></h1>
+<p class="meta">Übungsblatt <span class="en" lang="en">/ Practice sheet</span> · Zeit <span class="en" lang="en">/ Time</span>: 20 min · <span class="niveau">★</span> 3 Punkte <span class="en" lang="en">/ points</span> · <span class="niveau">★★</span> 4 Punkte <span class="en" lang="en">/ points</span> · <span class="niveau">★★★</span> 5 Punkte <span class="en" lang="en">/ points</span> · Summe <span class="en" lang="en">/ Sum</span>: <span data-gesamt="24">24 Punkte <span class="en" lang="en">/ points</span></span></p>
+<section class="kasten">
+<h2>Das brauchst du <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Bei jeder Aufgabe ist genau eine Antwort richtig. Kreise den Buchstaben ein.</p><p class="en" lang="en">For each problem exactly one answer is correct. Circle the letter.</p></div>
+<div class="bi"><p>Rechne auf Schmierpapier. Du brauchst keinen Taschenrechner.</p><p class="en" lang="en">Calculate on scratch paper. You do not need a calculator.</p></div>
+<div class="bi"><p>Tipp: Rechne rückwärts, wenn du das Ende kennst. Streiche Antworten, die nicht stimmen können.</p><p class="en" lang="en">Tip: Work backwards if you know the end. Cross out answers that cannot be right.</p></div>
+</section>
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I" data-punkte="3">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Problem 1</span> <span class="niveau" title="Basis / Basic">★</span> <span class="punkte">· 3 P</span></h2>
+<div class="bi"><p>Tom hat 3 Tüten mit je 6 Murmeln. Er verschenkt 5 Murmeln. Wie viele Murmeln hat Tom noch?</p><p class="en" lang="en">Tom has 3 bags with 6 marbles each. He gives away 5 marbles. How many marbles does Tom still have?</p></div>
+
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 4</li>
+<li data-option="B"><b>(B)</b> 9</li>
+<li data-option="C"><b>(C)</b> 13</li>
+<li data-option="D"><b>(D)</b> 18</li>
+<li data-option="E"><b>(E)</b> 23</li>
+</ol>
+</section>
+<section class="aufgabe" data-aufgabe="2" data-niveau="basis" data-afb="I" data-punkte="3">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Problem 2</span> <span class="niveau" title="Basis / Basic">★</span> <span class="punkte">· 3 P</span></h2>
+<div class="bi"><p>Wie viele Dreiecke sind im Bild zu sehen?</p><p class="en" lang="en">How many triangles can be seen in the picture?</p></div>
+<svg class="figur" viewBox="0 0 200 150" role="img" aria-label="Großes Dreieck; von der oberen Ecke führen zwei Linien zur unteren Seite und teilen es in 3 kleine Dreiecke / large triangle; from the top corner two lines run to the bottom side and divide it into 3 small triangles">
+<g fill="none" stroke="#111" stroke-width="2" stroke-linejoin="round"><path d="M100 10L10 140H190Z"/><path d="M100 10L70 140M100 10L130 140"/></g>
+</svg>
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 3</li>
+<li data-option="B"><b>(B)</b> 4</li>
+<li data-option="C"><b>(C)</b> 5</li>
+<li data-option="D"><b>(D)</b> 6</li>
+<li data-option="E"><b>(E)</b> 7</li>
+</ol>
+</section>
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="II" data-punkte="4">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Problem 3</span> <span class="niveau" title="Standard / Standard">★★</span> <span class="punkte">· 4 P</span></h2>
+<div class="bi"><p>Mila hat Sticker. Die Hälfte davon schenkt sie ihrem Bruder. Dann schenkt sie ihrer Freundin 4 Sticker. Jetzt hat Mila noch 6 Sticker. Wie viele Sticker hatte Mila am Anfang?</p><p class="en" lang="en">Mila has stickers. She gives half of them to her brother. Then she gives her friend 4 stickers. Now Mila still has 6 stickers. How many stickers did Mila have at the beginning?</p></div>
+
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 16</li>
+<li data-option="B"><b>(B)</b> 20</li>
+<li data-option="C"><b>(C)</b> 24</li>
+<li data-option="D"><b>(D)</b> 28</li>
+<li data-option="E"><b>(E)</b> 32</li>
+</ol>
+</section>
+<section class="aufgabe" data-aufgabe="4" data-niveau="standard" data-afb="II" data-punkte="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Problem 4</span> <span class="niveau" title="Standard / Standard">★★</span> <span class="punkte">· 4 P</span></h2>
+<div class="bi"><p>Fünf Kinder laufen um die Wette. Dora ist schneller als Bea. Eva ist langsamer als Bea, aber schneller als Cem. Ali ist am langsamsten. Welches Kind kommt als drittes ins Ziel?</p><p class="en" lang="en">Five children run a race. Dora is faster than Bea. Eva is slower than Bea, but faster than Cem. Ali is the slowest. Which child reaches the finish third?</p></div>
+
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> Ali</li>
+<li data-option="B"><b>(B)</b> Bea</li>
+<li data-option="C"><b>(C)</b> Cem</li>
+<li data-option="D"><b>(D)</b> Dora</li>
+<li data-option="E"><b>(E)</b> Eva</li>
+</ol>
+</section>
+<section class="aufgabe" data-aufgabe="5" data-niveau="herausforderung" data-afb="III" data-punkte="5">
+<h2>Aufgabe 5 <span class="en" lang="en">/ Problem 5</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span> <span class="punkte">· 5 P</span></h2>
+<div class="bi"><p>Auf einem Bauernhof leben Hühner und Kühe. Zusammen haben sie 8 Köpfe und 22 Beine. Wie viele Kühe leben auf dem Bauernhof?</p><p class="en" lang="en">Chickens and cows live on a farm. Together they have 8 heads and 22 legs. How many cows live on the farm?</p></div>
+
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 3</li>
+<li data-option="B"><b>(B)</b> 4</li>
+<li data-option="C"><b>(C)</b> 5</li>
+<li data-option="D"><b>(D)</b> 6</li>
+<li data-option="E"><b>(E)</b> 7</li>
+</ol>
+</section>
+<section class="aufgabe" data-aufgabe="6" data-niveau="herausforderung" data-afb="III" data-punkte="5">
+<h2>Aufgabe 6 <span class="en" lang="en">/ Problem 6</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span> <span class="punkte">· 5 P</span></h2>
+<div class="bi"><p>Paul schreibt alle Zahlen von 1 bis 40 auf. Wie oft schreibt er die Ziffer 3?</p><p class="en" lang="en">Paul writes down all the numbers from 1 to 40. How many times does he write the digit 3?</p></div>
+
+<ol class="optionen">
+<li data-option="A"><b>(A)</b> 4</li>
+<li data-option="B"><b>(B)</b> 10</li>
+<li data-option="C"><b>(C)</b> 13</li>
+<li data-option="D"><b>(D)</b> 14</li>
+<li data-option="E"><b>(E)</b> 15</li>
+</ol>
+</section>
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>die Ziffer</td><td lang="en">digit</td><td><span class="bi"><span>Zeichen von 0 bis 9; die Zahl 33 hat zwei Ziffern.</span><span class="en" lang="en">Symbol from 0 to 9; the number 33 has two digits.</span></span></td></tr>
+<tr><td data-nur-de>die Hälfte</td><td lang="en">half</td><td><span class="bi"><span>Einer von zwei gleich großen Teilen.</span><span class="en" lang="en">One of two parts of equal size.</span></span></td></tr>
+<tr><td data-nur-de>das Dreieck</td><td lang="en">triangle</td><td><span class="bi"><span>Figur mit drei Ecken und drei Seiten.</span><span class="en" lang="en">Figure with three corners and three sides.</span></span></td></tr>
+<tr><td data-nur-de>rückwärts rechnen</td><td lang="en">to work backwards</td><td><span class="bi"><span>Vom Ergebnis aus Schritt für Schritt zum Anfang zurückrechnen.</span><span class="en" lang="en">Calculate back from the result step by step to the beginning.</span></span></td></tr>
+<tr><td data-nur-de>ausschließen</td><td lang="en">to rule out</td><td><span class="bi"><span>Eine Antwort streichen, die nicht stimmen kann.</span><span class="en" lang="en">Cross out an answer that cannot be right.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+<footer class="fuss"><div class="bi"><p>Übungsmaterial im Stil des Wettbewerbs. Alle Aufgaben sind neu geschrieben; es sind keine Wettbewerbsaufgaben.</p><p class="en" lang="en">Practice material in the style of the competition. All problems are newly written; they are not competition problems.</p></div></footer>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

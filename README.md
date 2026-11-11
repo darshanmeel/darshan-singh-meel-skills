@@ -4,12 +4,15 @@ Global rules, skills and hooks for Claude Code, in two equivalent versions:
 
 | Folder | Version |
 |---|---|
-| `claude-global/` | Full, plain English |
-| `claude-global-panini/` | Same rules, compressed (sūtra style: heading sets scope, `→` = then, `·` = list, "rec" = recommended) |
+| `tech/claude-global/` | Full, plain English |
+| `tech/claude-global-panini/` | Same rules, compressed (sūtra style: heading sets scope, `→` = then, `·` = list, "rec" = recommended) |
+
+## School skills
+`schule/`: Hessen teaching skills (Deutsch, Mathe, sciences, Erdkunde, Geschichte, PoWi, Psychologie, DaF A1–C1, Mathe-Känguru) with reviewers. See `schule/README.md`.
 
 ## Install (pick one version)
 ```bash
-cp -r claude-global/. ~/.claude/          # or claude-global-panini/.
+cp -r tech/claude-global/. ~/.claude/     # or tech/claude-global-panini/.
 python ~/.claude/hooks/install-skill-log.py   # once; python3 on macOS/Linux
 ```
 Restart Claude Code. Existing files with the same names in `~/.claude/` are overwritten.
@@ -29,6 +32,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `docs` | Diagram-first docs (v1): READMEs, KT, design docs, user guides, runbooks |
 | `docs-v2` | Docs from any repo's knowledge graph: fixed inventory → plan → builder + checks; same structure every run |
 | `architecture` | Architecture review: current, problems, per-component keep/move/later target (Technical-doc shape), each pick with 2–3 alternatives, workflows, impact on cost/performance/maintenance/tech debt, migration; on request or offered after a Technical doc |
+| `tech-blog` | English technical blog posts: thesis, outline, every code snippet run, claims from official docs; `tech-blog-review` checks them |
 | `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
 | `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
 | `data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance |

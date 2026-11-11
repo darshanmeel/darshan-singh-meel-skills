@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 210" font-family="system-ui, sans-serif" font-size="14">
+  <title>What the UPSERT does with each incoming row</title>
+  <desc>An incoming row whose order_id is not in the table is inserted. If the order_id is in the table and the incoming row is newer, the stored row is updated. Otherwise the stored row is kept.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1c2127"/>
+    </marker>
+  </defs>
+  <g fill="#fff" stroke="#1c2127" stroke-width="1.5">
+    <rect x="20" y="40" width="130" height="40" rx="4"/>
+    <path d="M280 20 L375 60 L280 100 L185 60 z" fill="#eef3f8"/>
+    <path d="M510 20 L610 60 L510 100 L410 60 z" fill="#eef3f8"/>
+    <rect x="650" y="40" width="120" height="40" rx="4"/>
+    <rect x="220" y="150" width="120" height="40" rx="4"/>
+    <rect x="425" y="150" width="170" height="40" rx="4"/>
+  </g>
+  <g fill="none" stroke="#1c2127" stroke-width="1.5" marker-end="url(#arrow)">
+    <path d="M150 60 H185"/>
+    <path d="M375 60 H410"/>
+    <path d="M610 60 H650"/>
+    <path d="M280 100 V150"/>
+    <path d="M510 100 V150"/>
+  </g>
+  <g fill="#1c2127" text-anchor="middle">
+    <text x="85" y="65">Incoming row</text>
+    <text x="280" y="65">order_id in table?</text>
+    <text x="510" y="65">incoming row newer?</text>
+    <text x="710" y="65">Update the row</text>
+    <text x="280" y="175">Insert the row</text>
+    <text x="510" y="175">Keep the stored row</text>
+    <g font-size="13">
+      <text x="392" y="52">yes</text>
+      <text x="630" y="52">yes</text>
+      <text x="296" y="130">no</text>
+      <text x="526" y="130">no</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenentwurf – Geschwindigkeit messen und berechnen</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.aufgabe{break-inside:avoid}
+</style>
+</head>
+<body data-typ="stundenentwurf" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Physik · Jg. 7 · Gymnasium (G9)</span>
+<span>Dauer <span class="en" lang="en">/ Duration</span>: 45 min</span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Geschwindigkeit messen und berechnen</span><span class="en" lang="en">Measuring and calculating speed</span></span></h1>
+<p class="meta">Unterrichtsreihe <span class="en" lang="en">/ Teaching unit</span>: Bewegungen beschreiben <span class="en" lang="en">/ Describing motions</span> · Stunde <span class="en" lang="en">/ Lesson</span> 2 / 6</p>
+
+<section>
+<h2>Bezug zum Kerncurriculum <span class="en" lang="en">/ Reference to the core curriculum</span></h2>
+<table>
+<tbody>
+<tr><th scope="row">Quelle <span class="en" lang="en">/ Source</span></th><td data-nur-de>KC Hessen, Sekundarstufe I - Gymnasium, Physik</td></tr>
+<tr><th scope="row">Kompetenzbereich <span class="en" lang="en">/ Competence area</span></th><td><span class="bi"><span>Erkenntnisgewinnung - Planen, untersuchen, auswerten, interpretieren</span><span class="en" lang="en">Gaining knowledge - planning, investigating, evaluating, interpreting</span></span></td></tr>
+<tr><th scope="row">Kompetenz / Bildungsstandard <span class="en" lang="en">/ Competence / educational standard</span></th><td><span class="bi"><span>Die Lernenden interpretieren ausgewählte Daten aus Experimenten und Quellen und ziehen geeignete Schlussfolgerungen, auch durch Mathematisierung (Ende Jg. 9/10).</span><span class="en" lang="en">The learners interpret selected data from experiments and sources and draw suitable conclusions, also through mathematisation (end of year 9/10).</span></span></td></tr>
+<tr><th scope="row">Inhaltsfeld / Themenfeld <span class="en" lang="en">/ Content field / topic field</span></th><td><span class="bi"><span>Fortbewegung und Mobilität - Weg, Zeit und Geschwindigkeit (Stufe 1). Jahrgang 7 ist eine Annahme: Das Kerncurriculum legt kein Schuljahr fest, es gilt das Fachcurriculum der Schule.</span><span class="en" lang="en">Locomotion and mobility - distance, time and speed (stage 1). Year 7 is an assumption: The core curriculum fixes no school year, the subject curriculum of the school applies.</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta"><span class="bi"><span>Wortlaut wie im Kerncurriculum gedruckt; die englischen Zeilen sind eine eigene Übersetzung.</span><span class="en" lang="en">Wording as printed in the core curriculum; the English lines are our own translation.</span></span></p>
+</section>
+
+<section>
+<h2>Lernziele <span class="en" lang="en">/ Learning goals</span></h2>
+<div class="bi"><p><strong>Stundenziel:</strong> Die Lernenden ermitteln im Versuch eine Gehgeschwindigkeit und berechnen Geschwindigkeiten mit <i>v</i> = <i>s</i> / <i>t</i>.</p><p class="en" lang="en"><strong>Lesson goal:</strong> The learners determine a walking speed in the experiment and calculate speeds with <i>v</i> = <i>s</i> / <i>t</i>.</p></div>
+<ul>
+<li><span class="bi"><span>Die Lernenden messen Weg und Zeit einer Bewegung und schreiben die Messwerte mit Einheit auf.</span><span class="en" lang="en">The learners measure distance and time of a motion and write down the measured values with unit.</span></span> <span class="meta">(AFB I, Erkenntnisgewinnung)</span></li>
+<li><span class="bi"><span>Die Lernenden berechnen die Geschwindigkeit aus Weg und Zeit in m/s.</span><span class="en" lang="en">The learners calculate the speed from distance and time in m/s.</span></span> <span class="meta">(AFB I, Nutzung fachlicher Konzepte)</span></li>
+<li><span class="bi"><span>Die Lernenden bestimmen die Geschwindigkeit aus einem t-s-Diagramm.</span><span class="en" lang="en">The learners determine the speed from a t-s diagram.</span></span> <span class="meta">(AFB II, Kommunikation)</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Lernvoraussetzungen <span class="en" lang="en">/ Learning prerequisites</span></h2>
+<ul>
+<li><span class="bi"><span>Längen und Zeiten messen, Einheiten m und s (Inhaltsfeld Haus der Naturwissenschaften).</span><span class="en" lang="en">Measuring lengths and times, units m and s (content field House of the natural sciences).</span></span></li>
+<li><span class="bi"><span>Stunde 1 der Reihe: Bewegungen vergleichen - wer in gleicher Zeit mehr Weg zurücklegt, ist schneller.</span><span class="en" lang="en">Lesson 1 of the unit: comparing motions - whoever covers more distance in the same time is faster.</span></span></li>
+<li><span class="bi"><span>Aus Mathematik: Punkte in ein Koordinatensystem eintragen, proportionale Zuordnungen.</span><span class="en" lang="en">From mathematics: plotting points in a coordinate system, proportional relations.</span></span></li>
+</ul>
+</section>
+
+<section>
+<h2>Verlaufsplan <span class="en" lang="en">/ Lesson sequence</span></h2>
+<table data-dauer="45">
+<thead><tr><th scope="col">Phase</th><th scope="col">Zeit <span class="en" lang="en">/ Time</span></th><th scope="col">Geschehen (Lehrkraft / Lernende) <span class="en" lang="en">/ What happens (teacher / learners)</span></th><th scope="col">Sozialform <span class="en" lang="en">/ Social form</span></th><th scope="col">Medien, Material <span class="en" lang="en">/ Media, materials</span></th></tr></thead>
+<tbody>
+<tr data-min="4"><th scope="row">Einstieg <span class="en" lang="en">/ Opening</span></th><td>4 min</td><td><span class="bi"><span>Die Lehrkraft fragt: Mia fährt 45 m in 7,5 s, Tom läuft 30 m in 7,5 s. Wer ist schneller, und wie schnell genau? Die Lernenden vermuten.</span><span class="en" lang="en">The teacher asks: Mia rides 45 m in 7.5 s, Tom runs 30 m in 7.5 s. Who is faster, and how fast exactly? The learners make conjectures.</span></span></td><td>UG</td><td><span class="bi"><span>Tafel</span><span class="en" lang="en">board</span></span></td></tr>
+<tr data-min="20"><th scope="row">Erarbeitung <span class="en" lang="en">/ Working phase</span></th><td>20 min</td><td><span class="bi"><span>Schülerexperiment: Die Gruppen messen dreimal die Zeit für 10,0 m Gehstrecke und berechnen die Geschwindigkeit (Aufgabe 1). Danach Aufgabe 2. Die Lehrkraft beaufsichtigt die Strecken.</span><span class="en" lang="en">Student experiment: The groups measure the time for a 10.0 m walking track three times and calculate the speed (task 1). After that task 2. The teacher supervises the tracks.</span></span></td><td>GA</td><td><span class="bi"><span>Arbeitsblatt; 7 Sätze aus Maßband, Kreide, Stoppuhr (bei 28 Lernenden); Flur oder Schulhof</span><span class="en" lang="en">worksheet; 7 sets of measuring tape, chalk, stopwatch (for 28 learners); corridor or schoolyard</span></span></td></tr>
+<tr data-min="9"><th scope="row">Sicherung <span class="en" lang="en">/ Securing the results</span></th><td>9 min</td><td><span class="bi"><span>Die Gruppen nennen ihre Ergebnisse mit Einheit. Die Klasse vergleicht sie mit dem Richtwert 1,4 m/s für Gehen. Formel und Merksatz kommen an die Tafel und ins Heft.</span><span class="en" lang="en">The groups state their results with unit. The class compares them with the guide value 1.4 m/s for walking. Formula and key sentence go on the board and into the exercise book.</span></span></td><td>UG</td><td><span class="bi"><span>Tafel, Heft</span><span class="en" lang="en">board, exercise book</span></span></td></tr>
+<tr data-min="10"><th scope="row">Transfer <span class="en" lang="en">/ Transfer</span></th><td>10 min</td><td><span class="bi"><span>Die Animation zeigt Mia und Tom auf der Bahn und im t-s-Diagramm (Schritte 1 bis 6). Die Lernenden bearbeiten Aufgabe 3, schnelle Lernende Aufgabe 4. Darin sind 2 min Puffer.</span><span class="en" lang="en">The animation shows Mia and Tom on the track and in the t-s diagram (steps 1 to 6). The learners work on task 3, fast learners on task 4. This includes 2 min of buffer.</span></span></td><td>EA, PA</td><td><span class="bi"><span>animation.html (Beamer), Arbeitsblatt</span><span class="en" lang="en">animation.html (projector), worksheet</span></span></td></tr>
+<tr data-min="2"><th scope="row">Abschluss <span class="en" lang="en">/ Closing</span></th><td>2 min</td><td><span class="bi"><span>Blitzlicht: Woran erkennst du im t-s-Diagramm die schnellere Bewegung?</span><span class="en" lang="en">Quick round: How do you recognise the faster motion in the t-s diagram?</span></span></td><td>UG</td><td><span class="bi"><span>keine</span><span class="en" lang="en">none</span></span></td></tr>
+</tbody>
+</table>
+<p class="meta">EA Einzelarbeit <span class="en" lang="en">/ individual work</span> · PA Partnerarbeit <span class="en" lang="en">/ pair work</span> · GA Gruppenarbeit <span class="en" lang="en">/ group work</span> · UG Unterrichtsgespräch <span class="en" lang="en">/ class discussion</span></p>
+</section>
+
+<section class="kasten">
+<h2>Versuch und Sicherheit <span class="en" lang="en">/ Experiment and safety</span></h2>
+<div class="bi"><p>Schülerexperiment in Vierergruppen, 7 Materialsätze; Aufbauskizze auf dem Arbeitsblatt. Modell: Die gehende Person wird als Punkt betrachtet, der sich gleichmäßig bewegt. Zeit sparen: Start- und Ziellinien vor der Stunde markieren; dann entfällt Schritt 1 der Anleitung.</p><p class="en" lang="en">Student experiment in groups of four, 7 sets of materials; set-up sketch on the worksheet. Model: The walking person is regarded as a point that moves steadily. To save time: mark starting and finishing lines before the lesson; then step 1 of the instructions is dropped.</p></div>
+<table>
+<tbody>
+<tr><th scope="row">Gefahr <span class="en" lang="en">/ Hazard</span></th><td><span class="bi"><span>Zusammenstoß auf der Gehstrecke; Stolpern über Taschen.</span><span class="en" lang="en">Collision on the walking track; tripping over bags.</span></span></td></tr>
+<tr><th scope="row">Maßnahme <span class="en" lang="en">/ Measure</span></th><td><span class="bi"><span>Die Gehstrecken liegen nebeneinander mit 1 m Abstand, alle gehen in dieselbe Richtung; gehen, nicht rennen; Taschen an die Wand stellen.</span><span class="en" lang="en">The walking tracks lie side by side with 1 m spacing, all walk in the same direction; walk, do not run; put bags against the wall.</span></span></td></tr>
+<tr><th scope="row">Wer <span class="en" lang="en">/ Who</span></th><td><span class="bi"><span>Schülerexperiment in Vierergruppen: Eine Person geht, eine gibt das Startzeichen, eine stoppt die Zeit, eine schreibt auf. Die Lehrkraft beaufsichtigt alle Strecken.</span><span class="en" lang="en">Student experiment in groups of four: One person walks, one gives the start signal, one takes the time, one writes it down. The teacher supervises all tracks.</span></span></td></tr>
+<tr><th scope="row">Stopp <span class="en" lang="en">/ Stop</span></th><td><span class="bi"><span>Kreuzt jemand die Strecke: Messung abbrechen und wiederholen.</span><span class="en" lang="en">If someone crosses the track: stop the measurement and repeat it.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Differenzierung <span class="en" lang="en">/ Differentiation</span></h2>
+<table>
+<thead><tr><th scope="col">Niveau <span class="en" lang="en">/ Level</span></th><th scope="col">Aufgabe / Hilfe <span class="en" lang="en">/ Task / support</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">Basis <span class="en" lang="en">/ Basic</span></th><td><span class="bi"><span>Aufgaben 1 und 2; Hilfekarte mit einem Rechenbeispiel (Formel, Einsetzen, Ergebnis mit Einheit).</span><span class="en" lang="en">Tasks 1 and 2; help card with a worked calculation (formula, inserting, result with unit).</span></span></td></tr>
+<tr><th scope="row">Standard</th><td><span class="bi"><span>Aufgaben 1 bis 3.</span><span class="en" lang="en">Tasks 1 to 3.</span></span></td></tr>
+<tr><th scope="row">Herausforderung <span class="en" lang="en">/ Challenge</span></th><td><span class="bi"><span>Aufgabe 4: Einholvorgang mit Rechnung oder Diagramm.</span><span class="en" lang="en">Task 4: catching-up process with calculation or diagram.</span></span></td></tr>
+<tr><th scope="row">Sprache / Inklusion <span class="en" lang="en">/ Language / inclusion</span></th><td><span class="bi"><span>Glossar mit englischen Begriffen; Satzanfang für den Antwortsatz: „Die Geschwindigkeit beträgt …“.</span><span class="en" lang="en">Glossary with English terms; sentence starter for the answer sentence: “The speed is …”.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="kasten">
+<h2>Sicherung: Tafelbild / Merksatz <span class="en" lang="en">/ Securing the results: board notes / key sentence</span></h2>
+<div class="bi"><p>Die Geschwindigkeit <i>v</i> gibt an, welchen Weg <i>s</i> ein Körper in der Zeit <i>t</i> zurücklegt: <i>v</i> = <i>s</i> / <i>t</i>.</p><p class="en" lang="en">The speed <i>v</i> states which distance <i>s</i> a body covers in the time <i>t</i>: <i>v</i> = <i>s</i> / <i>t</i>.</p></div>
+<div class="bi"><p>Einheit: 1 m/s. Umrechnung: 1 m/s = 3,6 km/h.</p><p class="en" lang="en">Unit: 1 m/s. Conversion: 1 m/s = 3.6 km/h.</p></div>
+<div class="bi"><p>Im t-s-Diagramm gilt: Je steiler die Gerade, desto größer die Geschwindigkeit.</p><p class="en" lang="en">In the t-s diagram the following holds: The steeper the straight line, the greater the speed.</p></div>
+</section>
+
+<section>
+<h2>Hausaufgabe <span class="en" lang="en">/ Homework</span></h2>
+<div class="bi"><p>Berechne die Geschwindigkeit eines Busses in m/s und in km/h: Er fährt 195 m in 15 s. (Lösung: 13 m/s = 47 km/h)</p><p class="en" lang="en">Calculate the speed of a bus in m/s and in km/h: It travels 195 m in 15 s. (Solution: 13 m/s = 47 km/h)</p></div>
+<p class="meta">ca. 10 min</p>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>die Geschwindigkeit</td><td lang="en">speed</td><td><span class="bi"><span>Weg, den ein Körper in einer Zeit zurücklegt, geteilt durch diese Zeit</span><span class="en" lang="en">distance that a body covers in a time, divided by this time</span></span></td></tr>
+<tr><td data-nur-de>der Weg, die Strecke</td><td lang="en">distance</td><td><span class="bi"><span>Länge der Bahn zwischen Start und Ziel</span><span class="en" lang="en">length of the path between start and finish</span></span></td></tr>
+<tr><td data-nur-de>die Zeit</td><td lang="en">time</td><td><span class="bi"><span>Dauer der Bewegung, gemessen mit der Stoppuhr</span><span class="en" lang="en">duration of the motion, measured with the stopwatch</span></span></td></tr>
+<tr><td data-nur-de>der Messwert</td><td lang="en">measured value</td><td><span class="bi"><span>Zahl mit Einheit, die man beim Messen abliest</span><span class="en" lang="en">number with unit that one reads off when measuring</span></span></td></tr>
+<tr><td data-nur-de>der Mittelwert</td><td lang="en">mean value</td><td><span class="bi"><span>Summe der Messwerte geteilt durch ihre Anzahl</span><span class="en" lang="en">sum of the measured values divided by their number</span></span></td></tr>
+<tr><td data-nur-de>das t-s-Diagramm</td><td lang="en">t-s diagram (distance-time graph)</td><td><span class="bi"><span>Diagramm mit der Zeit nach rechts und dem Weg nach oben</span><span class="en" lang="en">diagram with the time to the right and the distance upwards</span></span></td></tr>
+<tr><td data-nur-de>die Steigung</td><td lang="en">slope</td><td><span class="bi"><span>gibt an, wie steil eine Gerade ist</span><span class="en" lang="en">states how steep a straight line is</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Material <span class="en" lang="en">/ Materials</span></h2>
+<ul>
+<li><span class="bi"><span>arbeitsblatt.html und loesung.html (Aufgaben 1 bis 4, Versuchsanleitung)</span><span class="en" lang="en">arbeitsblatt.html and loesung.html (tasks 1 to 4, experiment instructions)</span></span></li>
+<li><span class="bi"><span>animation.html (Mia und Tom: Bahn und t-s-Diagramm, 6 Schritte)</span><span class="en" lang="en">animation.html (Mia and Tom: track and t-s diagram, 6 steps)</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbeitsblatt – Kettentrieb am Fahrrad</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+.aufgabe{break-inside:avoid}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Naturwissenschaft und Technik (Wahlunterricht) · Jg. 9</span>
+<span>Name: <span class="feld"></span></span>
+<span>Klasse <span class="en" lang="en">/ Class</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Kettentrieb am Fahrrad: Übersetzung und Entfaltung</span><span class="en" lang="en">Chain drive on the bicycle: transmission ratio and development</span></span></h1>
+<p class="meta">Wähle dein Niveau <span class="en" lang="en">/ Choose your level</span>: <span class="niveau">★</span> Basis <span class="en" lang="en">/ Basic</span> · <span class="niveau">★★</span> Standard · <span class="niveau">★★★</span> Herausforderung <span class="en" lang="en">/ Challenge</span></p>
+
+<section class="kasten">
+<h2>Das brauchst du <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Für einen Kettentrieb gilt: <i>n</i><sub>1</sub> · <i>z</i><sub>1</sub> = <i>n</i><sub>2</sub> · <i>z</i><sub>2</sub> (<i>n</i>: Anzahl der Umdrehungen, <i>z</i>: Zähnezahl; 1: Kettenblatt, 2: Ritzel).</p><p class="en" lang="en">For a chain drive the following holds: <i>n</i><sub>1</sub> · <i>z</i><sub>1</sub> = <i>n</i><sub>2</sub> · <i>z</i><sub>2</sub> (<i>n</i>: number of turns, <i>z</i>: number of teeth; 1: chainring, 2: sprocket).</p></div>
+<div class="bi"><p>Bei einer Kurbelumdrehung dreht sich das Hinterrad <i>z</i><sub>1</sub> / <i>z</i><sub>2</sub> mal. Entfaltung = (<i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>) · <i>U</i> (<i>U</i>: Radumfang).</p><p class="en" lang="en">For one turn of the crank the rear wheel turns <i>z</i><sub>1</sub> / <i>z</i><sub>2</sub> times. Development = (<i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>) · <i>U</i> (<i>U</i>: wheel circumference).</p></div>
+<div class="bi"><p>Geschwindigkeit: <i>v</i> = <i>s</i> / <i>t</i>. Umrechnung: 1 m/s = 3,6 km/h.</p><p class="en" lang="en">Speed: <i>v</i> = <i>s</i> / <i>t</i>. Conversion: 1 m/s = 3.6 km/h.</p></div>
+<figure style="margin:.4em 0">
+<svg viewBox="0 0 660 370" role="img" aria-label="Kettentrieb von rechts gesehen: links das Hinterrad mit dem Ritzel (22 Zähne), rechts das Kettenblatt (44 Zähne) mit der Kurbel, beide durch die Kette verbunden / Chain drive seen from the right: on the left the rear wheel with the sprocket (22 teeth), on the right the chainring (44 teeth) with the crank, both connected by the chain">
+<line x1="20" y1="355" x2="640" y2="355" stroke="#111" stroke-width="2"/>
+<g transform="rotate(0 190 215)">
+<circle cx="190" cy="215" r="140" fill="none" stroke="#111" stroke-width="6"/>
+<circle cx="190" cy="215" r="44" fill="#eef3fa" stroke="#111" stroke-width="2"/>
+<line x1="190" y1="215" x2="190" y2="78" stroke="#a64500" stroke-width="4"/>
+<circle cx="190" cy="87" r="8" fill="#a64500"/>
+</g>
+<g transform="rotate(0 470 215)">
+<circle cx="470" cy="215" r="88" fill="#eef3fa" stroke="#111" stroke-width="2"/>
+<line x1="470" y1="215" x2="470" y2="103" stroke="#1a4480" stroke-width="8"/>
+<rect x="454" y="93" width="32" height="10" fill="#1a4480"/>
+</g>
+<path d="M183.1 171.5 L456.2 128.1 A88 88 0 1 1 456.2 301.9 L183.1 258.5 A44 44 0 0 1 183.1 171.5" fill="none" stroke="#111" stroke-width="5" stroke-dasharray="6.283 6.283" stroke-dashoffset="0"/>
+<circle cx="190" cy="215" r="4" fill="#111"/><circle cx="470" cy="215" r="4" fill="#111"/>
+<g font-size="16" text-anchor="middle">
+<text x="190" y="26">Ritzel / sprocket</text><text x="190" y="48">z₂ = 22</text>
+<text x="470" y="26">Kettenblatt / chainring</text><text x="470" y="48">z₁ = 44</text>
+<text x="610" y="310">Kurbel / crank</text>
+<text x="98" y="221">U = 2,10 m</text>
+</g>
+</svg>
+<figcaption class="meta"><span class="bi"><span>Modell des Antriebs, von rechts gesehen (nicht maßstäblich)</span><span class="en" lang="en">Model of the drive, seen from the right (not to scale)</span></span></figcaption>
+</figure>
+</section>
+
+<section>
+<h2>Versuch: Wie weit fährt das Fahrrad bei einer Kurbelumdrehung? <span class="en" lang="en">/ Experiment: How far does the bicycle travel for one turn of the crank?</span></h2>
+<div class="bi"><p><strong>Art:</strong> Schülerexperiment in Vierergruppen, Schritt „Testen“ im Konstruktionszyklus. <strong>Material:</strong> 1 Fahrrad mit Kettenschaltung, Kreide, Maßband (mindestens 5 m).</p><p class="en" lang="en"><strong>Type:</strong> student experiment in groups of four, step “testing” in the design cycle. <strong>Materials:</strong> 1 bicycle with derailleur gears, chalk, measuring tape (at least 5 m).</p></div>
+<ol>
+<li><span class="bi"><span>Zählt am stehenden Fahrrad die Zähne des Kettenblatts (<i>z</i><sub>1</sub>) und des Ritzels, auf dem die Kette liegt (<i>z</i><sub>2</sub>).</span><span class="en" lang="en">On the stationary bicycle, count the teeth of the chainring (<i>z</i><sub>1</sub>) and of the sprocket on which the chain lies (<i>z</i><sub>2</sub>).</span></span></li>
+<li><span class="bi"><span>Stellt eine Kurbel senkrecht nach oben. Markiert mit Kreide die Stelle, an der der Hinterreifen den Boden berührt.</span><span class="en" lang="en">Set one crank vertically upwards. Mark with chalk the place where the rear tyre touches the ground.</span></span></li>
+<li><span class="bi"><span>Schiebt das Fahrrad langsam rückwärts, bis die Kurbel genau eine Umdrehung gemacht hat. Markiert wieder die Stelle des Hinterreifens.</span><span class="en" lang="en">Push the bicycle slowly backwards until the crank has made exactly one turn. Mark the place of the rear tyre again.</span></span></li>
+<li><span class="bi"><span>Messt den Abstand der beiden Marken. Das ist die Entfaltung.</span><span class="en" lang="en">Measure the distance between the two marks. That is the development.</span></span></li>
+<li><span class="bi"><span>Messt den Radumfang <i>U</i>: Ventil nach unten, Stelle markieren, das Fahrrad eine Radumdrehung weit schieben, wieder markieren, Abstand messen.</span><span class="en" lang="en">Measure the wheel circumference <i>U</i>: valve downwards, mark the place, push the bicycle one turn of the wheel further, mark again, measure the distance.</span></span></li>
+</ol>
+<h3>Sicherheit <span class="en" lang="en">/ Safety</span></h3>
+<table>
+<tbody>
+<tr><th scope="row">Gefahr <span class="en" lang="en">/ Hazard</span></th><td><span class="bi"><span>Finger zwischen Kette und Zahnrad oder in den Speichen; umkippendes Fahrrad.</span><span class="en" lang="en">Fingers between chain and gear wheel or in the spokes; bicycle tipping over.</span></span></td></tr>
+<tr><th scope="row">Maßnahme <span class="en" lang="en">/ Measure</span></th><td><span class="bi"><span>Zähne nur am stehenden Fahrrad zählen, ohne die Kette anzufassen; eine Person hält das Fahrrad am Lenker; beim Schieben sind die Hände nur an Lenker und Sattel; niemand fährt.</span><span class="en" lang="en">Count teeth only on the stationary bicycle, without touching the chain; one person holds the bicycle by the handlebar; when pushing, the hands are only on handlebar and saddle; nobody rides.</span></span></td></tr>
+<tr><th scope="row">Wer <span class="en" lang="en">/ Who</span></th><td><span class="bi"><span>Schülerexperiment in Vierergruppen: Eine Person hält und schiebt, eine beobachtet die Kurbel, eine markiert, eine misst. Die Lehrkraft beaufsichtigt alle Gruppen auf dem Schulhof.</span><span class="en" lang="en">Student experiment in groups of four: One person holds and pushes, one watches the crank, one marks, one measures. The teacher supervises all groups in the schoolyard.</span></span></td></tr>
+<tr><th scope="row">Stopp <span class="en" lang="en">/ Stop</span></th><td><span class="bi"><span>Springt die Kette ab oder klemmt sie: nicht anfassen, Lehrkraft rufen.</span><span class="en" lang="en">If the chain comes off or jams: do not touch it, call the teacher.</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Ermittle</span> mit dem Versuch die Werte für euer Fahrrad, trage sie in die Tabelle ein und berechne zum Vergleich (<i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>) · <i>U</i>.</p><p class="en" lang="en"><span class="op">Determine</span> the values for your bicycle with the experiment, enter them in the table and calculate (<i>z</i><sub>1</sub> / <i>z</i><sub>2</sub>) · <i>U</i> for comparison.</p></div>
+<table>
+<thead><tr><th scope="col" style="width:13%"><i>z</i><sub>1</sub></th><th scope="col" style="width:13%"><i>z</i><sub>2</sub></th><th scope="col" style="width:16%"><i>U</i> in m</th><th scope="col">Entfaltung gemessen in m <span class="en" lang="en">/ development measured in m</span></th><th scope="col">Entfaltung berechnet in m <span class="en" lang="en">/ development calculated in m</span></th></tr></thead>
+<tbody>
+<tr><td style="height:11mm"></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+<div class="karo" style="height:20mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Berechne</span> die Anzahl der Radumdrehungen bei einer Kurbelumdrehung und die Entfaltung für <i>z</i><sub>1</sub> = 44, <i>z</i><sub>2</sub> = 22 und <i>U</i> = 2,10 m.</p><p class="en" lang="en"><span class="op">Calculate</span> the number of turns of the wheel for one turn of the crank and the development for <i>z</i><sub>1</sub> = 44, <i>z</i><sub>2</sub> = 22 and <i>U</i> = 2.10 m.</p></div>
+<div class="karo" style="height:25mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Berechne</span> die fehlenden Werte der Gangtabelle. Es gilt: <i>z</i><sub>1</sub> = 44, <i>U</i> = 2,10 m, Trittfrequenz 60 Kurbelumdrehungen pro Minute.</p><p class="en" lang="en"><span class="op">Calculate</span> the missing values of the gear table. The following holds: <i>z</i><sub>1</sub> = 44, <i>U</i> = 2.10 m, cadence 60 turns of the crank per minute.</p></div>
+<table>
+<thead><tr><th scope="col">Ritzel <span class="en" lang="en">/ Sprocket</span> <i>z</i><sub>2</sub></th><th scope="col">11</th><th scope="col">16</th><th scope="col">22</th><th scope="col">32</th></tr></thead>
+<tbody>
+<tr><th scope="row">Radumdrehungen pro Kurbelumdrehung <span class="en" lang="en">/ turns of the wheel per turn of the crank</span></th><td style="height:11mm"></td><td></td><td>2</td><td></td></tr>
+<tr><th scope="row">Entfaltung in m <span class="en" lang="en">/ development in m</span></th><td style="height:11mm"></td><td></td><td>4,20</td><td></td></tr>
+<tr><th scope="row">Geschwindigkeit in km/h <span class="en" lang="en">/ speed in km/h</span></th><td style="height:11mm"></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+<div class="karo" style="height:45mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span></h2>
+<div class="bi"><p><span class="op">Entwickle</span> mit einer Rechnung einen Vorschlag für die Zähnezahl eines zusätzlichen Ritzels. Anforderungen (Muss): ganze Zähnezahl; bei 60 Kurbelumdrehungen pro Minute fährt das Fahrrad zwischen 12,0 km/h und 13,0 km/h (<i>z</i><sub>1</sub> = 44, <i>U</i> = 2,10 m).</p><p class="en" lang="en"><span class="op">Develop</span> a proposal, with a calculation, for the number of teeth of an additional sprocket. Requirements (must): whole number of teeth; at 60 turns of the crank per minute the bicycle travels between 12.0 km/h and 13.0 km/h (<i>z</i><sub>1</sub> = 44, <i>U</i> = 2.10 m).</p></div>
+<div class="karo" style="height:45mm" role="img" aria-label="Kästchenfeld zum Rechnen oder Zeichnen / squared field for calculating or drawing"></div>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>der Kettentrieb</td><td lang="en">chain drive</td><td><span class="bi"><span>zwei Zahnräder, die eine Kette verbindet</span><span class="en" lang="en">two gear wheels that a chain connects</span></span></td></tr>
+<tr><td data-nur-de>das Kettenblatt</td><td lang="en">chainring</td><td><span class="bi"><span>vorderes Zahnrad an der Kurbel</span><span class="en" lang="en">front gear wheel at the crank</span></span></td></tr>
+<tr><td data-nur-de>das Ritzel</td><td lang="en">sprocket</td><td><span class="bi"><span>hinteres Zahnrad am Hinterrad</span><span class="en" lang="en">rear gear wheel at the rear wheel</span></span></td></tr>
+<tr><td data-nur-de>die Kurbel</td><td lang="en">crank</td><td><span class="bi"><span>Hebel, an dem das Pedal sitzt</span><span class="en" lang="en">lever on which the pedal sits</span></span></td></tr>
+<tr><td data-nur-de>die Übersetzung</td><td lang="en">transmission ratio</td><td><span class="bi"><span>Verhältnis der Zähnezahlen von Kettenblatt und Ritzel</span><span class="en" lang="en">ratio of the numbers of teeth of chainring and sprocket</span></span></td></tr>
+<tr><td data-nur-de>die Entfaltung</td><td lang="en">development</td><td><span class="bi"><span>Weg des Fahrrads bei einer Kurbelumdrehung</span><span class="en" lang="en">distance of the bicycle for one turn of the crank</span></span></td></tr>
+<tr><td data-nur-de>der Radumfang</td><td lang="en">wheel circumference</td><td><span class="bi"><span>Weg des Rades bei einer Radumdrehung</span><span class="en" lang="en">distance of the wheel for one turn of the wheel</span></span></td></tr>
+<tr><td data-nur-de>die Trittfrequenz</td><td lang="en">cadence</td><td><span class="bi"><span>Anzahl der Kurbelumdrehungen pro Minute</span><span class="en" lang="en">number of turns of the crank per minute</span></span></td></tr>
+<tr><td data-nur-de>die Anforderung</td><td lang="en">requirement</td><td><span class="bi"><span>messbare Bedingung, die eine Lösung erfüllen muss</span><span class="en" lang="en">measurable condition that a solution must fulfil</span></span></td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

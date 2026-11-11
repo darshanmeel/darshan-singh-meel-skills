@@ -1,0 +1,2 @@
+no key: 6 rows
+with key: IntegrityError - UNIQUE constraint failed: orders.order_id

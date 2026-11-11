@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Die Grundrechte von 1849</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Geschichte · Q1 (Grundkurs)</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Die Grundrechte von 1849 – eine bleibende Errungenschaft?</span><span class="en" lang="en">The basic rights of 1849 – a lasting achievement?</span></span></h1>
+<div class="bi meta"><p>KC-Bezug: KCGO Hessen, Geschichte · Analysekompetenz für Quellen und Darstellungen: A3 · Urteilskompetenz für Kontinuität und Veränderung in der Zeit: U7 · Q1.1 Die deutsche Revolution von 1848/49 – Markstein auf dem Weg zu Parlamentarismus, Demokratie und Nationalstaat?, GK.</p><p class="en" lang="en">KC reference: KCGO Hessen, Geschichte · competence of analysis for sources and accounts: A3 · competence of judgement for continuity and change in time: U7 · Q1.1 The German revolution of 1848/49 – a milestone on the way to parliamentarianism, democracy and nation state?, GK (basic course).</p></div>
+<div class="bi meta"><p>Daten nach: Deutscher Bundestag, Seite zur Parlamentsgeschichte 1848/49 und Textarchiv „27. März 1849: Paulskirche verabschiedet Verfassung des Deutschen Reiches“.</p><p class="en" lang="en">Dates according to: Deutscher Bundestag, page on the history of parliament 1848/49 and text archive “27. März 1849: Paulskirche verabschiedet Verfassung des Deutschen Reiches”.</p></div>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis (Kriterien):</strong> vier Aussagen, in eigenen Worten, ohne Wertung: keine rechtlichen Unterschiede zwischen den Ständen und Abschaffung des Adels als Stand (§ 137 Abs. 1) · Gleichheit der Deutschen vor dem Gesetz (§ 137 Abs. 3) · volle Glaubens- und Gewissensfreiheit für jeden Deutschen (§ 144 Abs. 1) · Recht der Deutschen, sich friedlich und unbewaffnet ohne besondere Erlaubnis zu versammeln (§ 161 Abs. 1).</p><p class="en" lang="en"><strong>Result (criteria):</strong> four statements, in one’s own words, without evaluation: no legal differences between the estates and abolition of the nobility as an estate (§ 137 para. 1) · equality of the Germans before the law (§ 137 para. 3) · full freedom of faith and of conscience for every German (§ 144 para. 1) · right of the Germans to assemble peacefully and unarmed without special permission (§ 161 para. 1).</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> Nach M1 macht das Gesetz keinen Unterschied mehr zwischen den Ständen; der Adel verliert seine Stellung als eigener Stand. Alle Deutschen sind vor dem Gesetz gleich. Jeder Deutsche darf frei glauben und nach seinem Gewissen leben. Die Deutschen dürfen sich friedlich und ohne Waffen versammeln und müssen dafür keine Erlaubnis einholen.</p><p class="en" lang="en"><strong>Model answer:</strong> According to M1 the law no longer makes a difference between the estates; the nobility loses its position as an estate of its own. All Germans are equal before the law. Every German may believe freely and live according to his conscience. The Germans may assemble peacefully and without weapons and do not have to obtain permission for this.</p></div>
+<div class="bi"><p>Typischer Fehler: Der Wortlaut der Quelle wird abgeschrieben, oder die Bestimmungen werden schon bewertet.</p><p class="en" lang="en">Typical mistake: The wording of the source is copied, or the provisions are already evaluated.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis (Kriterien):</strong> Gattung und Verfasser: Verfassungstext der Frankfurter Nationalversammlung · Vorgeschichte: Märzrevolution, Straßenkämpfe in Berlin am 18./19. März 1848; Nationalversammlung in der Paulskirche seit dem 18. Mai 1848 · Entstehung: Die Grundrechte sind Abschnitt VI der am 27. März 1849 verabschiedeten und am 28. März 1849 verkündeten Reichsverfassung · Folge: Friedrich Wilhelm IV. lehnt am 3. April 1849 die Kaiserwürde ab und verwirft die Verfassung am 28. April endgültig; das Rumpfparlament wird am 18. Juni 1849 aufgelöst; die Verfassung setzt sich nicht durch.</p><p class="en" lang="en"><strong>Result (criteria):</strong> type of source and author: constitutional text of the Frankfurt National Assembly · prior history: March Revolution, street fighting in Berlin on 18/19 March 1848; National Assembly in St Paul’s Church since 18 May 1848 · origin: The basic rights are section VI of the Imperial Constitution passed on 27 March 1849 and proclaimed on 28 March 1849 · consequence: Friedrich Wilhelm IV declines the imperial title on 3 April 1849 and rejects the constitution for good on 28 April; the rump parliament is dissolved on 18 June 1849; the constitution does not prevail.</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> M1 ist ein Auszug aus der Reichsverfassung, die die Frankfurter Nationalversammlung am 27. März 1849 verabschiedete. Die Nationalversammlung war nach der Märzrevolution von 1848 gewählt worden und tagte seit dem 18. Mai 1848 in der Paulskirche. Die Grundrechte in Abschnitt VI antworten auf die Forderungen der liberalen und nationalen Bewegung nach Freiheit und rechtlicher Gleichheit. Weil der preußische König im April 1849 Kaiserwürde und Verfassung ablehnte und die Revolution im Sommer 1849 niedergeschlagen wurde, setzte sich die Verfassung nicht durch.</p><p class="en" lang="en"><strong>Model answer:</strong> M1 is an excerpt from the Imperial Constitution, which the Frankfurt National Assembly passed on 27 March 1849. The National Assembly had been elected after the March Revolution of 1848 and had sat in St Paul’s Church since 18 May 1848. The basic rights in section VI answer the demands of the liberal and national movement for freedom and legal equality. Because the Prussian king declined imperial title and constitution in April 1849 and the revolution was put down in the summer of 1849, the constitution did not prevail.</p></div>
+<div class="bi"><p>Typischer Fehler: Die Verkündung der Verfassung (28. März 1849) wird mit ihrer Durchsetzung gleichgesetzt.</p><p class="en" lang="en">Typical mistake: The proclamation of the constitution (28 March 1849) is equated with its prevailing.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<table>
+<thead><tr><th scope="col">Kriterium <span class="en" lang="en">/ Criterion</span></th><th scope="col">M1 (1849)</th><th scope="col">M2 (1949)</th></tr></thead>
+<tbody>
+<tr><th scope="row"><span class="bi"><span>Träger der Rechte</span><span class="en" lang="en">holders of the rights</span></span></th><td><span class="bi"><span>immer „die Deutschen“ oder „jeder Deutsche“</span><span class="en" lang="en">always “the Germans” or “every German”</span></span></td><td><span class="bi"><span>Gleichheit: „alle Menschen“; Glaubensfreiheit: ohne Beschränkung auf Deutsche; Versammlung: „alle Deutschen“</span><span class="en" lang="en">equality: “all people”; freedom of faith: without restriction to Germans; assembly: “all Germans”</span></span></td></tr>
+<tr><th scope="row"><span class="bi"><span>Gleichheit</span><span class="en" lang="en">equality</span></span></th><td><span class="bi"><span>Gleichheit vor dem Gesetz; Adel als Stand aufgehoben; Frauen nicht genannt</span><span class="en" lang="en">equality before the law; nobility as an estate abolished; women not named</span></span></td><td><span class="bi"><span>Gleichheit vor dem Gesetz; Gleichberechtigung von Männern und Frauen</span><span class="en" lang="en">equality before the law; equal rights of men and women</span></span></td></tr>
+<tr><th scope="row"><span class="bi"><span>Glaube und Gewissen</span><span class="en" lang="en">faith and conscience</span></span></th><td><span class="bi"><span>volle Glaubens- und Gewissensfreiheit</span><span class="en" lang="en">full freedom of faith and of conscience</span></span></td><td><span class="bi"><span>Freiheit des Glaubens und des Gewissens, dazu die Freiheit des religiösen und weltanschaulichen Bekenntnisses</span><span class="en" lang="en">freedom of faith and of conscience, and also the freedom of religious and ideological creed</span></span></td></tr>
+<tr><th scope="row"><span class="bi"><span>Versammlung</span><span class="en" lang="en">assembly</span></span></th><td><span class="bi"><span>friedlich und ohne Waffen, ohne besondere Erlaubnis</span><span class="en" lang="en">peacefully and without weapons, without special permission</span></span></td><td><span class="bi"><span>friedlich und ohne Waffen, ohne Anmeldung oder Erlaubnis</span><span class="en" lang="en">peacefully and without weapons, without notification or permission</span></span></td></tr>
+</tbody>
+</table>
+<div class="bi"><p><strong>Ergebnis:</strong> Im Inhalt stimmen M1 und M2 weitgehend überein, bei der Versammlungsfreiheit fast wörtlich. M2 geht weiter: Gleichheit und Glaubensfreiheit gelten für alle Menschen, und Männer und Frauen sind gleichberechtigt.</p><p class="en" lang="en"><strong>Result:</strong> In content M1 and M2 largely agree, in the freedom of assembly almost word for word. M2 goes further: equality and freedom of faith apply to all people, and men and women have equal rights.</p></div>
+<div class="bi"><p>Typischer Fehler: Die beiden Texte werden nacheinander nacherzählt, ohne Kriterien und ohne Ergebnis.</p><p class="en" lang="en">Typical mistake: The two texts are retold one after the other, without criteria and without a result.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis (Kriterien des Sachurteils):</strong> Kriterium Geltung: Die Reichsverfassung setzte sich nicht durch, die Revolution scheiterte 1849 – kurzfristig keine dauerhafte Wirkung. Kriterium Fortwirkung: Das Grundgesetz von 1949 nimmt Gleichheit vor dem Gesetz, Glaubens- und Gewissensfreiheit und Versammlungsfreiheit wieder auf, zum Teil fast wörtlich (Aufgabe 3). Kriterium Reichweite: 1849 nur Rechte „der Deutschen“, keine Gleichberechtigung der Frauen. Ein begründetes Gesamturteil ist verlangt; beide Richtungen sind bei schlüssiger Begründung richtig.</p><p class="en" lang="en"><strong>Result (criteria of the factual judgement):</strong> criterion validity: The Imperial Constitution did not prevail, the revolution failed in 1849 – in the short term no lasting effect. Criterion continued effect: The Basic Law of 1949 takes up equality before the law, freedom of faith and of conscience and freedom of assembly again, in part almost word for word (task 3). Criterion scope: in 1849 only rights “of the Germans”, no equal rights of women. A reasoned overall judgement is required; both directions are correct with conclusive reasoning.</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> Gemessen an ihrer Geltung waren die Grundrechte von 1849 keine Errungenschaft, denn die Verfassung setzte sich nicht durch. Gemessen an ihrer Fortwirkung sind sie es doch: Das Grundgesetz von 1949 garantiert dieselben Rechte, die Versammlungsfreiheit fast mit denselben Worten. Die Grundrechte von 1849 sind deshalb vor allem als Vorbild eine bleibende Errungenschaft, mit der Einschränkung, dass sie nur für Deutsche galten und die Gleichberechtigung der Frauen fehlte.</p><p class="en" lang="en"><strong>Model answer:</strong> Measured by their validity, the basic rights of 1849 were no achievement, for the constitution did not prevail. Measured by their continued effect, they are one after all: The Basic Law of 1949 guarantees the same rights, the freedom of assembly almost with the same words. The basic rights of 1849 are therefore a lasting achievement above all as a model, with the restriction that they applied only to Germans and the equal rights of women were missing.</p></div>
+<div class="bi"><p>Typischer Fehler: Es wird nur eine Meinung genannt, ohne Kriterien und ohne Bezug auf M1 und M2.</p><p class="en" lang="en">Typical mistake: Only an opinion is named, without criteria and without reference to M1 and M2.</p></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

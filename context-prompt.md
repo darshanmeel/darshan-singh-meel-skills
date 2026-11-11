@@ -10,8 +10,8 @@ You're continuing work on my personal Claude Code global setup. Read this first 
 A generic Claude Code setup I install with `unzip -o <zip> -d ~/.claude/`. It holds `CLAUDE.md` (global rules), `skills/` (all prefixed `darshan-singh-meel-`) and `hooks/`. It must stay generic: no project, person or company names anywhere.
 
 Two versions, always updated together and always delivered as **complete zips**, never single files:
-- **Full:** `claude-global.zip`, plain English.
-- **Panini:** `claude-global-panini.zip`, the same rules compressed in sūtra style (each heading sets scope, `→` = then, `·` = list, "rec" = recommended).
+- **Full:** `tech/claude-global.zip`, plain English.
+- **Panini:** `tech/claude-global-panini.zip`, the same rules compressed in sūtra style (each heading sets scope, `→` = then, `·` = list, "rec" = recommended).
 
 ## How I want you to work
 - **Answers:** minimal words, maximum information. Bullets, answer first, no preamble, recap or AI filler. Lead with the result.
@@ -37,6 +37,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-docs` (v1) | diagram-first docs; always asks 4 questions (Documents, Format HTML/MD/Confluence, Graph, Examples); one file per doc in `generated-docs/` |
 | `-docs-v2` | same rules, but HTML is built from a JSON spec by a fixed builder (`build.py`): fixed section recipes, typed tables, fixed workflow `docs-v2-<repo>`; used only when I say "v2" |
 | `-architecture` | architecture review from the graph: current, problems, per-component keep/move/later target in Technical-doc shape (hybrid by default), one pick + 2–3 alternatives on every row ("use <alt> instead" rebuilds it), workflows current vs proposed, impact, migration; one HTML page from a JSON spec; only on request or offered after a Technical doc |
+| `-tech-blog` (+ `-review`) | English technical blog posts: thesis, outline, code run, official-docs claims, `blog/<slug>.md` |
 | `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a commit, asks (update now in background · after next commit · when work is done · skip), then separately asks about the affected docs; declined → "Graph/Docs are N commits behind" note in every later repo reply; fast incremental updates via `references/update.py`; related repos share `../<name>-graphs/` + `_combined/` |
 | `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first (PII discovery step; keyed hashing for masked values) |
 | `-data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC; checks official docs sites only when unsure |
@@ -91,3 +92,6 @@ Two versions, always updated together and always delivered as **complete zips**,
 - Apply the change to both the full and panini versions.
 - Rebuild both complete zips and give me them.
 - Test what you can: run scripts, render pages, screenshot.
+
+## School skills
+`schule/claude-schule` (+ `-panini`): Hessen teaching skills with reviewers (base `-schule`, `-schule-<fach>`, `-daf`, `-kaenguru`). Material German with the closest natural English sentence under every line; output `unterricht/<fach>/<stufe>/<thema>/`. Fable creates, Opus reviews. Zips: `schule/claude-schule.zip`, `schule/claude-schule-panini.zip`.

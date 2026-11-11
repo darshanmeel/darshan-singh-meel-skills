@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbeitsblatt – Sich krankmelden (DaF A2 Beruf)</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="arbeitsblatt" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>DaF · A2 Beruf</span>
+<span>Name: <span class="feld"></span></span>
+<span>Kurs <span class="en" lang="en">/ Course</span>: <span class="feld" style="min-width:4em"></span></span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>Sich am Telefon krankmelden</span><span class="en" lang="en">Calling in sick on the phone</span></span></h1>
+<p class="meta">Wählen Sie Ihr Niveau <span class="en" lang="en">/ Choose your level</span>: <span class="niveau">★</span> Basis <span class="en" lang="en">/ Basic</span> · <span class="niveau">★★</span> Standard · <span class="niveau">★★★</span> Herausforderung <span class="en" lang="en">/ Challenge</span></p>
+
+<section class="kasten">
+<h2>Das brauchen Sie <span class="en" lang="en">/ This is what you need</span></h2>
+<div class="bi"><p>Sätze für das Telefon und die Regel für <em>weil</em>.</p><p class="en" lang="en">Sentences for the phone and the rule for <em lang="de">weil</em>.</p></div>
+<ul data-nur-de>
+<li>Guten Morgen, hier spricht …</li>
+<li>Ich möchte mich krankmelden.</li>
+<li>Ich rufe an, weil ich krank <u>bin</u>.</li>
+<li>Ich kann heute leider nicht kommen.</li>
+<li>Ich rufe Sie morgen wieder an.</li>
+<li>Gute Besserung! – Vielen Dank. Auf Wiederhören.</li>
+</ul>
+<div class="bi"><p>Im <em>weil</em>-Satz steht das Verb am Ende. Vor <em>weil</em> steht ein Komma.</p><p class="en" lang="en">In the <em lang="de">weil</em> clause the verb is at the end. Before <em lang="de">weil</em> there is a comma.</p></div>
+</section>
+
+<section>
+<h2>Telefongespräch <span class="en" lang="en">/ Phone conversation</span></h2>
+<div class="bi"><p>Es ist Montag, 7:15 Uhr. Herr Novak ruft seine Chefin an.</p><p class="en" lang="en">It is Monday, 7:15 a.m. Mr Novak calls his boss.</p></div>
+<div class="quelltext" data-nur-de>
+<p><strong>Frau Aydin:</strong> Firma Lindner, Jana Aydin, guten Morgen.</p>
+<p><strong>Herr Novak:</strong> Guten Morgen, Frau Aydin. Hier spricht Milan Novak aus dem Lager.</p>
+<p><strong>Frau Aydin:</strong> Guten Morgen, Herr Novak. Was kann ich für Sie tun?</p>
+<p><strong>Herr Novak:</strong> Ich rufe an, weil ich krank bin. Ich habe Fieber und Halsschmerzen. Ich kann heute leider nicht kommen.</p>
+<p><strong>Frau Aydin:</strong> Oh, das tut mir leid. Waren Sie schon beim Arzt?</p>
+<p><strong>Herr Novak:</strong> Nein, noch nicht. Ich habe um zehn Uhr einen Termin bei meiner Hausärztin.</p>
+<p><strong>Frau Aydin:</strong> Gut. Wie lange bleiben Sie zu Hause?</p>
+<p><strong>Herr Novak:</strong> Das weiß ich noch nicht. Ich rufe Sie heute Nachmittag wieder an.</p>
+<p><strong>Frau Aydin:</strong> In Ordnung. In unserer Firma brauchen wir ein Attest, wenn Sie länger als zwei Tage krank sind.</p>
+<p><strong>Herr Novak:</strong> Ja, das mache ich.</p>
+<p><strong>Frau Aydin:</strong> Danke für Ihren Anruf. Gute Besserung, Herr Novak!</p>
+<p><strong>Herr Novak:</strong> Vielen Dank. Auf Wiederhören.</p>
+</div>
+</section>
+
+<section class="aufgabe" data-aufgabe="1" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 1 · Lesen <span class="en" lang="en">/ Task 1 · Reading</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Kreuzen Sie an</span>: richtig oder falsch?</p><p class="en" lang="en"><span class="op">Tick</span>: true or false?</p></div>
+<table>
+<thead><tr><th scope="col">Nr.</th><th scope="col">Satz <span class="en" lang="en">/ Sentence</span></th><th scope="col">richtig <span class="en" lang="en">/ true</span></th><th scope="col">falsch <span class="en" lang="en">/ false</span></th></tr></thead>
+<tbody data-nur-de>
+<tr><th scope="row">0</th><td>Beispiel: Herr Novak arbeitet im Lager.</td><td>☒</td><td>☐</td></tr>
+<tr><th scope="row">1</th><td>Herr Novak hat Kopfschmerzen.</td><td>☐</td><td>☐</td></tr>
+<tr><th scope="row">2</th><td>Herr Novak war schon beim Arzt.</td><td>☐</td><td>☐</td></tr>
+<tr><th scope="row">3</th><td>Er hat um zehn Uhr einen Termin.</td><td>☐</td><td>☐</td></tr>
+<tr><th scope="row">4</th><td>Er ruft am Nachmittag wieder an.</td><td>☐</td><td>☐</td></tr>
+<tr><th scope="row">5</th><td>Die Firma braucht ab dem ersten Tag ein Attest.</td><td>☐</td><td>☐</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="aufgabe" data-aufgabe="2" data-niveau="basis" data-afb="I">
+<h2>Aufgabe 2 · Grammatik <span class="en" lang="en">/ Task 2 · Grammar</span> <span class="niveau" title="Basis / Basic">★</span></h2>
+<div class="bi"><p><span class="op">Ergänzen Sie</span> das Verb aus dem Kasten. Jedes Verb passt einmal.</p><p class="en" lang="en"><span class="op">Fill in</span> the verb from the box. Each verb fits once.</p></div>
+<p data-nur-de style="border:1px solid #767676;padding:.3em .6em;display:inline-block">braucht · habe · ist · kann</p>
+<ol start="0" data-nur-de style="line-height:2.1">
+<li>Beispiel: Ich rufe an, weil ich krank <u>&nbsp;bin&nbsp;</u>.</li>
+<li>Ich bleibe im Bett, weil ich Fieber <span class="feld" style="min-width:6em"></span>.</li>
+<li>Frau Kaya kommt später, weil ihr Kind krank <span class="feld" style="min-width:6em"></span>.</li>
+<li>Herr Novak geht zur Ärztin, weil er ein Attest <span class="feld" style="min-width:6em"></span>.</li>
+<li>Ich rufe an, weil ich heute nicht kommen <span class="feld" style="min-width:6em"></span>.</li>
+</ol>
+</section>
+
+<section class="aufgabe" data-aufgabe="3" data-niveau="standard" data-afb="II">
+<h2>Aufgabe 3 · Grammatik <span class="en" lang="en">/ Task 3 · Grammar</span> <span class="niveau" title="Standard / Standard">★★</span></h2>
+<div class="bi"><p><span class="op">Verbinden Sie</span> die Sätze mit <em>weil</em>. Schreiben Sie den ganzen Satz.</p><p class="en" lang="en"><span class="op">Connect</span> the sentences with <em lang="de">weil</em>. Write the whole sentence.</p></div>
+<div data-nur-de>
+<p>0. Beispiel: Ich rufe an. Ich bin krank. → <u>Ich rufe an, weil ich krank bin.</u></p>
+<p>1. Ich kann heute nicht arbeiten. Ich habe Halsschmerzen.</p>
+<div class="zeile"></div>
+<p>2. Herr Novak bleibt zu Hause. Er hat Fieber.</p>
+<div class="zeile"></div>
+<p>3. Ich komme morgen später. Ich muss zum Arzt gehen.</p>
+<div class="zeile"></div>
+</div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4" data-niveau="herausforderung" data-afb="III">
+<h2>Aufgabe 4 · Sprechen <span class="en" lang="en">/ Task 4 · Speaking</span> <span class="niveau" title="Herausforderung / Challenge">★★★</span></h2>
+<div class="bi"><p><span class="op">Spielen Sie</span> das Telefongespräch zu zweit. A ist krank und ruft die Firma an. B ist die Chefin oder der Chef. Sie sagen „Sie“. Tauschen Sie danach die Rollen.</p><p class="en" lang="en"><span class="op">Act out</span> the phone conversation in pairs. A is ill and calls the company. B is the boss. You say <span lang="de">„Sie“</span>. Afterwards, swap roles.</p></div>
+<table>
+<thead><tr><th scope="col">Rolle A <span class="en" lang="en">/ Role A</span></th><th scope="col">Rolle B <span class="en" lang="en">/ Role B</span></th></tr></thead>
+<tbody data-nur-de>
+<tr><td>Name sagen · krank: Husten, Fieber · Arzt: heute, 11 Uhr · wieder anrufen: morgen früh · danken, Auf Wiederhören</td><td>Firma und Name sagen · Was haben Sie? · Arzt? · Wie lange zu Hause? · Gute Besserung</td></tr>
+</tbody>
+</table>
+<p>Notizen <span class="en" lang="en">/ Notes</span>:</p>
+<div class="zeile"></div>
+<div class="zeile"></div>
+</section>
+
+<section>
+<h2>Neue Wörter <span class="en" lang="en">/ New words</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Beispiel <span class="en" lang="en">/ Example</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>sich krankmelden, meldet sich krank, hat sich krankgemeldet</td><td lang="en">to call in sick</td><td data-nur-de>Ich möchte mich krankmelden.</td></tr>
+<tr><td data-nur-de>an·rufen, ruft an, hat angerufen</td><td lang="en">to call (on the phone)</td><td data-nur-de>Ich rufe Sie am Nachmittag an.</td></tr>
+<tr><td data-nur-de>das Fieber (Sg.)</td><td lang="en">fever</td><td data-nur-de>Ich habe Fieber.</td></tr>
+<tr><td data-nur-de>die Halsschmerzen (Pl.)</td><td lang="en">sore throat</td><td data-nur-de>Ich habe Halsschmerzen.</td></tr>
+<tr><td data-nur-de>der Termin, -e</td><td lang="en">appointment</td><td data-nur-de>Ich habe um zehn Uhr einen Termin.</td></tr>
+<tr><td data-nur-de>die Hausärztin, -nen</td><td lang="en">family doctor (female)</td><td data-nur-de>Ich gehe zu meiner Hausärztin.</td></tr>
+<tr><td data-nur-de>das Attest, -e</td><td lang="en">doctor's certificate</td><td data-nur-de>Die Firma braucht ein Attest.</td></tr>
+<tr><td data-nur-de>das Lager, -</td><td lang="en">warehouse</td><td data-nur-de>Herr Novak arbeitet im Lager.</td></tr>
+<tr><td data-nur-de>Gute Besserung!</td><td lang="en">Get well soon!</td><td>–</td></tr>
+<tr><td data-nur-de>Auf Wiederhören.</td><td lang="en">Goodbye. (on the phone)</td><td>–</td></tr>
+</tbody>
+</table>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

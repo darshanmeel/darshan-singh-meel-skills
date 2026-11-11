@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erwartungshorizont – Naturlyrik der Romantik: Mondnacht</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="erwartungshorizont" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Deutsch · Q1 · Grundkurs</span>
+<span>Erwartungshorizont · nur für Lehrkräfte <span class="en" lang="en">/ Marking scheme · for teachers only</span></span>
+</header>
+<h1><span class="bi"><span>Klausur: Naturlyrik der Romantik</span><span class="en" lang="en">Written exam: Nature poetry of the Romantic period</span></span></h1>
+<p class="meta">Klausur · 90 min · KC-Bezug <span class="en" lang="en">/ curriculum reference</span>: KCGO Hessen, Deutsch · Q1.3 Natur als Imagination und Wirklichkeit, GK · Bildungsstandards TM1, TM2, Sch4, Sch12 · Material: Joseph von Eichendorff, Mondnacht (gemeinfrei)</p>
+
+<section>
+<h2>Teil 1: Verstehensleistung (Inhalt) <span class="en" lang="en">/ Part 1: comprehension performance (content)</span></h2>
+<table>
+<thead><tr><th scope="col">Aufgabe <span class="en" lang="en">/ Task</span></th><th scope="col">Erwartete Leistung mit Teilpunkten <span class="en" lang="en">/ Expected performance with part points</span></th><th scope="col">AFB</th><th scope="col">BE</th></tr></thead>
+<tbody>
+<tr data-aufgabe="1a" data-punkte="8" data-afb="I"><th scope="row">1a</th><td><ul>
+<li><span class="bi"><span>Strophe 1 (V. 1–4): irrealer Vergleich – es ist, als habe der Himmel die Erde geküsst; sodass die Erde im Blütenschimmer nun von ihm träumen muss. (3 BE)</span><span class="en" lang="en">Stanza 1 (v. 1–4): unreal comparison – it is as if the sky had kissed the earth; so that the earth, in the shimmer of blossoms, now has to dream of it.</span></span></li>
+<li><span class="bi"><span>Strophe 2 (V. 5–8): Naturbild einer klaren Nacht – Luft über den Feldern, wogende Ähren, leise rauschende Wälder, Sternenhimmel. (2 BE)</span><span class="en" lang="en">Stanza 2 (v. 5–8): image of nature on a clear night – air over the fields, swaying ears of grain, softly rustling woods, starry sky.</span></span></li>
+<li><span class="bi"><span>Strophe 3 (V. 9–12): Das lyrische Ich tritt hervor – seine Seele breitet die Flügel aus und fliegt durch das stille Land, als flöge sie nach Hause. (3 BE)</span><span class="en" lang="en">Stanza 3 (v. 9–12): The lyrical I comes forward – its soul spreads its wings and flies through the quiet land as if it were flying home.</span></span></li>
+</ul></td><td>I</td><td>8</td></tr>
+<tr data-aufgabe="1b" data-punkte="10" data-afb="I"><th scope="row">1b</th><td><ul>
+<li><span class="bi"><span>3 Strophen mit je 4 Versen, 12 Verse (2 BE)</span><span class="en" lang="en">3 stanzas with 4 verses each, 12 verses</span></span></li>
+<li><span class="bi"><span>Kreuzreim: abab cdcd efef (2 BE)</span><span class="en" lang="en">alternate rhyme: abab cdcd efef</span></span></li>
+<li><span class="bi"><span>unreine Reime: „Himmel“/„Blütenschimmer“ (V. 1/3), „spannte“/„Lande“ (V. 9/11) (2 BE)</span><span class="en" lang="en">impure rhymes: „Himmel“/„Blütenschimmer“ (v. 1/3), „spannte“/„Lande“ (v. 9/11)</span></span></li>
+<li><span class="bi"><span>Metrum: dreihebiger Jambus (2 BE)</span><span class="en" lang="en">metre: iambic trimeter (three stressed syllables)</span></span></li>
+<li><span class="bi"><span>Kadenzen im regelmäßigen Wechsel: weiblich in den ungeraden, männlich in den geraden Versen (1 BE)</span><span class="en" lang="en">cadences in regular alternation: feminine in the odd verses, masculine in the even verses</span></span></li>
+<li><span class="bi"><span>Einordnung: schlichte, liedhafte Form (Volksliedstrophe) (1 BE)</span><span class="en" lang="en">classification: plain, song-like form (folk song stanza)</span></span></li>
+</ul><p><span class="bi"><span>Möglich, nicht verlangt: Betonung gegen das Metrum auf „Weit“ (V. 10) und „Flog“ (V. 11).</span><span class="en" lang="en">Possible, not required: stress against the metre on „Weit“ (v. 10) and „Flog“ (v. 11).</span></span></p></td><td>I</td><td>10</td></tr>
+<tr data-aufgabe="2" data-punkte="26" data-afb="II"><th scope="row">2</th><td><ul>
+<li><span class="bi"><span>Personifikation von Himmel und Erde (Kuss, V. 1–2; Träumen, V. 4): Die Natur erscheint beseelt; Himmel und Erde sind verbunden. (5 BE)</span><span class="en" lang="en">Personification of sky and earth (kiss, v. 1–2; dreaming, v. 4): Nature appears animated; sky and earth are connected.</span></span></li>
+<li><span class="bi"><span>Konjunktiv II im irrealen Vergleich – „als hätt’“ (V. 1), „müsst’“ (V. 4), „Als flöge“ (V. 12) – rahmt das Gedicht: Vereinigung und Heimkehr bleiben Vorstellung. (5 BE)</span><span class="en" lang="en">Subjunctive II in the unreal comparison – „als hätt’“ (v. 1), „müsst’“ (v. 4), „Als flöge“ (v. 12) – frames the poem: union and homecoming remain an idea.</span></span></li>
+<li><span class="bi"><span>Strophe 2 im Indikativ Präteritum; Zeilenstil und parallel gebaute Hauptsätze (V. 5–6): ruhige, gleichmäßige Naturbeschreibung. (4 BE)</span><span class="en" lang="en">Stanza 2 in the indicative preterite; end-stopped lines and main clauses built in parallel (v. 5–6): calm, even description of nature.</span></span></li>
+<li><span class="bi"><span>Wortfeld der Stille und der sanften Bewegung – „still“ (V. 2), „sacht“ (V. 6), „leis“ (V. 7), „stillen“ (V. 11); Verben „ging“, „wogten“, „rauschten“: Harmonie. (4 BE)</span><span class="en" lang="en">Word field of quietness and of gentle movement – „still“ (v. 2), „sacht“ (v. 6), „leis“ (v. 7), „stillen“ (v. 11); verbs „ging“, „wogten“, „rauschten“: harmony.</span></span></li>
+<li><span class="bi"><span>Metapher der Seele als Vogel (V. 9–10); das Enjambement V. 9/10 und das „Weit“ am Versanfang bilden das Ausbreiten der Flügel ab: Entgrenzung des Ichs. (5 BE)</span><span class="en" lang="en">Metaphor of the soul as a bird (v. 9–10); the enjambment v. 9/10 and the „Weit“ at the beginning of the verse depict the spreading of the wings: the I loses its boundaries.</span></span></li>
+<li><span class="bi"><span>Lichtmotivik – „Blütenschimmer“ (V. 3), „sternklar“ (V. 8); Wiederholung des Anlauts f in „Flügel“, „Flog“, „flöge“ (V. 10–12) verbindet die Flugbewegung. (3 BE)</span><span class="en" lang="en">Light motifs – „Blütenschimmer“ (v. 3), „sternklar“ (v. 8); repetition of the initial sound f in „Flügel“, „Flog“, „flöge“ (v. 10–12) links the flying movement.</span></span></li>
+</ul><p><span class="bi"><span>Je Kriterium: Fachbegriff, Beleg mit Vers und Funktion. Ein Fachbegriff ohne Funktion erhält keine BE.</span><span class="en" lang="en">Per criterion: subject term, evidence with verse and function. A subject term without function receives no BE.</span></span></p></td><td>II</td><td>26</td></tr>
+<tr data-aufgabe="3" data-punkte="16" data-afb="III"><th scope="row">3</th><td><ul>
+<li><span class="bi"><span>Deutungshypothese, z. B.: Das Erlebnis der Mondnacht wird zur Erfahrung einer Einheit von Himmel und Erde, die im Ich die Sehnsucht nach einer Heimat weckt. (3 BE)</span><span class="en" lang="en">Interpretive hypothesis, e.g.: The experience of the moonlit night becomes the experience of a unity of sky and earth, which awakens in the I the longing for a home.</span></span></li>
+<li><span class="bi"><span>Aufbau als Dreischritt gedeutet: Himmel und Erde im Als-ob (Str. 1) – wirkliche Natur (Str. 2) – Innenwelt des Ichs (Str. 3); der Konjunktiv rahmt das Ganze. (4 BE)</span><span class="en" lang="en">Structure interpreted as three steps: sky and earth in the as-if (st. 1) – real nature (st. 2) – inner world of the I (st. 3); the subjunctive frames the whole.</span></span></li>
+<li><span class="bi"><span>„nach Haus“ (V. 12) ist mehrdeutig: Geborgenheit, religiöse Heimat, Einssein mit der Natur; der Konjunktiv hält die Erfüllung offen (Sehnsucht statt Ankunft). (4 BE)</span><span class="en" lang="en">„nach Haus“ (v. 12) is ambiguous: security, religious home, oneness with nature; the subjunctive keeps the fulfilment open (longing instead of arrival).</span></span></li>
+<li><span class="bi"><span>Bezug zur Romantik: Natur als Seelenraum, Nacht, Sehnsucht, Verbindung von Endlichem und Unendlichem, liedhafte Schlichtheit; der Mond steht nur im Titel, im Gedicht wirkt allein sein Licht. (5 BE)</span><span class="en" lang="en">Reference to the Romantic period: nature as a space of the soul, night, longing, connection of the finite and the infinite, song-like plainness; the moon stands only in the title, in the poem only its light is at work.</span></span></li>
+</ul></td><td>III</td><td>16</td></tr>
+</tbody>
+<tfoot><tr><th scope="row" colspan="3">Summe <span class="en" lang="en">/ Sum</span></th><td data-gesamt="60">60</td></tr></tfoot>
+</table>
+<div class="bi"><p>Andere textgestützte Deutungen sind gleichwertig.</p><p class="en" lang="en">Other interpretations supported by the text are of equal value.</p></div>
+</section>
+
+<section>
+<h2>Verteilung auf die Anforderungsbereiche <span class="en" lang="en">/ Distribution across the requirement areas</span></h2>
+<table>
+<thead><tr><th scope="col">AFB</th><th scope="col">BE</th><th scope="col">Anteil <span class="en" lang="en">/ Share</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">I</th><td>18</td><td>30 %</td></tr>
+<tr><th scope="row">II</th><td>26</td><td>43 %</td></tr>
+<tr><th scope="row">III</th><td>16</td><td>27 %</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Teil 2: Darstellungsleistung <span class="en" lang="en">/ Part 2: presentation performance</span></h2>
+<div class="bi"><p>Ganzheitliche Einschätzung in Punkten (0–15) nach den drei Kriterien der OAVO Anlage 9b. Die Formulierungen der Stufen sind ein Vorschlag, kein amtlicher Text.</p><p class="en" lang="en">Holistic assessment in points (0–15) according to the three criteria of OAVO Anlage 9b. The wordings of the levels are a proposal, not an official text.</p></div>
+<table>
+<thead><tr><th scope="col">Punkte <span class="en" lang="en">/ Points</span></th><th scope="col">Ausdruck und Stil <span class="en" lang="en">/ Expression and style</span></th><th scope="col">Textsorten- und Aufgabenbezug <span class="en" lang="en">/ Reference to text type and task</span></th><th scope="col">Umgang mit Bezugstexten (Zitierweise) <span class="en" lang="en">/ Handling of reference texts (way of quoting)</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">13–15</th><td><span class="bi"><span>präzise, variabel, sichere Fachsprache</span><span class="en" lang="en">precise, varied, secure subject language</span></span></td><td><span class="bi"><span>Aufbau folgt der Aufgabe; klare Gedankenführung</span><span class="en" lang="en">structure follows the task; clear line of thought</span></span></td><td><span class="bi"><span>Zitate genau, funktional, in eigene Sätze eingebaut</span><span class="en" lang="en">quotations exact, functional, built into own sentences</span></span></td></tr>
+<tr><th scope="row">10–12</th><td><span class="bi"><span>meist präzise; einzelne Unschärfen</span><span class="en" lang="en">mostly precise; single inaccuracies</span></span></td><td><span class="bi"><span>Aufbau klar; Textform im Wesentlichen getroffen</span><span class="en" lang="en">structure clear; text form essentially met</span></span></td><td><span class="bi"><span>Zitate korrekt; Belege an den wichtigen Stellen</span><span class="en" lang="en">quotations correct; evidence at the important places</span></span></td></tr>
+<tr><th scope="row">7–9</th><td><span class="bi"><span>verständlich; teils ungenau oder eintönig</span><span class="en" lang="en">understandable; partly inexact or monotonous</span></span></td><td><span class="bi"><span>Aufbau erkennbar; Teile der Aufgabe unausgewogen</span><span class="en" lang="en">structure recognisable; parts of the task unbalanced</span></span></td><td><span class="bi"><span>Zitate teils ohne Einbindung oder Versangabe</span><span class="en" lang="en">quotations partly without integration or verse reference</span></span></td></tr>
+<tr><th scope="row">4–6</th><td><span class="bi"><span>häufig ungenau, umgangssprachlich</span><span class="en" lang="en">often inexact, colloquial</span></span></td><td><span class="bi"><span>Aufbau lückenhaft; Textform teilweise verfehlt</span><span class="en" lang="en">structure with gaps; text form partly missed</span></span></td><td><span class="bi"><span>wenige Belege; Nacherzählung statt Beleg</span><span class="en" lang="en">few pieces of evidence; retelling instead of evidence</span></span></td></tr>
+<tr><th scope="row">1–3</th><td><span class="bi"><span>schwer verständlich</span><span class="en" lang="en">hard to understand</span></span></td><td><span class="bi"><span>kaum Bezug zur Aufgabe; kein erkennbarer Aufbau</span><span class="en" lang="en">hardly any reference to the task; no recognisable structure</span></span></td><td><span class="bi"><span>kaum Belege; Zitate fehlerhaft</span><span class="en" lang="en">hardly any evidence; quotations faulty</span></span></td></tr>
+<tr><th scope="row">0</th><td><span class="bi"><span>nicht verständlich</span><span class="en" lang="en">not understandable</span></span></td><td><span class="bi"><span>kein Bezug zur Aufgabe</span><span class="en" lang="en">no reference to the task</span></span></td><td><span class="bi"><span>keine Belege</span><span class="en" lang="en">no evidence</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2><span class="bi"><span>Punkteschlüssel für die Verstehensleistung</span><span class="en" lang="en">Points key for the comprehension performance</span></span></h2>
+<table>
+<thead><tr><th scope="col">Punkte <span class="en" lang="en">/ Points</span></th><th scope="col">ab BE <span class="en" lang="en">/ from BE</span></th><th scope="col">ab Anteil <span class="en" lang="en">/ from share</span></th></tr></thead>
+<tbody>
+<tr data-note="15" data-ab="57"><th scope="row">15</th><td>57</td><td>95 %</td></tr>
+<tr data-note="14" data-ab="54"><th scope="row">14</th><td>54</td><td>90 %</td></tr>
+<tr data-note="13" data-ab="51"><th scope="row">13</th><td>51</td><td>85 %</td></tr>
+<tr data-note="12" data-ab="48"><th scope="row">12</th><td>48</td><td>80 %</td></tr>
+<tr data-note="11" data-ab="45"><th scope="row">11</th><td>45</td><td>75 %</td></tr>
+<tr data-note="10" data-ab="42"><th scope="row">10</th><td>42</td><td>70 %</td></tr>
+<tr data-note="9" data-ab="39"><th scope="row">9</th><td>39</td><td>65 %</td></tr>
+<tr data-note="8" data-ab="36"><th scope="row">8</th><td>36</td><td>60 %</td></tr>
+<tr data-note="7" data-ab="33"><th scope="row">7</th><td>33</td><td>55 %</td></tr>
+<tr data-note="6" data-ab="30"><th scope="row">6</th><td>30</td><td>50 %</td></tr>
+<tr data-note="5" data-ab="27"><th scope="row">5</th><td>27</td><td>45 %</td></tr>
+<tr data-note="4" data-ab="24"><th scope="row">4</th><td>24</td><td>40 %</td></tr>
+<tr data-note="3" data-ab="20"><th scope="row">3</th><td>20</td><td>33 %</td></tr>
+<tr data-note="2" data-ab="17"><th scope="row">2</th><td>17</td><td>27 %</td></tr>
+<tr data-note="1" data-ab="12"><th scope="row">1</th><td>12</td><td>20 %</td></tr>
+<tr data-note="0" data-ab="0"><th scope="row">0</th><td>0</td><td>unter 20 %</td></tr>
+</tbody>
+</table>
+<div class="bi"><p>Punkteschlüssel nach OAVO Anlage 9a. Die Prozentwerte werden nicht gerundet: Es gilt die Punktzahl, deren Schwelle erreicht ist.</p><p class="en" lang="en">Points key according to OAVO Anlage 9a. The percentages are not rounded: The number of points whose threshold is reached applies.</p></div>
+<div class="bi"><p>Die Zeilen wurden nicht am amtlichen Text der Anlage 9a geprüft (nur 5 Punkte = 45 % und 11 Punkte = 75 %). Vor der Benotung prüfen.</p><p class="en" lang="en">The rows were not checked against the official text of Anlage 9a (only 5 points = 45 % and 11 points = 75 %). Check before grading.</p></div>
+</section>
+
+<section>
+<h2>Gesamtnote <span class="en" lang="en">/ Overall grade</span></h2>
+<ol>
+<li><span class="bi"><span>Verstehensleistung: erreichte BE von 60 → Prozent → Punkte nach dem Schlüssel oben.</span><span class="en" lang="en">Comprehension performance: BE reached out of 60 → percent → points according to the key above.</span></span></li>
+<li><span class="bi"><span>Darstellungsleistung: eine Stufe des Rasters → Punkte 0–15.</span><span class="en" lang="en">Presentation performance: one level of the grid → points 0–15.</span></span></li>
+<li><span class="bi"><span>Gesamt = 0,7 × Verstehensleistung + 0,3 × Darstellungsleistung; 0,1–0,4 wird abgerundet, 0,5–0,9 aufgerundet (OAVO § 9 Abs. 12a).</span><span class="en" lang="en">Total = 0.7 × comprehension performance + 0.3 × presentation performance; 0.1–0.4 is rounded down, 0.5–0.9 rounded up (OAVO § 9 Abs. 12a).</span></span></li>
+<li><span class="bi"><span>Darstellungsleistung 0 Punkte: Gesamt höchstens 3 Punkte. Verstehensleistung 0 Punkte: Gesamt 0 Punkte.</span><span class="en" lang="en">Presentation performance 0 points: total at most 3 points. Comprehension performance 0 points: total 0 points.</span></span></li>
+<li><span class="bi"><span>Fehlerindex = Fehler × 100 ÷ Wörter, nur der ganzzahlige Teil, nicht gerundet. Ab 3: Abzug von 1 Punkt; ab 6: Abzug von 2 Punkten (Anlage 9b Abschnitt II).</span><span class="en" lang="en">Error index = errors × 100 ÷ words, only the whole-number part, not rounded. From 3: deduction of 1 point; from 6: deduction of 2 points (Anlage 9b Abschnitt II).</span></span></li>
+</ol>
+<div class="bi"><p>Beispiel: 42 von 60 BE = 70 % → 10 Punkte; Darstellung 8 Punkte; 0,7 × 10 + 0,3 × 8 = 9,4 → 9 Punkte; 21 Fehler in 620 Wörtern → Fehlerindex 3 → 8 Punkte.</p><p class="en" lang="en">Example: 42 of 60 BE = 70 % → 10 points; presentation 8 points; 0.7 × 10 + 0.3 × 8 = 9.4 → 9 points; 21 errors in 620 words → error index 3 → 8 points.</p></div>
+</section>
+
+<section>
+<h2>Hinweise zur Korrektur <span class="en" lang="en">/ Notes for marking</span></h2>
+<ul>
+<li><span class="bi"><span>Folgefehler: Eine schlüssige Deutung auf der Grundlage eines falschen Formbefunds aus Aufgabe 1b erhält die BE der späteren Aufgabe.</span><span class="en" lang="en">Consequential errors: A coherent interpretation on the basis of a wrong finding on form from task 1b receives the BE of the later task.</span></span></li>
+<li><span class="bi"><span>Andere richtige Lösungswege und Gliederungen: volle Punktzahl.</span><span class="en" lang="en">Other correct solution paths and structures: full points.</span></span></li>
+<li><span class="bi"><span>Falsch verwendete Fachbegriffe zählen in der Verstehensleistung, nicht zusätzlich als Sprachfehler.</span><span class="en" lang="en">Subject terms used wrongly count in the comprehension performance, not additionally as language errors.</span></span></li>
+<li><span class="bi"><span>Kontextwissen zur Romantik wird nur im Umfang des Unterrichts in Q1 erwartet.</span><span class="en" lang="en">Context knowledge about the Romantic period is expected only to the extent of the teaching in Q1.</span></span></li>
+<li><span class="bi"><span>Ob Verstehens- und Darstellungsleistung in Punkten oder in Prozent verrechnet werden, legt die Fachkonferenz fest; hier: in Punkten.</span><span class="en" lang="en">Whether comprehension and presentation performance are combined in points or in percent is decided by the subject conference; here: in points.</span></span></li>
+</ul>
+</section>
+
+<section>
+<h2>Gliederung einer vollen Lösung <span class="en" lang="en">/ Outline of a full-marks answer</span></h2>
+<ul>
+<li><span class="bi"><span>Einleitung: Autor, Titel, Erstdruck 1837, Naturgedicht der Romantik; Deutungshypothese.</span><span class="en" lang="en">Introduction: author, title, first print 1837, nature poem of the Romantic period; interpretive hypothesis.</span></span></li>
+<li><span class="bi"><span>Inhalt und Form: drei Strophen, Kreuzreim, dreihebiger Jambus, liedhafter Ton.</span><span class="en" lang="en">Content and form: three stanzas, alternate rhyme, iambic trimeter, song-like tone.</span></span></li>
+<li><span class="bi"><span>Sprache: Personifikation und Konjunktiv in Strophe 1; Indikativ, Zeilenstil und Wortfeld der Stille in Strophe 2; Seelenmetapher, Enjambement und „Als flöge“ in Strophe 3.</span><span class="en" lang="en">Language: personification and subjunctive in stanza 1; indicative, end-stopped lines and word field of silence in stanza 2; metaphor of the soul, enjambement and „Als flöge“ in stanza 3.</span></span></li>
+<li><span class="bi"><span>Deutung: Bewegung von der Natur zum Ich; „nach Haus“ als offene Sehnsucht; Natur als Seelenraum.</span><span class="en" lang="en">Interpretation: movement from nature to the self; „nach Haus“ as open longing; nature as a space of the soul.</span></span></li>
+<li><span class="bi"><span>Schluss: Rückbezug auf die Deutungshypothese; Einordnung in die Romantik.</span><span class="en" lang="en">Conclusion: reference back to the interpretive hypothesis; classification in the Romantic period.</span></span></li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

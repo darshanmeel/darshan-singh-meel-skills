@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make a batch load safe to rerun with SQLite UPSERT</title>
+<meta name="description" content="A load job that retries should not duplicate rows or crash. A primary key plus ON CONFLICT DO UPDATE makes the rerun a no-op, shown with Python&#x27;s sqlite3.">
+<style>
+  :root { --ink: #1c2127; --soft: #5a6470; --line: #d9dee4; --code: #f4f6f8; --link: #0b5cad; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--ink); font: 17px/1.6 Georgia, "Times New Roman", serif; }
+  main { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1, h2, h3, .meta, table { font-family: system-ui, "Segoe UI", Arial, sans-serif; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 .4rem; }
+  h2 { font-size: 1.35rem; margin: 2.2rem 0 .6rem; }
+  h3 { font-size: 1.1rem; margin: 1.6rem 0 .4rem; }
+  .meta { color: var(--soft); font-size: .85rem; margin: 0 0 1.6rem; }
+  a { color: var(--link); }
+  code { font: .88em/1.5 Consolas, "Courier New", monospace; background: var(--code); padding: .1em .3em; border-radius: 3px; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 4px; padding: .8rem 1rem; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+  th, td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--code); }
+  figure { margin: 1.4rem 0; }
+  figure svg, img { max-width: 100%; height: auto; }
+  blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 3px solid var(--line); color: var(--soft); }
+  @media print { main { max-width: none; padding: 0; } pre { white-space: pre-wrap; } a { color: inherit; } h2, h3 { break-after: avoid; } pre, figure, table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Make a batch load safe to rerun with SQLite UPSERT</h1>
+<p class="meta">2026-11-11 · sqlite, python, data-engineering, idempotency</p>
+<p>Load jobs get retried: a scheduler restarts a failed task, or someone reruns yesterday's file. A plain <code>INSERT</code> then either duplicates every row or crashes on the first one. Give the table a natural key and write the insert as an UPSERT with a timestamp guard, and a rerun changes nothing. This post shows both failures and the fix, with code you can run.</p>
+<h2>What you need</h2>
+<ul><li>Python 3.12 with the standard-library <code>sqlite3</code> module. The examples ran on Python 3.12.10 with SQLite 3.49.1.</li><li>SQLite 3.24.0 or later. <a href="https://sqlite.org/lang_upsert.html">UPSERT was added in version 3.24.0</a> (2018-06-04).</li></ul>
+<p>Save the blocks below as two files, <code>naive.py</code> and <code>load.py</code>.</p>
+<h2>A plain insert fails in two ways</h2>
+<p><code>naive.py</code> loads the same three orders twice, first into a table without a key, then into a table with a primary key:</p>
+<pre><code class="language-python">import sqlite3
+
+batch = [(&quot;A-1&quot;, &quot;new&quot;, 4000), (&quot;A-2&quot;, &quot;new&quot;, 1550), (&quot;A-3&quot;, &quot;paid&quot;, 9900)]
+INSERT = &quot;INSERT INTO orders VALUES (?, ?, ?)&quot;
+COUNT = &quot;SELECT count(*) FROM orders&quot;
+
+con = sqlite3.connect(&quot;:memory:&quot;)
+con.execute(&quot;CREATE TABLE orders (order_id TEXT, status TEXT, cents INTEGER)&quot;)
+con.executemany(INSERT, batch)
+con.executemany(INSERT, batch)  # the retry
+print(&quot;no key:&quot;, con.execute(COUNT).fetchone()[0], &quot;rows&quot;)
+
+con.execute(&quot;DROP TABLE orders&quot;)
+con.execute(
+    &quot;CREATE TABLE orders &quot;
+    &quot;(order_id TEXT PRIMARY KEY, status TEXT, cents INTEGER)&quot;
+)
+con.executemany(INSERT, batch)
+try:
+    con.executemany(INSERT, batch)  # the retry
+except sqlite3.IntegrityError as error:
+    print(&quot;with key:&quot;, type(error).__name__, &quot;-&quot;, error)</code></pre>
+<pre><code class="language-text">no key: 6 rows
+with key: IntegrityError - UNIQUE constraint failed: orders.order_id</code></pre>
+<p>Without a key, the retry doubles the table. With a key, the retry raises <code>sqlite3.IntegrityError</code>. Neither load can run twice.</p>
+<h2>Let the key decide between insert and update</h2>
+<p>An UPSERT is an <code>INSERT</code> with an <code>ON CONFLICT</code> clause. The SQLite documentation says it "causes the INSERT to behave as an UPDATE or a no-op if the INSERT would violate a uniqueness constraint". The table needs that constraint, so <code>order_id</code> is the primary key. <code>load.py</code> starts with the table and the statement:</p>
+<pre><code class="language-python">import sqlite3
+
+SCHEMA = &quot;&quot;&quot;
+CREATE TABLE orders (
+    order_id     TEXT PRIMARY KEY,
+    status       TEXT NOT NULL,
+    amount_cents INTEGER NOT NULL,
+    updated_at   TEXT NOT NULL
+)
+&quot;&quot;&quot;
+
+UPSERT = &quot;&quot;&quot;
+INSERT INTO orders (order_id, status, amount_cents, updated_at)
+VALUES (:order_id, :status, :amount_cents, :updated_at)
+ON CONFLICT (order_id) DO UPDATE SET
+    status       = excluded.status,
+    amount_cents = excluded.amount_cents,
+    updated_at   = excluded.updated_at
+WHERE excluded.updated_at &gt; orders.updated_at
+&quot;&quot;&quot;</code></pre>
+<p>Two details carry the logic:</p>
+<ul><li><code>excluded.status</code> is the value the insert tried to write. An unqualified <code>status</code> is the value already stored.</li><li>The <code>WHERE</code> clause is the guard. When the incoming row is not newer than the stored row, the update becomes a no-op.</li></ul>
+<p>The figure shows the three outcomes for an incoming row.</p>
+<figure role="img" aria-label="Decision flow for each incoming row: insert when the order_id is new, update when the incoming row is newer, otherwise keep the stored row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 210" font-family="system-ui, sans-serif" font-size="14">
+  <title>What the UPSERT does with each incoming row</title>
+  <desc>An incoming row whose order_id is not in the table is inserted. If the order_id is in the table and the incoming row is newer, the stored row is updated. Otherwise the stored row is kept.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1c2127"/>
+    </marker>
+  </defs>
+  <g fill="#fff" stroke="#1c2127" stroke-width="1.5">
+    <rect x="20" y="40" width="130" height="40" rx="4"/>
+    <path d="M280 20 L375 60 L280 100 L185 60 z" fill="#eef3f8"/>
+    <path d="M510 20 L610 60 L510 100 L410 60 z" fill="#eef3f8"/>
+    <rect x="650" y="40" width="120" height="40" rx="4"/>
+    <rect x="220" y="150" width="120" height="40" rx="4"/>
+    <rect x="425" y="150" width="170" height="40" rx="4"/>
+  </g>
+  <g fill="none" stroke="#1c2127" stroke-width="1.5" marker-end="url(#arrow)">
+    <path d="M150 60 H185"/>
+    <path d="M375 60 H410"/>
+    <path d="M610 60 H650"/>
+    <path d="M280 100 V150"/>
+    <path d="M510 100 V150"/>
+  </g>
+  <g fill="#1c2127" text-anchor="middle">
+    <text x="85" y="65">Incoming row</text>
+    <text x="280" y="65">order_id in table?</text>
+    <text x="510" y="65">incoming row newer?</text>
+    <text x="710" y="65">Update the row</text>
+    <text x="280" y="175">Insert the row</text>
+    <text x="510" y="175">Keep the stored row</text>
+    <g font-size="13">
+      <text x="392" y="52">yes</text>
+      <text x="630" y="52">yes</text>
+      <text x="296" y="130">no</text>
+      <text x="526" y="130">no</text>
+    </g>
+  </g>
+</svg></figure>
+<p>The guard compares <code>updated_at</code> as text. That orders rows by time only if every timestamp has the same ISO 8601 format and time zone, as the UTC values here do.</p>
+<p><code>INSERT OR REPLACE</code> also survives a rerun, but its <a href="https://sqlite.org/lang_conflict.html">REPLACE algorithm</a> "deletes pre-existing rows that are causing the constraint violation" and inserts the new row. It cannot keep a column the batch does not carry, and it has no guard: an older row replaces a newer one.</p>
+<h2>Load each batch in one transaction</h2>
+<p><code>load.py</code> continues with the load function:</p>
+<pre><code class="language-python">def load(con, batch):
+    with con:
+        con.executemany(UPSERT, batch)</code></pre>
+<p><code>with con:</code> commits when the block finishes and rolls back when it raises, so a batch loads completely or not at all. It does <a href="https://docs.python.org/3.12/library/sqlite3.html#how-to-use-the-connection-context-manager">not close the connection</a>. The <a href="https://docs.python.org/3.12/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries">named placeholders</a> (<code>:order_id</code>) take one dict per row; <code>order()</code> in the next block builds them.</p>
+<h2>Rerun it and compare</h2>
+<p>The rest of <code>load.py</code> loads Monday's batch twice, then Tuesday's batch twice. Tuesday's batch holds one newer row (<code>A-2</code>), one row older than the stored one (<code>A-3</code>), and one new key (<code>A-4</code>):</p>
+<pre><code class="language-python">def show(con, label):
+    print(label)
+    for row in con.execute(&quot;SELECT * FROM orders ORDER BY order_id&quot;):
+        print(&quot;  &quot;, row)
+
+
+def order(order_id, status, amount_cents, updated_at):
+    return {
+        &quot;order_id&quot;: order_id,
+        &quot;status&quot;: status,
+        &quot;amount_cents&quot;: amount_cents,
+        &quot;updated_at&quot;: updated_at,
+    }
+
+
+monday = [
+    order(&quot;A-1&quot;, &quot;new&quot;, 4000, &quot;2026-03-02T09:00:00Z&quot;),
+    order(&quot;A-2&quot;, &quot;new&quot;, 1550, &quot;2026-03-02T09:05:00Z&quot;),
+    order(&quot;A-3&quot;, &quot;paid&quot;, 9900, &quot;2026-03-02T09:10:00Z&quot;),
+]
+tuesday = [
+    order(&quot;A-2&quot;, &quot;shipped&quot;, 1550, &quot;2026-03-03T08:00:00Z&quot;),  # newer: update
+    order(&quot;A-3&quot;, &quot;new&quot;, 9900, &quot;2026-03-02T09:07:00Z&quot;),  # older: keep stored row
+    order(&quot;A-4&quot;, &quot;new&quot;, 700, &quot;2026-03-03T08:30:00Z&quot;),  # unknown key: insert
+]
+
+con = sqlite3.connect(&quot;:memory:&quot;)
+print(&quot;SQLite&quot;, sqlite3.sqlite_version)
+con.execute(SCHEMA)
+
+load(con, monday)
+show(con, &quot;monday batch&quot;)
+load(con, monday)
+show(con, &quot;monday batch, rerun&quot;)
+load(con, tuesday)
+show(con, &quot;tuesday batch&quot;)
+load(con, tuesday)
+show(con, &quot;tuesday batch, rerun&quot;)</code></pre>
+<p>Run <code>python load.py</code>:</p>
+<pre><code class="language-text">SQLite 3.49.1
+monday batch
+   (&#x27;A-1&#x27;, &#x27;new&#x27;, 4000, &#x27;2026-03-02T09:00:00Z&#x27;)
+   (&#x27;A-2&#x27;, &#x27;new&#x27;, 1550, &#x27;2026-03-02T09:05:00Z&#x27;)
+   (&#x27;A-3&#x27;, &#x27;paid&#x27;, 9900, &#x27;2026-03-02T09:10:00Z&#x27;)
+monday batch, rerun
+   (&#x27;A-1&#x27;, &#x27;new&#x27;, 4000, &#x27;2026-03-02T09:00:00Z&#x27;)
+   (&#x27;A-2&#x27;, &#x27;new&#x27;, 1550, &#x27;2026-03-02T09:05:00Z&#x27;)
+   (&#x27;A-3&#x27;, &#x27;paid&#x27;, 9900, &#x27;2026-03-02T09:10:00Z&#x27;)
+tuesday batch
+   (&#x27;A-1&#x27;, &#x27;new&#x27;, 4000, &#x27;2026-03-02T09:00:00Z&#x27;)
+   (&#x27;A-2&#x27;, &#x27;shipped&#x27;, 1550, &#x27;2026-03-03T08:00:00Z&#x27;)
+   (&#x27;A-3&#x27;, &#x27;paid&#x27;, 9900, &#x27;2026-03-02T09:10:00Z&#x27;)
+   (&#x27;A-4&#x27;, &#x27;new&#x27;, 700, &#x27;2026-03-03T08:30:00Z&#x27;)
+tuesday batch, rerun
+   (&#x27;A-1&#x27;, &#x27;new&#x27;, 4000, &#x27;2026-03-02T09:00:00Z&#x27;)
+   (&#x27;A-2&#x27;, &#x27;shipped&#x27;, 1550, &#x27;2026-03-03T08:00:00Z&#x27;)
+   (&#x27;A-3&#x27;, &#x27;paid&#x27;, 9900, &#x27;2026-03-02T09:10:00Z&#x27;)
+   (&#x27;A-4&#x27;, &#x27;new&#x27;, 700, &#x27;2026-03-03T08:30:00Z&#x27;)</code></pre>
+<p>The Monday rerun leaves three rows. Tuesday's batch updates <code>A-2</code>, inserts <code>A-4</code>, and leaves <code>A-3</code> as <code>paid</code>: the late-arriving older row does not overwrite it. The Tuesday rerun prints the same four rows.</p>
+<h2>Where this stops working</h2>
+<ul><li>UPSERT handles uniqueness conflicts only. A <code>NOT NULL</code>, <code>CHECK</code> or foreign-key violation still fails the batch.</li><li>It never deletes. A row removed at the source stays in the table; that needs a delete marker in the feed or a separate reconciliation.</li><li>The guard needs a trustworthy <code>updated_at</code>. Without one, drop the <code>WHERE</code> and accept last-write-wins.</li><li><code>ON CONFLICT</code> is not standard SQL. SQLite follows PostgreSQL's syntax; check your database's documentation before porting the statement.</li></ul>
+<h2>Takeaways</h2>
+<ul><li>Give every loaded table a natural key; without one, no statement can tell a retry from new data.</li><li>Write the load as <code>INSERT ... ON CONFLICT (key) DO UPDATE</code>, and refer to incoming values as <code>excluded.&lt;column&gt;</code>.</li><li>Add <code>WHERE excluded.updated_at &gt; &lt;table&gt;.updated_at</code> when rows can arrive late or out of order.</li><li>Wrap each batch in one transaction so a failed load leaves nothing half-written.</li><li>Test the property directly: run the load twice and compare the table.</li></ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lösung – Klimadiagramm Frankfurt am Main</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="loesung" data-sprache="de-en">
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>Erdkunde · Jg. 7</span>
+<span>Lösung zum Arbeitsblatt <span class="en" lang="en">/ Solution to the worksheet</span></span>
+</header>
+<h1><span class="bi"><span>Ein Klimadiagramm auswerten: Frankfurt am Main</span><span class="en" lang="en">Evaluating a climate diagram: Frankfurt am Main</span></span></h1>
+<div class="bi meta"><p>KC-Bezug: KC Hessen, Sek I Gymnasium, Erdkunde · Geographische Methodenkompetenz: „relevante Informationen auswerten“ (Ende Jg. 9/10) · Inhaltsfeld Natur/Umwelt (Klima). Zuordnung zu Jg. 7 nach Arbeitsvorschlag; Fachcurriculum prüfen.</p><p class="en" lang="en">KC reference: KC Hessen, Sek I Gymnasium, Erdkunde · geographical competence in methods: “evaluating relevant information” (end of year 9/10) · content field nature/environment (climate). Assigned to year 7 by a working proposal; check the school’s subject curriculum.</p></div>
+<div class="bi meta"><p>Werte: Deutscher Wetterdienst (DWD), vieljährige Mittelwerte 1991–2020, Station Frankfurt/Main; Niederschlag auf ganze Millimeter gerundet.</p><p class="en" lang="en">Values: Deutscher Wetterdienst (DWD), multi-year mean values 1991–2020, station Frankfurt/Main; precipitation rounded to whole millimetres.</p></div>
+
+<section class="aufgabe" data-aufgabe="1">
+<h2>Aufgabe 1 <span class="en" lang="en">/ Task 1</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Der wärmste Monat ist der Juli mit 20,5 °C. Der kälteste Monat ist der Januar mit 2,3 °C.</p><p class="en" lang="en"><strong>Result:</strong> The warmest month is July with 20.5 °C. The coldest month is January with 2.3 °C.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Suche den höchsten und den tiefsten Punkt der Temperaturlinie. Lies den Wert an der linken Achse ab oder nimm ihn aus M2.</p><p class="en" lang="en"><strong>Solution steps:</strong> Look for the highest and the lowest point of the temperature line. Read off the value on the left axis or take it from M2.</p></div>
+<div class="bi"><p>Typischer Fehler: Die Temperatur wird an der rechten Achse (mm) abgelesen.</p><p class="en" lang="en">Typical mistake: The temperature is read off on the right axis (mm).</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="2">
+<h2>Aufgabe 2 <span class="en" lang="en">/ Task 2</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Die Jahresamplitude beträgt 18,2 K (auch richtig: 18,2 °C).</p><p class="en" lang="en"><strong>Result:</strong> The annual temperature range is 18.2 K (also correct: 18.2 °C).</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> wärmster Monat minus kältester Monat: 20,5 °C − 2,3 °C = 18,2 K. Temperaturunterschiede gibt man in Kelvin (K) an.</p><p class="en" lang="en"><strong>Solution steps:</strong> warmest month minus coldest month: 20.5 °C − 2.3 °C = 18.2 K. Temperature differences are given in kelvin (K).</p></div>
+<div class="bi"><p>Typischer Fehler: Es werden Niederschlagswerte abgezogen (64 − 37) oder die beiden Temperaturen werden addiert.</p><p class="en" lang="en">Typical mistake: Precipitation values are subtracted (64 − 37) or the two temperatures are added.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="3">
+<h2>Aufgabe 3 <span class="en" lang="en">/ Task 3</span></h2>
+<div class="bi"><p><strong>Ergebnis (Kriterien):</strong> niederschlagsreichster Monat: Juli mit 64 mm · niederschlagsärmster Monat: April mit 37 mm · Verteilung: In jedem Monat fällt Niederschlag; von Mai bis August fällt am meisten (55 bis 64 mm), von Februar bis April am wenigsten (37 bis 39 mm).</p><p class="en" lang="en"><strong>Result (criteria):</strong> month with the most precipitation: July with 64 mm · month with the least precipitation: April with 37 mm · distribution: Precipitation falls in every month; from May to August the most falls (55 to 64 mm), from February to April the least (37 to 39 mm).</p></div>
+<div class="bi"><p><strong>Musterantwort:</strong> In Frankfurt am Main fällt in jedem Monat Niederschlag, im Jahr zusammen 599 mm. Am meisten fällt im Juli (64 mm), am wenigsten im April (37 mm). Die Monate Mai bis August sind mit 55 bis 64 mm niederschlagsreicher als die Monate Februar bis April mit 37 bis 39 mm.</p><p class="en" lang="en"><strong>Model answer:</strong> In Frankfurt am Main precipitation falls in every month, 599 mm altogether in the year. The most falls in July (64 mm), the least in April (37 mm). The months May to August, with 55 to 64 mm, have more precipitation than the months February to April with 37 to 39 mm.</p></div>
+<div class="bi"><p>Typischer Fehler: Es wird schon erklärt (warum?), statt nur zu beschreiben (was sieht man?).</p><p class="en" lang="en">Typical mistake: One already explains (why?), instead of only describing (what does one see?).</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="4">
+<h2>Aufgabe 4 <span class="en" lang="en">/ Task 4</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> In allen zwölf Monaten ragt die Niederschlagssäule über die Temperaturlinie hinaus. Nach der Regel im Kasten ist deshalb jeder Monat humid.</p><p class="en" lang="en"><strong>Result:</strong> In all twelve months the precipitation column rises above the temperature line. According to the rule in the box, every month is therefore humid.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Vergleiche Monat für Monat Säule und Linie. Beispiel Juli: 20,5 °C stehen auf der Höhe von 41 mm (20,5 · 2). Es fallen 64 mm, also mehr als 41 mm.</p><p class="en" lang="en"><strong>Solution steps:</strong> Compare column and line month by month. Example July: 20.5 °C stands at the height of 41 mm (20.5 · 2). 64 mm fall, that is more than 41 mm.</p></div>
+<div class="bi"><p>Typischer Fehler: „Humid“ wird mit „viel Regen“ gleichgesetzt, ohne Säule und Linie zu vergleichen.</p><p class="en" lang="en">Typical mistake: “Humid” is equated with “much rain”, without comparing column and line.</p></div>
+</section>
+
+<section class="aufgabe" data-aufgabe="5">
+<h2>Aufgabe 5 <span class="en" lang="en">/ Task 5</span></h2>
+<div class="bi"><p><strong>Ergebnis:</strong> Die Aussage ist falsch. Im Juli fällt mit 64 mm der meiste Niederschlag des Jahres, und der Juli ist humid.</p><p class="en" lang="en"><strong>Result:</strong> The statement is false. In July, with 64 mm, the most precipitation of the year falls, and July is humid.</p></div>
+<div class="bi"><p><strong>Lösungsweg:</strong> Januar: 44 mm Niederschlag; 2,3 °C entsprechen 4,6 mm; Überschuss 44 − 4,6 = 39,4 mm. Juli: 64 mm Niederschlag; 20,5 °C entsprechen 41 mm; Überschuss 64 − 41 = 23 mm.</p><p class="en" lang="en"><strong>Solution steps:</strong> January: 44 mm precipitation; 2.3 °C corresponds to 4.6 mm; surplus 44 − 4.6 = 39.4 mm. July: 64 mm precipitation; 20.5 °C corresponds to 41 mm; surplus 64 − 41 = 23 mm.</p></div>
+<div class="bi"><p><strong>Urteil (Kriterien):</strong> Richtig an der Aussage ist nur: Bei Wärme verdunstet mehr Wasser, deshalb ist der Überschuss im Juli (23 mm) kleiner als im Januar (39,4 mm). Trocken (arid) ist der Sommer aber nicht. Der Überschuss ist eine Rechengröße des Diagramms, keine gemessene Wassermenge.</p><p class="en" lang="en"><strong>Judgement (criteria):</strong> Only this is right in the statement: When it is warm, more water evaporates, therefore the surplus in July (23 mm) is smaller than in January (39.4 mm). But the summer is not dry (arid). The surplus is a calculated quantity of the diagram, not a measured amount of water.</p></div>
+<div class="bi"><p>Typischer Fehler: „Warm“ wird mit „trocken“ gleichgesetzt, ohne die Niederschlagswerte zu prüfen.</p><p class="en" lang="en">Typical mistake: “Warm” is equated with “dry”, without checking the precipitation values.</p></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

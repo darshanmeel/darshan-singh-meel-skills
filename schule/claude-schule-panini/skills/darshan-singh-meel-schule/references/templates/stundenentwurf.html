@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenentwurf – {{THEMA}}</title>
+<style>
+:root{--ink:#111;--muted:#444;--line:#767676;--grid:#b8b8b8;--accent:#1a4480;--accent2:#a64500;--soft:#eef3fa;--paper:#fff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:1rem/1.5 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+body.gs{font-size:1.2rem;line-height:1.7}
+.blatt{background:var(--paper);max-width:210mm;min-height:297mm;margin:1rem auto;padding:15mm}
+h1{font-size:1.5em;line-height:1.2;margin:0 0 .3em}
+h2{font-size:1.15em;margin:1.2em 0 .4em;color:var(--accent)}
+h3{font-size:1em;margin:1em 0 .3em}
+p,ul,ol{margin:.4em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.3em 0}
+table{border-collapse:collapse;width:100%;margin:.5em 0}
+th,td{border:1px solid var(--line);padding:.3em .5em;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+svg{max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kopf{display:flex;flex-wrap:wrap;gap:.3em 1.5em;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.4em;margin-bottom:.8em}
+.feld{display:inline-block;min-width:9em;border-bottom:1px solid var(--ink)}
+.meta{color:var(--muted);font-size:.9em}
+.en{color:var(--muted);font-weight:400}
+.bi{display:block;margin:.4em 0}
+.bi>*{display:block;margin:0}
+.bi>.en{border-left:3px solid var(--grid);padding-left:.5em;margin-top:.15em}
+td>.bi,th>.bi,li>.bi{margin:0}
+html.ohne-en .en{display:none!important}
+.quelltext{border-left:4px solid var(--ink);padding:.2em 1em;margin:.8em 0}
+.op{font-weight:700}
+.aufgabe{margin:1em 0}
+.teil{margin:.6em 0;break-inside:avoid}
+.titel{display:flex;justify-content:space-between;gap:1em;align-items:flex-start}
+.titel>.bi{flex:1}
+.punkte{white-space:nowrap;font-weight:600}
+.niveau{display:inline-block;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;font-size:.85em;font-weight:600}
+.zeile{height:9mm;border-bottom:1px solid var(--line)}
+body.gs .zeile{height:12mm}
+.karo{height:40mm;border:1px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:5mm 5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kasten{border:2px solid var(--accent);padding:.5em .8em;margin:.8em 0;break-inside:avoid}
+.kasten.fehler{border-color:var(--accent2);border-style:dashed}
+.kasten>h2,.kasten>h3{margin-top:0}
+.leiste{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);padding:.2rem 1rem;font-size:.95rem}
+.leiste label{display:inline-flex;align-items:center;gap:.4em;min-height:44px;cursor:pointer}
+.leiste input{width:1.25em;height:1.25em}
+.leiste button{font:inherit;min-height:44px;padding:.2em .9em;border:2px solid var(--ink);border-radius:.3em;background:#fff;color:var(--ink);cursor:pointer}
+@media screen and (min-width:700px){html.neben div.bi{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2em}html.neben div.bi>.en{margin-top:0}}
+@page{size:A4;margin:15mm}
+@media print{
+body{background:#fff;font-size:11pt}
+body.gs{font-size:14pt}
+.blatt{margin:0;padding:0;max-width:none;min-height:0}
+.kein-druck{display:none!important}
+a{color:inherit;text-decoration:none}
+h2,h3{break-after:avoid}
+tr,.bi,li{break-inside:avoid}
+}
+@media (max-width:600px){.blatt{margin:0;padding:1rem}}
+</style>
+</head>
+<body data-typ="stundenentwurf" data-sprache="de-en">
+<!-- Template rules (references/formate.md):
+     - Replace every {{PLATZHALTER}}; {{X_EN}} = the closest natural English sentence for {{X}} (references/bilingual.md). Copy or delete repeatable blocks.
+     - Every German line sits in a .bi pair: first child German, second child class="en" lang="en". Short labels: German <span class="en" lang="en">/ English</span>.
+     - Text that stays German only (texts under analysis in Deutsch, DaF target-language texts): add data-nur-de to the block, no .en line.
+     - data-sprache on <body>: "de-en" (default) · "de" (German only + glossary; delete the .en elements and the en-toggle) · "en" (full English, file <name>.en.html, <html lang="en">).
+     - body class "gs" = Grundschule (larger type, wider lines). Keep the data-* attributes true: scripts/check_material.py reads them. -->
+<div class="leiste kein-druck" role="group" aria-label="Ansicht / View">
+<label><input type="checkbox" id="en-toggle" checked> Englisch anzeigen / Show English</label>
+<label><input type="checkbox" id="neben-toggle"> nebeneinander / side by side</label>
+<button type="button" id="btn-druck">Drucken / Print</button>
+</div>
+<main class="blatt">
+<header class="kopf">
+<span>{{FACH}} · {{JAHRGANG}} · {{SCHULFORM}}</span>
+<span>Dauer <span class="en" lang="en">/ Duration</span>: {{DAUER}} min</span>
+<span>Datum <span class="en" lang="en">/ Date</span>: <span class="feld" style="min-width:6em"></span></span>
+</header>
+<h1><span class="bi"><span>{{THEMA}}</span><span class="en" lang="en">{{THEMA_EN}}</span></span></h1>
+<p class="meta">Unterrichtsreihe <span class="en" lang="en">/ Teaching unit</span>: {{REIHE}} · Stunde <span class="en" lang="en">/ Lesson</span> {{STUNDE_NR}} / {{STUNDEN_GESAMT}}</p>
+
+<section>
+<h2>Bezug zum Kerncurriculum <span class="en" lang="en">/ Reference to the core curriculum</span></h2>
+<table>
+<tbody>
+<tr><th scope="row">Quelle <span class="en" lang="en">/ Source</span></th><td>{{KC_QUELLE}}</td></tr>
+<tr><th scope="row">Kompetenzbereich <span class="en" lang="en">/ Competence area</span></th><td><span class="bi"><span>{{KC_KOMPETENZBEREICH}}</span><span class="en" lang="en">{{KC_KOMPETENZBEREICH_EN}}</span></span></td></tr>
+<tr><th scope="row">Kompetenz / Bildungsstandard <span class="en" lang="en">/ Competence / educational standard</span></th><td><span class="bi"><span>{{KC_KOMPETENZ}}</span><span class="en" lang="en">{{KC_KOMPETENZ_EN}}</span></span></td></tr>
+<tr><th scope="row">Inhaltsfeld / Themenfeld <span class="en" lang="en">/ Content field / topic field</span></th><td><span class="bi"><span>{{KC_INHALTSFELD}}</span><span class="en" lang="en">{{KC_INHALTSFELD_EN}}</span></span></td></tr>
+</tbody>
+</table>
+<!-- KC wording: as printed in the KC (German); the English line is our own translation, not an official text -->
+</section>
+
+<section>
+<h2>Lernziele <span class="en" lang="en">/ Learning goals</span></h2>
+<div class="bi"><p><strong>Stundenziel:</strong> Die Lernenden {{STUNDENZIEL}}</p><p class="en" lang="en"><strong>Lesson goal:</strong> The learners {{STUNDENZIEL_EN}}</p></div>
+<ul>
+<li><span class="bi"><span>{{TEILZIEL}}</span><span class="en" lang="en">{{TEILZIEL_EN}}</span></span> <span class="meta">(AFB {{TEILZIEL_AFB}}, {{TEILZIEL_KOMPETENZBEREICH}})</span></li>
+<!-- 2-4 Teilziele, each observable, each tied to a KC competence -->
+</ul>
+</section>
+
+<section>
+<h2>Lernvoraussetzungen <span class="en" lang="en">/ Learning prerequisites</span></h2>
+<ul>
+<li><span class="bi"><span>{{VORWISSEN}}</span><span class="en" lang="en">{{VORWISSEN_EN}}</span></span></li>
+</ul>
+</section>
+
+<section>
+<h2>Verlaufsplan <span class="en" lang="en">/ Lesson sequence</span></h2>
+<table data-dauer="45">
+<thead><tr><th scope="col">Phase</th><th scope="col">Zeit <span class="en" lang="en">/ Time</span></th><th scope="col">Geschehen (Lehrkraft / Lernende) <span class="en" lang="en">/ What happens (teacher / learners)</span></th><th scope="col">Sozialform <span class="en" lang="en">/ Social form</span></th><th scope="col">Medien, Material <span class="en" lang="en">/ Media, materials</span></th></tr></thead>
+<tbody>
+<tr data-min="5"><th scope="row">Einstieg <span class="en" lang="en">/ Opening</span></th><td>5 min</td><td><span class="bi"><span>{{EINSTIEG}}</span><span class="en" lang="en">{{EINSTIEG_EN}}</span></span></td><td>{{EINSTIEG_SOZIALFORM}}</td><td><span class="bi"><span>{{EINSTIEG_MATERIAL}}</span><span class="en" lang="en">{{EINSTIEG_MATERIAL_EN}}</span></span></td></tr>
+<tr data-min="20"><th scope="row">Erarbeitung <span class="en" lang="en">/ Working phase</span></th><td>20 min</td><td><span class="bi"><span>{{ERARBEITUNG}}</span><span class="en" lang="en">{{ERARBEITUNG_EN}}</span></span></td><td>{{ERARBEITUNG_SOZIALFORM}}</td><td><span class="bi"><span>{{ERARBEITUNG_MATERIAL}}</span><span class="en" lang="en">{{ERARBEITUNG_MATERIAL_EN}}</span></span></td></tr>
+<tr data-min="10"><th scope="row">Sicherung <span class="en" lang="en">/ Securing the results</span></th><td>10 min</td><td><span class="bi"><span>{{SICHERUNG}}</span><span class="en" lang="en">{{SICHERUNG_EN}}</span></span></td><td>{{SICHERUNG_SOZIALFORM}}</td><td><span class="bi"><span>{{SICHERUNG_MATERIAL}}</span><span class="en" lang="en">{{SICHERUNG_MATERIAL_EN}}</span></span></td></tr>
+<tr data-min="8"><th scope="row">Transfer <span class="en" lang="en">/ Transfer</span></th><td>8 min</td><td><span class="bi"><span>{{TRANSFER}}</span><span class="en" lang="en">{{TRANSFER_EN}}</span></span></td><td>{{TRANSFER_SOZIALFORM}}</td><td><span class="bi"><span>{{TRANSFER_MATERIAL}}</span><span class="en" lang="en">{{TRANSFER_MATERIAL_EN}}</span></span></td></tr>
+<tr data-min="2"><th scope="row">Abschluss <span class="en" lang="en">/ Closing</span></th><td>2 min</td><td><span class="bi"><span>{{ABSCHLUSS}}</span><span class="en" lang="en">{{ABSCHLUSS_EN}}</span></span></td><td>{{ABSCHLUSS_SOZIALFORM}}</td><td><span class="bi"><span>{{ABSCHLUSS_MATERIAL}}</span><span class="en" lang="en">{{ABSCHLUSS_MATERIAL_EN}}</span></span></td></tr>
+</tbody>
+</table>
+<!-- the data-min of the phases add up to data-dauer of the table -->
+<p class="meta">EA Einzelarbeit <span class="en" lang="en">/ individual work</span> · PA Partnerarbeit <span class="en" lang="en">/ pair work</span> · GA Gruppenarbeit <span class="en" lang="en">/ group work</span> · UG Unterrichtsgespräch <span class="en" lang="en">/ class discussion</span> · LV Lehrervortrag <span class="en" lang="en">/ teacher talk</span></p>
+</section>
+
+<section>
+<h2>Differenzierung <span class="en" lang="en">/ Differentiation</span></h2>
+<table>
+<thead><tr><th scope="col">Niveau <span class="en" lang="en">/ Level</span></th><th scope="col">Aufgabe / Hilfe <span class="en" lang="en">/ Task / support</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">Basis <span class="en" lang="en">/ Basic</span></th><td><span class="bi"><span>{{DIFF_BASIS}}</span><span class="en" lang="en">{{DIFF_BASIS_EN}}</span></span></td></tr>
+<tr><th scope="row">Standard</th><td><span class="bi"><span>{{DIFF_STANDARD}}</span><span class="en" lang="en">{{DIFF_STANDARD_EN}}</span></span></td></tr>
+<tr><th scope="row">Herausforderung <span class="en" lang="en">/ Challenge</span></th><td><span class="bi"><span>{{DIFF_HERAUSFORDERUNG}}</span><span class="en" lang="en">{{DIFF_HERAUSFORDERUNG_EN}}</span></span></td></tr>
+<tr><th scope="row">Sprache / Inklusion <span class="en" lang="en">/ Language / inclusion</span></th><td><span class="bi"><span>{{DIFF_INKLUSION}}</span><span class="en" lang="en">{{DIFF_INKLUSION_EN}}</span></span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="kasten">
+<h2>Sicherung: Tafelbild / Merksatz <span class="en" lang="en">/ Securing the results: board notes / key sentence</span></h2>
+<div class="bi"><p>{{TAFELBILD}}</p><p class="en" lang="en">{{TAFELBILD_EN}}</p></div>
+</section>
+
+<section>
+<h2>Hausaufgabe <span class="en" lang="en">/ Homework</span></h2>
+<div class="bi"><p>{{HAUSAUFGABE}}</p><p class="en" lang="en">{{HAUSAUFGABE_EN}}</p></div>
+<p class="meta">ca. {{HAUSAUFGABE_MIN}} min</p>
+</section>
+
+<section>
+<h2>Fachbegriffe <span class="en" lang="en">/ Subject terms</span></h2>
+<table>
+<thead><tr><th scope="col">Deutsch</th><th scope="col" lang="en">English</th><th scope="col">Bedeutung <span class="en" lang="en">/ Meaning</span></th></tr></thead>
+<tbody>
+<tr><td data-nur-de>{{BEGRIFF_DE}}</td><td lang="en">{{BEGRIFF_EN}}</td><td><span class="bi"><span>{{BEGRIFF_BEDEUTUNG}}</span><span class="en" lang="en">{{BEGRIFF_BEDEUTUNG_EN}}</span></span></td></tr>
+<!-- one row per term; 5-10 terms per lesson; the DE and EN columns stay visible when the English lines are hidden -->
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>Material <span class="en" lang="en">/ Materials</span></h2>
+<ul>
+<li><span class="bi"><span>{{MATERIAL}}</span><span class="en" lang="en">{{MATERIAL_EN}}</span></span></li>
+<!-- name the files of this folder that are used: arbeitsblatt.html, loesung.html, animation.html ... -->
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = document.documentElement;
+  function bind(id, cls, invert) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    function set() { h.classList.toggle(cls, invert ? !c.checked : c.checked); }
+    c.addEventListener('change', set);
+    set();
+  }
+  bind('en-toggle', 'ohne-en', true);
+  bind('neben-toggle', 'neben', false);
+  var d = document.getElementById('btn-druck');
+  if (d) d.addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>
