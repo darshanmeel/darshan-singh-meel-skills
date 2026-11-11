@@ -30,6 +30,8 @@
 
 ## Other blocks
 - **Example cards** ≥260 px: top border green typical · amber edge · red rejected/failure; header `EXAMPLE <id>` + case + title; EXPECT, IN, OUT, source. Business rules with >3 items: one table `Ex · Case · Expect · In · Out`, same colours.
+- **ipo (Main flows):** one strip Input ▸ numbered step (do → out, `where`) ▸ … ▸ Output, wraps; a column under 720 px. Under it one trace grid: a row per example (id `5.1a`, case badge, title, EXPECT) × In · 1…N · Out, `=` = unchanged; sources below; rows stack under 720 px.
+- **Lists:** typed tables with 1–2 rows and one-column tables render as a list (first cell bold).
 - **Journey:** stage cards ≥240 px, 3 per row; changed cell amber, old struck through → new green; calculated purple.
 - **io / payload:** header strip (`IN` blue, `OUT` green; label SQL · Request · Command · Call · Action), pretty-printed input with token colours (sql, json, shell; others plain), result table or text.
 - **Steps table:** numbered black dots, fixed columns per section.

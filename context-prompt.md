@@ -33,6 +33,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 |---|---|
 | `-code` | write, edit, debug, refactor; after a change, run the changed tests first, then ask once about running the full suite in the background |
 | `-review` | change review (any diff/PR/commit, or ≤20 named files) vs large review; asks about an unused-files check each time; uses the graph as a map; report in `reviews/` (git-ignored) |
+| `-review-v2` | same checks as `-review`, but the HTML report is built from a JSON spec by a fixed builder (`build.py`): main review, then a detailed section per file with Must/Should findings, a diagram only where it helps; used only when I say "v2" |
 | `-docs` (v1) | diagram-first docs; always asks 4 questions (Documents, Format HTML/MD/Confluence, Graph, Examples); one file per doc in `generated-docs/` |
 | `-docs-v2` | same rules, but HTML is built from a JSON spec by a fixed builder (`build.py`): fixed section recipes, typed tables, fixed workflow `docs-v2-<repo>`; used only when I say "v2" |
 | `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a change, offers "go / graph / no"; related repos share `../<name>-graphs/` + `_combined/` |

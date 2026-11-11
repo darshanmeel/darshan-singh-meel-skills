@@ -58,6 +58,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 |---|---|
 | Write · edit · debug · refactor | `darshan-singh-meel-code` |
 | Review (diff, PR, commit, files, repo) | `darshan-singh-meel-review` |
+| Review v2 (fixed report: main review, then per-file detail for Must/Should) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs (README, KT, design, user guide, runbook) | `darshan-singh-meel-docs` |
 | Docs v2 (fixed builder, same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
 | Query/analyse data; develop/test dbt model, procedure, SQL against data | `darshan-singh-meel-notebook` |

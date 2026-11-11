@@ -495,112 +495,31 @@
     "text": "Load: order events → orders, newest version wins"
    },
    {
-    "type": "steps",
-    "rows": [
-     [
-      "Read rows newer than last run",
-      "landing.order_events",
-      "new events"
-     ],
-     [
-      "Flatten payload",
-      "nested JSON",
-      "1 flat row per event"
-     ],
-     [
-      "Merge on `order_id` + `status`, newest `event_time` wins",
-      "flat rows",
-      "clean.orders"
-     ]
-    ]
-   },
-   {
-    "type": "journey",
-    "stages": [
+    "type": "ipo",
+    "input": "`landing.order_events`: nested JSON events",
+    "steps": [
      {
-      "title": "1 · Event",
-      "sub": "landing",
-      "rows": [
-       [
-        "order_id",
-        "O-1001"
-       ],
-       [
-        "status",
-        "PAID"
-       ],
-       {
-        "field": "event time",
-        "sub": "ts",
-        "value": "2026-03-02 09:14"
-       },
-       [
-        "amount",
-        "\"49.90\""
-       ]
-      ],
-      "what": "Nested JSON as sent."
+      "do": "Read rows newer than last run",
+      "out": "new events",
+      "where": "src/jobs/load_orders.py:30"
      },
      {
-      "title": "2 · Clean row",
-      "sub": "after task 1",
-      "changed": true,
-      "rows": [
-       [
-        "order_id",
-        "O-1001"
-       ],
-       [
-        "status",
-        "PAID"
-       ],
-       {
-        "field": "event time",
-        "sub": "renamed ts → event_time",
-        "value": "2026-03-02 09:14",
-        "changed": true
-       },
-       {
-        "field": "amount",
-        "old": "\"49.90\"",
-        "value": "49.90"
-       }
-      ],
-      "what": "Renamed and cast; key = order_id + status."
+      "do": "Flatten payload, rename and cast",
+      "out": "1 flat row per event",
+      "where": "src/jobs/load_orders.py:38"
      },
      {
-      "title": "3 · View",
-      "sub": "export.sales.orders",
-      "rows": [
-       [
-        "order_id",
-        "O-1001"
-       ],
-       [
-        "status",
-        "PAID"
-       ],
-       {
-        "field": "changed_at",
-        "value": "2026-03-02 09:14",
-        "calc": true
-       }
-      ],
-      "what": "changed_at copied from event_time."
+      "do": "Merge on `order_id` + `status`, newest wins",
+      "out": "`clean.orders` row",
+      "where": "src/jobs/load_orders.py:45-52"
      }
     ],
-    "key": "amber = renamed or cast · purple = calculated",
-    "source": "derived from src/jobs/load_orders.py:30-52 · sql/views.sql:4-20",
-    "id": "E",
-    "title": "one order, 3 stages"
-   },
-   {
-    "type": "examples",
-    "items": [
+    "output": "`clean.orders`: one row per order + status",
+    "examples": [
      {
       "case": "typical",
       "title": "First event",
-      "expect": "A new order + status is inserted",
+      "expect": "New order + status is inserted",
       "in": [
        [
         "order_id",
@@ -611,26 +530,49 @@
         "PAID"
        ],
        [
-        "event_time",
+        "ts",
         "2026-03-02 09:14"
+       ],
+       [
+        "amount",
+        "\"49.90\""
        ]
       ],
-      "out": "1 row inserted",
+      "at": [
+       "1 new event",
+       [
+        [
+         "event_time",
+         "2026-03-02 09:14"
+        ],
+        [
+         "amount",
+         "49.90"
+        ]
+       ],
+       "inserted"
+      ],
+      "out": "`clean.orders` +1 row",
       "source": "tests/test_load_orders.py:40-62"
      },
      {
       "case": "edge",
       "title": "Older event arrives late",
-      "expect": "An older event never overwrites a newer one",
+      "expect": "Older event never overwrites a newer one",
       "in": [
        [
         "order_id + status",
         "same as above"
        ],
        [
-        "event_time",
+        "ts",
         "2026-03-01 08:00 (older)"
        ]
+      ],
+      "at": [
+       "1 new event",
+       "1 flat row",
+       "older: skipped"
       ],
       "out": "Row unchanged",
       "source": "tests/test_load_orders.py:65-90"
@@ -638,12 +580,17 @@
      {
       "case": "failure",
       "title": "Missing order_id",
-      "expect": "An event without its key stops the task",
+      "expect": "Event without its key stops the task",
       "in": [
        [
         "order_id",
         "NULL"
        ]
+      ],
+      "at": [
+       "1 new event",
+       "1 flat row, no key",
+       "task fails"
       ],
       "out": "Task fails; e-mail sent",
       "source": "derived from src/common/explode.py:44"
@@ -655,36 +602,43 @@
     "text": "Explode: orders → one row per order line"
    },
    {
-    "type": "steps",
-    "rows": [
-     [
-      "Read the merged orders",
-      "clean.orders",
-      "orders with a lines array"
-     ],
-     [
-      "One row per array item; an empty array keeps one row",
-      "lines array",
-      "clean.order_lines"
-     ]
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
+    "type": "ipo",
+    "input": "`clean.orders` with a `lines` array",
+    "steps": [
+     {
+      "do": "Read the merged orders",
+      "out": "orders with a lines array",
+      "where": "src/jobs/explode_lines.py:14"
+     },
+     {
+      "do": "One row per array item",
+      "out": "`clean.order_lines` rows",
+      "where": "src/common/explode.py:20-58"
+     }
+    ],
+    "output": "`clean.order_lines`: one row per order line",
+    "examples": [
      {
       "case": "typical",
       "title": "Order with 2 lines",
       "expect": "One row per order line",
-      "in": "O-1001 with lines 1, 2",
+      "in": "O-1001, lines 1 and 2",
+      "at": [
+       "1 order, 2 items",
+       "2 rows"
+      ],
       "out": "2 rows",
       "source": "tests/test_explode_lines.py:30-48"
      },
      {
       "case": "edge",
       "title": "Order with no lines",
-      "expect": "An order without lines is kept, not dropped",
+      "expect": "An order without lines is kept",
       "in": "O-1002, lines = []",
+      "at": [
+       "1 order, 0 items",
+       "1 row"
+      ],
       "out": "1 row, line fields NULL",
       "source": "tests/test_explode_lines.py:50-66"
      }
@@ -728,7 +682,7 @@
   "Data model": [
    {
     "type": "er",
-    "id": "F",
+    "id": "E",
     "title": "ER: orders",
     "entities": [
      {

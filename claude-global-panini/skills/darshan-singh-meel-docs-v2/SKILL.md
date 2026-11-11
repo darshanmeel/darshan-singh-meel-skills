@@ -5,7 +5,7 @@ description: Docs v2 — darshan-singh-meel-docs on a fixed pipeline: shipped in
 
 # Docs v2
 Max info, min words; senior architect, anyone follows.
-- Show (diagrams · tables · bullets · examples), no prose. Section → what · how · why (+ who · when · where). Global CLAUDE.md applies.
+- Show (diagrams · tables · bullets · examples), no prose; numbers + names over prose; no block repeats another. Section → what · how · why (+ who · when · where). Global CLAUDE.md applies.
 - Exact rules · fields · columns · titles · ERROR/WARN → `references/templates/spec.md`; build enforces.
 - **`<skill>`** = this folder. Its scripts only, never a repo copy (WARN `inventory.json was written by templates X`).
 
@@ -46,8 +46,8 @@ AskUserQuestion(questions=[
 ## Last section: "Known issues, assumptions, and decisions needed"
 - Defects · effort · approvals only here; body = intended current behaviour.
 - Sources: **one review** in `review` (any `reviews/`; several + unclear → ask) · failing tests · graph `possible_issue` (Not verified) · code ≠ docs · assumptions.
-- **`sev`:** review order; Critical/High → Must, Medium → Should, rest → Other, questions → Question. No review → `kind` fixes `sev` (else ERROR): `security` · `data_loss` · `wrong_result` · `crash` = Must; `missing_handling` · `config` · `performance` · `cost` = Should; `unclear_intent` · `docs_conflict` = Question; `style` · `dead_code` · `docs` · `test_gap` = Other.
-- **Status:** `Confirmed (review)` · `Confirmed (test)` (test/run proved; `test` = `path::name` or command, else ERROR) · `Confirmed (code)` (cited code proves) · `Not verified` · `Fixed since review`. No review → not first/last. Made-up excerpt → `Not verified`.
+- **`sev`:** review order; Critical/High → Must, Medium → Should, rest → Other, questions → Question. No review → `kind` fixes `sev` (rubric: `spec.md`).
+- **Status:** fixed list (`spec.md` → Statuses); confirm only what review · test (`test` = `path::name`/command) · cited code proves; made-up excerpt → `Not verified`.
 - Accuracy pass opens each Must/Should `where`: fixed → `Fixed since review`, out of Top issues, never Confirmed; `review X is older than the last code change` → every item.
 - Overview: top issues in plain words + reader impact, no paths. Technical: `Issue | Where (path:line) | Impact | Status | Suggested fix` (+ `unused`). User guide: user-hit only, "If you see X — do Y".
 - Names issue says missing → `absent: [names]` (no name check).
@@ -67,20 +67,21 @@ AskUserQuestion(questions=[
 - Names · order · recipes fixed (`spec.md`); free: counts above minimums · boxes · wording.
 - **Sections = plan only.** `not_applicable` → out (else ERROR); `required`, no source → "Not defined in source — confirm with owner".
 
-**Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 row, 3–7 boxes) · Who uses it · Example (journey + 2–6 cards, ≥1 non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0: input/actor → box per entry group per kind → output/store.
+**Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 flow, 3–7 boxes, no steps) · Who uses it · Example (journey + 2–6 cards, ≥1 non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0: input/actor → box per entry group per kind → output/store.
 
 **Technical:** Overview · Architecture (L2 flow + `components`, box per top-level module/folder; library + `api` table Call · Returns · Raises · Where, row per `plan.api`) · plan's interface sections · Main flows · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
-- **Main flows:** per `main_flows` h3 (exact, order): `h3 steps flow* journey? examples io?`. Flow iff `diagram: true` (ERROR both ways), numbered; build titles it (`<entry>, N steps`, N = numbered arrows), no `title`. `steps` (Step · In · Out) ≥ half plan steps; row per numbered arrow, row k = arrow k. `code`/`entry` boxes = plan `boxes` or entry points; added step → plain box. Sub-flow iff box hides >5 steps or a decision; more flows per h3 only as sub-flows (`parent`). Wrong h3 → fix graph; else `h3_override {plan_h3: {title, why}}`.
+- **Main flows:** per `main_flows` h3 (exact, order): `h3 ipo flow* io?`. `ipo` = Input → Process → Output, output at each step: `input` (+ source) · `steps [{do ≤8 words, out, where path:line}]`, one per plan step · `output` (where it lands) · `examples` 2–3 traces `{case, title, expect, in, at, out, source}`, `at` = output per step (`""` = unchanged); a = typical, ≥1 edge/rejected/failure.
+- Flow only if `diagram: true` (branches); linear → ipo alone. Arrow k = ipo step k; `code`/`entry` boxes = plan `boxes` or entry points; sub-flows `parent`. Fields → `spec.md`. Wrong h3 → fix graph; else `h3_override {plan_h3: {title, why}}`.
 - **Coverage:** each `plan.coverage` item (incl. storage locations · business rules · processes), exact name, visible (box · step · row); `tip` uncounted; groups no `tip`. Long name → row. Several definitions → each, or count (`` `var.region` (4 modules) ``). Skip only `coverage_skip {name: why}`.
 - **Data model** (plan only: ≥2 tables/views/dbt models or any fk; else table in Architecture `components`): `er` per plan area, title `ER: <area>`, in order; `views` only if graph has views.
 - **Rules:** `rules` row per business_rule. **Operations** (plan only: pipeline · dbt · web API · streaming): h3s only `Rerun and backfill` (`rerun_and_backfill`) · exact `how_tos` (processes + `Run the tests`), plan order, each with steps. **Deploy:** each `plan.deploy` unit + `deploys` source in a steps/environments row; row per file kind (Dockerfiles one). **Configuration:** `Default (code) / deploy value`.
-- **Repeats:** box >4 out-arrows → build's "N children" frame; repeated pattern → group "Repeats for each …" + one sub-flow; each member in a row.
+- **Repeats:** pattern → group "Repeats for each …" + one sub-flow; each member in a row (fan-out frame: build).
 
 **User guide:** How it reaches you · Screens · What answers what · How to … (per real task) · When data is fresh · History and deletions · Errors and messages · Problems and fixes · Who to contact. No internals; tasks from screens · routes · commands · consumer queries.
 
 ## By `profile` kind
 Interface section · table | h3 unit | data model | graph diagram | io:
-- **pipeline** (Airflow, Spark, jobs): Job DAG and schedule · `schedule` | job/DAG pattern: source → written data | tables/views on `writes` | dag/job → tasks (`depends_on`, `triggers`, `schedules`); journey if column lineage | rendered command/SQL + rows
+- **pipeline** (Airflow, Spark, jobs): Job DAG and schedule · `schedule` | job/DAG pattern: source → written data | tables/views on `writes` | dag/job → tasks (`depends_on`, `triggers`, `schedules`) | rendered command/SQL + rows
 - **dbt**: Job DAG and schedule · `schedule` | layer chain: source → mart | `dbt_model` + `fk` (+ tables) | models by `ref`, lane per layer | compiled SQL + rows
 - **web API**: Endpoints · `endpoints` | endpoint group: request → response | handler `writes` tables | route → handler → store (`exposes`, `calls`, `writes`) | request + response
 - **UI**: Screens and navigation · `elements` | user action → screen | backend tables | `ui_screen` map + endpoint calls; journey | action + what shows
@@ -93,22 +94,21 @@ Interface section · table | h3 unit | data model | graph diagram | io:
 - Boxes = graph nodes, real names (Overview/User guide: business words in `sub`) · arrows = edges · steps = `part_of` order · failure/retry paths where graph/code has them.
 
 ## Diagrams
-- Big picture → L0, 3–7 boxes · order/who → L1, lanes, numbered · architecture → L2, lanes per platform/kind, `code` boxes · inside a box → sub-flow (`parent`), ≤2 levels, not Overview · data model → `er` only, views in table · one record through stages → journey.
-- Flow · ER · journey: `id` (A, B… doc order) + unique title `<entry>, <N> steps` (N = numbered arrows; Main flows: build) · `<area> area` (`numbered: false`) · `inside <box>` · `<entry>, <N> stages` · `ER: <area>`. Steps/area per section: `plan.diagram_titles`.
+- Big picture → L0, 3–7 boxes · order/who → L1, lanes, numbered · architecture → L2, lanes per platform/kind, `code` boxes · inside a box → sub-flow (`parent`), ≤2 levels, not Overview · data model → `er` only, views in table · input → steps → output + traced examples → ipo (Main flows) · one record through stages → journey (not Main flows).
+- Flow · ER · journey: `id` (A, B… doc order) + title form (`spec.md`; Main flows: build). Steps/area: `plan.diagram_titles`.
 - One-line `key` + `notice`. Boxes: `tag` · 1–3 `bullets` · `in`/`out` · `runs` · `see`. Technical real names; others business words. `decision` → ≥2 out-arrows.
 - Layout = build's (`spec.md` → Layout); too wide/crowded → ERROR with fix; follow it.
 
 ## Examples
 - **Every main flow · rule · user task.** Order: tests/fixtures → docs/README → code (`derived from <path:line>`) → `synthetic: true`. Cite `source`. Realistic, 2–5 rows, no real data/PII.
-- Tests exist → card a per main flow from a test; ≤1/3 synthetic (WARN).
-- **Card:** `case` (typical · edge · rejected · failure) · `title` · `expect` (one line, wanted) · `in` · `out`, all required. Build adds id (`EXAMPLE 5.1a`); none in `tag`. Naming a missing example → ERROR.
-- Main flows: 2–3 cards per h3, a = typical, ≥1 edge/rejected/failure; no case code lacks.
-- Rules: ≥1 card each, or row → existing card ("see Example 4.3a"); >3 → build's table `Ex · Case · Expect · In · Out`. Cards elsewhere; Overview 2–6.
-- Form: record changing → journey · per-case behaviour → cards · query/request/command/call/UI action → io.
+- Tests exist → example a per main flow from a test; ≤⅓ synthetic (WARN).
+- **Each:** `case` (typical · edge · rejected · failure) · `title` · `expect` (one line, wanted) · `in` · `out`. Build adds id (5.1a), none in `tag`; missing example named → ERROR; no case code lacks.
+- Main flows → ipo traces · rules → ≥1 card each or pointer ("see Example 4.3a") · Overview 2–6 cards · else cards. Record changing → journey · query/request/command/call/UI action → io.
 - Key example missing / sensitive → ask once.
 
 ## Writing
-- Bullets ≤~15 words, one fact; repeats → tables; diagram → bullets → example. Conclusion first, concrete ("daily 06:00"), term once, Overview spells acronyms.
+- **Budgets** (build WARNs, `spec.md`): lead ≤2 sentences/40 words · cell ≤15 · ipo `do` ≤8 · card/strip/trace value ≤12 · no lead restating next block. Over → keep fact · names · numbers, cut prose.
+- One fact per bullet; repeats → tables (1–2 rows · one column → build lists); diagram → bullets → example. Conclusion first, concrete ("daily 06:00"), term once, Overview spells acronyms.
 - Names · numbers · commands · boxes match source; unsure → "unclear — verify". Counts only `facts.json`: `<N> <fact name>` = its value (WARN).
 - Names in backticks, real, exact (keep backticks); synthetic → `ids_skip`. Paths from repo root; spaces → whole in backticks.
 - Pattern claims hold for all; name exceptions. Decisions, not deliberation. Major risks only (Overview ≤3, Technical 5–10).

@@ -3,7 +3,7 @@
         --lav:#E7E2F5; --lav-ink:#6B4FA8; --red:#A12D2D; }
 * { box-sizing:border-box; }
 body { margin:0; background:var(--ground); color:var(--ink); font:15px/1.55 "IBM Plex Sans","Segoe UI",Arial,sans-serif; }
-main { max-width:1104px; margin:0 auto; padding:32px 16px 56px; }
+main { max-width:1104px; margin:0 auto; padding:32px 16px 56px; overflow-wrap:break-word; }
 h1 { font-size:28px; font-weight:600; margin:4px 0 12px; } h2 { font-size:20px; font-weight:600; margin:0 0 10px; }
 h3 { font-size:16px; font-weight:600; margin:16px 0 6px; }
 section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px 24px; margin:18px 0; }
@@ -117,6 +117,28 @@ details { margin:8px 0; } summary { cursor:pointer; font-size:13px; color:var(--
 .extab .tag { display:block; font-size:10px; font-weight:600; letter-spacing:.06em; } .extab b { display:block; }
 .extab tr.typical .tag { color:var(--green); } .extab tr.edge .tag { color:var(--amber-ink); } .extab tr.rejected .tag, .extab tr.failure .tag { color:var(--red); }
 .extab .kv .k { color:var(--muted); font-size:11px; }
+
+/* Main flows ipo: Input > steps > Output strip (wraps; a column on narrow screens), then the example traces */
+.ipo { list-style:none; display:flex; flex-wrap:wrap; gap:10px 22px; margin:10px 0; padding:0; counter-reset:none; }
+.ipo li { position:relative; flex:1 1 140px; min-width:0; display:flex; flex-direction:column; gap:2px; margin:0; padding:7px 10px; border:1px solid var(--ink); border-radius:6px; background:var(--card); font-size:13px; overflow-wrap:anywhere; }
+.ipo li + li::before { content:"\25B8"; position:absolute; left:-17px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:13px; }
+.ipo li.io-in, .ipo li.io-out { background:var(--soft); border-color:#B9BCC2; } .ipo li.io-out { border-color:var(--green); }
+.ipo .n { display:inline-block; width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff; font:600 11px/20px "IBM Plex Mono",Consolas,monospace; text-align:center; }
+.ipo b { font-weight:600; line-height:1.35; } .ipo .o { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; color:var(--teal-ink); }
+.ipo li:not(.io-in):not(.io-out) .o::before { content:"\2192  "; color:var(--muted); }
+.ipo .lbl2, .trace .lbl2 { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); }
+.ipo .src { margin:0; } .ipo .kv .k, .trace .kv .k { color:var(--muted); font-size:11px; margin-right:4px; }
+.trace td { font:12px/1.4 "IBM Plex Mono",Consolas,monospace; overflow-wrap:break-word; padding:5px 8px; }
+.trace td.exn { font-family:inherit; min-width:150px; } .trace .id { display:block; font:600 11px "IBM Plex Mono",Consolas,monospace; }
+.trace .tag { display:block; font-size:10px; font-weight:600; letter-spacing:.06em; } .trace b { display:block; font-size:12.5px; } .trace .exp { display:block; font-size:12px; margin-top:2px; }
+.trace tr.typical td.exn { box-shadow:inset 3px 0 var(--green); } .trace tr.edge td.exn { box-shadow:inset 3px 0 var(--amber-ink); }
+.trace tr.rejected td.exn, .trace tr.failure td.exn { box-shadow:inset 3px 0 var(--red); }
+.trace tr.typical .tag { color:var(--green); } .trace tr.edge .tag { color:var(--amber-ink); } .trace tr.rejected .tag, .trace tr.failure .tag { color:var(--red); }
+.rows .k { font-family:"IBM Plex Mono",Consolas,monospace; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+@media (max-width:720px) { .ipo { flex-direction:column; gap:16px; } .ipo li { flex:none; } .ipo li + li::before { content:"\25BE"; left:50%; top:-15px; transform:translateX(-50%); }
+  .trace, .trace tbody, .trace tr, .trace td { display:block; width:100%; } .trace tr:first-child { display:none; } .trace tr { margin:0 0 10px; border:1px solid var(--line); }
+  .trace td { border:0; border-bottom:1px solid var(--line); display:grid; grid-template-columns:34px 1fr; gap:6px; } .trace td.exn { display:block; }
+  .trace td:not(.exn)::before { content:attr(data-h); font:600 10px/1.6 "IBM Plex Mono",Consolas,monospace; color:var(--muted); } }
 
 @media (prefers-reduced-motion: reduce) { .map polyline.flow { animation:none; } }
 @media (max-width:720px) { section { padding:16px; } .terms { columns:1; } .journey { flex-direction:column; } .journey .arrow { transform:rotate(90deg); } .journey .pad { display:none; } }

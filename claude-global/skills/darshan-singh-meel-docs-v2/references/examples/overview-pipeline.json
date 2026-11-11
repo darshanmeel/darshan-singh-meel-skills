@@ -116,27 +116,6 @@
     "notice": "one run a day; nothing happens in between.",
     "id": "A",
     "title": "daily run, 3 steps"
-   },
-   {
-    "type": "steps",
-    "cols": [
-     "Step",
-     "What happens"
-    ],
-    "rows": [
-     [
-      "Order system sends updates",
-      "every change to an order, all day"
-     ],
-     [
-      "Daily run at 05:00",
-      "keeps the latest version of each order"
-     ],
-     [
-      "Analysts read",
-      "current orders, lines, discounts and shipments by 06:00"
-     ]
-    ]
    }
   ],
   "Who uses it": [

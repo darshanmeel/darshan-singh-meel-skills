@@ -270,93 +270,54 @@
     "text": "Parse: file → records → JSON on stdout"
    },
    {
-    "type": "steps",
-    "rows": [
-     [
-      "Pick the parser by file extension",
-      "`users.csv`",
-      "csv parser"
-     ],
-     [
-      "Read and split the file",
-      "file text",
-      "list of records"
-     ],
-     [
-      "Print as JSON",
-      "records",
-      "stdout, exit 0"
-     ]
-    ]
-   },
-   {
-    "type": "flow",
-    "id": "D",
-    "nodes": [
+    "type": "ipo",
+    "input": "`tabkit parse users.csv`",
+    "steps": [
      {
-      "id": "cli",
-      "label": "tabkit parse",
-      "col": 0,
-      "row": 0,
-      "kind": "entry"
+      "do": "Pick the parser by file extension",
+      "out": "csv parser",
+      "where": "src/tabkit/registry.py"
      },
      {
-      "id": "reg",
-      "label": "get_parser",
-      "col": 1,
-      "row": 0,
-      "kind": "code"
+      "do": "Read and split the file",
+      "out": "list of records",
+      "where": "src/tabkit/parsers/"
      },
      {
-      "id": "load",
-      "label": "csv.load",
-      "col": 2,
-      "row": 0,
-      "kind": "code"
-     },
-     {
-      "id": "out",
-      "label": "stdout",
-      "col": 3,
-      "row": 0,
-      "kind": "data"
+      "do": "Print as JSON",
+      "out": "stdout, exit 0",
+      "where": "src/tabkit/cli.py"
      }
     ],
-    "edges": [
-     {
-      "from": "cli",
-      "to": "reg"
-     },
-     {
-      "from": "reg",
-      "to": "load"
-     },
-     {
-      "from": "load",
-      "to": "out"
-     }
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
+    "output": "JSON records on stdout, exit 0",
+    "examples": [
      {
       "case": "typical",
-      "title": "two-row CSV",
-      "expect": "one record per row, header as keys",
-      "in": "name,age\\nAda,36\\nAlan,41",
+      "title": "Two-row CSV",
+      "expect": "One record per row, header as keys",
+      "in": "name,age / Ada,36 / Alan,41",
+      "at": [
+       "csv",
+       "2 records",
+       "exit 0"
+      ],
       "out": "[{\"name\": \"Ada\", \"age\": \"36\"}, {\"name\": \"Alan\", \"age\": \"41\"}]",
       "source": "tests/test_csv.py:8"
      },
      {
       "case": "failure",
-      "title": "unknown extension",
-      "expect": "exit 2 with the known formats",
+      "title": "Unknown extension",
+      "expect": "Exit 2, known formats listed",
       "in": [
        [
         "file",
         "users.xml"
        ]
+      ],
+      "at": [
+       "no parser",
+       "skipped",
+       "skipped"
       ],
       "out": [
        [
@@ -377,85 +338,41 @@
     "text": "Validate: file + schema → issues, exit 0/1"
    },
    {
-    "type": "steps",
-    "rows": [
-     [
-      "Parse the file",
-      "`users.csv`",
-      "records"
-     ],
-     [
-      "Check each record against the schema",
-      "records, schema",
-      "issues"
-     ],
-     [
-      "Print issues, set the exit code",
-      "issues",
-      "exit 0 (none) or 1"
-     ]
-    ]
-   },
-   {
-    "type": "flow",
-    "id": "E",
-    "nodes": [
+    "type": "ipo",
+    "input": "`tabkit validate users.csv --schema s.json`",
+    "steps": [
      {
-      "id": "cli",
-      "label": "tabkit validate",
-      "col": 0,
-      "row": 0,
-      "kind": "entry"
+      "do": "Parse the file",
+      "out": "records",
+      "where": "src/tabkit/registry.py"
      },
      {
-      "id": "parse",
-      "label": "parse file",
-      "col": 1,
-      "row": 0,
-      "kind": "code"
+      "do": "Check each record against the schema",
+      "out": "issues",
+      "where": "src/tabkit/validate.py"
      },
      {
-      "id": "check",
-      "label": "validate_records",
-      "col": 2,
-      "row": 0,
-      "kind": "code"
-     },
-     {
-      "id": "out",
-      "label": "issues + exit code",
-      "col": 3,
-      "row": 0,
-      "kind": "data"
+      "do": "Print issues, set the exit code",
+      "out": "exit 0 (none) or 1",
+      "where": "src/tabkit/cli.py"
      }
     ],
-    "edges": [
-     {
-      "from": "cli",
-      "to": "parse"
-     },
-     {
-      "from": "parse",
-      "to": "check"
-     },
-     {
-      "from": "check",
-      "to": "out"
-     }
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
+    "output": "Issues on stdout, exit 0 or 1",
+    "examples": [
      {
       "case": "typical",
-      "title": "all fields present",
-      "expect": "no issues, exit 0",
+      "title": "All fields present",
+      "expect": "No issues, exit 0",
       "in": [
        [
         "record",
         "name=Ada, age=36"
        ]
+      ],
+      "at": [
+       "1 record",
+       "0 issues",
+       "exit 0"
       ],
       "out": [
        [
@@ -467,13 +384,18 @@
      },
      {
       "case": "rejected",
-      "title": "missing required field",
-      "expect": "one issue per missing field, exit 1",
+      "title": "Missing required field",
+      "expect": "One issue per missing field, exit 1",
       "in": [
        [
         "record",
         "name=Ada"
        ]
+      ],
+      "at": [
+       "1 record",
+       "1 issue",
+       "exit 1"
       ],
       "out": [
        [

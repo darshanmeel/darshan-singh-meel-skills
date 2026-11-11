@@ -19,6 +19,8 @@
 
 ## Other blocks
 - **Example cards** ≥260 px, top border green typical · amber edge · red rejected/failure; header `EXAMPLE <id>` + case + title; EXPECT · IN · OUT · source. Rules >3 → one table `Ex · Case · Expect · In · Out`, same colours.
+- **ipo (Main flows):** strip Input ▸ numbered step (do → out, `where`) ▸ … ▸ Output, wraps; column <720 px. Trace grid: row per example (id `5.1a` · case badge · title · EXPECT) × In · 1…N · Out, `=` unchanged; sources below; rows stack <720 px.
+- **Lists:** typed tables 1–2 rows · one-column tables → list (first cell bold).
 - **Journey:** stage cards ≥240 px, 3/row; changed cell amber, old struck → new green; calculated purple.
 - **io:** strip (`IN` blue, `OUT` green; SQL · Request · Command · Call · Action) · pretty input, token colours (sql · json · shell; else plain) · result table/text.
 - **Steps:** numbered black dots, fixed columns per section.

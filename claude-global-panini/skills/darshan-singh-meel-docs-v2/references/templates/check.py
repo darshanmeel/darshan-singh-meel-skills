@@ -2,7 +2,8 @@
 on top of each other, more than 3 line crossings in one diagram, a crossing next to a label or number, a label or
 number <6 px from a line that is not its own, an arrow that ends on no box (a frame border, empty space), a decision
 box with fewer than 2 outgoing arrows, a name broken mid-word in a box or table, arrow ends crowding one box side
-(<12 px), lines crossing a group border <20 px apart, cut-off values, too-wide diagrams and tables, sideways scroll.
+(<12 px), lines crossing a group border <20 px apart, cut-off values, too-wide diagrams, tables and ipo strips,
+sideways scroll. Two widths: 1280 px (everything) and 390 px (sideways scroll, the ipo strip and example traces).
 
 Usage: python check.py <doc.html> [shots_dir]   (shots_dir: page.png plus one map-<n>.png per diagram, n from 1)
 Each LAYOUT line: `<section> | diagram <id> (map-<n>) | problem | text` (no diagram part outside diagrams).
@@ -11,7 +12,7 @@ Exit 0 = clean. Needs Playwright (pip install playwright; playwright install chr
 import sys
 from pathlib import Path
 
-JS = r"""() => {
+JS = r"""(narrow) => {
   const out = [], R = e => e.getBoundingClientRect();
   const hit = (a, b, pad = 1) => a.left < b.right - pad && b.left < a.right - pad && a.top < b.bottom - pad && b.top < a.bottom - pad;
   // section, plus "diagram X (map-n)" inside a diagram: X = its id from the "Diagram X" heading, n = its map-<n>.png
@@ -21,8 +22,31 @@ JS = r"""() => {
     return m ? `${h} | diagram ${did(m)} (map-${maps.indexOf(m) + 1})` : h; };
   const name = e => (e.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const add = (e, what) => out.push(`${where(e)} | ${what} | ${name(e)}`);
+  // a name broken mid-word: inside one text node (the build puts <wbr> between the parts it may break) two
+  // neighbouring letters on different lines; a break after a space or a hyphen is fine
+  const broken = (el, at) => {
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let t = w.nextNode(); t; t = w.nextNode()) {
+      const s = t.textContent, r = document.createRange();
+      let prev = null;
+      for (let i = 0; i < s.length; i++) {
+        r.setStart(t, i); r.setEnd(t, i + 1);
+        const box = r.getClientRects()[0];
+        if (!box || /\s/.test(s[i])) { prev = null; continue; }
+        if (prev && box.top > prev.top + 4 && !/[-\s]/.test(s[i - 1])) { add(el, `name broken mid-word${at}: ${s.slice(Math.max(0, i - 12), i)}|${s.slice(i, i + 12)}`); break; }
+        prev = box;
+      }
+    }
+  };
   document.querySelectorAll('details').forEach(d => { d.open = true; });
-  if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page | scrolls sideways | ');
+  if (document.documentElement.scrollWidth > innerWidth + 1) out.push(`page | scrolls sideways${narrow ? ' at 390px' : ''} | `);
+  if (narrow) {  // phone width: the page, and the Main flows ipo strip and example traces (a column, then stacked rows)
+    document.querySelectorAll('.ipo li, .trace td').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off at 390px'); broken(c, ' at 390px'); });
+    document.querySelectorAll('.ipo, .trace').forEach(t => { if (t.scrollWidth > t.clientWidth + 1 || R(t).right > innerWidth)
+      add(t, `${t.matches('.ipo') ? 'ipo strip' : 'example traces'} wider than page at 390px`); });
+    return out;
+  }
+  document.querySelectorAll('.ipo').forEach(t => { if (t.scrollWidth > t.clientWidth + 1) add(t, 'ipo strip wider than page'); });
   document.querySelectorAll('.map-wrap').forEach(w => { if (w.scrollWidth > w.clientWidth + 1) add(w, 'diagram wider than page'); });
   document.querySelectorAll('.map').forEach(m => {
     const boxes = [...m.querySelectorAll('.b, .ent')], marks = [...m.querySelectorAll('.lbl, .num')];
@@ -120,29 +144,14 @@ JS = r"""() => {
       })));
     });
   });
-  // a name broken mid-word: inside one text node (the build puts <wbr> between the parts it may break) two
-  // neighbouring letters on different lines; a break after a space or a hyphen is fine
-  document.querySelectorAll('.map .b, .map .ent, main td').forEach(el => {
-    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    for (let t = w.nextNode(); t; t = w.nextNode()) {
-      const s = t.textContent, r = document.createRange();
-      let prev = null;
-      for (let i = 0; i < s.length; i++) {
-        r.setStart(t, i); r.setEnd(t, i + 1);
-        const box = r.getClientRects()[0];
-        if (!box || /\s/.test(s[i])) { prev = null; continue; }
-        if (prev && box.top > prev.top + 4 && !/[-\s]/.test(s[i - 1])) { add(el, `name broken mid-word: ${s.slice(Math.max(0, i - 12), i)}|${s.slice(i, i + 12)}`); break; }
-        prev = box;
-      }
-    }
-  });
+  document.querySelectorAll('.map .b, .map .ent, main td, .ipo li').forEach(el => broken(el, ''));
   document.querySelectorAll('main table:not(.res)').forEach(t => {
     if (t.closest('.map')) return;
     const box = t.parentElement.classList.contains('scroll') ? t.parentElement : t;
     if (box.scrollWidth > box.clientWidth + 1) add(t, 'table wider than page');
     t.querySelectorAll('td, th').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off'); });
   });
-  document.querySelectorAll('.journey td, .card td, .card p, .stage .h').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off'); });
+  document.querySelectorAll('.journey td, .card td, .card p, .stage .h, .ipo li').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off'); });
   document.querySelectorAll('.journey').forEach(j => { if (j.scrollWidth > j.clientWidth + 1) add(j, 'journey wider than page'); });
   return out;
 }"""
@@ -156,9 +165,9 @@ def main(path, shots=None):
         sys.exit("Playwright missing: pip install playwright && playwright install chromium")
     with sync_playwright() as p:
         b = p.chromium.launch()
-        page = b.new_page(viewport={"width": 1200, "height": 900})
+        page = b.new_page(viewport={"width": 1280, "height": 900})
         page.goto(Path(path).resolve().as_uri())
-        problems = list(dict.fromkeys(page.evaluate(JS)))  # also opens every <details>
+        problems = page.evaluate(JS, False)  # also opens every <details>
         if shots:
             Path(shots).mkdir(parents=True, exist_ok=True)
             page.screenshot(path=str(Path(shots) / "page.png"), full_page=True)
@@ -166,6 +175,9 @@ def main(path, shots=None):
             for i in range(maps.count()):
                 maps.nth(i).screenshot(path=str(Path(shots) / f"map-{i + 1}.png"))
             print(f"shots: {Path(shots).as_posix()}/page.png and {maps.count()} map-<n>.png (read every one)")
+        page.set_viewport_size({"width": 390, "height": 900})  # phone width, after the shots
+        page.reload()
+        problems = list(dict.fromkeys(problems + page.evaluate(JS, True)))
         b.close()
     for x in problems:
         print("LAYOUT", x)

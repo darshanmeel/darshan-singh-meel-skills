@@ -59,6 +59,7 @@
 |---|---|
 | Write, edit, debug, refactor code | `darshan-singh-meel-code` |
 | Review code (diff, PR, commit, files, repo) | `darshan-singh-meel-review` |
+| Review v2 (fixed report: main review, then a detailed section per file with Must/Should findings) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs: READMEs, KT, design docs, user guides, runbooks | `darshan-singh-meel-docs` |
 | Docs, version 2 (fixed builder: same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
 | Query or analyse data; develop/test a dbt model, procedure, or SQL against data | `darshan-singh-meel-notebook` |

@@ -355,95 +355,36 @@
     "text": "Sign in: login form → token cookie"
    },
    {
-    "type": "steps",
-    "rows": [
-     [
-      "Submit e-mail and password",
-      "Login form",
-      "`POST /auth/login`"
-     ],
-     [
-      "Look up the user, check the hash",
-      "e-mail, password",
-      "user or 401"
-     ],
-     [
-      "Issue a JWT, set an http-only cookie",
-      "user id",
-      "`Set-Cookie: token=…`"
-     ],
-     [
-      "Load the dashboard",
-      "cookie",
-      "Dashboard"
-     ]
-    ]
-   },
-   {
-    "type": "flow",
-    "id": "E",
-    "nodes": [
+    "type": "ipo",
+    "input": "Login form: e-mail + password",
+    "steps": [
      {
-      "id": "form",
-      "label": "Login form",
-      "col": 0,
-      "row": 0,
-      "kind": "entry"
+      "do": "Submit e-mail and password",
+      "out": "`POST /auth/login`",
+      "where": "frontend/src/api.ts"
      },
      {
-      "id": "route",
-      "label": "POST /auth/login",
-      "col": 1,
-      "row": 0,
-      "kind": "code"
+      "do": "Look up the user, check the hash",
+      "out": "user or 401",
+      "where": "backend/app/auth.py"
      },
      {
-      "id": "hash",
-      "label": "verify_password",
-      "col": 2,
-      "row": 0,
-      "kind": "code"
+      "do": "Issue a JWT in an http-only cookie",
+      "out": "`Set-Cookie: token`",
+      "where": "backend/app/auth.py"
      },
      {
-      "id": "cookie",
-      "label": "token cookie",
-      "col": 3,
-      "row": 0,
-      "kind": "data"
-     },
-     {
-      "id": "dash",
-      "label": "Dashboard",
-      "col": 3,
-      "row": 1
+      "do": "Load the dashboard",
+      "out": "Dashboard",
+      "where": "frontend/src/App.tsx"
      }
     ],
-    "edges": [
-     {
-      "from": "form",
-      "to": "route"
-     },
-     {
-      "from": "route",
-      "to": "hash"
-     },
-     {
-      "from": "hash",
-      "to": "cookie"
-     },
-     {
-      "from": "cookie",
-      "to": "dash"
-     }
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
+    "output": "Dashboard, `token` cookie set",
+    "examples": [
      {
       "case": "typical",
-      "title": "right password",
-      "expect": "a cookie is set and the dashboard opens",
+      "title": "Right password",
+      "expect": "Cookie set, dashboard opens",
       "in": [
        [
         "email",
@@ -453,6 +394,12 @@
         "password",
         "right"
        ]
+      ],
+      "at": [
+       "request sent",
+       "user found",
+       "cookie set",
+       "Dashboard"
       ],
       "out": [
        [
@@ -468,8 +415,8 @@
      },
      {
       "case": "rejected",
-      "title": "wrong password",
-      "expect": "same message as an unknown e-mail (no user lookup leak)",
+      "title": "Wrong password",
+      "expect": "Same message as an unknown e-mail",
       "in": [
        [
         "email",
@@ -479,6 +426,12 @@
         "password",
         "wrong"
        ]
+      ],
+      "at": [
+       "request sent",
+       "401",
+       "skipped",
+       "stays on Login"
       ],
       "out": [
        [
@@ -499,33 +452,97 @@
     "text": "Add a task: task form → tasks row"
    },
    {
-    "type": "steps",
-    "rows": [
-     [
-      "Type a title, press Add",
-      "Project detail",
-      "`POST /projects/{id}/tasks`"
-     ],
-     [
-      "Check the project belongs to the user",
-      "project id, user",
-      "project or 404"
-     ],
-     [
-      "Insert the task with status open",
-      "title",
-      "tasks row"
-     ],
-     [
-      "Other user's project: stop",
-      "project id",
-      "404, nothing stored"
-     ]
+    "type": "ipo",
+    "input": "Project detail: task title",
+    "steps": [
+     {
+      "do": "Type a title, press Add",
+      "out": "`POST /projects/{id}/tasks`",
+      "where": "frontend/src/api.ts"
+     },
+     {
+      "do": "Check the project belongs to the user",
+      "out": "project or 404",
+      "where": "backend/app/main.py"
+     },
+     {
+      "do": "Owner: insert the task as open",
+      "out": "`tasks` row",
+      "where": "backend/app/main.py"
+     },
+     {
+      "do": "Other user: stop",
+      "out": "404, nothing stored",
+      "where": "backend/app/main.py"
+     }
+    ],
+    "output": "`tasks` row, or 404",
+    "examples": [
+     {
+      "case": "typical",
+      "title": "Own project",
+      "expect": "Task stored as open",
+      "in": [
+       [
+        "project",
+        "1 (own)"
+       ],
+       [
+        "title",
+        "Buy milk"
+       ]
+      ],
+      "at": [
+       "request sent",
+       "owner",
+       "id 7, open",
+       "skipped"
+      ],
+      "out": [
+       [
+        "status",
+        "201"
+       ],
+       [
+        "task",
+        "id 7, open"
+       ]
+      ],
+      "source": "backend/tests/test_tasks.py:15"
+     },
+     {
+      "case": "rejected",
+      "title": "Other user's project",
+      "expect": "404, nothing stored",
+      "in": [
+       [
+        "project",
+        "2 (other user)"
+       ],
+       [
+        "title",
+        "x"
+       ]
+      ],
+      "at": [
+       "request sent",
+       "not owner",
+       "skipped",
+       "404"
+      ],
+      "out": [
+       [
+        "status",
+        "404"
+       ]
+      ],
+      "source": "backend/tests/test_tasks.py:41"
+     }
     ]
    },
    {
     "type": "flow",
-    "id": "F",
+    "id": "E",
     "nodes": [
      {
       "id": "form",
@@ -584,65 +601,12 @@
       "fail": true
      }
     ]
-   },
-   {
-    "type": "examples",
-    "items": [
-     {
-      "case": "typical",
-      "title": "own project",
-      "expect": "the task is stored as open",
-      "in": [
-       [
-        "project",
-        "1 (own)"
-       ],
-       [
-        "title",
-        "Buy milk"
-       ]
-      ],
-      "out": [
-       [
-        "status",
-        "201"
-       ],
-       [
-        "task",
-        "id 7, open"
-       ]
-      ],
-      "source": "backend/tests/test_tasks.py:15"
-     },
-     {
-      "case": "rejected",
-      "title": "other user's project",
-      "expect": "404, nothing stored",
-      "in": [
-       [
-        "project",
-        "2 (other user)"
-       ],
-       [
-        "title",
-        "x"
-       ]
-      ],
-      "out": [
-       [
-        "status",
-        "404"
-       ]
-      ],
-      "source": "backend/tests/test_tasks.py:41"
-     }
-    ]
    }
   ],
   "Data model": [
    {
     "type": "er",
-    "id": "G",
+    "id": "F",
     "title": "ER: tasks",
     "entities": [
      {

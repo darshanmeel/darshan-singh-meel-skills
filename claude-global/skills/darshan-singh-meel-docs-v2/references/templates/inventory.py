@@ -42,7 +42,7 @@ ENTRY_H3 = {"job": "Scheduled run → written data", "endpoint": "HTTP request �
             "ui_screen": "User action → screen", "terraform_root": "Terraform root → cloud resources",
             "public_module": "Function call → return value"}
 MAX_ER = 9
-DIAGRAM_STEPS = 3  # a Main flows h3 gets a flow diagram iff its graph flow has at least this many ordered steps
+BRANCH_TYPES = {"decision", "branch", "condition"}  # a step of this type is a branch: its Main flows h3 gets a flow diagram
 
 
 def version():
@@ -235,6 +235,17 @@ def topo(ids, edges):
     return out if len(out) == len(ids) else None
 
 
+def branches(steps, edges):
+    """The flow branches: a step is a decision (BRANCH_TYPES), or leads to 2+ other steps of the flow."""
+    ids = {s["id"] for s in steps}
+    nxt = {}
+    for e in edges:
+        a, b, t = e.get("from"), e.get("to"), e.get("type")
+        if a in ids and b in ids and a != b and (t in FORWARD or t in BACK):
+            nxt.setdefault(a if t in FORWARD else b, set()).add(b if t in FORWARD else a)
+    return any(s["type"] in BRANCH_TYPES for s in steps) or any(len(v) > 1 for v in nxt.values())
+
+
 def flows(nodes, edges, byid):
     """Graph flow and process nodes with their steps, and whether that order is reliable (`ordered`): the node's own
     numbered steps list, part_of edges that all carry a step number, or the one order the edges between the steps
@@ -268,7 +279,8 @@ def flows(nodes, edges, byid):
                               "evidence": e.get("evidence"), "id": e.get("from")})
         types = [s["type"] for s in steps[:1]] if ordered else [s["type"] for s in steps]
         rank = min([RANK.get(t, 4) for t in types] or [4])
-        out.append({**item(n), "id": n["id"], "type": n["type"], "ordered": ordered, "steps": steps, "_rank": rank})
+        out.append({**item(n), "id": n["id"], "type": n["type"], "ordered": ordered, "branches": branches(steps, edges),
+                    "steps": steps, "_rank": rank})
     out.sort(key=lambda f: (f["_rank"],) + order(f))
     for f in out:
         del f["_rank"]
@@ -407,7 +419,7 @@ def plan(kinds, inv, nodes, edges):
     main, fl = [], [f for f in inv["flows"] if f["type"] == "flow"]
     for f in fl:
         main.append({"h3": h3(f, byid), "flow": f["id"], "steps": len(f["steps"]), "ordered": f["ordered"],
-                     "diagram": f["ordered"] and len(f["steps"]) >= DIAGRAM_STEPS, "entry": None, "boxes": [s["name"] for s in f["steps"]]})
+                     "diagram": f["branches"], "entry": None, "boxes": [s["name"] for s in f["steps"]]})
     for m, e in zip(main, entries(main, fl)):
         m["entry"] = e
     if not main:  # no flow nodes: one h3 per entry-point group
@@ -582,7 +594,7 @@ def main():
     unordered = [f["name"] for f in inv["flows"] if f["type"] == "flow" and f["steps"] and not f["ordered"]]
     if unordered:
         not_checked.append(f"steps of {len(unordered)} flows have no order in the graph (no step numbers, edges allow several): "
-                           f"{', '.join(unordered)}: h3 is the flow name, no flow diagram planned")
+                           f"{', '.join(unordered)}: h3 is the flow name")
     inv["plan"] = plan([k["kind"] for k in kinds], inv, nodes, edges)
     inv["not_checked"] = not_checked
     for k in ("_byid", "_tables", "_fks"):

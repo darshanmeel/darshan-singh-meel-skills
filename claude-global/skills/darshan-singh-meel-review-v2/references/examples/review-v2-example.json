@@ -1,0 +1,92 @@
+{
+  "title": "Review: order revenue mart and export endpoint",
+  "date": "2026-01-15 10:30",
+  "verdict": "Request changes",
+  "scope": {
+    "reviewed": "diff main...feature/order-export: 5 files, +142 -18 [synthetic]",
+    "goal": "Daily revenue per order in `fct_order_revenue`, exported as CSV by `GET /orders/export`"
+  },
+  "checks": [["tests (changed)", "6 passed"], ["ruff", "clean"], ["dbt build -s fct_order_revenue", "not run (no warehouse access)"], ["full suite", "background, 214 passed"]],
+  "files": [
+    {
+      "path": "models/marts/fct_order_revenue.sql",
+      "what": "New mart: one row per order with total revenue, read by dashboard, report and export",
+      "findings": [
+        {
+          "sev": "Must", "area": "Data", "lines": "12-18",
+          "summary": "join to `order_items` multiplies `order_total` per item · sum item amounts instead",
+          "problem": "`order_total` is summed after joining `order_items`, so an order with 3 items counts 3 times.",
+          "why": "Revenue on the dashboard and monthly report is overstated for every multi-item order.",
+          "fix": "Sum `order_items.amount` (item grain) or join after aggregating items to order grain.",
+          "code": "select o.order_id, sum(i.amount) as revenue\nfrom {{ ref('stg_orders') }} o\njoin {{ ref('stg_order_items') }} i using (order_id)\ngroup by o.order_id",
+          "diagram": {
+            "title": "revenue fan-out, one order",
+            "numbered": false,
+            "nodes": [
+              {"id": "o", "label": "stg_orders", "kind": "data", "col": 0, "row": 1, "sub": "1 order, total 90"},
+              {"id": "i1", "label": "item 1", "kind": "shape", "col": 1, "row": 0, "sub": "total 90"},
+              {"id": "i2", "label": "item 2", "kind": "shape", "col": 1, "row": 1, "sub": "total 90"},
+              {"id": "i3", "label": "item 3", "kind": "shape", "col": 1, "row": 2, "sub": "total 90"},
+              {"id": "s", "label": "sum(order_total)", "kind": "fail", "col": 2, "row": 1, "sub": "270, not 90"}
+            ],
+            "edges": [
+              {"from": "o", "to": "i1"},
+              {"from": "o", "to": "i2", "label": "join"},
+              {"from": "o", "to": "i3"},
+              {"from": "i1", "to": "s", "fail": true},
+              {"from": "i2", "to": "s", "fail": true},
+              {"from": "i3", "to": "s", "fail": true}
+            ],
+            "key": "red = wrong value",
+            "notice": "the join copies the order total onto every item row; the sum counts it once per item"
+          }
+        }
+      ]
+    },
+    {
+      "path": "src/export/orders_api.py",
+      "what": "New endpoint `GET /orders/export`: filters the mart by date and streams CSV",
+      "findings": [
+        {
+          "sev": "Must", "area": "Security", "lines": "31-34",
+          "summary": "`from_date` query param formatted into SQL · use a bound parameter",
+          "problem": "The `from_date` request value is put into the SQL string with an f-string.",
+          "why": "Any caller can run arbitrary SQL against the warehouse (SQL injection).",
+          "fix": "Pass it as a bound parameter.",
+          "evidence": "probe: `from_date=2026-01-01' or 1=1--` returned every row [synthetic]",
+          "code": "cur.execute(\"select * from fct_order_revenue where order_date >= %s\", (from_date,))"
+        },
+        {
+          "sev": "Should", "area": "Performance", "lines": "36",
+          "summary": "export has no row limit or date range cap · cap the range to 31 days",
+          "problem": "A request without `to_date` exports every order since `from_date` in one response.",
+          "why": "A wide range loads millions of rows into one request and times out.",
+          "fix": "Require `to_date` and reject ranges over 31 days with a 400."
+        }
+      ]
+    }
+  ],
+  "checked": ["models/marts/schema.yml", "src/export/__init__.py", "tests/test_orders_api.py"],
+  "questions": ["Should refunds lower revenue in `fct_order_revenue`, or is that a separate mart?"],
+  "impact": {
+    "title": "fct_order_revenue area",
+    "numbered": false,
+    "nodes": [
+      {"id": "m", "label": "fct_order_revenue", "kind": "data", "tag": "changed", "col": 0, "row": 1},
+      {"id": "d", "label": "finance_dashboard", "kind": "confirm", "col": 2, "row": 0},
+      {"id": "r", "label": "monthly_revenue_report", "kind": "code", "col": 2, "row": 1},
+      {"id": "e", "label": "orders_api.export", "kind": "code", "col": 2, "row": 2}
+    ],
+    "edges": [
+      {"from": "m", "to": "d", "label": "read by", "dashed": true},
+      {"from": "m", "to": "r", "label": "ref()", "dashed": true},
+      {"from": "m", "to": "e", "label": "queried by", "dashed": true}
+    ],
+    "notice": "all three readers inherit the fan-out in Must 1"
+  },
+  "unused": [["src/export/csv_legacy.py", "old CSV writer, replaced by the new endpoint", "no import or call found", "High", "delete it"]],
+  "net_size": "could drop ~20 of the 142 added lines (duplicate date parsing in the endpoint)",
+  "other": [
+    {"area": "Tests", "path": "tests/test_orders_api.py", "lines": "8", "what": "only the happy path is tested", "why": "the injection and range fixes have no regression test", "impact": "one bad-input test catches both; without it they can return"}
+  ]
+}

@@ -42,7 +42,7 @@ REQUIRED = {  # always, then per app type
 # Block order per section, as a regex over block types: ? optional, * any, + one or more, (a|b) either.
 RECIPES = {
     "overview": {
-        "What it is and why": "labels", "How it works": "flow steps?", "Who uses it": "people",
+        "What it is and why": "labels", "How it works": "flow", "Who uses it": "people",
         "Example": "text? journey examples bullets?", "Value and cost": "labels", "Schedule": "schedule bullets?",
         "Design and operational risks": "bullets", "Words used": "terms",
         LAST: "text? issues assumptions? decisions?"},
@@ -51,7 +51,7 @@ RECIPES = {
         "Job DAG and schedule": "flow+ schedule bullets?", "Screens and navigation": "flow+ elements bullets?",
         "Endpoints": "flow+ endpoints bullets?", "Commands": "flow+ commands bullets?",
         "Events and messages": "flow+ events bullets?",
-        "Main flows": "(h3 steps flow* journey? examples io?)+",
+        "Main flows": "(h3 ipo flow* io?)+",
         "Data model": "text? er+ views? bullets?", "Business rules": "rules examples?", "Configuration": "config bullets?",
         "Security and access": "(access bullets?|bullets)", "Deploy and environments": "flow? steps io* environments? bullets?",
         "Operations": "io* symptoms (h3 steps io*)*", "Performance and limits": "bullets", "Tests": "tests io* bullets?",
@@ -66,7 +66,6 @@ RECIPES = {
 H3_FIXED = {("user-guide", "What answers what"): "Columns every"}
 RERUN = "Rerun and backfill"  # technical Operations h3 for pipelines; the other Operations h3s are the plan's how_tos
 STEP_COLS = {  # fixed steps columns per section; other sections keep the default or their own cols
-    ("overview", "How it works"): ["Step", "What happens"], ("technical", "Main flows"): ["Step", "In", "Out"],
     ("technical", "Deploy and environments"): ["Step", "Command", "Where it runs"],
     ("technical", "Operations"): ["Step", "How"], ("user-guide", "How to *"): ["Step", "You see"]}
 TYPED = {  # builder-owned headers; the spec gives rows only
@@ -84,9 +83,12 @@ TYPED = {  # builder-owned headers; the spec gives rows only
 }
 TYPED_H3 = {"unused": "Unused files", "assumptions": "Assumptions", "decisions": "Decisions needed"}
 L0_LABELS = ["What", "Why", "Key idea", "Result"]
-EXAMPLE_BLOCKS = {"examples", "io", "journey"}
+EXAMPLE_BLOCKS = {"examples", "io", "journey", "ipo"}
 CASES = ["typical", "edge", "rejected", "failure"]
 EX_FIELDS = ["case", "title", "expect", "in", "out"]
+IPO_FIELDS = ["case", "title", "expect", "in", "at", "out"]  # a trace: one `at` value per step
+# word budgets (WARN): lead text, table cell, ipo step `do`, card / strip / trace value
+LEAD_WORDS, LEAD_SENTENCES, CELL_WORDS, DO_WORDS, CARD_WORDS = 40, 2, 15, 8, 12
 ISSUE_COLS = {
     "overview": [("Issue", "issue"), ("What it means", "impact"), ("Status", "status")],
     "technical": [("Issue", "issue"), ("Where", "where"), ("Impact", "impact"), ("Status", "status"), ("Suggested fix", "fix")],
@@ -944,7 +946,7 @@ def kv(v, cell=False):
     """In/out values: [[k, v]] → each value under its key; text → one line. cell: compact, for a table cell."""
     if isinstance(v, list):
         if cell:
-            return "".join(f'<div class="kv"><span class="k">{esc(k)}</span> {esc(x, True)}</div>' for k, x in v)
+            return "".join(f'<div class="kv"><span class="k">{esc(k, True)}</span> {esc(x, True)}</div>' for k, x in v)
         return "<table>" + "".join(f'<tr><td><span class="k">{esc(k)}</span>{esc(x, True)}</td></tr>' for k, x in v) + "</table>"
     return esc(v, True) if cell else f'<p class="res-t">{esc(v, True)}</p>'
 
@@ -1005,6 +1007,38 @@ def table(head, rows):
     return f'<div class="scroll"><table><tr>{th}</tr>{body}</table></div>'
 
 
+def rows_list(head, rows):
+    """A typed table of 1-2 rows: one line per row, first cell bold, the others after their column name."""
+    li = lambda r: f"<b>{status(r[0])}</b>" + "".join(f' &middot; <span class="k">{h}</span> {status(c)}' for h, c in zip(head[1:], r[1:]) if c != "")
+    return '<ul class="rows">' + "".join(f"<li>{li(r)}</li>" for r in rows) + "</ul>"
+
+
+def ipo(b):
+    """Main flows: Input > numbered steps (what it does, what it outputs, where) > Output as one strip, then the
+    example traces as one grid: a row per example (id, case, title, EXPECT), columns In, each step's output, Out."""
+    st = b["steps"]
+    end = lambda cls, lab, v: f'<li class="{cls}"><span class="lbl2">{lab}</span><span class="o">{kv(v, True)}</span></li>'
+    strip = end("io-in", "INPUT", b["input"]) + "".join(
+        f'<li><span class="n">{k}</span><b>{esc(s["do"], True)}</b><span class="o">{esc(s["out"], True)}</span>'
+        + (f'<span class="src">{esc(s["where"], True)}</span>' if s.get("where") else "") + "</li>"
+        for k, s in enumerate(st, 1)) + end("io-out", "OUTPUT", b["output"])
+    out = f'<ol class="ipo">{strip}</ol>'
+    items = [(ex_id(), c) for c in b.get("examples") or []]
+    if not items:
+        return out
+    cell = lambda h, v: f'<td data-h="{h}"><div>' + ('<span class="tc">=</span>' if v in ("", None) else kv(v, True)) + "</div></td>"
+    head = "<th>Ex</th><th>In</th>" + "".join(f"<th>{k}</th>" for k in range(1, len(st) + 1)) + "<th>Out</th>"
+    rows = "".join(
+        f'<tr id="ex-{i}" class="{html.escape(c["case"])}"><td class="exn" data-h="Ex"><span class="id">{i}</span>'
+        f'<span class="tag">{esc(c.get("tag", c["case"])).upper()}</span>'
+        + (' <span class="chip syn">synthetic</span>' if c.get("synthetic") else "")
+        + f'<b>{esc(c["title"], True)}</b><span class="exp"><span class="lbl2">EXPECT</span> {esc(c["expect"], True)}</span></td>'
+        + cell("In", c["in"]) + "".join(cell(str(k), v) for k, v in enumerate(c.get("at") or [], 1)) + cell("Out", c["out"]) + "</tr>"
+        for i, c in items)
+    src = " &middot; ".join(f"{i} {esc(c['source'], True)}" for i, c in items if c.get("source"))
+    return out + f'<div class="scroll"><table class="trace"><tr>{head}</tr>{rows}</table></div>' + (f'<p class="src">{src}</p>' if src else "")
+
+
 def block(b, kind):
     t = b["type"]
     if t == "text":
@@ -1017,9 +1051,11 @@ def block(b, kind):
     elif t == "labels":
         out = "<ul>" + "".join(f"<li><b>{esc(a)}:</b> {esc(x)}</li>" for a, x in b["items"]) + "</ul>"
     elif t == "table":
-        out = table([esc(c) for c in b["cols"]], b["rows"])
-    elif t in TYPED:
-        out = (f"<h3>{TYPED_H3[t]}</h3>" if t in TYPED_H3 else "") + table(TYPED[t], b["rows"])
+        one = "<ul>" + "".join(f"<li>{status(r[0])}</li>" for r in b["rows"] if r) + "</ul>"  # one column: a list
+        out = table([esc(c) for c in b["cols"]], b["rows"]) if len(b["cols"]) > 1 else one
+    elif t in TYPED:  # 1-2 rows: one line each, not a table
+        rows = table(TYPED[t], b["rows"]) if len(b["rows"]) > 2 else rows_list(TYPED[t], b["rows"])
+        out = (f"<h3>{TYPED_H3[t]}</h3>" if t in TYPED_H3 else "") + rows
     elif t == "steps":
         cols = step_cols(b, POS["kind"], POS["slot"])
         head = "<th>#</th>" + "".join(f"<th>{esc(c)}</th>" for c in cols)
@@ -1032,6 +1068,8 @@ def block(b, kind):
         out = io(b)
     elif t == "examples":
         out = examples(b)
+    elif t == "ipo":
+        out = ipo(b)
     elif t == "issues":
         out = issues(b, kind)
     elif t == "details":
@@ -1048,7 +1086,7 @@ def block(b, kind):
         out += f'<p class="key">Key: {esc(b["key"])}</p>' if b.get("key") else ""
         out += f'<p class="cap">Notice: {esc(b["notice"])}</p>' if b.get("notice") else ""
     else:
-        die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, issues, details, flow, er, journey, {', '.join(TYPED)})")
+        die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, ipo, issues, details, flow, er, journey, {', '.join(TYPED)})")
     return out + (f'<p class="src">{esc(b["source"], True)}</p>' if b.get("source") else "")
 
 
@@ -1175,14 +1213,13 @@ def top_issues(spec, err, warn):
         warn.append(f"top issues: {fixed} are fixed since the review: leave them out of Top issues")
 
 
-def example_items(n, b, err, warn, main):
-    """Every example: case (typical, edge, rejected, failure), title, expect, in, out; ids come from the build.
-    Main flows: 2-3 cards, card a typical, at least one other case."""
-    items = b["items"]
+def example_items(n, items, err, warn, main, fields=EX_FIELDS):
+    """Every example: case (typical, edge, rejected, failure), title, expect, in, out (ipo: also `at`); ids come from
+    the build. Main flows: 2-3 examples, a typical, at least one other case."""
     for k, c in enumerate(items):
-        miss = [f for f in EX_FIELDS if c.get(f) in (None, "", [])]
+        miss = [f for f in fields if c.get(f) in (None, "", [])]
         if miss:
-            err.append(f"{n}: example {k + 1} '{c.get('title', '')}' needs {', '.join(miss)} (each card: case, title, expect, in, out)")
+            err.append(f"{n}: example {k + 1} '{c.get('title', '')}' needs {', '.join(miss)} (each example: {', '.join(fields)})")
         if c.get("case") not in CASES + [None, ""]:
             err.append(f"{n}: example '{c.get('title', '')}': unknown case '{c['case']}' (use {', '.join(CASES)})")
         if re.search(r"\d", str(c.get("tag", ""))):
@@ -1190,11 +1227,29 @@ def example_items(n, b, err, warn, main):
     if not main:
         return
     if len(items) > 3:
-        err.append(f"{n}: {len(items)} examples under '{POS['h3text']}' (max 3 cards; the table form is only for Business rules)")
+        err.append(f"{n}: {len(items)} examples under '{POS['h3text']}' (max 3 per flow)")
     if items and items[0].get("case") != "typical":
         err.append(f"{n}: example a under '{POS['h3text']}' must be the typical case, got '{items[0].get('case')}'")
     if len(items) < 2 or all(c.get("case") == "typical" for c in items):
-        warn.append(f"{n}: examples under '{POS['h3text']}': want 2-3 cards, a typical plus an edge, rejected or failure case")
+        warn.append(f"{n}: examples under '{POS['h3text']}': want 2-3, a typical plus an edge, rejected or failure case")
+
+
+def ipo_check(n, b, err, warn, main):
+    """ipo: input, steps [{do, out, where?}], output, examples [{case, title, expect, in, at, out}], one `at` per step."""
+    steps = b.get("steps") or []
+    miss = [k for k in ("input", "steps", "output") if b.get(k) in (None, "", [])]
+    if miss:
+        err.append(f"{n}: ipo under '{POS['h3text']}' needs {', '.join(miss)} (input, steps [{{do, out, where}}], output, examples)")
+    for k, x in enumerate(steps, 1):
+        lack = [f for f in ("do", "out") if not (isinstance(x, dict) and x.get(f))]
+        if lack:
+            err.append(f"{n}: ipo step {k} under '{POS['h3text']}' needs {', '.join(lack)} (each step: do, out, where)")
+    ex = b.get("examples") or []
+    example_items(n, ex, err, warn, main, IPO_FIELDS)
+    for c in ex:
+        at = c.get("at")
+        if isinstance(at, list) and at and len(at) != len(steps):
+            err.append(f"{n}: example '{c.get('title', '')}': {len(at)} `at` values, want one per step ({len(steps)}; \"\" = unchanged)")
 
 
 NOTES = []  # printed as note: lines (documented overrides)
@@ -1222,10 +1277,10 @@ def entry_of(h3_text):
 
 
 def main_flows(spec, blocks, plan, err, warn):
-    """Technical Main flows: h3s = the plan's (or a documented h3_override), in order. Per h3 the plan decides whether
-    there is a flow diagram (diagram: true iff the graph gives >= 3 ordered steps); its title is written here:
-    "<entry>, <N> steps", N = its numbered arrows, one steps row per arrow. More flows under one h3 are sub-flows
-    (parent). Code and entry boxes are the plan flow's steps (plan boxes) or entry points."""
+    """Technical Main flows: h3s = the plan's (or a documented h3_override), in order; one ipo per h3, one step per
+    ordered graph step. Per h3 the plan decides whether there is a flow diagram (diagram: true iff the graph flow
+    branches); its title is written here: "<entry>, <N> steps", N = its numbered arrows, one ipo step per arrow. More
+    flows under one h3 are sub-flows (parent). Code and entry boxes are the plan flow's steps (plan boxes) or entry points."""
     over = spec.get("h3_override", {}) or {}
     pm = (plan or {}).get("main_flows")
     if pm is not None:
@@ -1243,8 +1298,8 @@ def main_flows(spec, blocks, plan, err, warn):
         if b["type"] == "h3":
             cur = {"h3": b["text"], "steps": None, "flows": []}
             groups.append(cur)
-        elif cur and b["type"] == "steps" and cur["steps"] is None:
-            cur["steps"] = len(b["rows"])
+        elif cur and b["type"] == "ipo" and cur["steps"] is None:
+            cur["steps"] = len(b.get("steps") or [])
         elif cur and b["type"] == "flow" and not b.get("parent"):  # a sub-flow keeps its "inside <box>" title
             cur["flows"].append(b)
             if len(cur["flows"]) == 2:
@@ -1260,12 +1315,12 @@ def main_flows(spec, blocks, plan, err, warn):
         n = g["steps"] or 0
         if m is not None and "diagram" in m:
             if m["diagram"] and not g["flows"]:
-                err.append(f"Main flows: '{g['h3']}' needs a flow diagram (plan: {m['steps']} ordered steps, diagram: true)")
+                err.append(f"Main flows: '{g['h3']}' needs a flow diagram (plan diagram: true: the graph flow branches)")
             if not m["diagram"] and g["flows"]:
-                err.append(f"Main flows: '{g['h3']}' has no diagram in the plan (diagram: false: fewer than 3 ordered steps "
-                           f"in the graph): leave the flow out, the steps table shows it")
-            if m.get("ordered") and m["steps"] and n * 2 < m["steps"]:
-                warn.append(f"Main flows: '{g['h3']}' has {n} steps rows, the graph flow {m['steps']} ordered steps (want at least half)")
+                err.append(f"Main flows: '{g['h3']}' has no diagram in the plan (diagram: false: the graph flow has no "
+                           f"branch or decision): leave the flow out, the ipo strip shows it")
+            if m.get("ordered") and m["steps"] and n != m["steps"]:
+                warn.append(f"Main flows: '{g['h3']}' has {n} ipo steps, the graph flow {m['steps']} ordered steps (want one per graph step)")
         for f in g["flows"][:1]:
             got = arrow_count(f)
             gen = f"{(m or {}).get('entry') or entry_of(g['h3'])}, {got} steps"
@@ -1275,8 +1330,8 @@ def main_flows(spec, blocks, plan, err, warn):
             if not f.get("numbered", True):
                 err.append(f"diagram {f.get('id', '?')}: a Main flows diagram is numbered (leave out numbered: false)")
             if got != n:
-                warn.append(f"diagram {f.get('id', '?')}: {got} numbered arrows but {n} steps rows under '{g['h3']}': "
-                            f"N = the arrows everywhere: one steps row per arrow, row k = arrow k")
+                warn.append(f"diagram {f.get('id', '?')}: {got} numbered arrows but {n} ipo steps under '{g['h3']}': "
+                            f"N = the arrows everywhere: one ipo step per arrow, step k = arrow k")
             ok = set((m or {}).get("boxes") or []) | ENTRIES
             off = [x["label"] for x in f.get("nodes", []) if x.get("kind") in ("code", "entry") and m and m.get("boxes")
                    and bare(x["label"]) not in ok]
@@ -1339,7 +1394,9 @@ def check(spec, kind, names, plan):
             if t == "h3":
                 POS["h3text"] = b["text"]
             if t == "examples":
-                example_items(n, b, err, warn, main)
+                example_items(n, b["items"], err, warn, main)
+            if t == "ipo":
+                ipo_check(n, b, err, warn, main)
             if t == "er" and len(b["entities"]) > 9:
                 err.append(f"{n}: ER has {len(b['entities'])} tables (max ~9): split it into one ER per area")
             if t == "h3" and fixed and not b["text"].startswith(fixed):
@@ -1399,7 +1456,61 @@ def check(spec, kind, names, plan):
     seen = Counter(str(b.get("title")) for n in names for b in flat(spec["sections"][n]) if b["type"] in ("flow", "er", "journey"))
     err += [f"diagram title '{t}' is used {k} times: every title is unique (name the entry or area apart)" for t, k in seen.items() if k > 1]
     ellipsis(spec, names, err)
+    budgets(spec, kind, names, warn)
     return err, warn
+
+
+def values(v):
+    """In/out values one by one: text, or each value of [[k, v]]."""
+    return [x for _, x in v if x is not None] if isinstance(v, list) else [v]
+
+
+def budgets(spec, kind, names, warn):
+    """Word budgets: lead text <= 2 sentences and 40 words; table cell <= 15 words; ipo step `do` <= 8; card, strip
+    and trace value <= 12. A lead whose backticked names are >= 60% in the next block only restates it."""
+    for n in names:
+        blocks, over = flat(spec["sections"][n]), {}
+        add = lambda what, cap, v: over.setdefault((what, cap), []).append(str(v)) if len(str(v).split()) > cap else None
+        for i, b in enumerate(blocks):
+            t = b["type"]
+            if t == "text":
+                txt = str(b.get("text", "")).strip()
+                k, sent = len(txt.split()), len(re.findall(r"[.!?](?=\s|$)", txt)) or 1
+                if k > LEAD_WORDS or sent > LEAD_SENTENCES:
+                    warn.append(f"words: {n}: lead text has {k} words, {sent} sentences (max {LEAD_WORDS} words, "
+                                f"{LEAD_SENTENCES} sentences): '{' '.join(txt.split()[:8])} ...'")
+                tick = set(re.findall(r"`([^`]+)`", txt))
+                nxt = " ".join(strings(blocks[i + 1])) if i + 1 < len(blocks) else ""
+                said = [x for x in tick if x in nxt]
+                if len(tick) >= 2 and len(said) >= 0.6 * len(tick):
+                    warn.append(f"words: {n}: lead text names {len(said)} of its {len(tick)} names again in the next "
+                                f"{blocks[i + 1]['type']}: it only restates it: drop it, or say what the block does not")
+            elif t in TYPED or t in ("table", "steps"):
+                for r in b.get("rows", []):
+                    for c in r:
+                        add("table cells", CELL_WORDS, c)
+            elif t == "issues":
+                for it in b["items"]:
+                    for _, k in ISSUE_COLS.get(kind, ISSUE_COLS["technical"]):
+                        add("table cells", CELL_WORDS, it.get(k, ""))
+            elif t == "examples":
+                for c in b["items"]:
+                    for v in [c.get("title"), c.get("expect")] + values(c.get("in")) + values(c.get("out")):
+                        add("card values", CARD_WORDS, v or "")
+            elif t == "ipo":
+                for x in b.get("steps") or []:
+                    add("ipo step `do`s", DO_WORDS, x.get("do", ""))
+                    add("ipo step outputs", CARD_WORDS, x.get("out", ""))
+                for v in values(b.get("input")) + values(b.get("output")):
+                    add("ipo input/output values", CARD_WORDS, v)
+                for c in b.get("examples") or []:
+                    for v in [c.get("title"), c.get("expect")] + values(c.get("in")) + values(c.get("out")) + \
+                             [y for a in c.get("at") or [] for y in values(a)]:
+                        add("trace values", CARD_WORDS, v or "")
+        for (what, cap), vs in over.items():
+            top = max(vs, key=lambda v: len(v.split()))
+            warn.append(f"words: {n}: {len(vs)} {what} over {cap} words (longest {len(top.split())}: "
+                        f"'{' '.join(top.split()[:8])} ...'): keep the fact, names and numbers; cut the prose")
 
 
 ABS = re.compile(r"(?<![\w])[A-Za-z]:[\\/][^\s`'\"]*|(?<![\w.~])/(?:Users|home|root|tmp|var)/[^\s`'\"]*|(?<![\w])~/[^\s`'\"]*")
@@ -1488,6 +1599,8 @@ def ellipsis(spec, names, err):
                 bad += [(n, x[k]) for x in b["nodes"] for k in ("label", "sub", "in", "out") if name_cut(x.get(k))]
             elif t == "er":
                 bad += [(n, v) for e in b["entities"] for v in [e["name"]] + [c[0] for c in e["cols"]] if name_cut(v)]
+            elif t == "ipo":
+                bad += [(n, v) for v in strings([b.get("input"), b.get("output"), b.get("steps"), b.get("examples")]) if cell_cut(v)]
             elif t in TYPED or t in ("table", "steps", "examples", "journey", "issues"):
                 part = b.get("rows", b.get("items", b.get("stages", [])))
                 bad += [(n, v) for v in strings(part) if cell_cut(v)]
@@ -1650,6 +1763,7 @@ def cite_texts(spec, names):
     for n in names:
         for b in flat(spec["sections"][n]):
             items = [c for c in b.get("items", []) if isinstance(c, dict)]
+            items += [c for c in (b.get("steps") or []) + (b.get("examples") or []) if b["type"] == "ipo" and isinstance(c, dict)]
             whole = [b.get("source")] + [c.get(k) for c in items for k in ("source", "where")]
             if b["type"] in TYPED and "Where" in TYPED[b["type"]]:
                 k = TYPED[b["type"]].index("Where")
@@ -1908,9 +2022,10 @@ def synthetic_share(spec, names, tests, warn):
     for n in names:
         for b in flat(spec["sections"][n]):
             h3 = b["text"] if b["type"] == "h3" else h3
-            if b["type"] == "examples":
-                cards += b["items"]
-                if n == "Main flows" and b["items"] and b["items"][0].get("synthetic"):
+            ex = b["items"] if b["type"] == "examples" else b.get("examples") or [] if b["type"] == "ipo" else None
+            if ex is not None:
+                cards += ex
+                if n == "Main flows" and ex and ex[0].get("synthetic"):
                     warn.append(f"Main flows: example a under '{h3}' is synthetic while the repo has {len(tests)} test files: "
                                 f"take the typical case from a test or fixture")
     syn = sum(1 for c in cards if c.get("synthetic"))

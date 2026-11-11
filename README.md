@@ -25,6 +25,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 |---|---|
 | `code` | Write, edit, debug, refactor; changed tests first, then offer the full suite |
 | `review` | Code review: correctness, security, performance, design, AI slop |
+| `review-v2` | Code review with a fixed HTML report from a JSON spec: main review, then a detailed section per file with Must/Should findings, diagrams only where they help |
 | `docs` | Diagram-first docs (v1): READMEs, KT, design docs, user guides, runbooks |
 | `docs-v2` | Docs from any repo's knowledge graph: fixed inventory → plan → builder + checks; same structure every run |
 | `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
