@@ -127,7 +127,7 @@ details { margin:8px 0; } summary { cursor:pointer; font-size:13px; color:var(--
 .ipo b { font-weight:600; line-height:1.35; } .ipo .o { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; color:var(--teal-ink); }
 .ipo li:not(.io-in):not(.io-out) .o::before { content:"\2192  "; color:var(--muted); }
 .ipo .lbl2, .trace .lbl2 { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); }
-.ipo .src { margin:0; } .ipo .kv .k, .trace .kv .k { color:var(--muted); font-size:11px; margin-right:4px; }
+.ipo .src { margin:0; } .ipo .br { font-size:12px; color:var(--red); } .trace td.nr { background:var(--soft); color:var(--muted); } .ipo .kv .k, .trace .kv .k { color:var(--muted); font-size:11px; margin-right:4px; }
 .trace td { font:12px/1.4 "IBM Plex Mono",Consolas,monospace; overflow-wrap:break-word; padding:5px 8px; }
 .trace td.exn { font-family:inherit; min-width:150px; } .trace .id { display:block; font:600 11px "IBM Plex Mono",Consolas,monospace; }
 .trace .tag { display:block; font-size:10px; font-weight:600; letter-spacing:.06em; } .trace b { display:block; font-size:12.5px; } .trace .exp { display:block; font-size:12px; margin-top:2px; }
@@ -135,10 +135,21 @@ details { margin:8px 0; } summary { cursor:pointer; font-size:13px; color:var(--
 .trace tr.rejected td.exn, .trace tr.failure td.exn { box-shadow:inset 3px 0 var(--red); }
 .trace tr.typical .tag { color:var(--green); } .trace tr.edge .tag { color:var(--amber-ink); } .trace tr.rejected .tag, .trace tr.failure .tag { color:var(--red); }
 .rows .k { font-family:"IBM Plex Mono",Consolas,monospace; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+.ipo .why { font-size:12px; line-height:1.4; color:var(--muted); } .allrows { margin:10px 0 -4px; }
+.tasks tr.grp td { background:var(--soft); font-weight:600; } .tasks .n { display:inline-block; width:18px; height:18px; border-radius:50%; background:var(--ink); color:#fff; font:600 10px/18px "IBM Plex Mono",Consolas,monospace; text-align:center; margin-right:4px; }
+input.more, .more-l { display:none; } .tt td[data-h="Why / impact"] { min-width:200px; } .more-l { cursor:pointer; font:12px "IBM Plex Mono",Consolas,monospace; color:var(--blue); margin:4px 0 8px; }
 @media (max-width:720px) { .ipo { flex-direction:column; gap:16px; } .ipo li { flex:none; } .ipo li + li::before { content:"\25BE"; left:50%; top:-15px; transform:translateX(-50%); }
   .trace, .trace tbody, .trace tr, .trace td { display:block; width:100%; } .trace tr:first-child { display:none; } .trace tr { margin:0 0 10px; border:1px solid var(--line); }
-  .trace td { border:0; border-bottom:1px solid var(--line); display:grid; grid-template-columns:34px 1fr; gap:6px; } .trace td.exn { display:block; }
-  .trace td:not(.exn)::before { content:attr(data-h); font:600 10px/1.6 "IBM Plex Mono",Consolas,monospace; color:var(--muted); } }
+  .trace td { border:0; border-bottom:1px solid var(--line); } .trace td.eq, .trace td.nr, .legend { display:none; }
+  .trace td:not(.exn)::before { content:attr(data-h); display:block; font:600 10px/1.6 "IBM Plex Mono",Consolas,monospace; color:var(--muted); }
+  .ipo { gap:12px; } .ipo li { padding:5px 8px; font-size:12.5px; } .ipo li + li::before { top:-12px; }
+  .more-l { display:block; } input.more:not(:checked) ~ .scroll tr.more, input.more:not(:checked) ~ details { display:none; } input.more:checked ~ .more-l { display:none; }
+  /* tables: each row a labelled block, nothing cut */
+  table.tt, .tt tbody, .tt tr, .tt td { display:block; width:100%; } .tt tr:first-child { display:none; } .tt tr { margin:0 0 8px; border:1px solid var(--line); border-radius:4px; }
+  .tt td { border:0; border-bottom:1px solid var(--line); padding:5px 8px; } .tt td:empty { display:none; }
+  .tt td:not(:first-child)::before { content:attr(data-h); display:block; font:600 10px/1.6 "IBM Plex Mono",Consolas,monospace; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+  .tt td:first-child { font-weight:600; } .tasks tr.grp { border:0; margin:12px 0 4px; } .tasks tr.grp td { background:none; padding:0; }
+  .tasks td:first-child { font-weight:400; } .issues tr.sev { border:0; } .issues tr.sev td { background:none; padding:0; } }
 
 @media (prefers-reduced-motion: reduce) { .map polyline.flow { animation:none; } }
 @media (max-width:720px) { section { padding:16px; } .terms { columns:1; } .journey { flex-direction:column; } .journey .arrow { transform:rotate(90deg); } .journey .pad { display:none; } }

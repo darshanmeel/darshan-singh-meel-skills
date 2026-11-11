@@ -5,7 +5,8 @@ description: Docs v2 — darshan-singh-meel-docs on a fixed pipeline: shipped in
 
 # Docs v2
 Max info, min words; senior architect, anyone follows.
-- Show (diagrams · tables · bullets · examples), no prose; numbers + names over prose; no block repeats another. Section → what · how · why (+ who · when · where). Global CLAUDE.md applies.
+- Show (diagrams · tables · bullets · examples), no prose; numbers + names over prose.
+- Each word = fact or insight (what · how · why · number · name · consequence); no word target, cut only empty words. **Each fact once, where the reader looks** (build WARNs `repeat:`, cells down a column too). Cut filler (repeated cells · placeholder rows · constant columns · restatements); add insight: why a step/rule exists · what breaks if it fails · for whom (step `why`, rule Why / impact). Section lead = its main insight, never the heading again. Section → what · how · why (+ who · when · where). Global CLAUDE.md applies.
 - Exact rules · fields · columns · titles · ERROR/WARN → `references/templates/spec.md`; build enforces.
 - **`<skill>`** = this folder. Its scripts only, never a repo copy (WARN `inventory.json was written by templates X`).
 
@@ -27,11 +28,12 @@ AskUserQuestion(questions=[
 - Single doc <~30 pages → "Skip, read the document directly" first.
 - Related repos → next: **Scope** (multi) This repo (rec) · Whole system · Each related repo.
 - No answer → 3 docs · HTML · build/update graph · tests+docs, then code · this repo.
-- Build/update → `darshan-singh-meel-knowledge-graph` first. Skip → no inventory; plan + coverage unchecked (WARN); say so.
+- Record Graph answer: graph `update.py --choice now` (update) · `--choice skip` (as is) → no repeat graph question. Docs being built → no docs question after that update.
+- Build/update → `darshan-singh-meel-knowledge-graph` first. Skip / no graph → inventory plans from a file scan (no flows, scanned coverage only); reply "planned from a file scan".
 
 ## Step 1 — inventory, never own
 - Repo root: `python <skill>/references/templates/inventory.py` → `generated-docs/_spec/inventory.json` + `facts.json`; prints `inventory (templates <ver>): …`. Same graph → same bytes.
-- No graph → stops: build, rerun. `WARN graph is stale` / graph commit ≠ HEAD → update, rerun. `note:` lines → reply "not checked".
+- No graph → file-scan plan + `note: no knowledge graph: plan from a file scan; build the graph for flows and coverage` (h3 per entry point: CLI program · app · job · package API; nothing ruled out); `.knowledge-graph` → missing folder → ERROR; graph → unchanged. `WARN graph is stale` / graph commit ≠ HEAD → update, rerun. `note:` lines → reply "not checked".
 - **Plan = skeleton:** `profile` · `app_types` · required / not_applicable · `main_flows` (h3, order, `diagram`, `entry`, `boxes`) · `diagram_titles` · `how_tos` · `deploy` · `rerun_and_backfill` · `api` (library) · ER areas · coverage. Copy, never re-derive.
 - `facts.json`: 3 plan counts, yours kept. Other numbers → `{fact, value, how}`; `how` = one POSIX line, repo root (Git Bash).
 - Then `python <skill>/references/templates/inventory.py --check-facts` → 0 `MISMATCH` / `NOT RUN` before build.
@@ -60,7 +62,7 @@ AskUserQuestion(questions=[
 - Whole system: `_combined` → `../<name>-graphs/_combined/generated-docs/`; each repo → `../<name>-graphs/<repo>/generated-docs/`; other repos → one yes.
 
 ## Updating
-- "go" / "update the docs" → no Step 0; rerun inventory; edit sections on changed files only. Keep diagram ids · box names · groups; new item → its group; h3s + ER areas → new plan.
+- "Update now" (graph's docs question, background) / "update the docs" → no Step 0; `templates/changed.py --save` → rerun inventory → `changed.py` → edit + accuracy-check only its sections → good build → `changed.py --done` → graph `update.py --docs done`. Keep diagram ids · box names · groups; new item → its group; h3s + ER areas → new plan.
 
 ## Documents
 - **Overview** (business, newcomers): screen per section, no code names, top 20%. **Technical** (engineers): **complete**, row per inventory item in its typed table. **User guide** (app/output users): fixed frame, top 20% of tasks.
@@ -70,11 +72,13 @@ AskUserQuestion(questions=[
 **Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 flow, 3–7 boxes, no steps) · Who uses it · Example (journey + 2–6 cards, ≥1 non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0: input/actor → box per entry group per kind → output/store.
 
 **Technical:** Overview · Architecture (L2 flow + `components`, box per top-level module/folder; library + `api` table Call · Returns · Raises · Where, row per `plan.api`) · plan's interface sections · Main flows · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
-- **Main flows:** per `main_flows` h3 (exact, order): `h3 ipo flow* io?`. `ipo` = Input → Process → Output, output at each step: `input` (+ source) · `steps [{do ≤8 words, out, where path:line}]`, one per plan step · `output` (where it lands) · `examples` 2–3 traces `{case, title, expect, in, at, out, source}`, `at` = output per step (`""` = unchanged); a = typical, ≥1 edge/rejected/failure.
-- Flow only if `diagram: true` (branches); linear → ipo alone. Arrow k = ipo step k; `code`/`entry` boxes = plan `boxes` or entry points; sub-flows `parent`. Fields → `spec.md`. Wrong h3 → fix graph; else `h3_override {plan_h3: {title, why}}`.
-- **Coverage:** each `plan.coverage` item (incl. storage locations · business rules · processes), exact name, visible (box · step · row); `tip` uncounted; groups no `tip`. Long name → row. Several definitions → each, or count (`` `var.region` (4 modules) ``). Skip only `coverage_skip {name: why}`.
+- **Main flows:** per `main_flows` h3 (exact, order): `h3 ipo flow* io?`. `ipo` = Input → Process → Output, output at each step: `input` (+ source) · `steps [{do ≤8 words, out, where path:line}]` covering plan steps, **≤7** (plumbing → merged, `graph: [k, …]`) · `output` (where it lands) · `examples` 2–3 traces `{case, title, expect, in, at, out, source}`; a = typical, ≥1 edge/rejected/failure.
+- `out` = name/number not in `do`. `why` (one clause, under `out`; from code · tests · docs, never invented): why the step exists / what breaks if it fails. WARN: flow without any `why` · branch/drop/filter/write step without · `why` restating `out`/`branch`.
+- `at` cell = example value (name · number · status) · `"="` only unchanged from the column before (step 1 → ERROR) · `null` (`–`) not reached / not touched by this example; row >½ `=` → one-step example → rule row (WARN); never skipped · sent · valid · rows.
+- Flow only if `diagram: true` (branches): title by build `<h3>, N steps` (flow, never a box); diagram = branches, never the strip again (straight chain → ERROR); strip-step arrows `step: k` (shown as strip number k), branch arrows label only; strip = main path, branch step `branch: "<other outcome>"`, drawn at arrow k (ERROR otherwise). Linear → ipo alone (one-step alternative → `branch`). `code`/`entry` boxes = plan `boxes` or entry points; sub-flows `parent`. Fields → `spec.md`. Wrong h3 → fix graph; else `h3_override {plan_h3: {title, why}}`.
+- **Coverage:** each `plan.coverage` item (incl. storage locations · business rules · processes), exact name, visible (box · step · row); `tip` uncounted; groups no `tip`. Long name → row. Several definitions → each, or count (`` `var.region` (4 modules) ``). Skip only `coverage_skip {name: why}`. Same-saying items → one group row: "13 schema files: `a`, `b`, …" or pattern + `{"covers": [names]}` (counted; count + names = hover title; "(2 graph rules)" in a cell → WARN). Unused/marker files → one group row.
 - **Data model** (plan only: ≥2 tables/views/dbt models or any fk; else table in Architecture `components`): `er` per plan area, title `ER: <area>`, in order; `views` only if graph has views.
-- **Rules:** `rules` row per business_rule. **Operations** (plan only: pipeline · dbt · web API · streaming): h3s only `Rerun and backfill` (`rerun_and_backfill`) · exact `how_tos` (processes + `Run the tests`), plan order, each with steps. **Deploy:** each `plan.deploy` unit + `deploys` source in a steps/environments row; row per file kind (Dockerfiles one). **Configuration:** `Default (code) / deploy value`.
+- **Rules:** `rules` row per business_rule: Rule (reader's phrase; identifier alone → WARN; graph ids → Where / `covers`) · Example in → out (values) · Why / impact (why it exists · what breaks, for whom; WARN empty; citation → WARN, goes in Where) · Where (`basename:line`); no examples block; one rule over N entities = one row "… applies to: a, b"; shown by a Main flows step → `see step 5.1.3`, Where empty or other lines than the step's. **Operations** (plan only: pipeline · dbt · web API · streaming): one `tasks` table (Task · Command · When · Where), heading row per task, its rows under it; Tasks only `Rerun and backfill` (`rerun_and_backfill`) · `how_tos` (processes + `Run the tests`), plan order: exact, or plain words + how-to in Where / `covers`; how-to that is a flow → point to its Main flows h3; Deploy/Commands command → point there. **Deploy:** each `plan.deploy` unit + `deploys` source in a steps/environments row; row per file kind (Dockerfiles one). **Configuration:** `Default (code) / deploy value`.
 - **Repeats:** pattern → group "Repeats for each …" + one sub-flow; each member in a row (fan-out frame: build).
 
 **User guide:** How it reaches you · Screens · What answers what · How to … (per real task) · When data is fresh · History and deletions · Errors and messages · Problems and fixes · Who to contact. No internals; tasks from screens · routes · commands · consumer queries.
@@ -103,12 +107,14 @@ Interface section · table | h3 unit | data model | graph diagram | io:
 - **Every main flow · rule · user task.** Order: tests/fixtures → docs/README → code (`derived from <path:line>`) → `synthetic: true`. Cite `source`. Realistic, 2–5 rows, no real data/PII.
 - Tests exist → example a per main flow from a test; ≤⅓ synthetic (WARN).
 - **Each:** `case` (typical · edge · rejected · failure) · `title` · `expect` (one line, wanted) · `in` · `out`. Build adds id (5.1a), none in `tag`; missing example named → ERROR; no case code lacks.
-- Main flows → ipo traces · rules → ≥1 card each or pointer ("see Example 4.3a") · Overview 2–6 cards · else cards. Record changing → journey · query/request/command/call/UI action → io.
+- Main flows → ipo traces · rules → in the row · Overview 2–6 cards, a case the journey lacks · How to → result + failure, not the steps again · else cards. Record changing → journey · query/request/command/call/UI action → io.
 - Key example missing / sensitive → ask once.
 
 ## Writing
-- **Budgets** (build WARNs, `spec.md`): lead ≤2 sentences/40 words · cell ≤15 · ipo `do` ≤8 · card/strip/trace value ≤12 · no lead restating next block. Over → keep fact · names · numbers, cut prose.
-- One fact per bullet; repeats → tables (1–2 rows · one column → build lists); diagram → bullets → example. Conclusion first, concrete ("daily 06:00"), term once, Overview spells acronyms.
+- **No word target** (build WARNs, `spec.md`): words stay if fact or insight. Caps catch prose only: lead ≤2 sentences/40 words · cell / `why` ≤40 (over → split fact + why) · ipo `do` ≤8 · card/strip/trace value ≤12 · no lead restating next block.
+- **Repeats** (WARN `repeat:`): sentence ≥6 words in 2 blocks · `path:line` in 2 sections (not Known issues) · command in 2 sections · column one value in ≥70% rows · same cell in 4+ rows → keep where read, point from the other / group. Column one value in all rows → build says it once ("All rows: …").
+- One fact per bullet; repeats → tables (1–2 rows · one column → build lists); diagram → bullets → example.
+- **Fewer tables:** ≤3 per section (WARN) · same-saying rows merged · adjacent same-shape tables → one (build) · cell ≤6 names, rest "+N more" in hover (still covered) · status in ≥½ rows → said once ("… unless shown"). Conclusion first, concrete ("daily 06:00"), term once, Overview spells acronyms.
 - Names · numbers · commands · boxes match source; unsure → "unclear — verify". Counts only `facts.json`: `<N> <fact name>` = its value (WARN).
 - Names in backticks, real, exact (keep backticks); synthetic → `ids_skip`. Paths from repo root; spaces → whole in backticks.
 - Pattern claims hold for all; name exceptions. Decisions, not deliberation. Major risks only (Overview ≤3, Technical 5–10).

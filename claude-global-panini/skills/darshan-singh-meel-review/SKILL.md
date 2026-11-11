@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-review
-description: Thorough code review for correctness, security, performance, design, complexity, verbosity, AI slop, unused files, and cross-repo impact — including SQL, dbt, Snowflake, Databricks/PySpark, Airflow, ADF, Terraform, and Python. Use when asked to review a diff, PR, commit, file, model, DAG, or codebase — "review this", "check my changes", "before I commit", "is this overengineered", "is this secure/fast".
+description: Thorough code review for correctness, security, performance, design, complexity, verbosity, AI slop, tech debt, unused files, and cross-repo impact — including SQL, dbt, Snowflake, Databricks/PySpark, Airflow, ADF, Terraform, and Python. Use when asked to review a diff, PR, commit, file, model, DAG, or codebase — "review this", "check my changes", "before I commit", "is this overengineered", "is this secure/fast".
 ---
 
 # Review
@@ -10,9 +10,9 @@ Check everything; report only what matters. CLAUDE.md applies. Data work → als
 - Size: change = diff · PR · commit of any size, or ≤20 named files. Large = whole repo · folder · >20 named files.
 - Always: "Also look for files the repo doesn't need?" Yes (rec) · No. · "Run the full test suite in the background?" Yes (rec) · No · Always this session.
 - Large only:
-  - Graph exists → Update first, then review (rec) · Use as is (no update) · Ignore graph (code only). None → Build first (rec) · Code only. Runs on Opus; review starts after.
+  - Graph exists → Update first, then review (rec) · Use as is (no update) · Ignore graph (code only). None → Build first (rec) · Code only. Runs on Opus; review starts after. Record: graph `update.py --choice now` (update) · `--choice skip` (as is) → no repeat graph question.
   - Related repos saved → "Include related repos?" Yes (rec) · No.
-- Change → no graph question, no waiting.
+- Change → no setup graph question, no waiting.
 
 ## Steps
 1. Goal of the change (PR text, commit, or ask) → review against it.
@@ -24,8 +24,8 @@ Check everything; report only what matters. CLAUDE.md applies. Data work → als
    - System graph (`_combined`, no question) → cross-repo callers of changed routes, contracts, procedures, tables, topics, schemas (`repo:path:line`) → Must/Should fix.
    - Stale graph for these files → read code. No graph → search code.
 3. Tests per `darshan-singh-meel-code` (changed-code tests first; full suite per step 0 answer) + lint, types, security on changed files. Say changed-only vs full.
-4. Go through every section below (skip only if truly n/a; §11 only if Yes in step 0).
-5. End (change review): graph stale → one-line `"go"` / `"graph"` / `"no"` offer (knowledge-graph "Keep it updated"). Else silent on graph.
+4. Go through every section below (skip only if truly n/a; §11 only if Yes in step 0; §12 always).
+5. End (change review): graph stale → graph update question or staleness note, per `update.py --dry-run` (knowledge-graph "Keep it updated"). Else silent on graph.
 
 ## 1. Correctness
 Trace main path by hand · edges (empty, NULL, zero, negative, off-by-one, duplicates, unicode, huge) · errors surfaced, never swallowed · root cause vs hidden symptom · races, shared state, check-then-act · resources released on every path · types, units, overflow, floats, timezones, encodings · breaking interface/schema changes called out.
@@ -64,29 +64,34 @@ Never delete, move, or edit — only list.
 - Never unused: entry points, tests, CI/deploy, migrations, IaC, README, LICENSE, CLAUDE.md, .gitignore, package/lock files, pattern/dynamically loaded files, generated/git-ignored outputs (`*-knowledge-graph/`, docs tagged `darshan-singh-meel-docs`, `reviews/`, `analysis/`). Unsure → **Check**.
 - Table: `File | Why unused | Evidence | Confidence | Suggestion` + one line on impact (what removing saves, what keeping costs). Confidence: High (no refs, clearly old) · Medium (no refs, maybe dynamic) · Check (owner confirms). User decides.
 
+## 12. Tech debt (always)
+Hacks, workarounds · duplicated logic · outdated/unpinned/EOL versions, deprecated APIs · untested risky code · hard-coded config/env values · dead or legacy paths kept alive · TODO/FIXME debt · manual steps to automate · schema/contract drift. Each `[Tech debt]`: what · cost of keeping (time, risk, money) · fix · effort S/M/L. Bugs/security/data risk → Must; growing cost → Should; else Other. Real debt only.
+
 ## Discipline
 - Committed secret file → flag by path only, never open or quote; scripts, grep, scanners too: exclude those patterns, report path + rule name, value `<redacted>`.
 - Every finding: `file:line` — what · why · smallest fix (snippet if short).
 - Don't invent problems; fine → don't mention. Unsure → Questions. No praise, no code summary, no generic advice. Match project conventions.
-- Must fix: bugs, security, data loss, broken/gamed tests, unintended breaking changes, serious performance.
-- Should fix: design, needless complexity/code, out-of-scope edits, slop, missing key test, moderate performance.
+- Must fix: bugs, security, data loss (incl. debt causing them), broken/gamed tests, unintended breaking changes, serious performance.
+- Should fix: design, growing-cost tech debt, needless complexity/code, out-of-scope edits, slop, missing key test, moderate performance.
 - Other findings (optional; CLAUDE.md format: what · why · impact): lower-impact only; real risk → Must/Should.
 
 ## Output (terminal + `reviews/review-YYYY-MM-DD-HHMM.html`)
 ```
 Verdict: Approve | Approve with changes | Request changes
 Checks run: tests → result, linter → result | not run (why)
+Tech debt: N items, biggest: <what> | none found
 
 Must fix
 - [Security] path/file.py:42 — <problem>. <why>. Fix: <fix>
 Should fix
 - [Complexity] path/file.py:88-120 — <problem>. Fix: <simpler version>
+- [Tech debt] path/file.py:8 — <what>. Cost: <…>. Fix: <fix>. Effort: S|M|L
 Questions
 Unused files (table, §11)
 Areas checked with no issues: <…>
 Net size: <e.g. could drop ~40 of 65 added lines>
 Other findings (only if any)
 ```
-- Tags: Correctness · Security · Performance · Design · Complexity · Size · Slop · Tests · Obvious · Data. Omit empty sections. No findings → verdict, checks, "No issues found."
+- Tags: Correctness · Security · Performance · Design · Complexity · Size · Slop · Tests · Obvious · Data · Tech debt. Omit empty sections. No findings → verdict, checks, "No issues found."
 - HTML: same content, style per docs skill `references/html-style.md`, self-contained, works without JS. Give the path.
 - `reviews/` git-ignored per CLAUDE.md. Commit only if asked (then remove the `/reviews/` line, say so). Already tracked → tell user once: `git rm -r --cached reviews/` (don't run unasked).

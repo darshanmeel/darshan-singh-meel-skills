@@ -52,9 +52,9 @@ RECIPES = {
         "Endpoints": "flow+ endpoints bullets?", "Commands": "flow+ commands bullets?",
         "Events and messages": "flow+ events bullets?",
         "Main flows": "(h3 ipo flow* io?)+",
-        "Data model": "text? er+ views? bullets?", "Business rules": "rules examples?", "Configuration": "config bullets?",
+        "Data model": "text? er+ views? bullets?", "Business rules": "rules", "Configuration": "config bullets?",
         "Security and access": "(access bullets?|bullets)", "Deploy and environments": "flow? steps io* environments? bullets?",
-        "Operations": "io* symptoms (h3 steps io*)*", "Performance and limits": "bullets", "Tests": "tests io* bullets?",
+        "Operations": "io* symptoms tasks? io*", "Performance and limits": "bullets", "Tests": "tests io* bullets?",
         "Key decisions": "choices", LAST: "text? issues unused? assumptions? decisions?"},
     "user-guide": {
         "How it reaches you": "flow bullets? examples?", "Screens": "flow+ elements",
@@ -64,14 +64,14 @@ RECIPES = {
         LAST: "text? issues assumptions? decisions?"},
 }
 H3_FIXED = {("user-guide", "What answers what"): "Columns every"}
-RERUN = "Rerun and backfill"  # technical Operations h3 for pipelines; the other Operations h3s are the plan's how_tos
+RERUN = "Rerun and backfill"  # technical Operations task for pipelines; the other tasks are the plan's how_tos
 STEP_COLS = {  # fixed steps columns per section; other sections keep the default or their own cols
     ("technical", "Deploy and environments"): ["Step", "Command", "Where it runs"],
-    ("technical", "Operations"): ["Step", "How"], ("user-guide", "How to *"): ["Step", "You see"]}
+    ("user-guide", "How to *"): ["Step", "You see"]}
 TYPED = {  # builder-owned headers; the spec gives rows only
     "people": ["Who", "What they get"], "schedule": ["Environment", "Runs", "Notes"],
     "components": ["Component", "Responsibility", "Where"], "api": ["Call", "Returns", "Raises", "Where"],
-    "rules": ["Rule", "Input &rarr; output", "Where"],
+    "rules": ["Rule", "Example in &rarr; out", "Why / impact", "Where"], "tasks": ["Task", "Command", "When", "Where"],
     "config": ["Setting", "Default (code) / deploy value", "Where", "Purpose"], "access": ["Who", "Access", "How"],
     "environments": ["Environment", "Where", "How deployed"], "symptoms": ["Symptom", "Cause", "Fix"],
     "tests": ["Test", "Covers"], "choices": ["Decision", "Why"], "elements": ["Element", "What it does"],
@@ -87,8 +87,14 @@ EXAMPLE_BLOCKS = {"examples", "io", "journey", "ipo"}
 CASES = ["typical", "edge", "rejected", "failure"]
 EX_FIELDS = ["case", "title", "expect", "in", "out"]
 IPO_FIELDS = ["case", "title", "expect", "in", "at", "out"]  # a trace: one `at` value per step
-# word budgets (WARN): lead text, table cell, ipo step `do`, card / strip / trace value
-LEAD_WORDS, LEAD_SENTENCES, CELL_WORDS, DO_WORDS, CARD_WORDS = 40, 2, 15, 8, 12
+# word budgets (WARN): lead text, table cell (no target: only a cell that holds two facts, split it), ipo step `do`,
+# card / strip / trace value
+LEAD_WORDS, LEAD_SENTENCES, CELL_WORDS, DO_WORDS, CARD_WORDS = 40, 2, 40, 8, 12
+NEAR = 0.7  # a column with one value in >= 70% of its rows (not all): say it once, keep the rows that differ
+SAME_CELLS = 4  # the same cell value (2+ words) in this many rows of one column: group the rows or say it once
+STATUS_NEAR = 0.5  # a review status in >= half the rows: said once above the table ("... unless shown")
+CAP = 6  # names shown per table cell; the rest as "+N more", the full cell in its hover title
+MAX_TABLES = 3  # tables per section: more → WARN (merge, or turn small ones into lists)
 ISSUE_COLS = {
     "overview": [("Issue", "issue"), ("What it means", "impact"), ("Status", "status")],
     "technical": [("Issue", "issue"), ("Where", "where"), ("Impact", "impact"), ("Status", "status"), ("Suggested fix", "fix")],
@@ -105,6 +111,14 @@ RUBRIC = {"security": "Must", "data_loss": "Must", "wrong_result": "Must", "cras
 STATUSES = ["Confirmed (review)", "Confirmed (test)", "Confirmed (code)", "Not verified", "Fixed since review"]
 REVIEW_ONLY = ["Confirmed (review)", "Fixed since review"]  # need a named review
 EXREF = re.compile(r"\bExample (\d+(?:\.\d+)?[a-z]|\d+(?:\.\d+)?z\d+)\b")  # "see Example 5.1b"
+STEPREF = re.compile(r"\bstep (\d+\.\d+\.\d+)\b")  # "see step 5.1.3": Main flows section 5, h3 1, step 3
+MAX_STEPS = 7  # ipo steps per strip: merge plumbing steps (parse argv, dispatch, fetch) into the step that makes data
+EQ, NR = "=", "\u2013"  # trace tokens, set by the build: unchanged from the column before · not reached
+PLACEHOLDER = {"skipped", "skip", "not run", "not called", "not reached", "n/a", "na", "none", "unchanged", "same",
+               "same as above", "nothing", "\u2014", "..."}
+VALUE = re.compile(r"[\d`\"'{}\[\]_/@<>]|(?<!\w)[A-Z]")  # an example value: number, name, quote, code, capitalised word
+GENERIC = {"HTTP", "HTTPS", "JSON", "SQL", "CSV", "API", "URL", "UI", "ID", "OK"}  # words, not names
+NAMEISH = re.compile(r"`[^`]+`|\d+|\w*[_./()]\w+|\b[A-Z]{2,}\w*|\b[a-z]+[A-Z]\w*")  # names and numbers in a step out
 INK, RED = "#17191D", "#A12D2D"
 PAD, GX, GY = 20, 44, 44
 CH = 20  # px between parallel lines, and between arrow ends on one side of a box
@@ -114,11 +128,11 @@ SPREAD = 40  # px between arrow ends when 2 or more meet one box side (capped by
 BRK = re.compile(r"(?<=[_/])|(?<=[.-])(?!\d)|(?<=(?<!\d)[.-])|(?<=[a-z])(?=[A-Z])")
 NUMS = re.compile(r"\d+(?:[.:–-]\d+)+")  # versions, dates, line ranges: never broken
 _ids = [0]
-POS = {"kind": "", "slot": "", "sec": 0, "h3": 0, "ex": 0}  # where block() is: example ids, steps columns
-LATE = []  # warnings found while drawing (printed with the coverage warnings)
+POS = {"kind": "", "slot": "", "sec": 0, "h3": 0, "ex": 0, "said": set()}  # where block() is: example ids, steps columns
+LATE = []  # warnings found while drawing (printed with the coverage warnings); used by review-v2
 
 
-def uid():
+def uid():  # used by review-v2
     _ids[0] += 1
     return f"m{_ids[0]}"
 
@@ -136,7 +150,7 @@ def parts(word, box=True):
     return ps
 
 
-def esc(text, wbr=False, box=False):
+def esc(text, wbr=False, box=False):  # used by review-v2
     """Escape; `code` -> <code>, **bold** -> <b>, [synthetic] -> badge; wbr: line-break points in names (parts; in a
     diagram box without the short-tail cuts)."""
     t = html.escape(str(text))
@@ -343,11 +357,11 @@ def spot(segs, j, num, label, solid, marks, W, H, ends_first=False, pad=FOREIGN)
     return None
 
 
-def mark(what, r, lines, n):
-    """Number or label of line n (1 = first polyline); data-e lets check.py tell its own line from the others."""
+def mark(what, r, lines, n, shown=None):
+    """Number (shown, default n) or label of line n (1 = first polyline); data-e lets check.py tell its own line from the others."""
     a, b, c, z = r
     if what == "num":
-        return f'<span class="num" data-e="{n}" style="left:{a + 10}px;top:{b + 10}px">{n}</span>'
+        return f'<span class="num" data-e="{n}" style="left:{a + 10}px;top:{b + 10}px">{shown or n}</span>'
     return f'<span class="lbl" data-e="{n}" style="left:{a}px;top:{b}px;height:{z - b}px">{"<br>".join(esc(x) for x in lines)}</span>'
 
 
@@ -521,7 +535,7 @@ def fan(nodes, edges, groups, did):
         if a == b:
             continue
         if twin:
-            for k in ("label", "fail", "dashed"):
+            for k in ("label", "fail", "dashed", "step"):
                 if twin.get(k) != e.get(k):
                     twin[k] = None
         else:
@@ -559,7 +573,7 @@ def l0_size(did, cols, edges):
     return min(180, room(cols) // 10 * 10), gap
 
 
-def flow(d, p, kind=""):
+def flow(d, p, kind=""):  # used by review-v2 (with uid, LATE, esc)
     did = d.get("id") or d.get("title") or "(no id)"
     nodes = {n["id"]: n for n in d["nodes"]}
     for n in nodes.values():
@@ -717,16 +731,16 @@ def draw(d, did, p, nodes, edges, groups, lanes, cell, C, R, w, k, kind, gap=GX,
                 [(fx + 10, fy + 6, fx + 10 + lw, fy + band - 6) for _, fx, fy, _, _, lw, band in gr]
         marks, front, fail = [], [], None
         for j, e in enumerate(edges):
-            lab = e.get("label")
-            if not (num or lab):
+            lab, nj = e.get("label"), ((e.get("step") if d.get("_main") else j + 1) if num else None)  # Main flows: the strip's step
+            if not (nj or lab):
                 continue
-            got = spot(segs, j, num, lab, solid, marks, W, H, False, pad)
+            got = spot(segs, j, bool(nj), lab, solid, marks, W, H, False, pad)
             if got is None:
                 fail = j
                 break
             for what, r, lines in got:
                 marks.append(r)
-                front.append(mark(what, r, lines, j + 1))
+                front.append(mark(what, r, lines, j + 1, nj))
         if fail is None:
             break
         tries[fail] = tries.get(fail, 0) + 1
@@ -959,19 +973,11 @@ def ex_id():
 
 
 def examples(b):
-    """Cards: id, case, title, then EXPECT, IN, OUT. Business rules with more than 3 → one compact table
-    (Ex · Case · Expect · In · Out), sources under it."""
+    """Cards: id, case, title, then EXPECT, IN, OUT."""
     items = [(ex_id(), c) for c in b["items"]]
     case = lambda c: html.escape(c["case"])
     tag = lambda c: f'<span class="tag">{esc(c.get("tag", c["case"])).upper()}</span>'
     syn = lambda c: ' <span class="chip syn">synthetic</span>' if c.get("synthetic") else ""
-    if len(items) > 3 and POS["slot"] == "Business rules":
-        rows = "".join(f'<tr id="ex-{i}" class="{case(c)}"><td class="exn">{i}</td><td>{tag(c)}{syn(c)}<b>{esc(c["title"])}</b></td>'
-                       f'<td>{esc(c["expect"], True)}</td><td>{kv(c["in"], True)}</td><td>{kv(c["out"], True)}</td></tr>'
-                       for i, c in items)
-        src = " &middot; ".join(f"{i} {esc(c['source'], True)}" for i, c in items if c.get("source"))
-        return (f'<div class="scroll"><table class="extab"><tr><th>Ex</th><th>Case</th><th>Expect</th><th>In</th><th>Out</th></tr>'
-                f'{rows}</table></div>' + (f'<p class="src">{src}</p>' if src else ""))
     cards = []
     for i, c in items:
         src = f'<p class="src">{esc(c["source"], True)}</p>' if c.get("source") else ""
@@ -988,6 +994,10 @@ def issues(b, kind):
     sev = lambda i: i.get("sev") if i.get("sev") in SEV else "Other"
     groups = [(s, [i for i in items if sev(i) == s]) for s in SEV] if kind != "overview" else [("", items)]
     used = [g for g in groups if g[1]]
+    # one status for most issues (>= half, 3+ issues): said once above the table, only the others shown
+    top, k = Counter(str(i.get("status", "")) for i in items).most_common(1)[0] if items else ("", 0)
+    common = top if "status" in dict(cols).values() and top and len(items) >= 3 and k >= STATUS_NEAR * len(items) else None
+    note = all_rows([f"<b>Status</b> = {status(top)}" + (" unless shown" if k < len(items) else "")]) if common else ""
     body, n = "", 0
     for sev, rows in used:
         if sev and len(used) > 1:
@@ -995,48 +1005,190 @@ def issues(b, kind):
         for it in rows:
             n += 1
             proof = lambda k: f'<br><span class="src">{esc(it["test"], True)}</span>' if k == "status" and it.get("test") else ""
-            body += f"<tr><td>{n}</td>" + "".join(
-                f'<td{" class=m" if k == "where" else ""}>{status(it.get(k, ""))}{proof(k)}</td>' for _, k in cols) + "</tr>"
-    return f'<div class="scroll"><table class="issues"><tr>{head}</tr>{body}</table></div>' if n else "<p>No known issues.</p>"
+            val = lambda k: "" if k == "status" and common and str(it.get(k, "")) == common else status(it.get(k, ""))
+            body += f'<tr><td data-h="#">{n}</td>' + "".join(
+                f'<td data-h="{label(c)}"{" class=m" if k == "where" else ""}>{val(k)}{proof(k)}</td>' for c, k in cols) + "</tr>"
+    return (note + f'<div class="scroll"><table class="tt issues"><tr>{head}</tr>{body}</table></div>') if n else "<p>No known issues.</p>"
 
 
-def table(head, rows):
-    """head: ready HTML per column; every cell may be a review status."""
-    th = "".join(f"<th>{h}</th>" for h in head)
-    body = "".join("<tr>" + "".join(f"<td>{status(c)}</td>" for c in r) + "</tr>" for r in rows)
-    return f'<div class="scroll"><table><tr>{th}</tr>{body}</table></div>'
+def lift(head, rows):
+    """Say a column's value once: a column with one value in every row (3+ rows) leaves the table and becomes one line
+    above it ("All rows: <col> = <value>"; an empty column just goes); the first column (what the row is) stays.
+    A review-status column with one status in >= half the rows keeps only the others ("... unless shown").
+    Returns (that line's parts, kept column indexes, {column: value left blank})."""
+    keep, notes, blank = list(range(len(head))), [], {}
+    if len(rows) < 3:
+        return notes, keep, blank
+    for j in range(1, len(head)):
+        col = [str(r[j]).strip() if j < len(r) else "" for r in rows]
+        v, k = Counter(col).most_common(1)[0]
+        if k == len(col):
+            keep.remove(j)
+            notes += [f"<b>{head[j]}</b> = {status(v)}"] if v else []
+        elif v.startswith(tuple(STATUSES)) and k >= STATUS_NEAR * len(col):
+            blank[j] = v
+            notes.append(f"<b>{head[j]}</b> = {status(v)} unless shown")
+    return notes, keep, blank
 
 
-def rows_list(head, rows):
+def all_rows(notes):
+    return f'<p class="key allrows">All rows: {" &middot; ".join(notes)}</p>' if notes else ""
+
+
+def label(h):
+    """A column header as a plain label (phone rows show it before each value)."""
+    return html.escape(html.unescape(re.sub(r"<[^>]+>", "", h)), quote=True)
+
+
+def sources(cells):
+    files = list(dict.fromkeys(m[1] for c in cells for m in PATH_RE.finditer(str(c))))
+    return f'<p class="src">Sources: {" &middot; ".join(esc(f) for f in files)}</p>' if files else ""
+
+
+HIDDEN = set()  # names a capped cell shows only in its hover title (they still count for coverage)
+
+
+def capped(c, short=False):
+    """A cell naming more than CAP names (backticked, or paths in a Where cell): the first CAP, then "+N more"; the full
+    cell goes in the hover title. Returns (cell, title)."""
+    s = str(c)
+    found = list(PATH_RE.finditer(s) if short else re.finditer(r"`[^`]+`", s))
+    if len(found) <= CAP:
+        return c, ""
+    HIDDEN.update(m[1] if short else m[0].strip("`") for m in found)
+    a, z = found[CAP - 1].end(), found[-1].end()
+    a, z = a + (s[a:a + 1] == "`"), z + (s[z:z + 1] == "`")  # keep a backticked path whole
+    return s[:a] + f" +{len(found) - CAP} more" + s[z:], s.replace("`", "")
+
+
+def td(h, c, short=False, span=1):
+    """A table cell labelled with its column (phone rows); short: a Where path as basename:line, the full path in its title."""
+    c, full = capped(c, short)
+    t = f' title="{html.escape(full)}"' if full else ""
+    cs = f' colspan="{span}"' if span > 1 else ""
+    if short and str(c).strip():
+        return f'<td data-h="{label(h)}"{cs}><span class="src" title="{html.escape(full or str(c))}">{esc(short_where(c), True)}</span></td>'
+    return f'<td data-h="{label(h)}"{t}{cs}>{status(c)}</td>'
+
+
+def tip(cv):
+    return f' title="covers {len(cv)}: {html.escape(", ".join(map(str, cv)))}"' if cv else ""
+
+
+def table(head, rows, short=False, covers=None):
+    """head: ready HTML per column; every cell may be a review status. Columns with one value for all rows are said once
+    above the table. short: Where cells as basename:line, full paths once under the table. covers: per row, the
+    inventory names a group row stands for (hover title)."""
+    notes, keep, blank = lift(head, rows)
+    w = [j for j in keep if short and re.sub(r"<[^>]+>", "", head[j]) == "Where"]
+    th = "".join(f"<th>{head[j]}</th>" for j in keep)
+    cv = covers or [None] * len(rows)
+    cell = lambda r, j: "" if j >= len(r) or (j in blank and str(r[j]).strip() == blank[j]) else r[j]
+
+    def tds(r):
+        if not short:  # rules (short Where): a "see step" row's empty cells join the cell before them
+            return "".join(td(head[j], cell(r, j), j in w) for j in keep)
+        out, k = "", 0
+        while k < len(keep):
+            span = 1
+            while STEPREF.search(str(cell(r, keep[k]))) and k + span < len(keep) and not str(cell(r, keep[k + span])).strip():
+                span += 1
+            out += td(head[keep[k]], cell(r, keep[k]), keep[k] in w, span)
+            k += span
+        return out
+    body = "".join(f"<tr{tip(c)}>" + tds(r) + "</tr>" for r, c in zip(rows, cv))
+    return (all_rows(notes) + f'<div class="scroll"><table class="tt"><tr>{th}</tr>{body}</table></div>'
+            + (sources(r[j] for r in rows for j in w) if w else ""))
+
+
+def tasks_table(rows, covers=None):
+    """Operations tasks: one heading row per task, its rows under it (numbered when more than one): Command · When · Where."""
+    head, groups = TYPED["tasks"], []
+    for r, c in zip(rows, covers or [None] * len(rows)):
+        if str(r[0]).strip() or not groups:
+            groups.append((r[0], c, []))
+        groups[-1][2].append(r)
+    notes, keep, _ = lift(head, [[""] + [str(c) for c in r[1:]] for r in rows])
+    keep = [j for j in keep if j]
+    th = "".join(f"<th>{head[j]}</th>" for j in keep)
+    body = ""
+    for task, c, rs in groups:
+        body += f'<tr class="grp"{tip(c)}><td colspan="{len(keep)}">{status(task)}</td></tr>'
+        for k, r in enumerate(rs, 1):
+            cells = [td(head[j], r[j], head[j] == "Where") for j in keep]
+            if len(rs) > 1:
+                cells[0] = cells[0].replace(">", f'><span class="n">{k}</span> ', 1)
+            body += "<tr>" + "".join(cells) + "</tr>"
+    w = [j for j in keep if head[j] == "Where"]
+    return (all_rows(notes) + f'<div class="scroll"><table class="tt tasks"><tr>{th}</tr>{body}</table></div>'
+            + sources(r[j] for r in rows for j in w))
+
+
+def rows_list(head, rows, covers=None):
     """A typed table of 1-2 rows: one line per row, first cell bold, the others after their column name."""
-    li = lambda r: f"<b>{status(r[0])}</b>" + "".join(f' &middot; <span class="k">{h}</span> {status(c)}' for h, c in zip(head[1:], r[1:]) if c != "")
-    return '<ul class="rows">' + "".join(f"<li>{li(r)}</li>" for r in rows) + "</ul>"
+    li = lambda r: f"<b>{status(r[0])}</b>" + "".join(f' &middot; <span class="k">{h}</span> {status(capped(c)[0])}' for h, c in zip(head[1:], r[1:]) if c != "")
+    return '<ul class="rows">' + "".join(f"<li{tip(c)}>{li(r)}</li>" for r, c in zip(rows, covers or [None] * len(rows))) + "</ul>"
+
+
+def short_where(w):
+    """A step's `where` as basename:line (the full path is in its hover title and the Sources line)."""
+    return PATH_RE.sub(lambda m: m[1].rsplit("/", 1)[-1] + (f":{m[2]}" if m[2] else ""), str(w))
+
+
+def token(v):
+    """A trace cell: "" or "=" → EQ (unchanged from the column before); None, "-" or "–" → NR (not reached); else v."""
+    return NR if v is None or v in ("-", NR) else EQ if v in ("", EQ) else v
 
 
 def ipo(b):
-    """Main flows: Input > numbered steps (what it does, what it outputs, where) > Output as one strip, then the
-    example traces as one grid: a row per example (id, case, title, EXPECT), columns In, each step's output, Out."""
-    st = b["steps"]
+    """Main flows: Input > numbered steps (what it does, what it outputs, where as basename:line) > Output as one strip,
+    full paths once under it; then the example traces as one grid: a row per example (id, case, title, EXPECT),
+    columns In, each step's output, Out. Traces after the first two fold into <details>; a legend names = and –."""
+    st, here, dia = b["steps"], f'{POS["sec"]}.{POS["h3"]}', b.get("_dia")
     end = lambda cls, lab, v: f'<li class="{cls}"><span class="lbl2">{lab}</span><span class="o">{kv(v, True)}</span></li>'
+    br = lambda s: (f'<span class="br">else {esc(s["branch"], True)}' + (f' &#9656; <a href="#d-{esc(dia)}">Diagram {esc(dia)}</a>'
+                                                                          if dia else "") + "</span>") if s.get("branch") else ""
+    where = lambda s: (f'<span class="src" title="{html.escape(str(s["where"]))}">{esc(short_where(s["where"]), True)}</span>'
+                       if s.get("where") else "")
+    why = lambda s: f'<span class="why">{esc(s["why"], True)}</span>' if s.get("why") else ""
     strip = end("io-in", "INPUT", b["input"]) + "".join(
-        f'<li><span class="n">{k}</span><b>{esc(s["do"], True)}</b><span class="o">{esc(s["out"], True)}</span>'
-        + (f'<span class="src">{esc(s["where"], True)}</span>' if s.get("where") else "") + "</li>"
-        for k, s in enumerate(st, 1)) + end("io-out", "OUTPUT", b["output"])
-    out = f'<ol class="ipo">{strip}</ol>'
+        f'<li id="st-{here}.{k}"><span class="n">{k}</span><b>{esc(s["do"], True)}</b><span class="o">{esc(s["out"], True)}</span>'
+        f'{why(s)}{br(s)}{where(s)}</li>' for k, s in enumerate(st, 1)) + end("io-out", "OUTPUT", b["output"])
+    files = list(dict.fromkeys(m[1] for s in st for m in PATH_RE.finditer(str(s.get("where") or ""))))
+    out = f'<ol class="ipo">{strip}</ol>' + (f'<p class="src">Sources: {" &middot; ".join(esc(f) for f in files)}</p>' if files else "")
     items = [(ex_id(), c) for c in b.get("examples") or []]
     if not items:
         return out
-    cell = lambda h, v: f'<td data-h="{h}"><div>' + ('<span class="tc">=</span>' if v in ("", None) else kv(v, True)) + "</div></td>"
-    head = "<th>Ex</th><th>In</th>" + "".join(f"<th>{k}</th>" for k in range(1, len(st) + 1)) + "<th>Out</th>"
-    rows = "".join(
-        f'<tr id="ex-{i}" class="{html.escape(c["case"])}"><td class="exn" data-h="Ex"><span class="id">{i}</span>'
+    used = set()
+
+    def cell(h, v):
+        v = token(v)
+        if v in (EQ, NR):
+            used.add(v)
+            return f'<td data-h="{h}" class="{"eq" if v == EQ else "nr"}"><div><span class="tc">{v}</span></div></td>'
+        return f'<td data-h="{h}"><div>{kv(v, True)}</div></td>'
+    hs = ["In"] + [html.escape(f'{k} {s["do"]}'.replace("`", "")) for k, s in enumerate(st, 1)] + ["Out"]
+    head = "<tr><th>Ex</th><th>In</th>" + "".join(f"<th>{k}</th>" for k in range(1, len(st) + 1)) + "<th>Out</th></tr>"
+    row = lambda i, c, more="": (
+        f'<tr id="ex-{i}" class="{html.escape(c["case"])}{more}"><td class="exn" data-h="Ex"><span class="id">{i}</span>'
         f'<span class="tag">{esc(c.get("tag", c["case"])).upper()}</span>'
         + (' <span class="chip syn">synthetic</span>' if c.get("synthetic") else "")
         + f'<b>{esc(c["title"], True)}</b><span class="exp"><span class="lbl2">EXPECT</span> {esc(c["expect"], True)}</span></td>'
-        + cell("In", c["in"]) + "".join(cell(str(k), v) for k, v in enumerate(c.get("at") or [], 1)) + cell("Out", c["out"]) + "</tr>"
-        for i, c in items)
+        + "".join(cell(h, v) for h, v in zip(hs, [c["in"]] + list(c.get("at") or []) + [c["out"]])) + "</tr>")
+    grid = lambda its: f'<div class="scroll"><table class="trace">{head}{"".join(row(i, c, " more" * (k > 0)) for k, (i, c) in enumerate(its))}</table></div>'
+    if items[1:]:  # phone: traces after the first stay folded behind one toggle (CSS only)
+        out += f'<input type="checkbox" class="more" id="more-{here}" aria-label="more examples">'
+    out += grid(items[:2])
+    if items[1:]:
+        out += f'<label class="more-l" for="more-{here}">More examples: {", ".join(i for i, _ in items[1:])}</label>'
+    if items[2:]:
+        out += f'<details><summary>More examples: {", ".join(i for i, _ in items[2:])}</summary>{grid(items[2:])}</details>'
+    legend = [t for x, t in ((EQ, "= unchanged from the column before"), (NR, "&ndash; not reached, or a step this example does not touch"))
+              if x in used and t not in POS["said"]]  # each token explained once per section
+    POS["said"].update(legend)
+    out += f'<p class="key legend">{" &middot; ".join(legend)}</p>' if legend else ""  # phone: those cells are hidden
     src = " &middot; ".join(f"{i} {esc(c['source'], True)}" for i, c in items if c.get("source"))
-    return out + f'<div class="scroll"><table class="trace"><tr>{head}</tr>{rows}</table></div>' + (f'<p class="src">{src}</p>' if src else "")
+    return out + (f'<p class="src">{src}</p>' if src else "")
 
 
 def block(b, kind):
@@ -1052,16 +1204,21 @@ def block(b, kind):
         out = "<ul>" + "".join(f"<li><b>{esc(a)}:</b> {esc(x)}</li>" for a, x in b["items"]) + "</ul>"
     elif t == "table":
         one = "<ul>" + "".join(f"<li>{status(r[0])}</li>" for r in b["rows"] if r) + "</ul>"  # one column: a list
-        out = table([esc(c) for c in b["cols"]], b["rows"]) if len(b["cols"]) > 1 else one
-    elif t in TYPED:  # 1-2 rows: one line each, not a table
-        rows = table(TYPED[t], b["rows"]) if len(b["rows"]) > 2 else rows_list(TYPED[t], b["rows"])
+        out = table([esc(c) for c in b["cols"]], b["rows"], covers=b.get("_covers")) if len(b["cols"]) > 1 else one
+    elif t in TYPED:  # 1-2 rows: one line each, not a table (tasks: a table, a heading row per task)
+        cv = b.get("_covers")
+        rows = (tasks_table(b["rows"], cv) if t == "tasks" and len(b["rows"]) > 1 else
+                table(TYPED[t], b["rows"], t == "rules", cv) if len(b["rows"]) > 2 else rows_list(TYPED[t], b["rows"], cv))
+        link = lambda m: f'<a href="#st-{m[1]}">step {m[1]}</a>'
+        rows = re.sub(r'\bstep <span class="nw">(\d+\.\d+\.\d+)</span>', link, rows) if t == "rules" else rows
         out = (f"<h3>{TYPED_H3[t]}</h3>" if t in TYPED_H3 else "") + rows
     elif t == "steps":
         cols = step_cols(b, POS["kind"], POS["slot"])
         head = "<th>#</th>" + "".join(f"<th>{esc(c)}</th>" for c in cols)
-        body = "".join(f'<tr><td><span class="n">{i}</span></td>' + "".join(f"<td>{esc(c, True)}</td>" for c in r) + "</tr>"
+        body = "".join(f'<tr><td data-h="#"><span class="n">{i}</span></td>' + "".join(f'<td data-h="{label(esc(h))}">{esc(c, True)}</td>'
+                                                                                     for h, c in zip(cols, r)) + "</tr>"
                        for i, r in enumerate(b["rows"], 1))
-        out = f'<table class="steps"><tr>{head}</tr>{body}</table>'
+        out = f'<div class="scroll"><table class="tt steps"><tr>{head}</tr>{body}</table></div>'
     elif t == "terms":
         out = '<ul class="terms">' + "".join(f"<li><b>{esc(a)}</b> &mdash; {esc(m)}</li>" for a, m in b["items"]) + "</ul>"
     elif t == "io":
@@ -1083,7 +1240,9 @@ def block(b, kind):
             pd, pb = b["parent"]
             out += f'<p class="key">Sub-flow of <b>{esc(pb)}</b> in <a href="#d-{esc(pd)}">Diagram {esc(pd)}</a></p>'
         out += flow(b, uid(), kind) if t == "flow" else er(b, uid()) if t == "er" else journey(b, uid())
-        out += f'<p class="key">Key: {esc(b["key"])}</p>' if b.get("key") else ""
+        if b.get("key") and b["key"] not in POS["said"]:  # the same key under several diagrams of a section: once
+            out += f'<p class="key">Key: {esc(b["key"])}</p>'
+            POS["said"].add(b["key"])
         out += f'<p class="cap">Notice: {esc(b["notice"])}</p>' if b.get("notice") else ""
     else:
         die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, ipo, issues, details, flow, er, journey, {', '.join(TYPED)})")
@@ -1244,12 +1403,78 @@ def ipo_check(n, b, err, warn, main):
         lack = [f for f in ("do", "out") if not (isinstance(x, dict) and x.get(f))]
         if lack:
             err.append(f"{n}: ipo step {k} under '{POS['h3text']}' needs {', '.join(lack)} (each step: do, out, where)")
+    h3 = POS["h3text"]
+    if len(steps) > MAX_STEPS:
+        warn.append(f"{n}: '{h3}' has {len(steps)} ipo steps (max {MAX_STEPS}): merge plumbing steps (parse argv, dispatch, "
+                    f"fetch) into the step that produces data; `graph: [k, ...]` names the graph steps a merged step covers")
+    same = [f"{k} '{x['out']}'" for k, x in enumerate(steps, 1) if isinstance(x, dict) and x.get("do") and x.get("out")
+            and restates(x["do"], x["out"])]
+    if same:
+        warn.append(f"{n}: steps under '{h3}' whose out adds no name or number to their do: {', '.join(same)}: "
+                    f"name what the step produces (`table`, value, status, count)")
+    ds = [x for x in steps if isinstance(x, dict)]
+    nowhy = [str(k) for k, x in enumerate(ds, 1) if not x.get("why") and (x.get("branch") or DATA_STEP.search(f"{x.get('do', '')} {x.get('out', '')}"))]
+    if ds and not any(x.get("why") for x in ds):
+        warn.append(f"{n}: no step under '{h3}' has a `why`: say why a step exists or what breaks when it fails (one clause "
+                    f"each, from code, tests or docs) at least on the steps that drop, filter, branch or write data")
+    elif nowhy:
+        warn.append(f"{n}: steps under '{h3}' that drop, filter, branch or write data without `why`: {', '.join(nowhy)}: say why "
+                    f"the step exists or what breaks when it fails (one clause, from code, tests or docs)")
+    echo = [str(k) for k, x in enumerate(ds, 1) if x.get("why") and echoes(x["why"], f"{x.get('do', '')} {x.get('out', '')} {x.get('branch', '')}")]
+    if echo:
+        warn.append(f"{n}: whys under '{h3}' that restate the step's out or branch: {', '.join(echo)}: say why the step exists "
+                    f"or what breaks without it, or leave the why out")
     ex = b.get("examples") or []
     example_items(n, ex, err, warn, main, IPO_FIELDS)
+    ph, bare_, eqs = [], [], []
     for c in ex:
         at = c.get("at")
         if isinstance(at, list) and at and len(at) != len(steps):
-            err.append(f"{n}: example '{c.get('title', '')}': {len(at)} `at` values, want one per step ({len(steps)}; \"\" = unchanged)")
+            err.append(f"{n}: example '{c.get('title', '')}': {len(at)} `at` values, want one per step ({len(steps)}; "
+                       f"\"=\" unchanged, null not reached)")
+        if isinstance(at, list) and at and token(at[0]) == EQ:
+            err.append(f"{n}: example '{c.get('title', '')}' under '{h3}': '=' at step 1 only repeats In: give the value after "
+                       f"step 1, or null when the example does not reach it")
+        if isinstance(at, list) and len(at) >= 2 and 2 * sum(token(v) == EQ for v in at) > len(at):
+            eqs.append(f"'{c.get('title', '')}'")
+        for k, v in enumerate(at if isinstance(at, list) else [], 1):
+            vals = [str(y) for y in values(token(v))]
+            if token(v) in (EQ, NR):
+                continue
+            if any(y.strip(" .").lower() in PLACEHOLDER for y in vals):
+                ph.append(f"'{c.get('title', '')}' step {k}: '{' '.join(vals)}'")
+            elif not any(VALUE.search(y) for y in vals):
+                bare_.append(f"'{c.get('title', '')}' step {k}: '{' '.join(vals)}'")
+    if ph:
+        warn.append(f"{n}: trace cells under '{h3}' use placeholder words ({'; '.join(ph[:4])}): write \"=\" (unchanged from "
+                    f"the column before) or null (not reached, shown {NR})")
+    if eqs:
+        warn.append(f"{n}: traces under '{h3}' with more than half '=' cells ({', '.join(eqs)}): '=' is only 'unchanged from "
+                    f"the column before'; a step the example does not touch is null ('–'); an example of one step is a rule "
+                    f"example (its Business rules row, in → out)")
+    if bare_:
+        warn.append(f"{n}: trace cells under '{h3}' hold no example value ({'; '.join(bare_[:4])}): give the value at that "
+                    f"step (a name, number, status) or \"=\"")
+
+
+DATA_STEP = re.compile(r"\b(drop|filter|skip|dedup|de-dup|delete|remove|reject|exclude|discard|writ|insert|upsert|merge|overwrite|"
+                       r"truncate|append|persist|publish)\w*", re.I)  # steps whose why the reader needs
+WORD = re.compile(r"[a-z][a-z0-9_]{3,}")
+STOP = {"that", "this", "with", "from", "into", "when", "then", "else", "only", "each", "every", "than", "them", "they",
+        "their", "there", "which", "would", "will", "have", "been", "does", "were", "what", "after", "before", "over"}
+
+
+def echoes(why, step):
+    """A why whose words (4+ letters) are mostly (>= 60%, 3+ words) already in the step's do, out or branch restates it."""
+    w = [x for x in WORD.findall(str(why).lower()) if x not in STOP]
+    have = set(WORD.findall(str(step).lower()))
+    return len(w) >= 3 and sum(x in have for x in w) >= 0.6 * len(w)
+
+
+def restates(do, out):
+    """A step out with no name or number that its do does not already hold only restates the do."""
+    names = lambda t: {m.strip("`").lower() for m in NAMEISH.findall(str(t)) if m not in GENERIC}
+    return not (names(out) - names(do))
 
 
 NOTES = []  # printed as note: lines (documented overrides)
@@ -1277,10 +1502,11 @@ def entry_of(h3_text):
 
 
 def main_flows(spec, blocks, plan, err, warn):
-    """Technical Main flows: h3s = the plan's (or a documented h3_override), in order; one ipo per h3, one step per
-    ordered graph step. Per h3 the plan decides whether there is a flow diagram (diagram: true iff the graph flow
-    branches); its title is written here: "<entry>, <N> steps", N = its numbered arrows, one ipo step per arrow. More
-    flows under one h3 are sub-flows (parent). Code and entry boxes are the plan flow's steps (plan boxes) or entry points."""
+    """Technical Main flows: h3s = the plan's (or a documented h3_override), in order; one ipo per h3 covering the
+    ordered graph steps (one each, or merged via `graph`). Per h3 the plan decides whether there is a flow diagram
+    (diagram: true iff the graph flow branches): the strip then shows the main path and marks the branch step, the
+    diagram the branches; its title is written here: "<entry>, <N> steps", N = its numbered arrows. More flows under
+    one h3 are sub-flows (parent). Code and entry boxes are the plan flow's steps (plan boxes) or entry points."""
     over = spec.get("h3_override", {}) or {}
     pm = (plan or {}).get("main_flows")
     if pm is not None:
@@ -1296,10 +1522,10 @@ def main_flows(spec, blocks, plan, err, warn):
     groups, cur = [], None
     for b in blocks:
         if b["type"] == "h3":
-            cur = {"h3": b["text"], "steps": None, "flows": []}
+            cur = {"h3": b["text"], "steps": None, "flows": [], "ipo": None}
             groups.append(cur)
         elif cur and b["type"] == "ipo" and cur["steps"] is None:
-            cur["steps"] = len(b.get("steps") or [])
+            cur["steps"], cur["ipo"] = len(b.get("steps") or []), b
         elif cur and b["type"] == "flow" and not b.get("parent"):  # a sub-flow keeps its "inside <box>" title
             cur["flows"].append(b)
             if len(cur["flows"]) == 2:
@@ -1312,26 +1538,30 @@ def main_flows(spec, blocks, plan, err, warn):
         err.append(f"Main flows: h3 titles must be the plan's, in order (inventory.json plan.main_flows, or h3_override): want {want}, got {h3s}")
     for k, g in enumerate(groups):
         m = pm[k] if pm is not None and k < len(pm) and h3s == want else None
-        n = g["steps"] or 0
         if m is not None and "diagram" in m:
             if m["diagram"] and not g["flows"]:
                 err.append(f"Main flows: '{g['h3']}' needs a flow diagram (plan diagram: true: the graph flow branches)")
             if not m["diagram"] and g["flows"]:
                 err.append(f"Main flows: '{g['h3']}' has no diagram in the plan (diagram: false: the graph flow has no "
                            f"branch or decision): leave the flow out, the ipo strip shows it")
-            if m.get("ordered") and m["steps"] and n != m["steps"]:
-                warn.append(f"Main flows: '{g['h3']}' has {n} ipo steps, the graph flow {m['steps']} ordered steps (want one per graph step)")
+            seq = covered((g["ipo"] or {}).get("steps") or [])
+            if m.get("ordered") and m["steps"] and seq != list(range(1, m["steps"] + 1)):
+                warn.append(f"Main flows: '{g['h3']}': its ipo steps cover graph steps {seq}, the graph flow has {m['steps']} ordered "
+                            f"steps (plan boxes, in order): one ipo step per graph step, or `graph: [k, ...]` on a step that "
+                            f"merges consecutive ones")
+            if m["diagram"] and g["ipo"] and not any(isinstance(x, dict) and x.get("branch") for x in g["ipo"].get("steps") or []):
+                warn.append(f"Main flows: '{g['h3']}': the strip shows the main path; mark the step the branch leaves with "
+                            f"`branch: \"<other outcome>\"` (shown 'else ... ▸ Diagram X')")
         for f in g["flows"][:1]:
-            got = arrow_count(f)
-            gen = f"{(m or {}).get('entry') or entry_of(g['h3'])}, {got} steps"
+            got = drawn(f, (g["ipo"] or {}).get("steps") or [], g["h3"], err)
+            gen = f"{g['h3']}, {got} steps"  # the flow's name, never one of its boxes
             if f.get("title") and f["title"] != gen:
                 err.append(f"diagram {f.get('id', '?')}: a Main flows title is written by the build: leave out title (it is '{gen}'), got '{f['title']}'")
             f["title"], f["_main"] = gen, True
             if not f.get("numbered", True):
                 err.append(f"diagram {f.get('id', '?')}: a Main flows diagram is numbered (leave out numbered: false)")
-            if got != n:
-                warn.append(f"diagram {f.get('id', '?')}: {got} numbered arrows but {n} ipo steps under '{g['h3']}': "
-                            f"N = the arrows everywhere: one ipo step per arrow, step k = arrow k")
+            if g["ipo"] is not None:
+                g["ipo"]["_dia"] = f.get("id")
             ok = set((m or {}).get("boxes") or []) | ENTRIES
             off = [x["label"] for x in f.get("nodes", []) if x.get("kind") in ("code", "entry") and m and m.get("boxes")
                    and bare(x["label"]) not in ok]
@@ -1340,27 +1570,160 @@ def main_flows(spec, blocks, plan, err, warn):
                             f"(plan boxes: {m['boxes']}) nor entry points: use the step names, or a plain box for an added step")
 
 
-def operations_h3(blocks, plan, err, warn):
-    """Technical Operations h3s: "Rerun and backfill" (pipelines only) or a plan how-to (process node), exact name;
-    every plan how-to has its h3."""
+def drawn(f, strip, h3, err):
+    """A Main flows diagram draws what the strip cannot: its arrows `step: k` are strip steps (numbered k, the strip's
+    number), its other arrows the branches (label only). Every branch step of the strip has its other outcome drawn
+    (ERROR otherwise); a straight chain only redraws the strip (ERROR). Returns how many strip steps it draws."""
+    did, edges = f.get("id", "?"), f.get("edges", [])
+    kinds = {x.get("id"): x.get("kind", "") for x in f.get("nodes", [])}
+    outs = Counter(e.get("from") for e in edges)
+    nums = [e["step"] for e in edges if "step" in e]
+    if edges and not nums:
+        err.append(f"diagram {did}: give the arrows that are strip steps under '{h3}' their step: `step: k` (shown as the "
+                   f"strip's number k); branch arrows carry a label only")
+    bad = sorted({str(k) for k in nums if not (isinstance(k, int) and 1 <= k <= len(strip))})
+    if bad:
+        err.append(f"diagram {did}: arrows with step {', '.join(bad)}: the strip under '{h3}' has steps 1-{len(strip)}")
+    fork = lambda i: outs[i] > 1 or kinds.get(i) in ("decision", "fail")
+    if edges and not any(fork(i) for i in kinds) and not any(e.get("fail") for e in edges):
+        err.append(f"diagram {did} is one straight chain: it redraws the strip under '{h3}'; a Main flows diagram draws the "
+                   f"branches (a decision or fail box, or a second arrow from a box)")
+    for k, x in enumerate(strip, 1):
+        at = [e for e in edges if e.get("step") == k]
+        if isinstance(x, dict) and x.get("branch") and edges and not any(fork(e["from"]) or fork(e["to"]) or e.get("fail") for e in at):
+            err.append(f"diagram {did} does not draw the branch of step {k} under '{h3}' ('{x['branch']}'): "
+                       + (f"give that step's arrow `step: {k}`" if not at else
+                          f"draw its other outcome: a fail or decision box, or a second arrow from the box arrow {k} leaves"))
+    return len({k for k in nums if isinstance(k, int)})
+
+
+def covered(steps):
+    """Graph step numbers an ipo strip covers: a step's `graph` list (merged consecutive steps), else the next one."""
+    seq = []
+    for x in steps:
+        g = x.get("graph") if isinstance(x, dict) else None
+        seq += [int(v) for v in g if str(v).isdigit()] if isinstance(g, list) and g else [(seq[-1] if seq else 0) + 1]
+    return seq
+
+
+def operations_tasks(blocks, plan, err, warn):
+    """Technical Operations: one `tasks` table (Task · Command · When). Task = "Rerun and backfill" (pipelines only) or
+    a plan how-to (process node), exact name; an empty Task cell continues the task above; every plan how-to has rows."""
     hows = (plan or {}).get("how_tos")
     rerun = not plan or plan.get("rerun_and_backfill", True)
+    rows, cv = [], []
     for b in blocks:
-        t = b.get("text", "") if b["type"] == "h3" else None
-        if t is None or (t == RERUN and rerun) or (t in hows if hows is not None else t.startswith("How to ")):
+        if b["type"] == "tasks":
+            rows += b["rows"]
+            cv += b.get("_covers") or [None] * len(b["rows"])
+    if rows and not str(rows[0][0]).strip():
+        err.append("Operations: the first tasks row needs a Task (an empty Task cell continues the task above)")
+    names, done = [], set()
+    for r, c in zip(rows, cv):
+        t = str(r[0]).strip() if r else ""
+        if not t:
             continue
-        err.append(f"Operations: h3 '{t}' must be " + (f"'{RERUN}' or " if rerun else "")
-                   + (f"a plan how-to (inventory.json plan.how_tos: {hows})" if hows is not None else "'How to …'")
-                   + ("" if rerun else f" ('{RERUN}' is for pipelines and dbt only)"))
-    have = [b.get("text") for b in blocks if b["type"] == "h3"]
-    miss = [h for h in hows or [] if h not in have]
+        names.append(t)
+        where = str(r[3]).replace("`", "") if len(r) > 3 else ""
+        hit = {h for h in hows or [] if h == t or h in (c or []) or re.search(rf"(?<!\w){re.escape(h)}(?!\w)", where)}
+        done |= hit
+        if not ((t == RERUN and rerun) or hows is None or hit):
+            err.append(f"Operations: task '{t}' must be " + (f"'{RERUN}' or " if rerun else "")
+                       + f"a plan how-to (inventory.json plan.how_tos: {hows}): its exact text, or a task name in plain words with "
+                       f"the how-to in its Where cell or `covers`" + ("" if rerun else f" ('{RERUN}' is for pipelines and dbt only)"))
+    dup = [t for t, k in Counter(names).items() if k > 1]
+    if dup:
+        warn.append(f"Operations: tasks {dup} start more than once: one block of rows per task (leave Task empty on its next rows)")
+    miss = [h for h in hows or [] if h not in done]
     if miss:
-        warn.append(f"Operations: plan how-tos without an h3: {miss} (one h3 + steps each, in plan order)")
+        warn.append(f"Operations: plan how-tos without a tasks row: {miss} (one or more rows each, in plan order)")
+
+
+def shape(b):
+    """Blocks of one shape (one typed table type, or a `table` with the same columns) next to each other are one table."""
+    t = b.get("type") if isinstance(b, dict) else None
+    return (t, None) if t in TYPED else (t, tuple(b.get("cols") or [])) if t == "table" else None
+
+
+def merge_tables(spec):
+    """Adjacent tables of one shape (no source on the first) become one: their rows joined, in order."""
+    for n, bs in spec.get("sections", {}).items():
+        if not isinstance(bs, list):
+            continue
+        out = []
+        for b in bs:
+            prev = out[-1] if out else None
+            if (prev is not None and shape(b) and shape(b) == shape(prev) and not prev.get("source")
+                    and isinstance(prev.get("rows"), list) and isinstance(b.get("rows"), list)):
+                prev["rows"] = prev["rows"] + b["rows"]
+                continue
+            out.append(dict(b) if shape(b) else b)
+        spec["sections"][n] = out
+
+
+def tables(blocks):
+    """The blocks a section shows as a table (typed tables of 3+ rows, tasks of 2+, `table` with 2+ columns, steps, issues)."""
+    rows = lambda b: [r for r in b.get("rows", []) if isinstance(r, list)]
+    return [b["type"] for b in blocks if b["type"] in ("steps", "issues") or b["type"] == "table" and len(b.get("cols") or []) > 1
+            or b["type"] in TYPED and (len(rows(b)) > 2 or b["type"] == "tasks" and len(rows(b)) > 1)]
+
+
+def split_covers(spec):
+    """A table row may end with {"covers": [names]}: the inventory items a group row stands for (counted by coverage,
+    shown as the row's hover title). Moved to the block's `_covers`, one entry per row."""
+    merge_tables(spec)
+    for bs in spec.get("sections", {}).values():
+        for b in flat(bs) if isinstance(bs, list) else []:
+            rows = b.get("rows") if isinstance(b, dict) else None
+            ext = lambda r: isinstance(r, list) and r and isinstance(r[-1], dict)
+            if isinstance(rows, list) and any(ext(r) for r in rows):
+                b["_covers"] = [[str(x) for x in r[-1].get("covers") or []] if ext(r) else None for r in rows]
+                b["rows"] = [r[:-1] if ext(r) else r for r in rows]
+
+
+BOOKKEEPING = re.compile(r"\b\d*\s*graph (?:rule|node|item|step|entr(?:y|ie))s?\b|\(\d+ (?:rule|node)s?\)", re.I)  # "(2 graph rules)", "(2 rules)"
+GROUP_ROW = re.compile(r"^\s*(\d+) ([^:`]{1,40}): (.+)$")  # "13 schema files: a, b, c"
+
+
+def cell_repeats(spec, kind, names, warn):
+    """Filler in table cells: a group row that lists another number of names than it says; graph bookkeeping ("2 graph
+    rules") in a cell; a column with one value in >= 70% of its rows (not all: those are said once by the build); the same
+    cell (2+ words) in 4+ rows of one column."""
+    for n in names:
+        for b in flat(spec["sections"][n]):
+            t = b["type"]
+            head = TYPED.get(t) or (b.get("cols") if t == "table" else None)
+            rows = [r for r in b.get("rows", []) if isinstance(r, list)] if head else []
+            for r, c in zip(rows, b.get("_covers") or [None] * len(rows)):
+                m = GROUP_ROW.match(str(r[0])) if r else None
+                listed = [x for x in re.split(r",\s*|\s+and\s+", m[3]) if x.strip()] if m else []
+                book = [str(x) for x in r if BOOKKEEPING.search(str(x))]
+                if book:
+                    warn.append(f"{n}: row '{str(r[0])[:40]}' says how the graph counts ('{BOOKKEEPING.search(book[0])[0]}'): "
+                                f"readers see the rule, not the graph; the covered names are its hover title")
+                if m and not c and "*" not in m[3] and len(listed) != int(m[1]):
+                    warn.append(f"{n}: group row '{str(r[0])[:40]}' says {m[1]} but lists {len(listed)} names")
+            if len(rows) < 3:
+                continue
+            for j, h in enumerate(head):
+                col = [str(r[j]).strip() for r in rows if len(r) > j and not (t == "tasks" and j == 0)]
+                if not col:
+                    continue
+                v, k = Counter(col).most_common(1)[0]
+                if not v or (k == len(col) and j) or v.startswith(tuple(STATUSES)):
+                    continue  # said once above the table by the build
+                if len(col) >= 4 and k >= NEAR * len(col):
+                    warn.append(f"repeat: {n}: {t} column '{label(h)}' is '{v[:40]}' in {k} of {len(col)} rows: say it once "
+                                f"(a note, or one group row '<N> <kind>: a, b, c') and keep only the rows that differ")
+                elif k >= SAME_CELLS and len(v.split()) >= 2:
+                    warn.append(f"repeat: {n}: {t} column '{label(h)}': '{v[:40]}' in {k} rows: merge those rows into one group "
+                                f"row ('{k} <kind>: a, b, c', or {{\"covers\": [...]}}) or say it once")
 
 
 def check(spec, kind, names, plan):
     """Return (errors, warnings). Errors: wrong blocks or order, labels, row lengths. Warnings: minimums."""
     err, warn = [], []
+    split_covers(spec)
     have = {slot(kind, n) for n in names}
     sec = (plan or {}).get("sections", {}).get(kind)
     if sec:
@@ -1376,6 +1739,10 @@ def check(spec, kind, names, plan):
     for n in names:
         blocks = flat(spec["sections"][n])
         types = [b["type"] for b in blocks]
+        tt = tables(blocks)
+        if len(tt) > MAX_TABLES:
+            warn.append(f"{n}: {len(tt)} tables ({', '.join(tt)}; max {MAX_TABLES}): fewer tables - merge rows that say the same "
+                        f"thing, give a 1-2 row table as a line, or say a fact once in a bullet")
         recipe = RECIPES.get(kind, {}).get(slot(kind, n))
         if recipe and not fits(recipe, types):
             short = fits(recipe, types, relax=True)
@@ -1408,11 +1775,10 @@ def check(spec, kind, names, plan):
                 err.append(f"{n}: labels must be " + (f"{L0_LABELS} first" if first else "Value or Cost") + f", got {got}")
         if main:
             main_flows(spec, blocks, plan, err, warn)
-        elif (slot(kind, n) == "How to *" or (kind, n) in (("overview", "Example"), ("technical", "Business rules"))) \
-                and not set(types) & EXAMPLE_BLOCKS:
+        elif (slot(kind, n) == "How to *" or (kind, n) == ("overview", "Example")) and not set(types) & EXAMPLE_BLOCKS:
             warn.append(f"no example in: {n}")
         if kind == "technical" and n == "Operations":
-            operations_h3(blocks, plan, err, warn)
+            operations_tasks(blocks, plan, err, warn)
         if kind == "technical" and n == "Architecture" and (plan or {}).get("api") and "api" not in types:
             warn.append(f"Architecture: library public API ({len(plan['api'])} functions and classes, inventory.json plan.api): "
                         f"add an `api` table, one row per call (Call · Returns · Raises · Where)")
@@ -1424,13 +1790,9 @@ def check(spec, kind, names, plan):
             if miss:
                 warn.append(f"Deploy and environments: {list(dict.fromkeys(miss))} from the graph (CI and compose jobs, deploys "
                             f"edges: inventory.json plan.deploy) are not named: one steps row or environments row each")
-        if kind == "technical" and n == "Business rules":  # every rule gets an example card, or points to one
-            rows = [r for b in blocks if b["type"] == "rules" for r in b["rows"]]
-            refs = sum(1 for r in rows if EXREF.search(" ".join(map(str, r))))
-            cards = sum(len(b["items"]) for b in blocks if b["type"] == "examples")
-            if cards < len(rows) - refs:
-                warn.append(f"Business rules: {len(rows)} rules, {refs} point to an existing example ('see Example 5.1a'), "
-                            f"{cards} example cards (one card per other rule at least)")
+        if kind == "technical" and n == "Business rules":
+            rules_check([r for b in blocks if b["type"] == "rules" for r in b["rows"] if len(r) == 4], step_ids(spec, names), err, warn,
+                        step_ids(spec, names, "why"))
     if kind == "overview":
         amounts(spec, err, warn)
     top_issues(spec, err, warn)
@@ -1457,7 +1819,137 @@ def check(spec, kind, names, plan):
     err += [f"diagram title '{t}' is used {k} times: every title is unique (name the entry or area apart)" for t, k in seen.items() if k > 1]
     ellipsis(spec, names, err)
     budgets(spec, kind, names, warn)
+    repeats(spec, names, warn)
+    cell_repeats(spec, kind, names, warn)
     return err, warn
+
+
+def step_ids(spec, names, field="where"):
+    """{"5.1.3": where (or another field)} for every Main flows ipo step: section number, h3 index, step number."""
+    if "Main flows" not in names:
+        return {}
+    sec, h, out = names.index("Main flows") + 1, 0, {}
+    for b in flat(spec["sections"]["Main flows"]):
+        h += b["type"] == "h3"
+        for k, x in enumerate(b.get("steps") or [] if b["type"] == "ipo" else [], 1):
+            out[f"{sec}.{h}.{k}"] = str(x.get(field) or "") if isinstance(x, dict) else ""
+    return out
+
+
+def rules_check(rows, steps, err, warn, whys=None):
+    """One row per rule: Rule · Example in → out · Why / impact · Where. A rule already shown as a Main flows step points
+    to it ("see step 5.1.3", Where empty). Every rule says why it exists or what breaks without it (a pointer: or its
+    step's `why`). Duplicate rules → ERROR."""
+    key = lambda r: " ".join(re.findall(r"\w+", str(r[0]).replace("`", "").lower()))
+    err += [f"Business rules: rule '{t}' is listed {k} times: merge the rows" for t, k in Counter(key(r) for r in rows).items() if k > 1]
+    noex, bad, nowhy, cite, label_ = [], [], [], [], []
+    for r in rows:
+        if any(m[2] for m in PATH_RE.finditer(str(r[2]))):
+            cite.append(str(r[0]))
+        name = str(r[0]).replace("`", "").strip(" .")
+        if re.fullmatch(r"[\w.()-]+", name) and ("_" in name or str(r[0]).strip().startswith("`")):
+            label_.append(str(r[0]))
+        ex, ptr = str(r[1]), STEPREF.search(str(r[1]))
+        if not str(r[2]).strip() and not (ptr and (whys or {}).get(ptr[1])):
+            nowhy.append(str(r[0]))
+        if ptr and ptr[1] not in steps:
+            err.append(f"Business rules: '{r[0]}' points to step {ptr[1]}, which Main flows does not have (ids: section.h3.step, "
+                       f"e.g. {next(iter(steps), '5.1.1')})")
+        elif ptr and str(r[3]).strip() and cited(r[3]) <= cited(steps[ptr[1]]):
+            warn.append(f"Business rules: '{r[0]}' points to step {ptr[1]} and cites its lines again: leave Where empty "
+                        f"(the step cites it), or cite the other lines that hold the rule")
+        elif not ptr and not ("→" in ex or "->" in ex):
+            noex.append(str(r[0]))
+        elif not ptr and not VALUE.search(ex):
+            bad.append(str(r[0]))
+    if noex:
+        warn.append(f"Business rules: rules without an example 'in → out': {noex} (example values, or 'see step 5.1.3' "
+                    f"when a Main flows step shows the rule)")
+    if bad:
+        warn.append(f"Business rules: examples with no example value: {bad} (a name, number or quoted value on each side)")
+    if nowhy:
+        warn.append(f"Business rules: rules without a Why / impact: {nowhy}: why the rule exists, or what breaks and for whom "
+                    f"without it (one clause)")
+    if cite:
+        warn.append(f"Business rules: Why / impact cells citing code lines: {cite}: a citation goes in Where; Why / impact says "
+                    f"why the rule exists or what breaks without it")
+    if label_:
+        warn.append(f"Business rules: rules named by an identifier only: {label_}: name the rule as a phrase a reader understands "
+                    f"('newest event wins per key'); the graph id goes in Where or `covers`")
+
+
+def cited(text):
+    """The (path, line) pairs a cell cites."""
+    return {(m[1], m[2] or "") for m in PATH_RE.finditer(str(text).replace("`", ""))}
+
+
+SENT = re.compile(r"(?<=[.;!?])\s+")
+SKIP_KEYS = {"type", "id", "source", "kind", "case", "lang", "col", "row", "from", "to", "parent", "see", "tag", "synthetic", "graph",
+             "step", "_covers"}
+
+
+def texts(x):
+    """Every reader-facing string of a block (not ids, sources, layout or enum fields)."""
+    if isinstance(x, str):
+        yield x
+    elif isinstance(x, dict):
+        for k, v in x.items():
+            if k not in SKIP_KEYS:
+                yield from texts(v)
+    elif isinstance(x, list):
+        for v in x:
+            yield from texts(v)
+
+
+def commands(b):
+    """Shell commands a block gives: Command columns of steps and tasks, Command io inputs."""
+    cells = []
+    if b["type"] in ("steps", "tasks"):
+        cols = TYPED["tasks"] if b["type"] == "tasks" else step_cols(b, POS["kind"], POS["slot"])
+        k = cols.index("Command") if "Command" in cols else None
+        cells = [r[k] for r in b.get("rows", []) if k is not None and len(r) > k]
+    elif b["type"] == "io" and b.get("label") == "Command":
+        cells = str(b.get("input", "")).splitlines()
+    out = [re.sub(r"\s+", " ", re.sub(r"^\$\s*", "", c.strip())) for x in cells for c in re.findall(r"`([^`]+)`", str(x)) or [str(x)]]
+    return [c for c in out if len(c.split()) >= 2]
+
+
+def repeats(spec, names, warn):
+    """Say each fact once, where the reader looks for it: the same sentence (>= 6 words) in two blocks, the same
+    path:line in two sections (Known issues left out: an issue's where is its proof), or the same command in two
+    sections → WARN."""
+    sents, cites_, cmds = {}, {}, {}
+    steps = {w: k for k, w in step_ids(spec, names).items() if w}
+    for n in names:
+        POS.update(kind=spec.get("type"), slot=slot(spec.get("type"), n))
+        for i, b in enumerate(flat(spec["sections"][n])):
+            for t in texts(b):
+                for part in SENT.split(PATH_RE.sub(" ", re.sub(r'"[^"]*"', " ", t))):  # a quoted UI message or a path is no sentence
+                    w = re.findall(r"\w+", part.replace("`", "").lower())
+                    if len(w) >= 6:
+                        sents.setdefault(" ".join(w), []).append((n, i))
+                if n != LAST:
+                    for m in PATH_RE.finditer(t):
+                        if m[2]:
+                            cites_.setdefault(f"{m[1]}:{m[2]}", set()).add(n)
+            for c in commands(b):
+                cmds.setdefault(c, set()).add(n)
+    for t, at in sents.items():
+        if len(set(at)) > 1:
+            secs = list(dict.fromkeys(n for n, _ in at))
+            warn.append(f"repeat: '{' '.join(t.split()[:10])}' in {len(set(at))} blocks ({', '.join(secs)}): say it once, "
+                        f"where the reader looks for it")
+    for p, secs in cites_.items():
+        if len(secs) > 1:
+            ptr = f": a rule a Main flows step shows points to it ('see step {steps[p]}', Where empty)"                 if {"Main flows", "Business rules"} <= secs and p in steps else ": cite it once, point to it from the other"
+            warn.append(f"repeat: `{p}` cited in {', '.join(n for n in names if n in secs)}{ptr}")
+    for c, secs in cmds.items():
+        if len(secs) > 1:
+            warn.append(f"repeat: command `{c}` in {', '.join(n for n in names if n in secs)}: give it once, point to it from the other")
+    leak = [n for n in names for b in flat(spec["sections"][n]) for t in [b.get("key"), b.get("notice"), b.get("text") if b["type"] == "text" else None]
+            + (b.get("items") if b["type"] == "bullets" else []) if isinstance(t, str) and re.search(r"\bipo\b", t, re.I)]
+    if leak:
+        warn.append(f"'ipo' is a spec word, not a reader's: say 'step' ({', '.join(dict.fromkeys(leak))})")
 
 
 def values(v):
@@ -1501,6 +1993,7 @@ def budgets(spec, kind, names, warn):
                 for x in b.get("steps") or []:
                     add("ipo step `do`s", DO_WORDS, x.get("do", ""))
                     add("ipo step outputs", CARD_WORDS, x.get("out", ""))
+                    add("ipo step whys", CELL_WORDS, x.get("why", ""))
                 for v in values(b.get("input")) + values(b.get("output")):
                     add("ipo input/output values", CARD_WORDS, v)
                 for c in b.get("examples") or []:
@@ -1509,8 +2002,10 @@ def budgets(spec, kind, names, warn):
                         add("trace values", CARD_WORDS, v or "")
         for (what, cap), vs in over.items():
             top = max(vs, key=lambda v: len(v.split()))
+            fix = ("a cell this long holds two facts: split it into fact + why (the Why column, a step's `why`)"
+                   if cap == CELL_WORDS else "keep the fact, names and numbers; cut the prose")
             warn.append(f"words: {n}: {len(vs)} {what} over {cap} words (longest {len(top.split())}: "
-                        f"'{' '.join(top.split()[:8])} ...'): keep the fact, names and numbers; cut the prose")
+                        f"'{' '.join(top.split()[:8])} ...'): {fix}")
 
 
 ABS = re.compile(r"(?<![\w])[A-Za-z]:[\\/][^\s`'\"]*|(?<![\w.~])/(?:Users|home|root|tmp|var)/[^\s`'\"]*|(?<![\w])~/[^\s`'\"]*")
@@ -1655,7 +2150,7 @@ def review_files():
     out = []
     for d, dirs, fs in os.walk("."):
         dirs[:] = sorted(x for x in dirs if x not in SKIP_DIRS - {"reviews"} and not x.startswith("."))
-        if "reviews" in Path(d).parts:
+        if "reviews" in Path(d).parts and "_spec" not in Path(d).parts:  # reviews/_spec: review-v2 specs and shots
             out += [Path(os.path.relpath(Path(d) / f)).as_posix() for f in sorted(fs) if not f.startswith(".")]
     return out
 
@@ -1908,6 +2403,11 @@ def coverage(spec, page, inv, warn):
     arrows = lambda x: re.sub(r"\s*(?:->|→)\s*", " → ", x)  # a flow name's -> is written → in its h3
     page_text, skip = arrows(visible(page)), spec.get("coverage_skip", {})
     calls = " | ".join(str(r[0]) for b in flat(spec["sections"].get("Architecture", [])) if b["type"] == "api" for r in b["rows"] if r)
+    cov = {x for bs in spec["sections"].values() for b in flat(bs) for c in b.get("_covers") or [] for x in c or []}
+    known = set(inv["tests"]) | {x["name"] for v in inv["items"].values() for x in v} | {x["name"] for x in inv["plan"].get("api", [])}
+    known |= set(inv["plan"].get("how_tos", []))
+    if cov - known:
+        warn.append(f"coverage: covers names that are no inventory.json item: {sorted(cov - known)}: use the exact names")
     for t in inv["plan"]["coverage"]:
         api = t == "api"  # library public API: each name in the Call column of the api table
         names = inv["tests"] if t == "test_file" else [x["name"] for x in (inv["plan"].get("api", []) if api else inv["items"].get(t, []))
@@ -1916,7 +2416,7 @@ def coverage(spec, page, inv, warn):
         defs = Counter(names)
         want = sorted({x for x in names if x and x not in skip and len(re.findall(r"\w", x)) >= 2})
         pat = lambda x: rf"(?<!\w){re.escape(arrows(x))}(?!\w)"
-        miss = [x for x in want if not re.search(pat(x), text)]
+        miss = [x for x in want if not re.search(pat(x), text) and (api or x not in cov | HIDDEN)]
         few = [f"{x} ({defs[x]} definitions, named {k} times)" for x in want if defs[x] > 1 and x not in miss
                for k in [len(re.findall(pat(x), text))]
                if k < defs[x] and not re.search(pat(x) + rf".{{0,40}}?(?<![\d.]){defs[x]}(?![\d.])", text)]
@@ -1938,7 +2438,7 @@ def load_plan(spec_path, files, warn, kind):
     if not files:
         return None
     if not p.is_file():
-        warn.append(f"{what} not checked: no {rel(p)}" + (f" ({why}: build the graph first)" if not g else f": run {HOW}"))
+        warn.append(f"{what} not checked: no {rel(p)}" + (f" ({why}): run {HOW} (no graph: it plans from a file scan)" if not g else f": run {HOW}"))
         return None
     try:
         inv = json.loads(p.read_text(encoding="utf-8"))
@@ -2065,6 +2565,9 @@ def main(spec_path, out_path):
     inv = load_plan(spec_path, files, pre, kind)
     stale_n = freshness(pre) if files else 0
     ENTRIES.update(e["name"] for e in (inv or {}).get("entry_points", []))
+    if (inv or {}).get("scan"):
+        print("note: inventory.json is from a file scan (no knowledge graph): Main flows = one h3 per entry point, coverage of "
+              "scanned items only; build the graph for flows and coverage")
     err, warn = check(spec, kind, names, inv and inv["plan"])
     if files:
         cites(spec, names, root, files, err, warn)
@@ -2089,7 +2592,7 @@ def main(spec_path, out_path):
            if issue_items(spec) else "")
     body = ""
     for i, n in enumerate(names):
-        POS.update(kind=kind, slot=slot(kind, n), sec=i + 1, h3=0, ex=0)
+        POS.update(kind=kind, slot=slot(kind, n), sec=i + 1, h3=0, ex=0, said=set())
         body += (f'<section><h2 id="s{i}">{esc(title(i, n))}</h2>{src if n == LAST else ""}'
                  f'{"".join(block(b, kind) for b in sections[n])}</section>')
     css = (Path(__file__).parent / "style.css").read_text(encoding="utf-8")
@@ -2103,6 +2606,9 @@ def main(spec_path, out_path):
     if dangling:
         sys.exit(f"ERROR text names Example {', '.join(dangling)}, which the doc does not have (ids are <section>.<h3><letter>, "
                  f"as the build numbers the cards)")
+    gone = sorted(set(STEPREF.findall(visible(page))) - set(re.findall(r'id="st-([^"]+)"', page)))
+    if gone:
+        sys.exit(f"ERROR text names step {', '.join(gone)}, which Main flows does not have (ids are <section>.<h3>.<step>)")
     late = list(dict.fromkeys(LATE))
     if kind == "technical" and inv:
         coverage(spec, page, inv, late)

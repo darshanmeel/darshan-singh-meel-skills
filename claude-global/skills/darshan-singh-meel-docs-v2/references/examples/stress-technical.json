@@ -627,7 +627,8 @@
      {
       "do": "Copy files newer than the watermark",
       "out": "`very_long_schema_name.raw_customer_orders_landing_zone`",
-      "where": "src/customer_orders_pipeline/operators/incremental_merge_operator.py:22-60"
+      "where": "src/customer_orders_pipeline/operators/incremental_merge_operator.py:22-60",
+      "why": "a failed night is reloaded by the next run"
      },
      {
       "do": "Cast and rename partner fields",
@@ -637,7 +638,8 @@
      {
       "do": "Merge; add EUR amount and region",
       "out": "`very_long_schema_name.stg_customer_orders_incremental_v2`",
-      "where": "sql/models/staging/stg_customer_orders_incremental_v2.sql:41-60"
+      "where": "sql/models/staging/stg_customer_orders_incremental_v2.sql:41-60",
+      "why": "one currency for every region: reports sum EUR without a rate lookup"
      }
     ],
     "output": "`very_long_schema_name.stg_customer_orders_incremental_v2`: one row per order line",
@@ -708,7 +710,7 @@
       "at": [
        "1 landing row",
        "1 typed row",
-       "older: ignored"
+       "0 rows changed: 2026-11-09 < stored 2026-11-10"
       ],
       "out": "Row unchanged",
       "source": "tests/integration/test_incremental_merge_operator_north_america_east.py:90-131"
@@ -729,8 +731,8 @@
       ],
       "at": [
        "1 landing row",
-       "key missing",
-       "skipped"
+       "`order_id` NULL",
+       null
       ],
       "out": "load_region_north_america_east_partition fails; #data-oncall-alerts paged",
       "source": "src/customer_orders_pipeline/operators/incremental_merge_operator.py:96"
@@ -774,13 +776,14 @@
     "steps": [
      {
       "do": "Read lines inside the lookback window",
-      "out": "row with a newer partner timestamp",
+      "out": "rows with `partner_updated_at` in the last 7 days",
       "where": "src/customer_orders_pipeline/operators/incremental_merge_operator.py:61-80"
      },
      {
       "do": "Merge: newer partner timestamp wins",
-      "out": "updated staging row",
-      "where": "src/customer_orders_pipeline/operators/incremental_merge_operator.py:81-118"
+      "out": "`stg_customer_orders_incremental_v2` row replaced",
+      "where": "src/customer_orders_pipeline/operators/incremental_merge_operator.py:81-118",
+      "why": "partners resend lines up to 7 days late; an older copy must never overwrite a newer one"
      }
     ],
     "output": "Updated `very_long_schema_name.stg_customer_orders_incremental_v2` row",
@@ -791,8 +794,8 @@
       "expect": "Corrections inside the lookback window are picked up",
       "in": "line 3 resent with a new amount, 3 days later",
       "at": [
-       "read",
-       "row replaced"
+       "line 3, `partner_updated_at` 3 days old",
+       "1 row replaced"
       ],
       "out": "Row replaced; mart rebuilt next night",
       "source": "tests/integration/test_late_corrections_lookback_window.py:20-58"
@@ -803,8 +806,8 @@
       "expect": "Corrections outside the lookback window are ignored",
       "in": "same line, 8 days later",
       "at": [
-       "not read",
-       "skipped"
+       "0 rows: 8 days > 7",
+       null
       ],
       "out": "Ignored: outside CUSTOMER_ORDERS_LATE_CORRECTION_LOOKBACK_DAYS",
       "source": "tests/integration/test_late_corrections_lookback_window.py:60-84"
@@ -1191,54 +1194,18 @@
     "rows": [
      [
       "Newest partner update wins",
-      "2 rows, same `order_id` + `line_no` → keep later `partner_updated_at`",
+      "updates 22:00Z + 23:59:58Z, same `order_id` + `line_no` → 1 row, from 23:59:58Z",
+      "a resend of an old file would roll a corrected line back",
       "`sql/models/staging/stg_customer_orders_incremental_v2.sql:44`"
      ],
      [
-      "Amounts reported in EUR",
-      "`net_amount_original_currency` × rate of `ordered_at` day → `net_amount_reporting_currency_eur`",
+      "Amounts reported in EUR at the `ordered_at` day's rate",
+      "`XOF`, no rate for 2026-11-10 → `net_amount_reporting_currency_eur` NULL, row kept",
+      "a missing rate shows as NULL in revenue, not as a dropped order",
       "`sql/models/marts/fct_customer_order_lines_enriched_daily_snapshot.sql:30-52`"
      ]
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
-     {
-      "case": "typical",
-      "title": "Two updates, same line",
-      "expect": "One row per line: the latest update wins",
-      "in": [
-       [
-        "update 1",
-        "2026-11-10T22:00:00Z"
-       ],
-       [
-        "update 2",
-        "2026-11-10T23:59:58Z"
-       ]
-      ],
-      "out": "1 row, from update 2",
-      "source": "tests/unit/test_stg_customer_orders_incremental_v2_dedup.py:12-40"
-     },
-     {
-      "case": "edge",
-      "title": "No rate for the day",
-      "expect": "No exchange rate: row kept, converted amount NULL",
-      "in": [
-       [
-        "currency_code",
-        "XOF"
-       ],
-       [
-        "ordered_at",
-        "2026-11-10"
-       ]
-      ],
-      "out": "net_amount_reporting_currency_eur NULL; row kept",
-      "source": "tests/unit/test_currency_conversion.py:50-71"
-     }
-    ]
+    ],
+    "source": "tests/unit/test_stg_customer_orders_incremental_v2_dedup.py:12-40 · tests/unit/test_currency_conversion.py:50-71"
    }
   ],
   "Configuration": [
@@ -1348,23 +1315,19 @@
     ]
    },
    {
-    "type": "h3",
-    "text": "Rerun and backfill"
-   },
-   {
-    "type": "steps",
-    "cols": [
-     "Step",
-     "How"
-    ],
+    "type": "tasks",
     "rows": [
      [
-      "Rerun one region for one night",
-      "clear `load_region_<region>_partition` for that date; the merge and mart follow"
+      "Rerun and backfill",
+      "clear `load_region_<region>_partition` for that date",
+      "one region, one night; merge and mart follow",
+      ""
      ],
      [
-      "Backfill a date range",
-      "run the command below; one DAG run per night"
+      "",
+      "run the backfill command below",
+      "a date range: one DAG run per night",
+      ""
      ]
     ]
    },
@@ -1467,6 +1430,24 @@
      [
       "`sql/models/staging/stg_customer_orders_incremental_v1.sql`",
       "No model or DAG refers to it",
+      "Not verified"
+     ],
+     [
+      "4 legacy region models: `sql/legacy/orders_region_*_v0.sql`",
+      "replaced by the one incremental model; still compiled on every build",
+      "Not verified",
+      {
+       "covers": [
+        "sql/legacy/orders_region_emea_v0.sql",
+        "sql/legacy/orders_region_apac_v0.sql",
+        "sql/legacy/orders_region_latam_v0.sql",
+        "sql/legacy/orders_region_nae_v0.sql"
+       ]
+      }
+     ],
+     [
+      "`sql/models/staging/stg_customer_orders_dedup_tmp.sql`",
+      "written once for a 2025 backfill",
       "Not verified"
      ]
     ]

@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-review
-description: Thorough code review for correctness, security, performance, design, complexity, verbosity, AI slop, unused files, and cross-repo impact — including SQL, dbt, Snowflake, Databricks/PySpark, Airflow, ADF, Terraform, and Python. Use when asked to review a diff, PR, commit, file, model, DAG, or codebase — "review this", "check my changes", "before I commit", "is this overengineered", "is this secure/fast".
+description: Thorough code review for correctness, security, performance, design, complexity, verbosity, AI slop, tech debt, unused files, and cross-repo impact — including SQL, dbt, Snowflake, Databricks/PySpark, Airflow, ADF, Terraform, and Python. Use when asked to review a diff, PR, commit, file, model, DAG, or codebase — "review this", "check my changes", "before I commit", "is this overengineered", "is this secure/fast".
 ---
 
 # Thorough Minimal Code Review
@@ -14,9 +14,9 @@ Check everything thoroughly; report only what matters. The goal is code that is 
    - **Change review** = a diff, PR, or commit of any size, or up to 20 named files. **Large review** = the whole repo, a folder, or more than 20 named files.
    - **Always:** "Also look for files the repo doesn't need?" — Yes (Recommended) · No. (section 11) · "Run the full test suite in the background?" — Yes (Recommended) · No · Always this session.
    - **Large review only, same prompt:**
-     - Graph: exists → Update it first, then review (Recommended) · Use as is (no update) · Ignore the graph (code only). None → Build it first (Recommended) · Code only. Runs on Opus via the knowledge-graph skill; the review starts after.
+     - Graph: exists → Update it first, then review (Recommended) · Use as is (no update) · Ignore the graph (code only). None → Build it first (Recommended) · Code only. Runs on Opus via the knowledge-graph skill; the review starts after. Record the answer with knowledge-graph `update.py --choice now` (update) or `--choice skip` (use as is), so the end-of-task graph question is not repeated.
      - Related repos saved in the graph → "Include related repos?" Yes (Recommended) · No.
-   - Change review: no graph question, no waiting — use the graph as it is.
+   - Change review: no setup graph question, no waiting — use the graph as it is.
 1. Figure out what the change is supposed to do (PR description, commit message, or ask). Review against that goal.
 2. Read the full diff, then the surrounding code: callers, callees, related tests, and how data flows in and out. Don't review lines in isolation.
    **Use the knowledge graph if `<repo>-knowledge-graph/` exists (or `./.knowledge-graph` points to one)** — as a map, not as the truth:
@@ -29,8 +29,8 @@ Check everything thoroughly; report only what matters. The goal is code that is 
    - The diff is always judged on the **actual code**; the graph is from before the change. Where the graph is out of date for the files involved, read the code directly.
    - No graph: do the same by searching the code.
 3. Tests as in the `darshan-singh-meel-code` skill (changed-code tests first; full suite per the step 0 answer), plus linter, type checker, and security tools on changed files. Say what ran (changed-only vs full).
-4. Go through **every** section below (11 only if Yes in step 0). Skipping a section is fine only if it truly doesn't apply.
-5. **End of a change review:** graph out of date for any files → the one-line "go" / "graph" / "no" offer (knowledge-graph skill, "Keep it updated"). Otherwise nothing about the graph.
+4. Go through **every** section below (11 only if Yes in step 0; 12 Tech debt always). Skipping a section is fine only if it truly doesn't apply.
+5. **End of a change review:** graph out of date for any files → the graph update question or the staleness note, as `update.py --dry-run` decides (knowledge-graph skill, "Keep it updated"). Otherwise nothing about the graph.
 
 ## 1. Correctness
 - Trace the main path by hand. Does it actually do what it should?
@@ -162,6 +162,18 @@ Find files the repo doesn't need. **Never delete, move, or edit them — only ma
 - Confidence: **High** (no references, clearly old) · **Medium** (no references found, but could be loaded dynamically) · **Check** (owner should confirm).
 - One line on impact: what removing them saves (clutter, confusion, build/scan time) and what keeping them costs. The user decides; nothing is deleted.
 
+## 12. Tech debt (always)
+Check the code in scope for debt, even when the change itself is fine:
+- Workarounds and hacks; duplicated logic.
+- Outdated, unpinned, or end-of-life versions; deprecated APIs.
+- Missing tests on risky code.
+- Hard-coded config or environment values.
+- Dead or legacy paths kept alive; TODO/FIXME debt.
+- Manual steps that should be automated.
+- Schema or contract drift (code vs schema, docs, or callers).
+
+Each finding tagged `[Tech debt]`: **what** · **cost of keeping it** (time, risk, money) · **fix** · **effort** (S/M/L). Severity: causes bugs, security, or data risk → Must; cost that grows → Should; else Other findings. Report real debt only, not every old line.
+
 ## Review discipline
 - A committed secret file: flag it by path only, never open or quote it. The never-open rule covers scripts, grep, and scanners too: exclude those patterns; report path + rule name, value `<redacted>`.
 - Thorough in checking, brief in reporting.
@@ -173,14 +185,15 @@ Find files the repo doesn't need. **Never delete, move, or edit them — only ma
 - Match the project's conventions; don't push personal style.
 
 ## Severity
-- **Must fix:** bugs, security vulnerabilities, data loss risks, broken/gamed tests, unintended breaking changes, serious performance problems at realistic scale.
-- **Should fix:** design problems, unnecessary complexity or code, out-of-scope edits, AI slop, missing key test, moderate performance issues.
+- **Must fix:** bugs, security vulnerabilities, data loss risks (including tech debt that causes them), broken/gamed tests, unintended breaking changes, serious performance problems at realistic scale.
+- **Should fix:** design problems, tech debt with growing cost, unnecessary complexity or code, out-of-scope edits, AI slop, missing key test, moderate performance issues.
 - **Other findings:** optional, CLAUDE.md format (what · why · impact); only lower-impact items — anything with real risk goes under Must/Should fix.
 
 ## Output format
 ```
 Verdict: Approve | Approve with changes | Request changes
 Checks run: tests → result, linter → result | not run (why)
+Tech debt: N items, biggest: <what> | none found
 
 Must fix
 - [Security] path/file.py:42 — <problem>. <why it matters>. Fix: <concrete fix>
@@ -189,6 +202,7 @@ Must fix
 Should fix
 - [Complexity] path/file.py:88-120 — <problem>. Fix: <simpler version>
 - [Performance] ...
+- [Tech debt] path/file.py:8 — <what>. Cost: <time, risk, money>. Fix: <fix>. Effort: S | M | L
 
 Questions
 - ...
@@ -201,7 +215,7 @@ Net size: <e.g. "could drop ~40 of the 65 added lines">
 Other findings (only if any)
 - [Obvious] path/file.py:12 — <what> · <why it matters> · <impact of fixing vs not>
 ```
-Tag each finding with its area: Correctness, Security, Performance, Design, Complexity, Size, Slop, Tests, Obvious, Data.
+Tag each finding with its area: Correctness, Security, Performance, Design, Complexity, Size, Slop, Tests, Obvious, Data, Tech debt.
 Omit empty sections. If there are no findings, output the verdict, checks run, and "No issues found."
 
 ## HTML report (always)

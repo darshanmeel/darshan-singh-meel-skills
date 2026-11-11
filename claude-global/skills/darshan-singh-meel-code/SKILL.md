@@ -32,6 +32,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Match existing style and patterns, even if you'd do it differently.
 - Don't change public interfaces (function signatures, APIs, table/column names, schemas, DAG/task ids) unless required — call it out when you do.
 - Remove any debug code, temp files, or dead code *you* added. Mention unrelated problems instead of fixing them.
+- **Tech debt** the work touches or reveals (hacks, duplication, outdated versions, hard-coded config, untested risky code, legacy paths): flag it in Other findings as `[Tech debt] what · why it matters · impact of fixing vs not`. Never fix it unasked. Skip trivial items.
 
 ## 4. Correctness
 - Handle realistic edge cases: empty, NULL/None, zero, duplicates, boundaries, timezones, late data.
@@ -79,7 +80,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Report what passed, what failed, and what wasn't verified. Don't say "done" when it isn't.
 
 ## 10. Knowledge graph
-- If the graph exists (folder or `./.knowledge-graph` pointer): read its `index.md` first; when done, end with the update offer ("Keep it updated" in `darshan-singh-meel-knowledge-graph`).
+- If the graph exists (folder or `./.knowledge-graph` pointer): read its `index.md` first; after a commit or at the end of the task, the graph question or the graph/docs staleness note, as `update.py --dry-run` decides ("Keep it updated" in `darshan-singh-meel-knowledge-graph`).
 
 ## 11. Larger tasks
 - Small steps, each leaving the code working. Check in when scope changes, a dependency is added, or many files are touched.
@@ -90,9 +91,9 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Explicit refactor/cleanup requests: the "surgical" rule applies to the requested scope.
 
 ## Final summary
-End of reply, in order: summary · Other findings · graph offer · `Skills:` line (always last).
+End of reply, in order: summary · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line); a graph or docs question comes after the reply text.
 - **Changed:** files/models and what changed, one line each
 - **Why:** root cause or reasoning, one sentence
 - **Verified:** how it was checked and the result
 - **Not verified / risks:** anything untested or uncertain
-- **Other findings:** optional, CLAUDE.md format.
+- **Other findings:** optional, CLAUDE.md format; includes `[Tech debt]` items (section 3).

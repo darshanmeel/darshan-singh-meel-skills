@@ -23,7 +23,7 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - **Q3 for a small single document** (under ~30 pages): first option = "Skip, read the document directly (Recommended)"; no answer → Skip.
 - **Second prompt, only if needed** (tool limit is 4 per prompt): **Scope** (multi, if related repos / a system graph exist) — This repo (Recommended) · Whole system · Each related repo; **Git** (if `generated-docs/` doesn't exist yet) — see Files.
 - **Defaults if no answer:** all three documents · HTML · update/build graph first (small single document: skip) · tests and docs, then code · this repo.
-- Q3 = build/update → run `darshan-singh-meel-knowledge-graph` first, then write the documents from the graph, checking key steps in the code.
+- Q3 = build/update → run `darshan-singh-meel-knowledge-graph` first, then write the documents from the graph, checking key steps in the code. Record the answer with knowledge-graph `update.py --choice now` (update) or `--choice skip` (use as is), so the end-of-task graph question is not repeated. Docs being built → no docs question after that update.
 
 ## Every document opens with four tabs
 - First thing after the title, before any diagram: one tab box — **Does · Doesn't · Limitations · Top issues**.
@@ -54,9 +54,9 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - **Scope = whole system:** written from the `_combined` graph to `../<name>-graphs/_combined/generated-docs/`. **Scope = each related repo:** written from each repo's graph to `../<name>-graphs/<repo>/generated-docs/` (plus a copy in `<repo>/generated-docs/` if chosen in graph setup). With a shared graphs folder, **This repo** also goes to `../<name>-graphs/<this repo>/generated-docs/` (plus the in-repo copy if chosen). Writing copies into other repos needs one yes. Started from inside the shared graphs folder → "This repo" isn't offered.
 
 ## Updating existing docs
-- Triggered by "go" after a change (knowledge-graph skill, "Keep it updated") or "update the docs".
+- Triggered by "Update now" on the docs question after a graph update (knowledge-graph skill, "Keep it updated"; runs in the background) or "update the docs".
 - Refresh only the sections that cover the changed files, in the existing documents and formats. No Step 0 questions.
-- Keep each file's tag; same rules and checks as a new document.
+- Keep each file's tag; same rules and checks as a new document. After every build or refresh: knowledge-graph `update.py --docs done` (clears these docs from its pending list, so the staleness note stays right).
 
 ## The three documents
 **Overview** — business, management, newcomers; high-level, minimal jargon

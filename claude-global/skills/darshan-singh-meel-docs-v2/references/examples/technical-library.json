@@ -275,18 +275,19 @@
     "steps": [
      {
       "do": "Pick the parser by file extension",
-      "out": "csv parser",
-      "where": "src/tabkit/registry.py"
+      "out": "`csv` parser for `.csv`",
+      "where": "src/tabkit/registry.py:14",
+      "why": "the extension decides, not the content: a JSON file named x.csv fails as CSV"
      },
      {
       "do": "Read and split the file",
-      "out": "list of records",
-      "where": "src/tabkit/parsers/"
+      "out": "`list[dict]`, one per row",
+      "where": "src/tabkit/parsers/csv.py:8"
      },
      {
       "do": "Print as JSON",
       "out": "stdout, exit 0",
-      "where": "src/tabkit/cli.py"
+      "where": "src/tabkit/cli.py:40"
      }
     ],
     "output": "JSON records on stdout, exit 0",
@@ -297,7 +298,7 @@
       "expect": "One record per row, header as keys",
       "in": "name,age / Ada,36 / Alan,41",
       "at": [
-       "csv",
+       "`csv`",
        "2 records",
        "exit 0"
       ],
@@ -315,9 +316,9 @@
        ]
       ],
       "at": [
-       "no parser",
-       "skipped",
-       "skipped"
+       "`KeyError: 'xml'`",
+       null,
+       null
       ],
       "out": [
        [
@@ -343,18 +344,19 @@
     "steps": [
      {
       "do": "Parse the file",
-      "out": "records",
-      "where": "src/tabkit/registry.py"
+      "out": "`list[dict]` records",
+      "where": "src/tabkit/registry.py:14"
      },
      {
       "do": "Check each record against the schema",
-      "out": "issues",
-      "where": "src/tabkit/validate.py"
+      "out": "`issues`: one per missing field",
+      "where": "src/tabkit/validate.py:15"
      },
      {
       "do": "Print issues, set the exit code",
       "out": "exit 0 (none) or 1",
-      "where": "src/tabkit/cli.py"
+      "where": "src/tabkit/cli.py:52",
+      "why": "CI scripts gate on the exit code, not on the printed text"
      }
     ],
     "output": "Issues on stdout, exit 0 or 1",

@@ -7,7 +7,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 
 ## Reply
 - Answer first. Only details needed to act. Bullets. No preamble, recap, fluff.
-- End of reply, in order: summary · Other findings · graph offer · `Skills:` (always last).
+- End of reply, in order: summary · Other findings (+ graph/docs staleness note) · `Skills:` (last text line). Graph/docs question (AskUserQuestion) after the reply text.
 - `Skills: <used this turn> (<refs read>)` or `Skills: none`; e.g. `Skills: darshan-singh-meel-code (sql.md)`. Hook installed → full log `~/.claude/skill-usage.log`.
 - Correction of earlier claim → first line: wrong · right.
 - Other findings: optional. Only if worth knowing. Each: what · why it matters · impact of doing vs not.
@@ -77,7 +77,9 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 - Related repos, shared folder approved → one shared folder `../<name>-graphs/<repo>/{knowledge-graph,generated-docs}` + `_combined/`.
 - Build/update = mapping only, never a code review; suspicious code → "not verified" + suggest a review.
 - Repo questions → graph → code (confirm/fill) → named folder. Cite sources. Not found → say so; never guess.
-- After change or commit → one line: `"go"` update graph + affected docs (background) · `"graph"` graph only · `"no"`. Don't re-ask same changes.
+- After commit (or task end, uncommitted only) → ask (AskUserQuestion): update graph now (background) · after next commit · when I say done · skip. Never twice for same commits; skip → no more asks until updated, note only.
+- Graph updated → end of next reply, ask separately (AskUserQuestion): update docs covering the changes (background). Never with the graph question.
+- Declined · waiting (graph or docs) → every repo reply, one line in Other findings, no question: `Graph is N commits behind (M files) · docs K commits behind` · `Docs are N commits behind the graph (K docs)`. Stops once updated. Details: knowledge-graph "Keep it updated".
 - No graph + repo question · docs · large review → recommend building, once per session (one-time cost; later answers faster, cheaper, verifiable).
 
 ## Models

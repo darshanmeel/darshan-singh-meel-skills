@@ -45,6 +45,7 @@ def edit(fn):
 f0 = lambda s: s["files"][0]["findings"][0]  # the Must Data finding with a diagram
 f1 = lambda s: s["files"][1]["findings"][0]  # the Must Security finding
 f2 = lambda s: s["files"][1]["findings"][1]  # the Should Performance finding
+f3 = lambda s: s["files"][1]["findings"][2]  # the Should Tech debt finding, effort S
 ENV = {"path": ".env", "what": "committed env file", "findings": [{"sev": "Must", "area": "Security", "summary": "env file committed · remove it and rotate",
        "problem": "A committed env file is in the tree.", "why": "Anyone with repo access reads it.", "fix": "Remove it, git-ignore it and rotate the values."}]}
 CHAIN = {"title": "chain", "nodes": [{"id": "a", "label": "aa", "col": 0, "row": 0}, {"id": "b", "label": "bb", "col": 1, "row": 0},
@@ -93,6 +94,12 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("diagram without title", edit(lambda s: f0(s)["diagram"].pop("title")), 1, "diagram needs a title"),
     ("impact under 3 affected", edit(lambda s: s["impact"].update(nodes=s["impact"]["nodes"][:3], edges=s["impact"]["edges"][:2])), 0, "fewer than 3 affected boxes"),
     ("impact without changed", edit(lambda s: s["impact"]["nodes"][0].pop("tag")), 1, "mark the changed box"),
+    ("effort unknown", edit(lambda s: f3(s).update(effort="XL")), 1, "effort 'XL' unknown"),
+    ("effort on other area", edit(lambda s: f1(s).update(effort="S")), 0, "effort is shown only for Tech debt"),
+    ("no tech debt", edit(lambda s: s["files"][1]["findings"].pop(2)), 0, "Tech debt: none found"),
+    ("tech debt biggest", edit(lambda s: s["other"].append({"area": "Tech debt", "path": "tests/test_orders_api.py", "effort": "L", "what": "fixtures copied per test", "why": "b", "impact": "c"})),
+     0, "Tech debt: 2 items, biggest: src/export/orders_api.py:8-9"),
+    ("tech debt Must first", edit(lambda s: f1(s).update(area="Tech debt")), 0, "biggest: src/export/orders_api.py:31-34"),
     ("snippet too long", edit(lambda s: f1(s).update(code="\n".join(["x = 1"] * 13))), 0, "code snippet over 12 lines"),
 ]
 
@@ -103,8 +110,9 @@ def main():
     code, out, page = build(BASE)
     ok = code == 0 and "0 WARN" in out and "Verdict: Request changes" in out
     links = re.findall(r'href="#(f-\d+)"', page)
-    ok = ok and len(links) == 3 and all(page.count(f'id="{x}"') == 1 for x in links)  # each main line -> one finding
-    ok = ok and "Must 2 &middot; Should 1 &middot; Minor 1" in page and "(1 minor)" in page and "Diagram B" in page
+    ok = ok and len(links) == 4 and all(page.count(f'id="{x}"') == 1 for x in links)  # each main line -> one finding
+    ok = ok and "Must 2 &middot; Should 2 &middot; Minor 1" in page and "effort S" in page
+    ok = ok and "Tech debt: 1 item, biggest: src/export/orders_api.py:8-9" in out and "<b>Tech debt:</b> 1 item" in page and "(1 minor)" in page and "Diagram B" in page
     print(("PASS" if ok else "FAIL"), "valid spec: counts, links, terminal summary")
     fails += not ok
     for name, spec, want_code, want in CASES:

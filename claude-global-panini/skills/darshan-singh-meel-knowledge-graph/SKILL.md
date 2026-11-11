@@ -45,9 +45,9 @@ Reference data: complete coverage, short summaries — every function, query, mo
 - Never store: secret values, real personal data, large data samples.
 
 ## 4. Build
-**Models:** Opus writes extraction scripts and does all understanding (parallel per folder for big repos) · Sonnet only runs Opus's scripts, writes files, checks paths — never interprets · never Haiku · graph review: separate Opus reviewer agent checks the builder's graph vs code before done (data model, flows, rules, ~20 random `path:line`); graph errors go back · no subagents → tell user to switch to Opus.
+**Models:** Opus writes extraction scripts and does all understanding (parallel per folder for big repos) · Sonnet only runs Opus's scripts, writes files, checks paths — never interprets · never Haiku · graph review: separate Opus reviewer agent checks the builder's graph vs code before done (data model, flows, rules, ~20 random `path:line`); graph errors go back · no subagents → tell user to switch to Opus; already Opus without subagents → review as a separate second pass after the build, say so.
 
-**Steps:** 1. Inventory (`.gitignore` + skip list). 2. Extract with scripts in `_scripts/` (Python `ast`, dbt: `dbt parse` only if user said yes, else existing `target/manifest.json` or parse `.sql`/`.yml`; Airflow DAGs, Terraform `.tf`, SQL DDL/`MERGE`/`JOIN`/`INSERT`, targeted search). 3. Add meaning. 4. Write jsonl → pages → `index.md`, `README.md`, `meta.json`. 5. Validate: no absolute paths · every `path:line` real and matching · every edge resolves · no secrets · coverage (files mapped/total; nodes without evidence = 0).
+**Steps:** 1. Inventory (`.gitignore` + skip list). 2. Extract with scripts in `_scripts/` (Python `ast`, dbt: `dbt parse` only if user said yes, else existing `target/manifest.json` or parse `.sql`/`.yml`; Airflow DAGs, Terraform `.tf`, SQL DDL/`MERGE`/`JOIN`/`INSERT`, targeted search). Contract (§5 incremental): `_scripts/extract.py <repo> <out> [--files-from <list>]` → `<out>/graph/{nodes,edges}.jsonl`; hand-written inputs (summaries, flows, rules) read from its own folder, all in `_scripts/`; skips + prints entries whose ids are gone. `--files-from` (one path per line): only those files' nodes, folders they add, edges from/to them, meaning citing them · `_scripts/validate.py <repo> <graph>` → one coverage line. 3. Add meaning. 4. Write jsonl → pages → `index.md`, `README.md`, `meta.json`. 5. Validate: no absolute paths · every `path:line` real and matching · every edge resolves · no secrets · coverage (files mapped/total; nodes without evidence = 0).
 
 **Layout**
 ```
@@ -66,10 +66,26 @@ Reference data: complete coverage, short summaries — every function, query, mo
 - Every written file tagged generated (first-line comment in `.md`/`.html`; `generated_by` in `meta.json`). Never reads its own or any graph folder.
 
 ## 5. Keep it updated
-- After any change or commit (any skill) → one line: `Graph and docs are out of date for N files — reply "go" to update both in the background, "graph" for the graph only, or "no".` Affected = tagged docs in this repo's docs folder (`./generated-docs/`, or the shared one per §8); none → `"go"` / `"no"` only.
-  - go → background Opus updates graph, then docs skill refreshes affected sections (no questions). One line when done.
-  - graph → graph only. no → don't re-ask same changes. No background agents → say pending; switch to Opus to update.
-- Incremental: `git diff <meta.commit>` + `git status --porcelain` (new files), or hashes → drop their nodes/edges, re-extract, refresh pages + `index.md` → rerun §4 step-5 validation on whole graph, graph review on changed nodes. Full rebuild only if asked or >half changed.
+`update.py` = `<skill>/references/update.py`, repo root, `python -I`. State in `meta.json` (`pending`, `docs_pending`) → nothing asked twice.
+- Graph question (any skill): after commit(s), or task end with uncommitted only (options minus "next commit"). `update.py --dry-run` → follow `say`:
+  - `ask` → one AskUserQuestion, no note in that reply: `<status>. Update the graph?` Update now in background (rec when task looks finished) · Wait — ask after the next commit · Wait until I say the work is done · No, skip.
+  - Record: `update.py --choice now|next|done|skip`. next → ask after next commit · done → no asks; user says done → ask once (no `--dry-run`) · skip → no asks until updated; note shows growing count · now without background agents → say pending (note continues); switch to Opus.
+  - `note` → no question, staleness line · `none` → nothing.
+  - Other skills' graph setup answers → update first `--choice now` · as is `--choice skip`.
+- Docs question: only after graph update finished; never with graph question, never mid-task (end of next reply). Worklist `docs_ask` true → one AskUserQuestion: `Graph updated (<one-line summary>). Update the docs that cover the changes: <worklist docs>?` Update now in background (rec) · Later · No.
+  - Docs = tagged `darshan-singh-meel-docs` (v1/v2) or in marker folder, in `generated-docs/` (or shared, §8), citing changed lines/files/nodes or naming removed/changed things (`_spec/` excluded). Collect in `docs_pending` until refreshed.
+  - Update now → background agent, docs skill, those docs only, no questions (docs-v2: own refresh steps) → `update.py --docs done` (`--docs done <doc> …` for some). One line when done.
+  - Later → `--docs later` (ask after next graph update) · No → `--docs no` (ask only when an update adds docs). Both keep the note.
+  - Docs built/refreshed in this task anyway → no docs question; `--docs done` after.
+- Staleness note (`say` = `note`): `update.py --status` line, one line in Other findings, every repo reply. No question, never blocks; stops once updated.
+  - Graph not updated: `Graph is N commits behind (M files) · docs K commits behind` (K from last docs refresh) · uncommitted only: `Graph is behind by M uncommitted files · docs behind` · no git: `… M changed files …`.
+  - Graph updated, docs not: `Docs are N commits behind the graph (K docs)` · no commits to count: `Docs are behind the graph (K docs, U graph updates)`.
+- Run (incremental, fast):
+  1. `update.py`: change set (working tree vs `meta.commit` + untracked, renames, deletes; no git → hashes; secret files never read) → remap `path:line` of changed files in `_scripts/` inputs + pages (difflib, no LLM) → `_scripts/extract.py` → merge only what changed files own (their nodes + flows/rules/processes whose steps or edges cite them); unchanged lines byte-identical → `meta.json` → `_scripts/validate.py` → `_update/worklist.json`; previous state → `_update/prev/`. One line + time.
+  2. Opus agent reads only worklist: `refresh` (new · changed + `was` · neighbour) · `moved` (refs already remapped) · `removed` · `renamed_ids` · `dangling_edges_dropped` · `meaning` (re-check; new functions → new rule/flow/command?) · `summaries` (repo, folders, `index.md` big picture) · `check_mentions` (unchanged hand-written files naming removed/changed things → Code vs docs) · `pages` (+ `index.md`) · `pages_new` · `pages_delete`. Fixes → hand-written `_scripts/` inputs, never only `graph/*.jsonl` → `update.py --redo` re-merges from `_update/prev/`.
+  3. Graph review (separate Opus, §4) on worklist items; `validate.py` on whole graph.
+  - Full rebuild only if asked · `full_rebuild_advised` (>half files, or `_scripts/*.py` changed). Huge change set → split worklist by folder, parallel Opus.
+- Migrate pre-contract graph (`update.py` names the missing piece): `_scripts/extract.py` per §4 contract (wrap old extractor + merge steps) · `_scripts/validate.py` · `meta.json` `commit` (HEAD the graph matches) + `file_hashes` → `update.py --dry-run`.
 - Rebuild never drops reasoned pages (`flows/`, `logic/`, `processes/`, `documents/`, `data/model.json`) → recreate or keep and re-verify.
 - Counts recomputed from files every time, never from memory.
 
@@ -81,7 +97,7 @@ Reference data: complete coverage, short summaries — every function, query, mo
 1. Find in graph: nodes, edges, pages; walk calls/reads/writes/ref/triggers.
 2. Freshness vs `meta.json`: involved file hash unchanged → graph + open cited lines for key steps · changed → read that file's current code, graph as map, say so.
 3. On screen: bullets + small diagram/call chain (`ui/upload.py:42 run_upload() → data.save_rows() → CALL SP_UPLOAD`), IN → OUT and `path:line` per step. HTML: `<graph folder>/answers/<slug>.html`, docs-skill style (components, `references/html-style.md`); give path; no graph → on screen only. Name sources; not found → "not found in repo".
-4. Stale → after answering, the one-line offer (§5). Never block on it.
+4. Stale → after answering: graph question or staleness note, per `update.py --dry-run` `say` (§5). Never block on it.
 - Models: Sonnet (simple lookups Haiku). Diagrams: Opus plans, Sonnet builds, Haiku checks layout.
 
 ## 7. After first build
@@ -108,7 +124,7 @@ One prompt: Documents (multi) Overview (rec) · Technical · User guide · None 
 - Link: `{from: "web:src/api.ts:42", to: "api:routes/orders.py:18", type, contract: "POST /orders", status: matched|unmatched|inferred, evidence}`.
 - Unmatched → `index.md`, noted not verified.
 - Same rules: Opus + graph review, relative paths, no secrets, tagged.
-- Repo graph updates → re-check only its links (same one-line offer). Cross-repo questions → `_combined` → repo graphs → code.
+- System graph updates only on request (`update.py` = one repo graph) → re-check only links touching that repo's worklist (`files`, `refresh`, `removed`) + `repos.json` commit → `_combined` docs citing them. Cross-repo questions → `_combined` → repo graphs → code.
 
 ## Report
 **Graph review — output format.** Reviews the **graph**, not the code; never code-review wording (Approve, Must fix, Should fix).

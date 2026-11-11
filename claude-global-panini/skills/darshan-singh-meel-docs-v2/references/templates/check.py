@@ -3,7 +3,7 @@ on top of each other, more than 3 line crossings in one diagram, a crossing next
 number <6 px from a line that is not its own, an arrow that ends on no box (a frame border, empty space), a decision
 box with fewer than 2 outgoing arrows, a name broken mid-word in a box or table, arrow ends crowding one box side
 (<12 px), lines crossing a group border <20 px apart, cut-off values, too-wide diagrams, tables and ipo strips,
-sideways scroll. Two widths: 1280 px (everything) and 390 px (sideways scroll, the ipo strip and example traces).
+sideways scroll, an example trace row hidden on a desktop. Two widths: 1280 px (everything) and 390 px (sideways scroll, the ipo strip, example traces and tables).
 
 Usage: python check.py <doc.html> [shots_dir]   (shots_dir: page.png plus one map-<n>.png per diagram, n from 1)
 Each LAYOUT line: `<section> | diagram <id> (map-<n>) | problem | text` (no diagram part outside diagrams).
@@ -40,13 +40,22 @@ JS = r"""(narrow) => {
   };
   document.querySelectorAll('details').forEach(d => { d.open = true; });
   if (document.documentElement.scrollWidth > innerWidth + 1) out.push(`page | scrolls sideways${narrow ? ' at 390px' : ''} | `);
-  if (narrow) {  // phone width: the page, and the Main flows ipo strip and example traces (a column, then stacked rows)
+  if (narrow) {  // phone width: the page, the Main flows ipo strip and example traces (a column, then stacked rows), tables
     document.querySelectorAll('.ipo li, .trace td').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off at 390px'); broken(c, ' at 390px'); });
     document.querySelectorAll('.ipo, .trace').forEach(t => { if (t.scrollWidth > t.clientWidth + 1 || R(t).right > innerWidth)
       add(t, `${t.matches('.ipo') ? 'ipo strip' : 'example traces'} wider than page at 390px`); });
+    document.querySelectorAll('main table:not(.res):not(.trace)').forEach(t => {  // tables: rows stack, nothing scrolls or is cut
+      if (t.closest('.map, .card, .journey, .payload')) return;
+      const box = t.parentElement.classList.contains('scroll') ? t.parentElement : t;
+      if (box.scrollWidth > box.clientWidth + 1 || R(t).right > innerWidth) add(t, 'table wider than page at 390px');
+      t.querySelectorAll('td').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off at 390px'); broken(c, ' at 390px'); });
+    });
     return out;
   }
   document.querySelectorAll('.ipo').forEach(t => { if (t.scrollWidth > t.clientWidth + 1) add(t, 'ipo strip wider than page'); });
+  // every example trace row shows on a desktop (details open): one hidden by CSS is an example nobody can read
+  const exs = [...document.querySelectorAll('.trace tr[id]')], gone = exs.filter(r => !r.getClientRects().length);
+  gone.forEach(r => add(r, `example ${r.id.slice(3)} hidden (${exs.length - gone.length} of ${exs.length} example rows shown)`));
   document.querySelectorAll('.map-wrap').forEach(w => { if (w.scrollWidth > w.clientWidth + 1) add(w, 'diagram wider than page'); });
   document.querySelectorAll('.map').forEach(m => {
     const boxes = [...m.querySelectorAll('.b, .ent')], marks = [...m.querySelectorAll('.lbl, .num')];

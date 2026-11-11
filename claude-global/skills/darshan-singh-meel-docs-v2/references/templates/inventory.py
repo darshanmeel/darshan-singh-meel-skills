@@ -2,10 +2,12 @@
 
 Usage: python <skill>/references/templates/inventory.py [--out DIR]   (run from the repo root)
        python <skill>/references/templates/inventory.py --check-facts [--out DIR]   (reruns every facts.json `how`)
-Finds the graph like build.py (.knowledge-graph pointer file, else <repo>-knowledge-graph/) and writes
+Finds the graph like build.py (.knowledge-graph pointer file, else <repo>-knowledge-graph/; none -> a plan from a
+stdlib file scan: entry points by convention, config, CI and test files, no flows) and writes
 DIR/inventory.json and DIR/facts.json (DIR default generated-docs/_spec). Same graph and repo -> byte-identical files;
 facts the writer added to facts.json are kept.
 """
+import ast
 import hashlib
 import json
 import os
@@ -67,6 +69,116 @@ def git(*args):
     except OSError:
         return ""
     return r.stdout.strip() if r.returncode == 0 else ""
+
+
+CI_DIRS = {".github", ".gitlab", ".circleci", ".azure-pipelines"}  # hidden folders a scan still reads
+SCAN_SKIP = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".mypy_cache", ".tox", "dist", "build",
+             "reviews", "analysis", "generated-docs", ".terraform"}
+CONFIG = re.compile(r"(^|/)(pyproject\.toml|setup\.cfg|setup\.py|package\.json|tsconfig\.json|Dockerfile[^/]*|docker-compose[^/]*"
+                    r"|Makefile|[^/]+\.(toml|ya?ml|ini|cfg|conf|properties))$")
+BY_CONVENTION = [  # (node type, path pattern): entry points when there is no graph
+    ("dag", re.compile(r"(^|/)dags/(?!__init__)[^/]+\.py$")),
+    ("endpoint", re.compile(r"(^|/)(routes?|routers?|endpoints|controllers|views)/(?!__init__)[^/]+\.(py|ts|js)$"
+                            r"|(^|/)(app|server|api|wsgi|asgi)\.(py|ts|js)$")),
+    ("cli_command", re.compile(r"(^|/)(cli|__main__|manage|main)\.py$|(^|/)bin/[^/.]+$")),
+    ("ui_screen", re.compile(r"(^|/)(pages|screens|views)/[^/]+\.(tsx|jsx|vue|svelte)$|(^|/)App\.(tsx|jsx|vue|svelte)$")),
+]
+
+
+def repo_paths():
+    """Repo files from the cwd: git tracked + untracked (not ignored), else a walk; tool folders, graph folders and secret
+    files left out (never read)."""
+    got = git("-c", "core.quotepath=off", "ls-files", "--cached", "--others", "--exclude-standard").splitlines()
+    if not got:
+        for d, dirs, fs in os.walk("."):
+            dirs[:] = sorted(x for x in dirs if x not in SCAN_SKIP and (not x.startswith(".") or x in CI_DIRS))
+            got += [Path(os.path.relpath(Path(d) / f)).as_posix() for f in sorted(fs)]
+    skip = lambda p: any(x in SCAN_SKIP or x.endswith("-knowledge-graph") for x in Path(p).parts[:-1]) or secret(p)
+    return sorted(p.replace("\\", "/") for p in got if not skip(p) and Path(p).is_file())
+
+
+def scan_nodes():
+    """No graph: graph-shaped nodes from a file scan (stdlib only). Entry points by convention (dags/, routes, cli.py,
+    __main__.py, pages/, pyproject [project.scripts], dbt_project.yml + models/*.sql, Terraform roots), config files,
+    CI files, test files, code modules and their top-level public functions and classes (Python, by ast). No flows,
+    no tables, no edges."""
+    paths, nodes = repo_paths(), []
+    add = lambda t, name, path, line=None, **k: nodes.append({"id": f"{t}:{path}:{name}", "type": t, "name": name, "path": path,
+                                                              "line_start": line, **k})
+    for p in paths:
+        test, ci = bool(TEST.search(p)), bool(CI.search(p))
+        if ci:
+            add("job", p, p)
+        elif test:
+            add("file", p, p) if CODE.search(p) and not DATA.search(p) else None
+        elif CONFIG.search(p):
+            add("config", p, p)
+        for t, rx in BY_CONVENTION if not (test or ci) else []:
+            if rx.search(p):
+                add(t, Path(p).stem if t in ("dag", "ui_screen") else p, p)
+                break
+        if CODE.search(p) and not test and not ci:
+            add("module", p, p)
+        if p.endswith(".py") and not test and not ci:
+            try:
+                tree = ast.parse(Path(p).read_text(encoding="utf-8", errors="ignore"))
+            except (SyntaxError, ValueError):
+                continue
+            for x in tree.body:
+                if isinstance(x, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and not x.name.startswith("_"):
+                    add("class" if isinstance(x, ast.ClassDef) else "function", x.name, p, x.lineno)
+    if "dbt_project.yml" in {Path(p).name for p in paths}:
+        nodes += [{"id": f"dbt_model:{p}", "type": "dbt_model", "name": Path(p).stem, "path": p}
+                  for p in paths if re.search(r"(^|/)models/.+\.sql$", p)]
+    tf = sorted({str(Path(p).parent.as_posix()) for p in paths if p.endswith(".tf") and "modules/" not in f"{p}"})
+    nodes += [{"id": f"tf:{d}", "type": "module", "name": d, "path": d, "tags": ["terraform"]} for d in tf]
+    nodes += [{"id": f"script:{s}", "type": "cli_command", "name": s, "path": "pyproject.toml"} for s in sorted(scripts())]
+    return nodes
+
+
+def scripts():
+    """pyproject [project.scripts]: {command: "package.module:function"}."""
+    try:
+        import tomllib
+        return tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8")).get("project", {}).get("scripts", {})
+    except (ImportError, ValueError, OSError):
+        return {}
+
+
+def unit(path):
+    """The program or app a file belongs to: its top package (src/ and lib/ skipped), or the file's own name at the top
+    or in bin/."""
+    parts = Path(path).parts
+    parts = parts[1:] if parts[:1] in (("src",), ("lib",)) else parts
+    return parts[0] if len(parts) > 1 and parts[0] != "bin" else Path(path).stem
+
+
+def scan_plan(inv):
+    """A file-scan plan: one Main flows h3 per entry point: a CLI program (its script, cli.py and __main__.py), an app
+    (its routes or screens), a job, a Terraform root, a package's public API (only modules with a public function or
+    class; its CLI files left out). Deploy units = the CI files; no section ruled out (the scan cannot tell a missing
+    data model from an unscanned one)."""
+    p, sc = inv["plan"], scripts()
+    callable_ = {x["path"] for t in ("function", "class") for x in inv["items"].get(t, [])}
+    cli = {e["path"] for e in inv["entry_points"] if e["group"] == "cli_command"}
+    groups = {}  # (group, unit) -> (name, files)
+    for e in inv["entry_points"]:
+        g, path = e["group"], e["path"]
+        stem = Path(path).stem
+        if g == "public_module" and (path in cli or path not in callable_ or stem.startswith("_") and stem != "__init__"):
+            continue
+        script = g == "cli_command" and e["name"] in sc  # a pyproject script: the package of its target module
+        key = e["name"] if g in ("job", "terraform_root") else re.split(r"[.:]", sc[e["name"]])[0] if script else unit(path)
+        name, files = groups.get((g, key), (None, []))
+        if not name or script:  # a program is named by its script
+            name = e["name"] if script or g in ("job", "terraform_root") else key
+        groups[(g, key)] = (name, files + [path])
+    p["main_flows"] = [{"h3": f"{name}: {ENTRY_H3[g]}", "flow": None, "steps": 0, "ordered": False, "diagram": False, "entry": None,
+                        "boxes": [], "files": sorted(set(files))} for (g, _), (name, files) in groups.items()] or p["main_flows"]
+    p["deploy"]["units"] = [x["name"] for x in inv["items"].get("job", []) if x.get("ci")]
+    for d in p["sections"].values():
+        d["not_applicable"] = {}
+    p["coverage"] = [t for t in p["coverage"] if t not in ("flow", "business_rule", "process", "table", "view", "storage_location")]
 
 
 def find_graph():
@@ -532,17 +644,20 @@ def main():
         return check_facts(out)
     ver = version()
     graph, why = find_graph()
-    if not graph:
-        sys.exit(f"ERROR no knowledge graph: {why}. Build the graph first (darshan-singh-meel-knowledge-graph skill), then rerun: {HOW}")
-    nodes, edges = jsonl(graph / "graph" / "nodes.jsonl"), jsonl(graph / "graph" / "edges.jsonl")
-    if nodes is None:
-        sys.exit(f"ERROR {rel(graph)}/graph/nodes.jsonl is missing: rebuild the graph (darshan-singh-meel-knowledge-graph skill)")
-    not_checked = [] if edges is not None else ["graph/edges.jsonl missing: no flow steps from part_of edges, no fk edges"]
+    if not graph and Path(".knowledge-graph").is_file():  # a pointer means a graph was meant: never plan around it
+        sys.exit(f"ERROR no knowledge graph: {why}. Fix the pointer or build the graph (darshan-singh-meel-knowledge-graph skill), then rerun: {HOW}")
+    if graph:
+        nodes, edges = jsonl(graph / "graph" / "nodes.jsonl"), jsonl(graph / "graph" / "edges.jsonl")
+        if nodes is None:
+            sys.exit(f"ERROR {rel(graph)}/graph/nodes.jsonl is missing: rebuild the graph (darshan-singh-meel-knowledge-graph skill)")
+        not_checked = [] if edges is not None else ["graph/edges.jsonl missing: no flow steps from part_of edges, no fk edges"]
+    else:  # no graph ({why}): a minimal plan from the files
+        nodes, edges, not_checked = scan_nodes(), [], ["no knowledge graph: plan from a file scan; build the graph for flows and coverage"]
     edges = [e for e in edges or [] if isinstance(e, dict)]
     nodes = [n for n in nodes if isinstance(n, dict) and n.get("id") and n.get("type")]
     byid = {n["id"]: n for n in nodes}
-    meta = graph_meta(graph)
-    if not meta:
+    meta = graph_meta(graph) if graph else {}
+    if graph and not meta:
         not_checked.append("meta.json missing or unreadable: graph commit and file hashes unknown")
     items = {}
     for n in nodes:
@@ -580,22 +695,24 @@ def main():
         d["columns"] = cols.get(d["id"]) or [str(x.get("name")) for x in own if isinstance(x, dict)] if isinstance(own, list) else cols.get(d["id"], [])
     tests = sorted({str(n.get("path")).replace("\\", "/") for n in nodes if n.get("path") and is_test_file(n)
                     and not DATA.search(str(n["path"]))})
-    inv = {"how": HOW, "templates": ver, "graph": rel(graph), "graph_commit": meta_commit(meta), "graph_built": meta_date(meta),
-           "stale_files": stale(meta),
+    inv = {"how": HOW, "templates": ver, "graph": rel(graph) if graph else "", **({} if graph else {"scan": True}),
+           "graph_commit": meta_commit(meta), "graph_built": meta_date(meta), "stale_files": stale(meta),
            "counts": {"nodes": len(nodes), "edges": len(edges), "by_type": dict(sorted(Counter(n["type"] for n in nodes).items()))},
            "profile": kinds, "items": items, "flows": flows(nodes, edges, byid), "entry_points": entry,
            "data_objects": [{k: v for k, v in d.items() if k != "id"} for d in data],
            "fks": [{"from": byid[a]["name"], "to": byid[b]["name"]} for a, b in fks], "tests": tests}
     inv["_byid"], inv["_tables"], inv["_fks"] = byid, tables, fks
-    if not inv["flows"]:
+    if not inv["flows"] and graph:
         not_checked.append("no flow or process nodes: Main flows planned from entry points")
     if not nodes:
-        not_checked.append("graph has no nodes: empty inventory")
+        not_checked.append("graph has no nodes: empty inventory" if graph else "file scan found no files")
     unordered = [f["name"] for f in inv["flows"] if f["type"] == "flow" and f["steps"] and not f["ordered"]]
     if unordered:
         not_checked.append(f"steps of {len(unordered)} flows have no order in the graph (no step numbers, edges allow several): "
                            f"{', '.join(unordered)}: h3 is the flow name")
     inv["plan"] = plan([k["kind"] for k in kinds], inv, nodes, edges)
+    if not graph:
+        scan_plan(inv)
     inv["not_checked"] = not_checked
     for k in ("_byid", "_tables", "_fks"):
         del inv[k]

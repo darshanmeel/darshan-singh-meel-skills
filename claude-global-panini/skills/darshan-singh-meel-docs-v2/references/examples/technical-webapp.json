@@ -361,22 +361,25 @@
      {
       "do": "Submit e-mail and password",
       "out": "`POST /auth/login`",
-      "where": "frontend/src/api.ts"
+      "where": "frontend/src/api.ts:12"
      },
      {
       "do": "Look up the user, check the hash",
-      "out": "user or 401",
-      "where": "backend/app/auth.py"
+      "out": "`users` row",
+      "branch": "401, same text for unknown e-mail",
+      "where": "backend/app/auth.py:22",
+      "why": "one message for both cases: an attacker cannot tell which e-mails exist"
      },
      {
       "do": "Issue a JWT in an http-only cookie",
       "out": "`Set-Cookie: token`",
-      "where": "backend/app/auth.py"
+      "where": "backend/app/auth.py:31",
+      "why": "http-only: page scripts cannot read the token"
      },
      {
       "do": "Load the dashboard",
-      "out": "Dashboard",
-      "where": "frontend/src/App.tsx"
+      "out": "Dashboard at `/`, counts from `GET /stats`",
+      "where": "frontend/src/App.tsx:18"
      }
     ],
     "output": "Dashboard, `token` cookie set",
@@ -396,9 +399,9 @@
        ]
       ],
       "at": [
-       "request sent",
-       "user found",
-       "cookie set",
+       "`POST /auth/login`",
+       "user 1, hash matches",
+       "`token` cookie, 8 h",
        "Dashboard"
       ],
       "out": [
@@ -428,10 +431,10 @@
        ]
       ],
       "at": [
-       "request sent",
+       "`POST /auth/login`",
        "401",
-       "skipped",
-       "stays on Login"
+       null,
+       "Login"
       ],
       "out": [
        [
@@ -458,22 +461,20 @@
      {
       "do": "Type a title, press Add",
       "out": "`POST /projects/{id}/tasks`",
-      "where": "frontend/src/api.ts"
+      "where": "frontend/src/api.ts:30"
      },
      {
       "do": "Check the project belongs to the user",
-      "out": "project or 404",
-      "where": "backend/app/main.py"
+      "out": "`projects` row",
+      "branch": "404, nothing stored",
+      "where": "backend/app/main.py:41",
+      "why": "without it any signed-in user could write to another user's project"
      },
      {
-      "do": "Owner: insert the task as open",
-      "out": "`tasks` row",
-      "where": "backend/app/main.py"
-     },
-     {
-      "do": "Other user: stop",
-      "out": "404, nothing stored",
-      "where": "backend/app/main.py"
+      "do": "Insert the task as open",
+      "out": "`tasks` row, status open",
+      "where": "backend/app/main.py:47",
+      "why": "every new task starts open, so the dashboard counts it at once"
      }
     ],
     "output": "`tasks` row, or 404",
@@ -493,10 +494,9 @@
        ]
       ],
       "at": [
-       "request sent",
-       "owner",
-       "id 7, open",
-       "skipped"
+       "`POST /projects/1/tasks`",
+       "project 1, owner 1",
+       "id 7, open"
       ],
       "out": [
        [
@@ -525,10 +525,9 @@
        ]
       ],
       "at": [
-       "request sent",
-       "not owner",
-       "skipped",
-       "404"
+       "`POST /projects/2/tasks`",
+       "404",
+       null
       ],
       "out": [
        [
@@ -583,16 +582,19 @@
     "edges": [
      {
       "from": "form",
-      "to": "route"
+      "to": "route",
+      "step": 1
      },
      {
       "from": "route",
-      "to": "own"
+      "to": "own",
+      "step": 2
      },
      {
       "from": "own",
       "to": "db",
-      "label": "owner"
+      "label": "owner",
+      "step": 3
      },
      {
       "from": "own",
@@ -698,56 +700,18 @@
     "rows": [
      [
       "Same message for any login failure",
-      "unknown e-mail or wrong password → same 401 message",
-      "`backend/app/routes/auth.py:22`"
+      "see step 5.1.2",
+      "",
+      ""
      ],
      [
-      "Task status",
-      "open → done → open; any other value → 422",
+      "Task status: only open and done",
+      "`done` → 200; `later` → 422, task unchanged",
+      "the board has two columns: any other status would hide the task",
       "`backend/app/schemas.py:14`"
      ]
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
-     {
-      "case": "typical",
-      "title": "mark done",
-      "expect": "status changes, dashboard count moves",
-      "in": [
-       [
-        "status",
-        "done"
-       ]
-      ],
-      "out": [
-       [
-        "status",
-        "200"
-       ]
-      ],
-      "source": "backend/tests/test_tasks.py:60"
-     },
-     {
-      "case": "rejected",
-      "title": "unknown status",
-      "expect": "422, task unchanged",
-      "in": [
-       [
-        "status",
-        "later"
-       ]
-      ],
-      "out": [
-       [
-        "status",
-        "422"
-       ]
-      ],
-      "source": "backend/tests/test_tasks.py:72"
-     }
-    ]
+    ],
+    "source": "backend/tests/test_tasks.py:60-72"
    }
   ],
   "Configuration": [
@@ -840,19 +804,13 @@
     ]
    },
    {
-    "type": "h3",
-    "text": "How to run the stack locally"
-   },
-   {
-    "type": "steps",
+    "type": "tasks",
     "rows": [
      [
-      "Start",
-      "`docker compose up`"
-     ],
-     [
-      "Open",
-      "the UI on port 5173"
+      "How to run the stack locally",
+      "Deploy and environments: Run locally; UI on port 5173",
+      "local development",
+      ""
      ]
     ]
    }

@@ -36,7 +36,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-review-v2` | same checks as `-review`, but the HTML report is built from a JSON spec by a fixed builder (`build.py`): main review, then a detailed section per file with Must/Should findings, a diagram only where it helps; used only when I say "v2" |
 | `-docs` (v1) | diagram-first docs; always asks 4 questions (Documents, Format HTML/MD/Confluence, Graph, Examples); one file per doc in `generated-docs/` |
 | `-docs-v2` | same rules, but HTML is built from a JSON spec by a fixed builder (`build.py`): fixed section recipes, typed tables, fixed workflow `docs-v2-<repo>`; used only when I say "v2" |
-| `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a change, offers "go / graph / no"; related repos share `../<name>-graphs/` + `_combined/` |
+| `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a commit, asks (update now in background · after next commit · when work is done · skip), then separately asks about the affected docs; declined → "Graph/Docs are N commits behind" note in every later repo reply; fast incremental updates via `references/update.py`; related repos share `../<name>-graphs/` + `_combined/` |
 | `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first (PII discovery step; keyed hashing for masked values) |
 | `-data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC; checks official docs sites only when unsure |
 | `-ask-me` | plans unclear tasks with me in rounds of ≤4 questions |
@@ -61,7 +61,7 @@ Two versions, always updated together and always delivered as **complete zips**,
   - data journeys for one record (old → new)
   - boxes carry detail: tag, bullets, IN/OUT, "runs as N steps", hover notes
 - **Examples:** every main flow, job pattern, rule and task gets them. Typical + edge/failure cards, journeys, or query/request/command + result. Each one cites its source (`tests/x.py:42`) and is marked synthetic when made up.
-- **Output:** `generated-docs/` (commit asked once); files tagged with a generator meta tag so the graph skips them. v2 also writes an empty `.generated-by-darshan-singh-meel-docs` marker in each output folder; the graph skips any folder holding it.
+- **Output:** `generated-docs/` (commit asked once); files tagged with a generator meta tag so the graph skips them. v2 also writes a `.generated-by-darshan-singh-meel-docs` marker in each output folder; the graph skips any folder holding it. After each build/refresh, knowledge-graph `update.py --docs done` clears the docs from `meta.json` `docs_pending` (staleness counts).
 
 ## Why v2 exists and where it stands
 - **Problem:** v1 runs on the same code looked completely different: layout, where things sit, which diagrams appear.

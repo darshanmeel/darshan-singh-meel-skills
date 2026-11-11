@@ -62,6 +62,13 @@
           "problem": "A request without `to_date` exports every order since `from_date` in one response.",
           "why": "A wide range loads millions of rows into one request and times out.",
           "fix": "Require `to_date` and reject ranges over 31 days with a 400."
+        },
+        {
+          "sev": "Should", "area": "Tech debt", "lines": "8-9", "effort": "S",
+          "summary": "warehouse `ANALYTICS_WH` hard-coded in the connection · read it from settings",
+          "problem": "The warehouse name `ANALYTICS_WH` is hard-coded where the connection opens.",
+          "why": "Each new environment needs a code change, and staging burns production warehouse credits.",
+          "fix": "Read the warehouse name from settings, like the other connection values."
         }
       ]
     }

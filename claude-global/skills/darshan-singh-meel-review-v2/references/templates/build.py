@@ -16,7 +16,8 @@ from pathlib import Path
 DOCS = Path(__file__).resolve().parents[3] / "darshan-singh-meel-docs-v2" / "references" / "templates"
 VERDICTS = ["Approve", "Approve with changes", "Request changes"]
 SEVS = ["Must", "Should"]
-AREAS = ["Correctness", "Security", "Performance", "Design", "Complexity", "Size", "Slop", "Tests", "Obvious", "Data"]
+AREAS = ["Correctness", "Security", "Performance", "Design", "Complexity", "Size", "Slop", "Tests", "Obvious", "Data", "Tech debt"]
+DEBT, EFFORT = "Tech debt", ["S", "M", "L"]  # effort: optional, shown for Tech debt only
 CONFIDENCE = ["High", "Medium", "Check"]
 BUDGET = {"problem": 25, "why": 20, "summary": 25, "what": 20, "evidence": 25}
 IMPACT_TAGS = ["changed", "fix"]  # fix = box the proposed fix changes (whole-repo review)
@@ -191,6 +192,31 @@ def fix_drift(f):
     return bool(want) and not want & stems(str(f.get("fix", "")) + " " + str(f.get("code", "")))
 
 
+def effort_check(where, f, err, warn):
+    e = f.get("effort")
+    if e is None:
+        return
+    if e not in EFFORT:
+        err.append(f"{where}: effort '{e}' unknown: use one of {EFFORT}")
+    elif f.get("area") != DEBT:
+        warn.append(f"{where}: effort is shown only for Tech debt: drop it")
+
+
+def effort(f):
+    return f' &middot; effort {f["effort"]}' if f.get("area") == DEBT and f.get("effort") else ""
+
+
+def debt_line(flat, other):
+    """'N items, biggest: path:lines — summary' from Tech debt findings: biggest = highest severity, then largest effort."""
+    items = [(SEVS.index(f["sev"]), f, p, f["summary"]) for p, f in flat if f["area"] == DEBT]
+    items += [(len(SEVS), o, o["path"], o["what"]) for o in other if o.get("area") == DEBT]
+    if not items:
+        return "none found"
+    s, f, p, text = min(items, key=lambda x: (x[0], -EFFORT.index(x[1]["effort"]) if x[1].get("effort") in EFFORT else 1))
+    loc = f"{p}:{f['lines']}" if f.get("lines") else p
+    return f"{len(items)} item{'s' * (len(items) > 1)}, biggest: {loc} — {text}"
+
+
 def check(spec, root, check_files):
     err, warn = [], []
     if spec.get("verdict") not in VERDICTS:
@@ -225,6 +251,7 @@ def check(spec, root, check_files):
                 err.append(f"{w}: sev '{f.get('sev')}' unknown: Must or Should (Minor goes to other)")
             if f.get("area") not in AREAS:
                 err.append(f"{w}: area '{f.get('area')}' unknown: use one of {AREAS}")
+            effort_check(w, f, err, warn)
             if not f.get("lines"):
                 err.append(f"{w}: needs lines (N or N-M)") if not SECRET.search(p) else None
             cite(w, p, f.get("lines"), root, err, check_files)
@@ -282,6 +309,7 @@ def check(spec, root, check_files):
         cite(f"other[{i}]", o.get("path", ""), o.get("lines"), root, err, check_files)
         if o.get("area") not in AREAS:
             err.append(f"other[{i}]: area '{o.get('area')}' unknown: use one of {AREAS}")
+        effort_check(f"other[{i}]", o, err, warn)
         if not all(o.get(k) for k in ("what", "why", "impact")):
             err.append(f"other[{i}]: needs what, why and impact")
         if o.get("path") and o["path"] not in seen | set(checked) | also and not SECRET.search(o["path"]):
@@ -368,10 +396,12 @@ def render(spec, esc, diagram, css, plain=None):
     checks = " &middot; ".join(f"{esc(a)} &rarr; {esc(b)}" for a, b in spec.get("checks", [])) or "none"
     counts = (f"Must {count['Must']} &middot; Should {count['Should']} &middot; Minor {len(other)} &middot; "
               f"Questions {len(spec.get('questions', []))}")
+    debt = debt_line(flat, other)
     sc = spec["scope"]
     main = (f'<p><span class="verdict {vcls}">{esc(v)}</span></p><ul><li><b>Reviewed:</b> {esc(sc["reviewed"])}</li>'
-            f'<li><b>Goal:</b> {esc(sc["goal"])}</li><li><b>Checks run:</b> {checks}</li><li><b>Findings:</b> {counts}</li></ul>')
-    term = [f"Verdict: {v}"]
+            f'<li><b>Goal:</b> {esc(sc["goal"])}</li><li><b>Checks run:</b> {checks}</li><li><b>Findings:</b> {counts}</li>'
+            f'<li><b>Tech debt:</b> {esc(debt)}</li></ul>')
+    term = [f"Verdict: {v}", f"Tech debt: {debt}"]
     for s, head in (("Must", "Must fix"), ("Should", "Should fix")):
         items = [(p, f) for p, f in flat if f["sev"] == s]
         if not items:
@@ -391,8 +421,8 @@ def render(spec, esc, diagram, css, plain=None):
     if "unused" in spec:
         rows = spec["unused"] or []
         head = ["File", "Why it looks unused", "Evidence", "Confidence", "Suggestion"]
-        main += "<h3>Unused files</h3>" + ('<div class="scroll"><table><tr>' + "".join(f"<th>{h}</th>" for h in head) + "</tr>"
-            + "".join("<tr>" + "".join(f'<td class="m">{esc(f"`{c}`" if k == 0 else c, True)}</td>' for k, c in enumerate(r))
+        main += "<h3>Unused files</h3>" + ('<div class="scroll"><table class="tt"><tr>' + "".join(f"<th>{h}</th>" for h in head) + "</tr>"  # tt: rows stack on phones
+            + "".join("<tr>" + "".join(f'<td class="m" data-h="{head[k]}">{esc(f"`{c}`" if k == 0 else c, True)}</td>' for k, c in enumerate(r))
                       + "</tr>" for r in rows) + "</table></div>" if rows else "<p>None found.</p>")
     if spec.get("net_size"):
         main += f'<p><b>Net size:</b> {esc(spec["net_size"])}</p>'
@@ -404,7 +434,7 @@ def render(spec, esc, diagram, css, plain=None):
         for f in fl["findings"]:
             snip = f'<pre class="snip"><code>{html.escape(str(f["code"]))}</code></pre>' if f.get("code") else ""
             body += (f'<div class="fd" id="f-{f["n"]}"><div class="hd"><span class="sev {f["sev"]}">{f["sev"].upper()}</span> '
-                     f'&middot; {esc(f["area"])} &middot; lines {esc(f.get("lines") or "-")}</div><ul><li><b>Problem:</b> {esc(f["problem"])}</li>'
+                     f'&middot; {esc(f["area"])} &middot; lines {esc(f.get("lines") or "-")}{effort(f)}</div><ul><li><b>Problem:</b> {esc(f["problem"])}</li>'
                      f'<li><b>Why:</b> {esc(f["why"])}</li><li><b>Fix:</b> {esc(f["fix"])}</li>'
                      + (f'<li><b>Also:</b> {", ".join(f"<code>{esc(a)}</code>" for a in f["also"])}</li>' if f.get("also") else "")
                      + (f'<li><b>Evidence:</b> {esc(f["evidence"])}</li>' if f.get("evidence") else "") + f'</ul>{snip}'
@@ -430,7 +460,7 @@ def render(spec, esc, diagram, css, plain=None):
     if other:
         secs.append(("Other findings", "<ol>" + "".join(
             f'<li id="o-{k}">[{esc(o["area"])}] <code>{esc(loc(o["path"], o.get("lines")))}</code> &mdash; {esc(o["what"])} &middot; '
-            f'{esc(o["why"])} &middot; {esc(o["impact"])}</li>' for k, o in enumerate(other, 1)) + "</ol>"))
+            f'{esc(o["why"])} &middot; {esc(o["impact"])}{effort(o)}</li>' for k, o in enumerate(other, 1)) + "</ol>"))
     toc = "".join(f'<a href="#s{i}">{i + 1} {t}</a>' for i, (t, _) in enumerate(secs))
     secs_html = "".join(f'<section><h2 id="s{i}">{i + 1} {t}</h2>{h}</section>' for i, (t, h) in enumerate(secs))
     commit = git("rev-parse", "--short", "HEAD")

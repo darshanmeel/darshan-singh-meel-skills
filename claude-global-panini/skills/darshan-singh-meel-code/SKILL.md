@@ -19,6 +19,7 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 - Touch only needed lines. No reformat, rename, reorder, "improve" nearby code. Match existing style.
 - Don't delete what you don't understand → flag it. Public interface change (signature, API, table/column, schema, DAG/task id) → only if required, call it out.
 - Remove your own debug code, temp files, dead code. Unrelated issues → mention, don't fix.
+- Tech debt touched or found → Other findings: `[Tech debt] what · why it matters · impact of fixing vs not`. Never fix unasked. No trivial items.
 
 ## Correct · secure · fast
 - Edge cases: empty, NULL, zero, duplicates, boundaries, timezones, late data.
@@ -52,6 +53,6 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 - Labelled throwaway scripts (still no hidden errors or secrets) · explicit refactor requests (surgical rule = requested scope).
 
 ## Summary
-- End of reply, in order: summary · Other findings · graph offer · `Skills:` line (always last).
+- End of reply, in order: summary · Other findings (+ graph/docs staleness note) · `Skills:` line (last text line); graph/docs question after the reply text.
 - Summary: **Changed** (one line each) · **Why** (one line) · **Verified** · **Not verified / risks** · Other findings (optional).
-- Graph exists → end with the one-line `"go"` / `"graph"` / `"no"` offer ("Keep it updated" in knowledge-graph skill).
+- Graph exists → after commit or task end: graph question or graph/docs staleness note, per `update.py --dry-run` ("Keep it updated" in knowledge-graph skill).

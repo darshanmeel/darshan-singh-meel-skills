@@ -274,7 +274,7 @@
      [
       "`explode_child()`",
       "Shared: one row per child item",
-      "`src/common/explode.py:20-58`"
+      "`src/common/explode.py`"
      ],
      [
       "`views.sql`",
@@ -500,8 +500,9 @@
     "steps": [
      {
       "do": "Read rows newer than last run",
-      "out": "new events",
-      "where": "src/jobs/load_orders.py:30"
+      "out": "rows with `event_time` after the last run",
+      "where": "src/jobs/load_orders.py:30",
+      "why": "a missed run is caught up next time, never skipped"
      },
      {
       "do": "Flatten payload, rename and cast",
@@ -511,7 +512,8 @@
      {
       "do": "Merge on `order_id` + `status`, newest wins",
       "out": "`clean.orders` row",
-      "where": "src/jobs/load_orders.py:45-52"
+      "where": "src/jobs/load_orders.py:45-52",
+      "why": "replayed events would otherwise double paid orders"
      }
     ],
     "output": "`clean.orders`: one row per order + status",
@@ -550,7 +552,7 @@
          "49.90"
         ]
        ],
-       "inserted"
+       "+1 row: O-1001 PAID"
       ],
       "out": "`clean.orders` +1 row",
       "source": "tests/test_load_orders.py:40-62"
@@ -572,7 +574,7 @@
       "at": [
        "1 new event",
        "1 flat row",
-       "older: skipped"
+       "0 rows changed: stored 09:14 is newer"
       ],
       "out": "Row unchanged",
       "source": "tests/test_load_orders.py:65-90"
@@ -590,7 +592,7 @@
       "at": [
        "1 new event",
        "1 flat row, no key",
-       "task fails"
+       "MERGE fails: `order_id` NULL"
       ],
       "out": "Task fails; e-mail sent",
       "source": "derived from src/common/explode.py:44"
@@ -607,13 +609,15 @@
     "steps": [
      {
       "do": "Read the merged orders",
-      "out": "orders with a lines array",
-      "where": "src/jobs/explode_lines.py:14"
+      "out": "`clean.orders` rows with `lines`",
+      "where": "src/jobs/explode_lines.py:14",
+      "why": "explode runs after the merge, so lines come from the newest order version"
      },
      {
       "do": "One row per array item",
       "out": "`clean.order_lines` rows",
-      "where": "src/common/explode.py:20-58"
+      "where": "src/common/explode.py:20-58",
+      "why": "line-level reports need one row per item"
      }
     ],
     "output": "`clean.order_lines`: one row per order line",
@@ -805,79 +809,25 @@
     "type": "rules",
     "rows": [
      [
-      "Newest event wins",
-      "2 events, same key → keep later `event_time`",
+      "Newest event wins, also inside one batch",
+      "O-1001 PAID 09:14 + 10:00 → 1 row, from 10:00",
+      "two versions in one batch would both survive a plain insert",
       "`src/jobs/load_orders.py:44`"
      ],
      [
       "Empty child list keeps parent",
-      "lines = [] → 1 row, NULLs",
-      "`src/common/explode.py:31`"
+      "see step 4.2.2",
+      "an order without lines still counts in order totals",
+      ""
      ],
      [
-      "Amount cast to decimal",
-      "\"49.90\" → 49.90",
-      "`src/jobs/load_orders.py:38`"
+      "Amount cast to decimal, no rounding",
+      "see step 4.1.2",
+      "finance totals must match the source to the cent",
+      ""
      ]
-    ]
-   },
-   {
-    "type": "examples",
-    "items": [
-     {
-      "case": "typical",
-      "title": "Newest event wins",
-      "expect": "Two events with one key leave one row, from the later event",
-      "in": [
-       [
-        "event 1",
-        "O-1001 PAID 09:14"
-       ],
-       [
-        "event 2",
-        "O-1001 PAID 10:00"
-       ]
-      ],
-      "out": "1 row, from event 2",
-      "source": "tests/test_load_orders.py:92-118"
-     },
-     {
-      "case": "edge",
-      "title": "Order without lines",
-      "expect": "An empty child list keeps the parent row",
-      "in": [
-       [
-        "order_id",
-        "O-1002"
-       ],
-       [
-        "lines",
-        "[]"
-       ]
-      ],
-      "out": "1 row, line fields NULL",
-      "source": "tests/test_explode_lines.py:50-66"
-     },
-     {
-      "case": "typical",
-      "title": "Amount cast to decimal",
-      "expect": "Text amounts become decimals without rounding",
-      "in": [
-       [
-        "amount (text)",
-        "\"49.90\""
-       ]
-      ],
-      "out": [
-       [
-        "amount (decimal)",
-        "49.90"
-       ]
-      ],
-      "source": "derived from src/jobs/load_orders.py:38",
-      "synthetic": true
-     }
-    ]
+    ],
+    "source": "tests/test_load_orders.py:92-118"
    }
   ],
   "Configuration": [
@@ -1024,27 +974,19 @@
     ]
    },
    {
-    "type": "h3",
-    "text": "Rerun and backfill"
-   },
-   {
-    "type": "steps",
-    "cols": [
-     "Step",
-     "How"
-    ],
+    "type": "tasks",
     "rows": [
      [
-      "Fix the cause",
-      "see the symptoms above"
+      "Rerun and backfill",
+      "`python src/run_task.py --task <task> --env prod`",
+      "after fixing the cause; the tasks after it follow",
+      ""
      ],
      [
-      "Rerun the failed task, then the tasks after it",
-      "`python src/run_task.py --task <task> --env prod`"
-     ],
-     [
-      "Late events older than `LOOKBACK_DAYS`",
-      "raise `LOOKBACK_DAYS` for one run, then set it back"
+      "",
+      "raise `LOOKBACK_DAYS` for one run, then set it back",
+      "late events older than `LOOKBACK_DAYS`",
+      ""
      ]
     ],
     "source": "src/run_task.py:40-58 · src/config.py:5"

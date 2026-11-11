@@ -8,7 +8,7 @@
 ## Communication
 - Replies read like good docs: minimal, to the point, bullets, no fluff, no preamble, no recaps.
 - Lead with the answer or result; only the details needed to act.
-- **End of reply, in order:** summary · Other findings · graph offer · `Skills:` line (always last).
+- **End of reply, in order:** summary · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
 - **`Skills:` line:** `Skills: <skills used this turn> (<reference files read>)`, or `Skills: none`. E.g. `Skills: darshan-singh-meel-code, darshan-singh-meel-data-platform (sql.md, dbt.md)`. With the skill-usage hook installed, a full log is kept in `~/.claude/skill-usage.log`.
 - A correction of something you said earlier goes first: what was wrong, what's right.
 - **Other findings — optional.** Only if something is genuinely worth knowing; otherwise leave the section out. One plain bullet each: **what** it is · **why** it matters · **impact** of doing it vs not. Example: `Upload files are never deleted — storage grows every month; a 90-day cleanup keeps cost flat, skipping it means cost keeps rising.`
@@ -79,7 +79,9 @@
 - Related repos, once I've approved the shared folder: all graphs and generated docs live in `../<name>-graphs/<repo>/{knowledge-graph,generated-docs}` plus `_combined/` for the system graph.
 - Building or updating the graph = **mapping only, not a code review**. Suspicious code is noted as "not verified" with a suggestion to run a review.
 - **Answer every question about the repo through it:** graph first → code to confirm or fill gaps → another folder if I named one. Say which sources were used; never guess ("not found in repo").
-- **After any change or commit:** end with one line — reply **"go"** to update the graph and the affected docs in the background, **"graph"** for the graph only, **"no"** to skip. Don't ask again for the same changes.
+- **After a commit** (or at the end of a task with only uncommitted changes): ask (AskUserQuestion) whether to update the graph — now in the background · after the next commit · when I say the work is done · skip. Never twice for the same commits; skip = no more asks until updated, only the note.
+- **After a graph update:** at the end of the next reply, ask separately whether to update the docs covering the changes (background). Never together with the graph question.
+- **Declined or waiting** (graph or docs): every reply about repo work carries one line in Other findings, no question: `Graph is N commits behind (M files) · docs K commits behind`, or `Docs are N commits behind the graph (K docs)`. Stops once updated. Details: knowledge-graph skill, "Keep it updated".
 - **No graph yet:** for repo questions, docs and large reviews, recommend building it (once per session) — a one-time cost that makes later answers faster, cheaper, and verifiable.
 
 ## Model choice
