@@ -1,0 +1,1277 @@
+{
+ "title": "Fleet maintenance tracking",
+ "date": "2026-11-12",
+ "subtitle": "One view per vehicle for maintenance planners and finance · 4 sources, daily batch · Snowflake and Airflow given",
+ "stack": [
+  "Snowflake",
+  "Airflow"
+ ],
+ "inputs_dir": "inputs",
+ "inputs": [
+  {
+   "name": "fleet-requirements.md",
+   "kind": "text",
+   "ids": [
+    "FLT-1",
+    "FLT-2",
+    "FLT-3",
+    "FLT-4",
+    "FLT-5",
+    "FLT-6",
+    "FLT-7",
+    "FLT-8",
+    "FLT-9",
+    "FLT-10",
+    "FLT-11",
+    "FLT-12"
+   ]
+  },
+  {
+   "name": "vehicles.csv",
+   "kind": "data",
+   "ids": []
+  },
+  {
+   "name": "telematics_daily.csv",
+   "kind": "data",
+   "ids": []
+  }
+ ],
+ "sections": {
+  "At a glance": {
+   "blocks": [
+    {
+     "type": "facts",
+     "rows": [
+      [
+       "Goal",
+       "Fewer unplanned workshop visits; a monthly cost per vehicle for finance"
+      ],
+      [
+       "Outcome",
+       "One record per vehicle: master data, latest odometer, open faults, next service due, cost to date (FLT-1)"
+      ],
+      [
+       "In scope",
+       "4 sources, daily batch by 07:00; planner dashboard; monthly cost report; depot-level access"
+      ],
+      [
+       "Out of scope",
+       "Driver names and any driver attribute beyond `driver_id` (FLT-9); workshop scheduling"
+      ],
+      [
+       "MVP",
+       "FLT-1, FLT-2, FLT-3, FLT-5, FLT-6, FLT-8, FLT-9, FLT-10, FLT-12"
+      ],
+      [
+       "Later",
+       "FLT-4 hourly fault alerts (needs a stream path); FLT-11 predictive service"
+      ],
+      [
+       "Sources",
+       "4: FMS API, telematics SFTP, workshop database, fuel card statement (manual, monthly)"
+      ],
+      [
+       "Refresh",
+       "Daily batch, all sources loaded by 07:00; fuel monthly"
+      ],
+      [
+       "Given platform",
+       "Snowflake (warehouse), Airflow (scheduling)"
+      ]
+     ]
+    }
+   ]
+  },
+  "Context": {
+   "lead": "Four sources land in Snowflake once a day; dbt models build the vehicle view; three consumer groups read it.",
+   "subsections": [
+    {
+     "title": "Snowflake and Airflow in this flow",
+     "blocks": [
+      {
+       "type": "bullets",
+       "items": [
+        "Snowflake holds raw, core and marts; retention is a table property, so the seven-year cost history (FLT-7) lives in `core` tables, not in Time Travel.",
+        "Airflow runs one DAG at 05:00: three extracts, COPY INTO raw, dbt build, dbt test, dashboard refresh by 07:00 (FLT-2).",
+        "The fuel statement has no connector; finance uploads it to a Snowflake stage once a month until the provider offers SFTP or an API."
+       ]
+      }
+     ]
+    }
+   ],
+   "blocks": [
+    {
+     "type": "flow",
+     "title": "Context: sources → ingestion → Snowflake → consumers",
+     "lanes": [
+      "Sources",
+      "Ingestion",
+      "Snowflake",
+      "Consumers"
+     ],
+     "nodes": [
+      {
+       "id": "fms",
+       "label": "FMS",
+       "sub": "REST API, daily",
+       "kind": "source",
+       "col": 0,
+       "row": 0
+      },
+      {
+       "id": "tel",
+       "label": "Telematics",
+       "sub": "SFTP CSV, 04:30",
+       "kind": "source",
+       "col": 1,
+       "row": 0
+      },
+      {
+       "id": "ws",
+       "label": "Workshop DB",
+       "sub": "JDBC, daily",
+       "kind": "source",
+       "col": 2,
+       "row": 0
+      },
+      {
+       "id": "fuel",
+       "label": "Fuel card statement",
+       "sub": "e-mail CSV, monthly",
+       "kind": "source",
+       "col": 3,
+       "row": 0,
+       "tag": "manual"
+      },
+      {
+       "id": "af",
+       "label": "Airflow DAG",
+       "sub": "extract to stage 05:00",
+       "kind": "step",
+       "col": 1,
+       "row": 1,
+       "tag": "given"
+      },
+      {
+       "id": "stage",
+       "label": "Stage upload",
+       "sub": "finance, once a month",
+       "kind": "step",
+       "col": 3,
+       "row": 1
+      },
+      {
+       "id": "raw",
+       "label": "raw",
+       "sub": "one table per source",
+       "kind": "store",
+       "col": 1,
+       "row": 2,
+       "tag": "given"
+      },
+      {
+       "id": "marts",
+       "label": "vehicle marts",
+       "sub": "dbt: core, marts",
+       "kind": "store",
+       "col": 2,
+       "row": 2
+      },
+      {
+       "id": "dash",
+       "label": "Planner dashboard",
+       "kind": "consumer",
+       "col": 1,
+       "row": 3
+      },
+      {
+       "id": "fin",
+       "label": "Finance report",
+       "sub": "monthly",
+       "kind": "consumer",
+       "col": 2,
+       "row": 3
+      },
+      {
+       "id": "alert",
+       "label": "Fault alerts",
+       "sub": "phase 2",
+       "kind": "consumer",
+       "col": 3,
+       "row": 3,
+       "tag": "later"
+      }
+     ],
+     "edges": [
+      {
+       "from": "fms",
+       "to": "af"
+      },
+      {
+       "from": "tel",
+       "to": "af"
+      },
+      {
+       "from": "ws",
+       "to": "af"
+      },
+      {
+       "from": "fuel",
+       "to": "stage"
+      },
+      {
+       "from": "af",
+       "to": "raw",
+       "label": "COPY INTO"
+      },
+      {
+       "from": "stage",
+       "to": "raw",
+       "label": "COPY INTO"
+      },
+      {
+       "from": "raw",
+       "to": "marts",
+       "label": "dbt"
+      },
+      {
+       "from": "marts",
+       "to": "dash"
+      },
+      {
+       "from": "marts",
+       "to": "fin"
+      },
+      {
+       "from": "marts",
+       "to": "alert",
+       "dashed": true
+      }
+     ],
+     "key": "grey = source · white = step · teal = Snowflake table · purple = consumer · GIVEN = already in place · dashed = phase 2"
+    }
+   ]
+  },
+  "Requirements": {
+   "lead": "12 items from the epic. Status: clear = buildable as written · gap = information missing · conflict = two requirements disagree.",
+   "subsections": [
+    {
+     "title": "FLT-4 vs FLT-2, FLT-7 vs the telematics contract",
+     "blocks": [
+      {
+       "type": "bullets",
+       "items": [
+        "FLT-4 vs FLT-2: the daily batch cannot alert within an hour. MVP alerts next morning from the batch; the hourly path is phase 2 (section 9, Alerts).",
+        "FLT-7 vs telematics contract: we keep our own `core` tables for seven years; raw telematics older than 24 months is not re-fetchable. Owner to decide: archive raw files too."
+       ]
+      }
+     ]
+    }
+   ],
+   "blocks": [
+    {
+     "type": "requirements",
+     "rows": [
+      {
+       "id": "FLT-1",
+       "text": "Unified vehicle view: master data, latest odometer, open faults, next service, cost to date",
+       "status": "clear",
+       "source": "epic"
+      },
+      {
+       "id": "FLT-2",
+       "text": "Daily ingestion of all four sources, finished by 07:00",
+       "status": "gap",
+       "source": "story",
+       "note": "Fuel statement arrives monthly by e-mail: no daily feed exists"
+      },
+      {
+       "id": "FLT-3",
+       "text": "Next service due from odometer and the model's service interval",
+       "status": "gap",
+       "source": "story",
+       "note": "No source holds the service interval per model"
+      },
+      {
+       "id": "FLT-4",
+       "text": "Alert the depot planner within one hour of a high-severity fault",
+       "status": "conflict",
+       "source": "story",
+       "note": "Telematics delivers one CSV a day (04:30): one hour needs a second, streaming path"
+      },
+      {
+       "id": "FLT-5",
+       "text": "Monthly cost per vehicle: labour + parts + fuel",
+       "status": "clear",
+       "source": "story"
+      },
+      {
+       "id": "FLT-6",
+       "text": "Planner dashboard: fleet list with filters, vehicle detail page",
+       "status": "clear",
+       "source": "story",
+       "note": "BI tool not named"
+      },
+      {
+       "id": "FLT-7",
+       "text": "Keep cost history for seven years",
+       "status": "conflict",
+       "source": "story",
+       "note": "Telematics contract keeps 24 months; cost tables are ours, raw telematics is not"
+      },
+      {
+       "id": "FLT-8",
+       "text": "Planners see only their own depot",
+       "status": "gap",
+       "source": "story",
+       "note": "No source maps planners to depots"
+      },
+      {
+       "id": "FLT-9",
+       "text": "Store the driver id only, no driver names",
+       "status": "clear",
+       "source": "story"
+      },
+      {
+       "id": "FLT-10",
+       "text": "History of vehicle status changes",
+       "status": "clear",
+       "source": "story",
+       "note": "FMS gives current status only: history is built from daily snapshots"
+      },
+      {
+       "id": "FLT-11",
+       "text": "Predict the next unplanned fault from history (later)",
+       "status": "clear",
+       "source": "story",
+       "note": "Phase 3; needs 12+ months of fault history first"
+      },
+      {
+       "id": "FLT-12",
+       "text": "Odometer never decreases; a decreasing reading is rejected and reported",
+       "status": "clear",
+       "source": "story"
+      }
+     ]
+    }
+   ]
+  },
+  "Sources and data": {
+   "lead": "Per source: system, connector, key, cadence, data points. Volume is unknown for all four.",
+   "subsections": [
+    {
+     "title": "A. Fleet management system",
+     "blocks": [
+      {
+       "type": "sources",
+       "rows": [
+        {
+         "id": "fms",
+         "system": "Fleet management system (FMS)",
+         "connector": "REST API, JSON, one call per depot",
+         "key": "`vehicle_id`; `vin` for linking",
+         "cadence": "daily 05:00",
+         "note": "Master data and current status only. We snapshot daily to build the status history (FLT-10).",
+         "points": [
+          [
+           "vehicle_id",
+           "FMS key"
+          ],
+          [
+           "vin",
+           "17 characters; the linking key across sources"
+          ],
+          [
+           "plate",
+           "Registration plate; changes on re-registration",
+           "personal data in some countries"
+          ],
+          [
+           "model",
+           "Manufacturer and model; joins the service interval table (FLT-3)"
+          ],
+          [
+           "depot",
+           "Home depot; drives access (FLT-8)"
+          ],
+          [
+           "status",
+           "active · workshop · decommissioned"
+          ],
+          [
+           "driver_id",
+           "Current driver; the only driver attribute we keep (FLT-9)"
+          ],
+          [
+           "card_no",
+           "Fuel card assigned today; no assignment history"
+          ]
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "B. Telematics provider",
+     "blocks": [
+      {
+       "type": "sources",
+       "rows": [
+        {
+         "id": "tel",
+         "system": "Telematics portal",
+         "connector": "SFTP, one CSV per day at 04:30",
+         "key": "`vin` + `reading_date`",
+         "cadence": "daily; 24-month retention at the provider",
+         "points": [
+          [
+           "vin",
+           "Vehicle identification number"
+          ],
+          [
+           "reading_date",
+           "Day of the reading"
+          ],
+          [
+           "odometer_km",
+           "End-of-day odometer; must not decrease (FLT-12)"
+          ],
+          [
+           "engine_hours",
+           "End-of-day engine hours"
+          ],
+          [
+           "fault_code",
+           "Manufacturer code, empty if none"
+          ],
+          [
+           "fault_severity",
+           "low · medium · high; high triggers FLT-4"
+          ]
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "C. Workshop system",
+     "blocks": [
+      {
+       "type": "sources",
+       "rows": [
+        {
+         "id": "ws",
+         "system": "Workshop database",
+         "connector": "JDBC, incremental on `closed_at`",
+         "key": "`work_order_id`; vehicle by `plate`",
+         "cadence": "daily 05:00",
+         "note": "References the vehicle by plate, not VIN: linking goes through the plate mapping (section 5).",
+         "points": [
+          [
+           "work_order_id",
+           "Work order key"
+          ],
+          [
+           "plate",
+           "Registration plate at the time of the order"
+          ],
+          [
+           "opened_at, closed_at",
+           "Timestamps"
+          ],
+          [
+           "type",
+           "planned · unplanned; unplanned drives the objective"
+          ],
+          [
+           "labour_hours",
+           "Hours booked"
+          ],
+          [
+           "parts_cost, labour_cost",
+           "EUR"
+          ]
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "D. Fuel card provider",
+     "blocks": [
+      {
+       "type": "sources",
+       "rows": [
+        {
+         "id": "fuel",
+         "system": "Fuel card provider statement",
+         "connector": "none: CSV by e-mail to finance; uploaded to a stage",
+         "key": "`card_no` + `txn_date`",
+         "cadence": "monthly",
+         "note": "The only manual step in the pipeline. Owner to decide: SFTP or API from the provider (W5).",
+         "points": [
+          [
+           "card_no",
+           "Fuel card; maps to a vehicle through FMS `card_no`"
+          ],
+          [
+           "txn_date",
+           "Transaction date"
+          ],
+          [
+           "litres",
+           "Litres fuelled"
+          ],
+          [
+           "amount",
+           "EUR"
+          ],
+          [
+           "station",
+           "Station name"
+          ]
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "Identity and linking": {
+   "lead": "The vehicle is the one entity everything hangs on; VIN is the master key, plate and fuel card are mapped to it with validity dates.",
+   "subsections": [
+    {
+     "title": "VIN as master key; plate and card mapped by date",
+     "blocks": [
+      {
+       "type": "bullets",
+       "items": [
+        "Master key is `vin`; `vehicle_id` is kept as the FMS surrogate.",
+        "Plate → VIN: a mapping table with `valid_from`/`valid_to`, built from the daily FMS snapshots, so a work order joins the vehicle that carried the plate on `opened_at`.",
+        "Card → VIN: same pattern on `card_no`; FMS holds today's assignment only, so re-assigned cards before the first snapshot cannot be attributed. Owner to decide: accept, or ask FMS for history.",
+        "Telematics VINs unknown to FMS are loaded and reported, not dropped (section 8: 3 of 20 VINs)."
+       ]
+      }
+     ]
+    }
+   ],
+   "blocks": [
+    {
+     "type": "links",
+     "title": "What joins what",
+     "entities": [
+      {
+       "id": "veh",
+       "label": "Vehicle (FMS)",
+       "ids": [
+        "vehicle_id",
+        "vin",
+        "plate",
+        "card_no",
+        "driver_id"
+       ]
+      },
+      {
+       "id": "rd",
+       "label": "Telematics reading",
+       "ids": [
+        "vin",
+        "reading_date"
+       ]
+      },
+      {
+       "id": "wo",
+       "label": "Work order",
+       "ids": [
+        "work_order_id",
+        "plate"
+       ]
+      },
+      {
+       "id": "tx",
+       "label": "Fuel transaction",
+       "ids": [
+        "card_no",
+        "txn_date"
+       ]
+      }
+     ],
+     "joins": [
+      {
+       "a": "veh",
+       "b": "rd",
+       "on": "vin"
+      },
+      {
+       "a": "veh",
+       "b": "wo",
+       "on": "plate"
+      },
+      {
+       "a": "veh",
+       "b": "tx",
+       "on": "card_no"
+      }
+     ],
+     "key": "boxes = entities with their identifiers · lines = join key; plate and card_no go through effective-dated mapping tables"
+    }
+   ]
+  },
+  "Flows": {
+   "blocks": [
+    {
+     "type": "timeline",
+     "title": "Daily batch, one Airflow DAG",
+     "steps": [
+      {
+       "at": "04:30",
+       "do": "Telematics CSV lands on SFTP",
+       "out": "1 file"
+      },
+      {
+       "at": "05:00",
+       "do": "Extract FMS, SFTP, workshop to stage",
+       "out": "3 files"
+      },
+      {
+       "at": "05:20",
+       "do": "COPY INTO raw",
+       "out": "raw.*"
+      },
+      {
+       "at": "05:30",
+       "do": "dbt build: mappings, core, marts",
+       "out": "vehicle marts"
+      },
+      {
+       "at": "06:15",
+       "do": "dbt test: odometer, keys, unknown VINs",
+       "out": "DQ report"
+      },
+      {
+       "at": "06:30",
+       "do": "Dashboard refresh",
+       "out": "ready 07:00"
+      }
+     ],
+     "key": "times are targets for the MVP; the fuel statement joins the chain once a month after the stage upload"
+    }
+   ]
+  },
+  "Use cases and data needs": {
+   "blocks": [
+    {
+     "type": "needs",
+     "rows": [
+      {
+       "use": "Planner dashboard: fleet list and vehicle page (FLT-6)",
+       "data": "master data, latest odometer, open faults, cost to date",
+       "sources": [
+        "fms",
+        "tel",
+        "ws",
+        "fuel"
+       ]
+      },
+      {
+       "use": "Next service due (FLT-3)",
+       "data": "odometer, service interval per model",
+       "sources": [
+        "tel"
+       ],
+       "note": "W1",
+       "missing": "service interval per model"
+      },
+      {
+       "use": "Fault alerts (FLT-4)",
+       "data": "fault_code, fault_severity, depot",
+       "sources": [
+        "tel",
+        "fms"
+       ],
+       "note": "Hourly needs a stream path (phase 2)"
+      },
+      {
+       "use": "Monthly cost per vehicle (FLT-5)",
+       "data": "labour, parts, fuel amount",
+       "sources": [
+        "ws",
+        "fuel",
+        "fms"
+       ]
+      },
+      {
+       "use": "Depot-level access (FLT-8)",
+       "data": "planner → depot mapping",
+       "sources": [],
+       "note": "No source: W10"
+      },
+      {
+       "use": "Status history (FLT-10)",
+       "data": "daily FMS status snapshots",
+       "sources": [
+        "fms"
+       ]
+      },
+      {
+       "use": "Predictive service (FLT-11, later)",
+       "data": "fault history, odometer, unplanned work orders",
+       "sources": [
+        "tel",
+        "ws"
+       ],
+       "note": "Needs 12+ months of history"
+      }
+     ]
+    }
+   ]
+  },
+  "Data findings": {
+   "lead": "Two sample files profiled, structure only: FMS vehicles (20 rows) and three days of telematics (60 rows). Values of sensitive-looking columns are withheld.",
+   "subsections": [
+    {
+     "title": "VIN overlap, empty cards, empty odometers",
+     "blocks": [
+      {
+       "type": "bullets",
+       "items": [
+        "17 of 20 FMS VINs appear in telematics; 3 telematics VINs are unknown to FMS: likely decommissioned or wrongly keyed vehicles. We load and report them (section 5).",
+        "`card_no` is empty for 25% of vehicles: fuel cost cannot be attributed for a quarter of the fleet until FMS is completed.",
+        "`odometer_km` is empty in 5% of readings: the FLT-12 rule compares against the last non-empty reading.",
+        "`fault_code` is set in 22% of readings; severity is always set with it.",
+        "`plate` is unique in the sample, which supports the plate mapping; its stability over time is not visible in three days."
+       ]
+      }
+     ]
+    },
+    {
+     "title": "FLT-3, FLT-5, FLT-10, FLT-12 against the sample",
+     "blocks": [
+      {
+       "type": "table",
+       "head": [
+        "Requirement",
+        "Needs",
+        "In the sample",
+        "Gap"
+       ],
+       "rows": [
+        [
+         "FLT-3",
+         "service interval per model",
+         "`model` only",
+         "interval table missing (W1)"
+        ],
+        [
+         "FLT-10",
+         "status history",
+         "current `status` only",
+         "history starts with the first snapshot"
+        ],
+        [
+         "FLT-12",
+         "monotonic odometer",
+         "`odometer_km` per day",
+         "testable with dbt once loaded"
+        ],
+        [
+         "FLT-5",
+         "fuel per vehicle",
+         "`card_no` 75% filled",
+         "25% of fuel unattributable"
+        ]
+       ]
+      }
+     ]
+    }
+   ],
+   "blocks": [
+    {
+     "type": "profile",
+     "from": "profile.json"
+    }
+   ]
+  },
+  "Technology options": {
+   "lead": "Given platforms stay. For every other need: one pick that fits this brief, alternatives with the trade-off that would make them the pick.",
+   "blocks": [
+    {
+     "type": "options",
+     "rows": [
+      {
+       "need": "Orchestration",
+       "rec": "Airflow",
+       "given": true,
+       "why": "One DAG at 05:00 chains extract, COPY, dbt build and test; retries per task",
+       "source": "airflow.apache.org/docs"
+      },
+      {
+       "need": "Storage and modelling",
+       "rec": "Snowflake",
+       "given": true,
+       "why": "raw → core → marts; seven-year retention as plain tables; row access policies for depots",
+       "source": "docs.snowflake.com"
+      },
+      {
+       "need": "Ingestion: REST API (FMS)",
+       "rec": "Airflow task (Python) → stage → COPY INTO",
+       "why": "Small daily payload, no connector needed; stays in the given stack",
+       "alternatives": [
+        {
+         "name": "Fivetran",
+         "tradeoff": "managed, but only if a connector for this FMS exists (check: fivetran.com/docs connectors)"
+        },
+        {
+         "name": "Airbyte",
+         "tradeoff": "custom connector builder for odd APIs; one more service to run"
+        }
+       ],
+       "source": "docs.snowflake.com: COPY INTO <table>"
+      },
+      {
+       "need": "Ingestion: SFTP CSV (telematics)",
+       "rec": "Airflow SFTP pull → external stage → Snowpipe",
+       "why": "File lands at a fixed time; Snowpipe loads on arrival and gives the phase-2 path a start",
+       "alternatives": [
+        {
+         "name": "COPY INTO in the DAG",
+         "tradeoff": "simpler, no Snowpipe; load waits for the 05:00 run"
+        },
+        {
+         "name": "Fivetran SFTP connector",
+         "tradeoff": "managed; adds a vendor for one file a day"
+        }
+       ],
+       "source": "docs.snowflake.com: Snowpipe"
+      },
+      {
+       "need": "Ingestion: database (workshop)",
+       "rec": "Airflow incremental SQL extract on `closed_at`",
+       "why": "One table, daily delta; the source team allows read-only JDBC",
+       "alternatives": [
+        {
+         "name": "Fivetran or Airbyte database connector",
+         "tradeoff": "CDC with no code; needs log access on the workshop DB"
+        },
+        {
+         "name": "Debezium + Kafka",
+         "tradeoff": "real time; far more than a daily delta needs"
+        }
+       ],
+       "source": "airflow.apache.org/docs: providers"
+      },
+      {
+       "need": "Ingestion: manual statement (fuel)",
+       "rec": "Snowflake internal stage upload by finance, COPY in the DAG",
+       "why": "No feed exists; a stage keeps the manual step inside the platform and auditable",
+       "alternatives": [
+        {
+         "name": "Provider SFTP or API",
+         "tradeoff": "removes the manual step; depends on the provider (W5)"
+        },
+        {
+         "name": "E-mail attachment pickup",
+         "tradeoff": "automates today's channel; brittle on format changes"
+        }
+       ],
+       "source": "docs.snowflake.com: PUT"
+      },
+      {
+       "need": "Transformation",
+       "rec": "dbt Core on Snowflake",
+       "why": "Mapping tables, snapshots for status history, tests for FLT-12; runs as one Airflow task",
+       "alternatives": [
+        {
+         "name": "Snowflake Dynamic Tables",
+         "tradeoff": "no scheduler step; less room for tests and snapshots"
+        },
+        {
+         "name": "SQLMesh",
+         "tradeoff": "virtual environments and column lineage; smaller ecosystem"
+        }
+       ],
+       "source": "docs.getdbt.com"
+      },
+      {
+       "need": "Identity: vehicle linking",
+       "rec": "Deterministic mapping tables in dbt (VIN master, plate and card validity ranges)",
+       "why": "Keys are exact; no fuzzy matching needed",
+       "alternatives": [
+        {
+         "name": "Splink",
+         "tradeoff": "probabilistic matching if plates turn out dirty"
+        },
+        {
+         "name": "AWS Entity Resolution",
+         "tradeoff": "managed matching; data leaves Snowflake"
+        }
+       ],
+       "source": "docs.getdbt.com: snapshots"
+      },
+      {
+       "need": "Data quality",
+       "rec": "dbt tests + one custom test (odometer monotonic per VIN)",
+       "why": "Runs in the same DAG; failures land in a DQ table for the report (FLT-12)",
+       "alternatives": [
+        {
+         "name": "Snowflake Data Metric Functions",
+         "tradeoff": "checks inside Snowflake on a schedule; separate from the dbt run"
+        },
+        {
+         "name": "Great Expectations",
+         "tradeoff": "richer profiling and docs; another runtime"
+        }
+       ],
+       "source": "docs.getdbt.com: tests"
+      },
+      {
+       "need": "Alerts within one hour (phase 2)",
+       "rec": "Snowpipe on the SFTP drop + Snowflake Stream and Task → webhook",
+       "why": "Reuses the stage; the provider must drop files hourly first",
+       "alternatives": [
+        {
+         "name": "Hourly Airflow DAG",
+         "tradeoff": "no new components; latency up to one hour plus run time"
+        },
+        {
+         "name": "Kafka + Snowflake Kafka connector",
+         "tradeoff": "true streaming; only if the provider can publish events"
+        }
+       ],
+       "source": "docs.snowflake.com: Streams and Tasks"
+      },
+      {
+       "need": "Dashboard",
+       "rec": "Streamlit in Snowflake",
+       "why": "Lives next to the data; row access policies apply; no BI licence decision needed for the MVP",
+       "alternatives": [
+        {
+         "name": "Power BI",
+         "tradeoff": "if the company standard; row-level security duplicated in the model"
+        },
+        {
+         "name": "Tableau",
+         "tradeoff": "same; stronger ad-hoc exploration"
+        }
+       ],
+       "source": "docs.snowflake.com: Streamlit in Snowflake"
+      },
+      {
+       "need": "Access and data protection",
+       "rec": "Snowflake row access policy on `depot` + masking policy on `plate`",
+       "why": "Enforced for every consumer, not per dashboard (FLT-8, FLT-9)",
+       "alternatives": [
+        {
+         "name": "Filtered views per depot",
+         "tradeoff": "simple; one view per depot to maintain"
+        },
+        {
+         "name": "BI-level row security",
+         "tradeoff": "holds only inside that BI tool"
+        }
+       ],
+       "source": "docs.snowflake.com: row access policies"
+      }
+     ]
+    }
+   ]
+  },
+  "What needs to be done": {
+   "lead": "Work items that follow from the requirements. Decide and clarify items block the build items that depend on them.",
+   "blocks": [
+    {
+     "type": "work",
+     "rows": [
+      {
+       "id": "W1",
+       "what": "Provide the service interval per model (table or source)",
+       "kind": "clarify",
+       "owner": "Fleet manager",
+       "ref": [
+        "FLT-3"
+       ]
+      },
+      {
+       "id": "W2",
+       "what": "Decide the MVP alert path: next-morning from the batch; hourly in phase 2",
+       "kind": "decide",
+       "owner": "Product owner",
+       "ref": [
+        "FLT-4"
+       ]
+      },
+      {
+       "id": "W3",
+       "what": "Resolve retention: seven-year core tables; archive raw telematics files yes/no",
+       "kind": "decide",
+       "owner": "Data protection officer, Finance",
+       "ref": [
+        "FLT-7"
+       ]
+      },
+      {
+       "id": "W4",
+       "what": "Name the planner → depot mapping source (HR system or a maintained table)",
+       "kind": "clarify",
+       "owner": "Depot management",
+       "ref": [
+        "FLT-8"
+       ]
+      },
+      {
+       "id": "W5",
+       "what": "Ask the fuel card provider for SFTP or API delivery",
+       "kind": "decide",
+       "owner": "Procurement",
+       "ref": [
+        "fuel",
+        "FLT-2"
+       ]
+      },
+      {
+       "id": "W6",
+       "what": "FMS extract task: API per depot → stage → COPY INTO raw.fms_vehicle",
+       "kind": "build",
+       "owner": "Data engineering",
+       "ref": [
+        "fms",
+        "FLT-2"
+       ]
+      },
+      {
+       "id": "W7",
+       "what": "Telematics pull: SFTP → external stage → Snowpipe → raw.telematics_daily",
+       "kind": "build",
+       "owner": "Data engineering",
+       "ref": [
+        "tel",
+        "FLT-2"
+       ]
+      },
+      {
+       "id": "W8",
+       "what": "Workshop incremental extract on closed_at → raw.work_order",
+       "kind": "build",
+       "owner": "Data engineering",
+       "ref": [
+        "ws",
+        "FLT-2"
+       ]
+      },
+      {
+       "id": "W9",
+       "what": "Fuel stage upload procedure for finance + COPY in the DAG",
+       "kind": "configure",
+       "owner": "Data engineering, Finance",
+       "ref": [
+        "fuel",
+        "FLT-5"
+       ],
+       "depends": [
+        "W5"
+       ]
+      },
+      {
+       "id": "W10",
+       "what": "Row access policy on depot; masking policy on plate",
+       "kind": "configure",
+       "owner": "Platform team",
+       "ref": [
+        "FLT-8",
+        "FLT-9"
+       ],
+       "depends": [
+        "W4"
+       ]
+      },
+      {
+       "id": "W11",
+       "what": "dbt: VIN master, plate and card mapping tables, status snapshots",
+       "kind": "build",
+       "owner": "Analytics engineering",
+       "ref": [
+        "Identity: vehicle linking",
+        "FLT-10"
+       ],
+       "depends": [
+        "W6",
+        "W7",
+        "W8"
+       ]
+      },
+      {
+       "id": "W12",
+       "what": "dbt: vehicle marts (view, service due, cost per month)",
+       "kind": "build",
+       "owner": "Analytics engineering",
+       "ref": [
+        "FLT-1",
+        "FLT-3",
+        "FLT-5"
+       ],
+       "depends": [
+        "W1",
+        "W11"
+       ]
+      },
+      {
+       "id": "W13",
+       "what": "dbt tests incl. odometer monotonic; DQ report table",
+       "kind": "configure",
+       "owner": "Analytics engineering",
+       "ref": [
+        "FLT-12"
+       ],
+       "depends": [
+        "W11"
+       ]
+      },
+      {
+       "id": "W14",
+       "what": "Planner dashboard in Streamlit in Snowflake",
+       "kind": "build",
+       "owner": "Analytics engineering",
+       "ref": [
+        "FLT-6"
+       ],
+       "depends": [
+        "W12",
+        "W10"
+       ]
+      },
+      {
+       "id": "W15",
+       "what": "Airflow DAG: schedule, retries, 07:00 SLA alert",
+       "kind": "configure",
+       "owner": "Data engineering",
+       "ref": [
+        "Orchestration",
+        "FLT-2"
+       ],
+       "depends": [
+        "W6",
+        "W7",
+        "W8"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "Gaps, assumptions and risks": {
+   "subsections": [
+    {
+     "title": "Gaps",
+     "blocks": [
+      {
+       "type": "bullets",
+       "items": [
+        "Service interval per model: no source (FLT-3, W1).",
+        "Planner → depot mapping: no source (FLT-8, W4).",
+        "Volumes: row counts per source and growth are not stated; sizing of warehouse and stage is pending.",
+        "Fuel card assignment history: FMS holds the current card only."
+       ]
+      }
+     ]
+    },
+    {
+     "title": "Assumptions",
+     "blocks": [
+      {
+       "type": "table",
+       "head": [
+        "Assumption",
+        "Why it matters"
+       ],
+       "rows": [
+        [
+         "The FMS API returns all vehicles of a depot in one page",
+         "Paging changes the extract task (W6)"
+        ],
+        [
+         "Plates are unique at any point in time",
+         "The plate mapping joins work orders to vehicles"
+        ],
+        [
+         "Finance accepts a monthly fuel figure in a daily dashboard",
+         "Otherwise FLT-2 needs a daily fuel feed, which does not exist"
+        ],
+        [
+         "Read-only JDBC access to the workshop database is granted",
+         "No access → file export from the workshop team instead"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "title": "Risks",
+     "blocks": [
+      {
+       "type": "bullets",
+       "items": [
+        "Manual fuel upload is skipped in a month: cost per vehicle is understated. Mitigation: a freshness test on `raw.fuel_txn` alerts finance.",
+        "Plate re-registration between two snapshots goes unseen: a work order joins the wrong vehicle. Mitigation: unknown-plate report after each run.",
+        "Telematics VINs unknown to FMS grow over time: fleet counts drift between dashboard and FMS. Mitigation: the unknown-VIN report is reviewed weekly by the fleet manager."
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "Glossary": {
+   "blocks": [
+    {
+     "type": "terms",
+     "rows": [
+      [
+       "VIN",
+       "Vehicle identification number, 17 characters, unique per vehicle for life"
+      ],
+      [
+       "FMS",
+       "Fleet management system: master data, assignments, status"
+      ],
+      [
+       "Telematics",
+       "On-board unit data: odometer, engine hours, fault codes"
+      ],
+      [
+       "Work order",
+       "One workshop job, planned or unplanned, with labour and parts cost"
+      ],
+      [
+       "Service interval",
+       "Kilometres between two planned services, per model"
+      ],
+      [
+       "Snapshot",
+       "A daily copy of a source table, used to rebuild history"
+      ],
+      [
+       "Mapping table",
+       "Key → VIN with validity dates (plate, fuel card)"
+      ],
+      [
+       "Row access policy",
+       "Snowflake rule that filters rows per user role"
+      ],
+      [
+       "Snowpipe",
+       "Snowflake load on file arrival in a stage"
+      ],
+      [
+       "DQ",
+       "Data quality: tests that reject or report bad rows"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

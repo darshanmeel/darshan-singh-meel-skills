@@ -32,6 +32,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `docs` | Diagram-first docs (v1): READMEs, KT, design docs, user guides, runbooks |
 | `docs-v2` | Docs from any repo's knowledge graph: fixed inventory → plan → builder + checks; same structure every run |
 | `architecture` | Architecture review: current, problems, per-component keep/move/later target (Technical-doc shape), each pick with 2–3 alternatives, workflows, impact on cost/performance/maintenance/tech debt, migration; on request or offered after a Technical doc |
+| `requirements-brief` | Requirements brief: pasted requirements, epics and data → one HTML page with SVG (context, traceable requirements, per-source data points, linking, flows, data findings, tech options per need with the given stack kept, what needs to be done, gaps and risks); `requirements-brief-review` re-reads the inputs and checks it |
 | `tech-blog` | English technical blog posts: thesis, outline, every code snippet run, claims from official docs; `tech-blog-review` checks them |
 | `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
 | `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
@@ -42,6 +43,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `frontend-react` | Build React + TypeScript UIs with a component library; React components for Streamlit |
 | `streamlit` | Build, test, deploy Streamlit apps (any host) |
 | `streamlit-snowflake` | Streamlit in Snowflake: privileges, deploy, runtimes, limits, cost |
+| `streamlit-snowflake-react` | React in Streamlit in Snowflake: a two-way widget or a prebuilt React app with its API (warehouse v1 / container v2, fetch bridge, self-contained build, deploy checks) |
 
 ## Optional dependencies
 - Notebook cells run by Claude: `pip install nbclient nbformat ipykernel` + a database connector.

@@ -13,6 +13,8 @@ Only what differs when Snowflake hosts the app. Alongside:
 | UI design | `darshan-singh-meel-frontend` |
 | Any query against data or metadata | `darshan-singh-meel-notebook` |
 
+Not for React in a SiS app (custom widget · whole prebuilt React app + its API: build, mount, fetch bridge, deploy, tests) → `darshan-singh-meel-streamlit-snowflake-react`.
+
 ## Refs (`references/<file>`; read only what the task needs)
 | Topic | Ref |
 |---|---|

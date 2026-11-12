@@ -69,6 +69,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Docs (README, KT, design, user guide, runbook) | `darshan-singh-meel-docs` |
 | Docs v2 (fixed builder, same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
 | Architecture review: current · problems · target (Technical shape) · impact cost/perf/maint/debt — on ask, or offered after Technical doc | `darshan-singh-meel-architecture` |
+| Requirements brief: what is asked · data · flows · gaps · tech options · to do (HTML + SVG) · its review | `darshan-singh-meel-requirements-brief` · `darshan-singh-meel-requirements-brief-review` |
 | English tech blog post · its review | `darshan-singh-meel-tech-blog` · `darshan-singh-meel-tech-blog-review` |
 | Query/analyse data; develop/test dbt model, procedure, SQL against data | `darshan-singh-meel-notebook` |
 | Map repo · "what does X do / how / what calls what" | `darshan-singh-meel-knowledge-graph` |
@@ -78,6 +79,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Build React + TS UI · React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build/test/deploy Streamlit app (any host) | `darshan-singh-meel-streamlit` |
 | Streamlit in Snowflake (+ `-streamlit`) | `darshan-singh-meel-streamlit-snowflake` |
+| React widget · prebuilt React app in Streamlit in Snowflake (warehouse v1 · container v2, fetch bridge, deploy checks) | `darshan-singh-meel-streamlit-snowflake-react` |
 | SQL, dbt, Snowflake, Databricks, Spark, Athena, Iceberg, Python, Airflow, ADF, Terraform, storage, RBAC, governance | `darshan-singh-meel-data-platform` (+ above) |
 - Non-trivial task → check `~/.claude/skills`, `./.claude/skills` first.
 - Missing useful skill → propose name · job · why; create in `./.claude/skills/<name>/` only after yes. One skill, one job.

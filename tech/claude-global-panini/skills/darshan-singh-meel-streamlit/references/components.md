@@ -7,8 +7,8 @@ Stop at the first that works:
 4. Small interactive widget → inline component v2 (HTML/CSS/JS strings).
 5. Stateful, reusable UI → packaged component v2 in React + TypeScript, built per `darshan-singh-meel-frontend-react`.
 
-- `st.components.v1.html` and `.iframe` are deprecated (since 1.56) → `st.iframe` / `st.html`.
-- v1 `declare_component`: only for a legacy component or a host without v2 (Snowflake warehouse runtime — see `darshan-singh-meel-streamlit-snowflake`).
+- `st.components.v1.html` and `.iframe` are deprecated (since 1.56) → `st.iframe` / `st.html` on Streamlit ≥ 1.56. Older pinned versions (the Snowflake warehouse runtime offers a limited, older set) keep `components.v1.html` / `.iframe`.
+- v1 `declare_component`: only for a legacy component or a host without v2. Snowflake warehouse runtime (no v2) and React in Streamlit in Snowflake → `darshan-singh-meel-streamlit-snowflake-react`.
 - Third-party component packages: maintained ones only, pinned; each is code running in the user's browser.
 - Docs: docs.streamlit.io/develop/concepts/custom-components
 

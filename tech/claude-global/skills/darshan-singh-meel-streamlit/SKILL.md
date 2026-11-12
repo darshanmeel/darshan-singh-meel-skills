@@ -30,7 +30,7 @@ App code is the same on every host; only deploy and runtime differ. Read only th
 - Use the version the project pins (`requirements.txt`, `pyproject.toml`, lock file). Nothing pinned → latest stable, pinned exactly (`streamlit==1.67.0` at the time of writing; Python 3.11+).
 - The host can cap the version (Snowflake warehouse runtime lags far behind). Check the host before using a new API.
 - Unsure about an API, a parameter, or the version that added it → docs.streamlit.io only; name the page used.
-- Never write deprecated calls: `use_container_width` → `width="stretch"`; `st.components.v1.html` / `.iframe` → `st.iframe` or `st.html`; `st.experimental_*` → the stable name.
+- Never write deprecated calls: `use_container_width` → `width="stretch"`; `st.components.v1.html` / `.iframe` → `st.iframe` or `st.html` (exception: a host whose Streamlit is older than 1.56, such as the Snowflake warehouse runtime, keeps v1 — see `darshan-singh-meel-streamlit-snowflake-react`); `st.experimental_*` → the stable name.
 
 ## Rules
 - **Built-ins first.** Native widgets, `st.dataframe`, built-in charts, `st.connection`, `st.login`. No extra package for one widget; no CSS hacks against Streamlit's DOM.

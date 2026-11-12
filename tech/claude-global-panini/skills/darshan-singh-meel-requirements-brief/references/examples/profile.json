@@ -1,0 +1,145 @@
+{
+ "files": [
+  {
+   "file": "inputs/vehicles.csv",
+   "rows": 20,
+   "columns": [
+    {
+     "name": "vehicle_id",
+     "type": "int",
+     "count": 20,
+     "null_pct": 0.0,
+     "distinct": 20,
+     "sensitive": true
+    },
+    {
+     "name": "vin",
+     "type": "text",
+     "count": 20,
+     "null_pct": 0.0,
+     "distinct": 20,
+     "sensitive": false
+    },
+    {
+     "name": "plate",
+     "type": "text",
+     "count": 20,
+     "null_pct": 0.0,
+     "distinct": 20,
+     "sensitive": true
+    },
+    {
+     "name": "model",
+     "type": "text",
+     "count": 20,
+     "null_pct": 0.0,
+     "distinct": 5,
+     "sensitive": false
+    },
+    {
+     "name": "depot",
+     "type": "text",
+     "count": 20,
+     "null_pct": 0.0,
+     "distinct": 3,
+     "sensitive": false
+    },
+    {
+     "name": "status",
+     "type": "text",
+     "count": 20,
+     "null_pct": 0.0,
+     "distinct": 3,
+     "sensitive": false
+    },
+    {
+     "name": "driver_id",
+     "type": "int",
+     "count": 19,
+     "null_pct": 5.0,
+     "distinct": 16,
+     "sensitive": true
+    },
+    {
+     "name": "card_no",
+     "type": "int",
+     "count": 15,
+     "null_pct": 25.0,
+     "distinct": 15,
+     "sensitive": true
+    }
+   ]
+  },
+  {
+   "file": "inputs/telematics_daily.csv",
+   "rows": 60,
+   "columns": [
+    {
+     "name": "vin",
+     "type": "text",
+     "count": 60,
+     "null_pct": 0.0,
+     "distinct": 20,
+     "sensitive": false
+    },
+    {
+     "name": "reading_date",
+     "type": "date",
+     "count": 60,
+     "null_pct": 0.0,
+     "distinct": 3,
+     "sensitive": false,
+     "min": "2026-11-01",
+     "max": "2026-11-03"
+    },
+    {
+     "name": "odometer_km",
+     "type": "int",
+     "count": 57,
+     "null_pct": 5.0,
+     "distinct": 57,
+     "sensitive": false,
+     "min": 88006,
+     "max": 417885
+    },
+    {
+     "name": "engine_hours",
+     "type": "int",
+     "count": 60,
+     "null_pct": 0.0,
+     "distinct": 56,
+     "sensitive": false,
+     "min": 3066,
+     "max": 11125
+    },
+    {
+     "name": "fault_code",
+     "type": "text",
+     "count": 13,
+     "null_pct": 78.33333333333333,
+     "distinct": 3,
+     "sensitive": false
+    },
+    {
+     "name": "fault_severity",
+     "type": "text",
+     "count": 13,
+     "null_pct": 78.33333333333333,
+     "distinct": 3,
+     "sensitive": false
+    }
+   ]
+  }
+ ],
+ "overlaps": [
+  {
+   "key": "vin",
+   "a": "inputs/vehicles.csv",
+   "b": "inputs/telematics_daily.csv",
+   "a_distinct": 20,
+   "b_distinct": 20,
+   "both": 17,
+   "pct_a_in_b": 85.0
+  }
+ ]
+}

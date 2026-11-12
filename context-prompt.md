@@ -37,6 +37,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-docs` (v1) | diagram-first docs; always asks 4 questions (Documents, Format HTML/MD/Confluence, Graph, Examples); one file per doc in `generated-docs/` |
 | `-docs-v2` | same rules, but HTML is built from a JSON spec by a fixed builder (`build.py`): fixed section recipes, typed tables, fixed workflow `docs-v2-<repo>`; used only when I say "v2" |
 | `-architecture` | architecture review from the graph: current, problems, per-component keep/move/later target in Technical-doc shape (hybrid by default), one pick + 2–3 alternatives on every row ("use <alt> instead" rebuilds it), workflows current vs proposed, impact, migration; one HTML page from a JSON spec; only on request or offered after a Technical doc |
+| `-requirements-brief` (+ `-review`) | requirements → one HTML brief with SVG in `generated-docs/`: 12 fixed sections (at a glance, context, traceable requirements, sources and data points, linking, flows, use cases, data findings, tech options per need with the confirmed stack as given, what needs to be done, gaps and risks, glossary); the review re-reads the inputs, rebuilds traceability and numbers |
 | `-tech-blog` (+ `-review`) | English technical blog posts: thesis, outline, code run, official-docs claims, `blog/<slug>.md` |
 | `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a commit, asks (update now in background · after next commit · when work is done · skip), then separately asks about the affected docs; declined → "Graph/Docs are N commits behind" note in every later repo reply; fast incremental updates via `references/update.py`; related repos share `../<name>-graphs/` + `_combined/` |
 | `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first (PII discovery step; keyed hashing for masked values) |
@@ -47,6 +48,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-frontend-react` | build React + TypeScript + component-library UIs; package a React component for Streamlit |
 | `-streamlit` | build, test, deploy open-source Streamlit apps on any host |
 | `-streamlit-snowflake` | Streamlit in Snowflake only (privileges, deploy, runtimes, limits); loaded with `-streamlit` |
+| `-streamlit-snowflake-react` | React widget or prebuilt React app inside Streamlit in Snowflake (warehouse v1 / container v2, fetch bridge, deploy checks); loaded with `-streamlit-snowflake` |
 - **Hook:** `hooks/log-skill.py` logs skill use to `~/.claude/skill-usage.log`; `install-skill-log.py` adds it to settings.
 - **Data rules:** never open secret files (.env, keys, credentials…). Structure, not data. Examples come from tests, fixtures or code, or are synthetic. No PII in docs.
 

@@ -43,6 +43,7 @@ Read only the reference files (`references/<file>`) the task needs.
 - **Accessible by default:** semantic HTML first, library primitives for anything interactive, keyboard and focus checked.
 - **Output:** local files in the project. No hosted previews, published pages, or shared links unless asked.
 - **Streamlit:** a custom React component is the last resort; order of options in `streamlit-component.md`.
+- **Streamlit in Snowflake:** a React widget for a SiS app, or an existing React app hosted inside SiS with its API (warehouse-runtime mount, self-contained build, fetch bridge, artifacts, deploy), is not covered here: see `darshan-singh-meel-streamlit-snowflake-react`.
 
 ## Before finishing
 - `npm run build` (type check + bundle) and the tests for the changed code pass; then ask once about the full suite.

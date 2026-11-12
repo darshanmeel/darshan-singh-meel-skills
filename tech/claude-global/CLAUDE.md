@@ -70,6 +70,7 @@
 | Docs: READMEs, KT, design docs, user guides, runbooks | `darshan-singh-meel-docs` |
 | Docs, version 2 (fixed builder: same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
 | Architecture review: current, problems, proposed target (Technical-doc shape), impact on cost/performance/maintenance/tech debt — when I ask, or offered after a Technical doc | `darshan-singh-meel-architecture` |
+| Requirements brief: what is asked, data, flows, gaps, tech options, what needs to be done (one HTML page with SVG) / review one | `darshan-singh-meel-requirements-brief` / `darshan-singh-meel-requirements-brief-review` |
 | Write an English technical blog post / review one | `darshan-singh-meel-tech-blog` / `darshan-singh-meel-tech-blog-review` |
 | Query or analyse data; develop/test a dbt model, procedure, or SQL against data | `darshan-singh-meel-notebook` |
 | Map a repo; answer "what does X do / how does Y work / what calls what" | `darshan-singh-meel-knowledge-graph` |
@@ -79,6 +80,7 @@
 | Build a React + TypeScript UI, or a React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build, test, deploy a Streamlit app (any host) | `darshan-singh-meel-streamlit` |
 | Streamlit hosted in Snowflake (alongside `-streamlit`) | `darshan-singh-meel-streamlit-snowflake` |
+| React component or prebuilt React app inside Streamlit in Snowflake (warehouse v1 / container v2, fetch bridge, deploy checks) | `darshan-singh-meel-streamlit-snowflake-react` |
 | SQL, dbt, Snowflake, Databricks, Spark, Athena, Iceberg, Python, Airflow, ADF, Terraform, cloud storage, RBAC, governance | `darshan-singh-meel-data-platform` (alongside the skills above) |
 
 - Before a non-trivial task, check `~/.claude/skills` and `./.claude/skills` for a fitting skill and use it.

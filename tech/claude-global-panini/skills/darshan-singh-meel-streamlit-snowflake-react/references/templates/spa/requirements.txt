@@ -1,0 +1,3 @@
+streamlit==<x.y.z>
+fastapi==<x.y.z>
+httpx==<x.y.z>

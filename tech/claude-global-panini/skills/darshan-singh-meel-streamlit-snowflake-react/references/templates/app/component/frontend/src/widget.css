@@ -1,0 +1,64 @@
+/* Streamlit's theme: v2 provides the --st-* variables (also inside its shadow root); under v1, main.tsx
+   sets them from the render message. The fallbacks are Streamlit's light defaults. Declared on the
+   widget itself, because a shadow root has no :root. */
+.widget,
+.note {
+  --primary: var(--st-primary-color, #ff4b4b);
+  --bg: var(--st-background-color, #ffffff);
+  --bg2: var(--st-secondary-background-color, #f0f2f6);
+  --text: var(--st-text-color, #31333f);
+  --font: var(--st-font, system-ui, sans-serif);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+html,
+body {
+  margin: 0;
+  background: transparent;
+}
+
+.widget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.widget legend {
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.widget button {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--bg2);
+  border-radius: 0.5rem;
+  background: var(--bg2);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.widget button[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--bg);
+}
+
+.widget button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.widget:disabled button {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.875rem;
+}
