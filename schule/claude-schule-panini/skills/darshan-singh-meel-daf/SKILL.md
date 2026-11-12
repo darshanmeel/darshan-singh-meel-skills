@@ -21,7 +21,7 @@ Language-teaching content. Load `darshan-singh-meel-schule` first (folders, HTML
 - Every task names its skill: Lesen · Hören · Schreiben · Sprechen · Wortschatz · Grammatik · Mediation. Hören → script as "Hörtext zum Vorlesen" in teacher file; no audio files.
 - Every e-mail, letter, message, role-play task states du/Sie + formell/halbformell/informell; rubric asks only for that.
 - Beruf: situations from Handlungsfelder (`beruf.md`); no single profession unless named.
-- Exam practice mirrors format, never content: same parts, item types, timing, scoring (`pruefungen.md`); all texts and items new. `check:` lines → tell user, not fact.
+- Exam practice mirrors format, never content: same parts, item types, timing, scoring (`pruefungen.md`); all texts and items new. `check:` lines → named in reply, never fact in a file.
 - Learners: adults default (Sie, adult topics); teens (du, school/leisure) if said. Invented first names and firms only.
 - Check every German form: article, plural, verb forms, case after preposition, word order, spelling, commas. Unsure → rewrite sentence.
 

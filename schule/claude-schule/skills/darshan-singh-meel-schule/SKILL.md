@@ -13,10 +13,11 @@ Subject skills supply content (what to teach, subject facts, subject KC). This s
 - **Operators.** Every task starts with one operator from the subject's list; each task carries one AFB (I, II, III). `references/operatoren.md`.
 - **German first, English directly under it.** Every German instruction, task, explanation and solution gets one English line: the closest English sentence to the German in that context - same meaning, same order of ideas, natural English; not a free paraphrase, not word-for-word nonsense. Subject terms in a `DE | EN` glossary. Texts under analysis in Deutsch and DaF target-language texts stay German; English only on the instructions. `references/bilingual.md`.
 - **One answer space per task**, after the German + English pair. Never one per language.
-- **Original tasks only.** Never copy tasks, texts or figures from textbooks, Abitur papers, Vergleichsarbeiten or competitions; write new ones in the same style. Source texts: public domain, the user's own, or written for the task - say which.
+- **Original tasks only.** Never copy tasks, texts or figures from textbooks, Abitur papers, Vergleichsarbeiten or competitions; write new ones in the same style. Source texts: public domain, the teacher's own, or written for the task - say which in a plain source line (`Quelle: eigener Text`).
 - **Privacy.** No real student names, grades, photos or class lists. Name fields stay blank; example persons are invented first names; reviews never quote student data.
 - **Self-contained files.** One HTML file per output, inline CSS/SVG/JS, no CDN, no external images or fonts, A4 print CSS. Start from the template; never restyle.
-- **Facts about rules** (number of Klassenarbeiten, durations, grade keys) come from `references/bewertung.md`. Lines marked `check:` are not verified - tell the user, do not present them as fact. School decisions (Schulkonferenz, Fachkonferenz) override defaults; ask if they matter.
+- **Facts about rules** (number of Klassenarbeiten, durations, grade keys) come from `references/bewertung.md`. Lines marked `check:` are not verified - tell the user in the reply, do not present them as fact. School decisions (Schulkonferenz, Fachkonferenz) override defaults; ask if they matter.
+- **Author voice** (global rule "Author voice in produced files"). Material reads as written by the teacher. Student-facing text addresses the students; Lehrkraft notes (Stundenentwurf, Erwartungshorizont, Hinweise) are in the teacher's voice. No file mentions the chat, the request, or how it was made; open points are facts (`Notenschlüssel nach Fachkonferenzbeschluss`), not notes to the requester.
 - **Animation only when motion or steps explain better than a still picture** (process, movement, construction, change over time). Otherwise a labelled figure in `erklaerung.html`.
 
 ## Output convention
@@ -36,7 +37,7 @@ unterricht/<fach>/<stufe>/<thema>/
 - Paths in replies are relative to the project root. Reviews: `reviews/<skill>-<YYYY-MM-DD-HHMM>.md`; add `/reviews/` to `.gitignore` when the folder is first created.
 
 ## Process (fixed)
-1. **Setup questions** - one AskUserQuestion prompt, recommended option first, skip what the user already said; more than 4 open → second prompt right after. No answer → recommended options, and say which.
+1. **Setup questions** - one AskUserQuestion prompt, recommended option first, skip what the user already said; more than 4 open → second prompt right after. No answer → recommended options, and say which in the reply.
 
    | # | Question | Options |
    |---|---|---|

@@ -19,7 +19,7 @@
 | Data changes shape (`shape`) | amber box |
 | Decision | lavender pill, ≥2 outgoing arrows |
 | Failure (`fail`) | red dashed border; `fail` edge red |
-| To confirm / outside repo (`confirm`) | grey dashed border |
+| Outside repo / inferred (`confirm`) | grey dashed border |
 | Group "Repeats for each …" | dashed purple frame, label top-left |
 | Fan-out frame ("N children") | solid light-purple frame |
 | Lane | grey band, mono caps label |

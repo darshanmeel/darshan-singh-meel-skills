@@ -57,7 +57,7 @@ How to compute (write this into "Hinweise zur Korrektur"):
 
 Example: V = 42 of 60 BE = 70 % → 10 Punkte · D = 8 Punkte → 0,7 × 10 + 0,3 × 8 = 9,4 → 9 Punkte · 21 errors in 620 words → 21 × 100 ÷ 620 = 3,38 → Fehlerindex 3 → 9 − 1 = **8 Punkte**.
 
-check: whether the school combines V and D in Punkte (as here) or in percent of BE - the Verordnung fixes the ratio, not the arithmetic; ask the Fachkonferenz and say which was used.
+check: whether the school combines V and D in Punkte (as here) or in percent of BE - the Verordnung fixes the ratio, not the arithmetic; ask the Fachkonferenz; the Erwartungshorizont states the method as a fact (`legt die Fachkonferenz fest; hier: in Punkten`).
 
 Darstellungsleistung grid (default wording, not official; the three criteria are those of Anlage 9b):
 | Punkte | Ausdruck und Stil | Textsorten- und Aufgabenbezug | Umgang mit Bezugstexten und Materialien |

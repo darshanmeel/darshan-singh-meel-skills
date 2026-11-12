@@ -52,6 +52,7 @@ Keep this table while working; it goes into the report only where it shows a fin
 | figure or animation label cut off, or struck through by another shape | Must (areas 9, 10) |
 | English line that is an idiom with another meaning (`there is no point` for `gibt es keinen Punkt`) | Should (`zu wörtlich`); Must if it misleads a marker |
 | sum row printed under a split table in the Erwartungshorizont | Should (areas 5, 9) |
+| note that addresses the requester or tells how the file was made (`wie gewünscht ohne Hörtext`, `bitte vor dem Einsatz prüfen`) | Should (area 6): state it as a fact (`Hörtext: Lehrkraft liest vor`); Must if it misstates a fact |
 
 ## Print view (base areas 9, 10)
 - Render every file as A4 (browser print preview, or a headless browser with print-to-PDF when one is installed). Not possible → list it under "Not checked".

@@ -23,7 +23,7 @@ Scope: practice sets, mock tests, strategy texts, lessons. Load `darshan-singh-m
 - Key proof → `pruefung.py` (same folder)
 
 ## Rules
-- Competition facts (tasks, time, points, deduction, aids, date) only from `references/wettbewerb.md` · line `check:` → tell user "unverified" · mock test prints rules in head.
+- Competition facts (tasks, time, points, deduction, aids, date) only from `references/wettbewerb.md` · line `check:` → named in reply as unverified; files state only the rule applied (`Mehrfachmarkierungen zählen hier als falsch`) · mock test prints rules in head.
 - Original only: never copy, translate, renumber a competition problem, figure or story · never open a past paper · footer "Übungsmaterial im Stil des Wettbewerbs … keine Wettbewerbsaufgaben" · no logo, mascot, official claim.
 - Form: one question · five options (A)-(E) · exactly one correct · no calculator · one option form · numbers ascending · units in every option.
 - Points 3/4/5 rising in file · calibration `aufgabenbau.md` · mock test = equal thirds.
@@ -32,7 +32,7 @@ Scope: practice sets, mock tests, strategy texts, lessons. Load `darshan-singh-m
 - Verified: every key computed in `pruefung.py` independently of solution text (brute force · enumeration · exact fractions) · proves exactly one option equals result.
 - Solutions teach: letter + value · steps a student can follow · strategy by name · mistake per distractor · second way if any.
 - No grades: score in competition points only (`wettbewerb.md` row Grades) · AFB labels (3 P = I, 4 P = II, 5 P = III) = aid for base check script, not competition rule → Erwartungshorizont says so.
-- Curriculum: Kompetenzbereich Problemlösen, wording from level file · Klassen 11-13 `check: KCGO Mathematik` · competition has no syllabus.
+- Curriculum: Kompetenzbereich Problemlösen, wording from level file · Klassen 11-13 per `klassen-11-13.md` · competition has no syllabus.
 - Privacy: invented first names · never store or quote score lists, filled answer sheets.
 
 ## Process

@@ -27,6 +27,13 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 - Outside project · upload · sync → only if I ask. Exception: approved shared `../<name>-graphs/` folder.
 - Paths in graphs · docs · answers · reports → relative to repo root. Never `/Users/…` `/home/…` `C:\…` `~/…`. Check before finishing.
 
+## Author voice
+- Produced files (docs · architecture reviews · blog posts · teaching material · notebook notes · prototype NOTES.md) → written by their owner (architect · engineer · teacher), not a chat record. First person (`we` · `I`) for decisions; plain statements otherwise.
+- Chat improves content, never appears. Never: "you said · asked · confirmed · didn't confirm" · "as discussed" · "the user" · "Claude" · "per your request" · "based on our conversation" · how/by whom the file was made.
+- Open points · assumptions · limits → facts about the system, author's words: "Not yet tested in production", not "you haven't confirmed this on prod"; "Owner to decide: retention period", not "ask the user".
+- Only what the reader needs. No notes on what was skipped, couldn't be checked, or which questions were asked.
+- Code reviews · reports to me → may address me; never quote the chat.
+
 ## Data
 - Scripts first: Python (ast, regex, dbt manifest, DDL, pandas/openpyxl) inventory · extract · count · summarise. Read yourself only where judgment needed — relevant lines or script summary, never whole files.
 - Never open: `.env*` `*.pem` `*.key` `*.p12` `*.pfx` `*.jks` `*.keystore` `id_*` (SSH keys) `credentials*` `secrets*` `*.tfvars` `*.tfstate*` `.npmrc` `.pypirc` `.netrc` `.git-credentials` `.docker/config.json` service-account `*.json` keys `kubeconfig` dbt `profiles.yml` (except: `darshan-singh-meel-prototype` check script → key names only of its own templated `prototypes/<name>/profiles.yml`), or any secret-looking name or path. Record existence only. Scripts · grep · scanners too: exclude these; report path + rule name, value `<redacted>`.

@@ -95,7 +95,7 @@ Flag only issues likely to matter at realistic scale — not micro-optimizations
 
 ## 7. Verbosity & AI slop
 - Comments/docstrings that restate the code or the function name.
-- Comments addressed to the user ("updated as requested", "here we now...").
+- Chat leakage in comments, docstrings, commit/PR messages, docs, generated reports or UI copy: text addressed to the requester or recalling the chat ("updated as requested", "per user", "as discussed", "Claude added", "you haven't confirmed this on prod") → Should; Must if it misstates facts or exposes private chat content. Fix: state it as a fact about the system ("Not yet tested in production").
 - Defensive checks for impossible cases; try/except around code that can't fail; redundant type checks.
 - Excessive logging/prints; logging every step.
 - Verbose variable names or explanations where short ones are clear; overly long error messages or boilerplate.
@@ -177,6 +177,7 @@ Each finding tagged `[Tech debt]`: **what** · **cost of keeping it** (time, ris
 ## Review discipline
 - A committed secret file: flag it by path only, never open or quote it. The never-open rule covers scripts, grep, and scanners too: exclude those patterns; report path + rule name, value `<redacted>`.
 - Thorough in checking, brief in reporting.
+- The report may address the reader; it never quotes the chat.
 - Every finding: `file:line` — what's wrong, why it matters, concrete fix (short snippet when helpful).
 - Suggest the smallest fix. Don't rewrite the whole change.
 - Don't invent problems to look thorough. If something is fine, don't mention it.

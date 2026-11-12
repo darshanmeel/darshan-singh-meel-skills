@@ -4,7 +4,7 @@ Paper: 30 problems, 75 min, start 30, maximum 150 (`wettbewerb.md`). One paper f
 
 ## Curriculum
 - check: KCGO Hessen, Mathematik (kultus.hessen.de → Kerncurricula → Gymnasiale Oberstufe) - not read for this skill. Take Kompetenzbereich, Bildungsstandard codes and Themenfelder from the Oberstufe reference of `darshan-singh-meel-schule-mathe` or from the PDF, never from memory.
-- Until then the material cites: `KCGO Hessen, Mathematik · Kompetenzbereich and Bildungsstandard: check: KCGO PDF` and tells the user.
+- Until then the material cites `KCGO Hessen, Mathematik` without Kompetenzbereich or Bildungsstandard code; the gap is named in the reply, never as a `check:` note in the file.
 - Safe base for content: everything in the Sek I KC up to the end of Jg. 9/10 (`klassen-09-10.md`).
 
 ## Knowledge that may be used

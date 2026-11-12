@@ -24,7 +24,7 @@ Reviews only → fixes only when asked. Load `darshan-singh-meel-schule` (rubric
 5. `references/checks.md` B1-B12, file by file.
 6. DE/EN pairs → 3-step test (`bilingual.md`) · terms vs `begriffe.md` · scientific names unchanged + italic in both lines · decimal comma/point.
 7. Animation → step forward + back · every speed · EN toggle · print preview · count structures per step (B10) → no browser: read `STEPS`, count from code, list under "Not checked".
-8. Base checklist → areas 1-12 of `review.md`.
+8. Base checklist → areas 1-12 of `review.md` (6 incl. author voice: no chat · request · requester in material).
 9. Report → `reviews/darshan-singh-meel-schule-biologie-review-<YYYY-MM-DD-HHMM>.md`, base format + section "Nachgeprüft" (task · own answer/count · material's · match) → add `/reviews/` to `.gitignore` on first creation → reply: verdict · counts · report path · 3 key fixes.
 10. Fixes on request only → Must first → re-run script → re-solve changed tasks → append "Nach Korrektur" + new verdict to same report.
 

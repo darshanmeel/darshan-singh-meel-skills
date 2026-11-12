@@ -44,6 +44,7 @@ Show a compact plan in a few lines, check it against the brief, then build witho
 - Errors say what happened and how to fix it; no apologies, no vagueness.
 - Empty states tell users what to do next.
 - Sentence case, plain verbs, no filler. Each piece of text does one job.
+- Text speaks to the app's users about the app — never about the chat or how the UI was built (no "as requested", "Claude", "demo for you").
 
 ## Quality floor (always, without announcing it)
 - Responsive down to mobile width; no horizontal scroll.

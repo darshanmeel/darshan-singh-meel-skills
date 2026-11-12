@@ -7,7 +7,7 @@ Run: `<one command, from the project root>`
 <one sentence the prototype answers, ending in "?">
 
 ## Assumptions
-- <what was assumed instead of asked; "none" if nothing>
+- <each assumption as a fact about the system, e.g. "updated_at is the source's change time, to the second"; "none" if nothing>
 
 ## Variants
 <!-- UI only; delete this section for other branches. 2-5 lines: key - structure (layout, hierarchy, primary action). -->

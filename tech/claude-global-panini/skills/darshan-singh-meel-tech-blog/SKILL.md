@@ -13,7 +13,7 @@ One post = one thesis · code that ran · facts with a source. CLAUDE.md applies
 - Block not run → `<!-- not-run: <reason> -->` before the fence + prose says so.
 - Every fact (version · default · limit · syntax · date · behaviour) → official page, linked at the claim. Not found → cut, or author observation with measurement. Official sites only, nothing private in requests.
 - Measured number → carries machine · versions · data size · runs · what. No setup → no number.
-- Every word informs: active · 2nd person · present · short. No hype · filler · scene-setting intro · recap → `references/style.md`.
+- Every word informs: active · 2nd person · present · short. No hype · filler · scene-setting intro · recap · trace of the drafting chat (CLAUDE.md author voice) → `references/style.md`.
 - Diagram only where prose needs >1 paragraph for a flow · structure · sequence · before/after → `references/diagrams.md`.
 - Title states what the post delivers within what it proves. No "ultimate", no unkept number, no unanswered question.
 - Original + generic: no copied text/code/figures beyond a short linked quote; no employer · client · colleague · internal names · secrets · real rows; synthetic examples.

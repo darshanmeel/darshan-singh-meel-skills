@@ -32,7 +32,7 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 ## No slop
 - No single-use wrappers, managers, factories, interfaces.
 - No checks for impossible cases; no try/except around safe code; no unasked logging/prints/boilerplate.
-- Comments: why only; never addressed to the user. No placeholders, TODOs, commented-out code, unused params, "example usage" blocks, unasked README/docs/summary files.
+- Comments · docstrings · commit/PR messages: describe the code, never the chat ("as requested" · "per user" · "as discussed" · "Claude added"); why only. No placeholders, TODOs, commented-out code, unused params, "example usage" blocks, unasked README/docs/summary files.
 
 ## Tests
 - Fewest tests, most behaviour: main path · likeliest edge · error path, ideally one parametrised test. Bug fix → one regression test (fails before, passes after).

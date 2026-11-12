@@ -24,7 +24,7 @@ Load `darshan-singh-meel-schule` first: it owns the folder convention, HTML temp
 - **Skill named on every task**: Lesen, Hören, Schreiben, Sprechen, Wortschatz, Grammatik, Mediation. Hören: the script stands in the teacher file (Lösung or Erwartungshorizont) as "Hörtext zum Vorlesen"; no audio files are produced.
 - **Register stated in the task**, both tracks: every e-mail, letter, message and role-play task says du or Sie and formell, halbformell or informell; the rubric asks only for what the task states.
 - **Beruf track:** situations from the Handlungsfelder in `references/beruf.md`; no single profession unless the user names one.
-- **Exam practice mirrors the format, never the content.** Same parts, item types, timing and scoring as the named exam (`references/pruefungen.md`); every text and item is new. Lines marked `check:` are told to the user, not presented as fact.
+- **Exam practice mirrors the format, never the content.** Same parts, item types, timing and scoring as the named exam (`references/pruefungen.md`); every text and item is new. Lines marked `check:` are named in the reply, never presented as fact in a file.
 - **Learners:** adults by default (Sie, adult topics); teens (du, school and leisure topics) when the user says so. Invented first names and firms only.
 - **German facts are checked**: article, plural, verb forms, case after each preposition, word order, spelling, commas. Unsure about a form → rewrite the sentence.
 

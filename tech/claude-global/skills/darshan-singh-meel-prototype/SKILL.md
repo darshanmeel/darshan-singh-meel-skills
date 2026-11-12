@@ -16,7 +16,7 @@ A prototype is throwaway code that answers one question. The question decides th
 | An orchestration flow: "what runs, skips, retries, reruns?" | **Pipeline** | stub tasks, `dag.test()` or a plain-Python stand-in | `references/pipeline.md` |
 
 - Two questions → two prototypes. A question that names real data ("how many duplicates do we have?") is not a prototype: `darshan-singh-meel-notebook`.
-- Branch unclear and the user not reachable → the branch that matches the code around the request (module → Logic, page → UI, model → Data, DAG → Pipeline); write the assumption in `NOTES.md`.
+- Branch unclear and the user not reachable → the branch that matches the code around the request (module → Logic, page → UI, model → Data, DAG → Pipeline); write the reason under Assumptions in `NOTES.md` as a fact about the code ("The change sits in a state module").
 
 ## Works with
 | Need | Skill |
@@ -58,7 +58,7 @@ prototypes/<name>/          git-ignored; <name> = lower case, hyphens, 2-4 words
    | 1 | The question to answer | the request restated as one sentence (Recommended) · 1-2 narrower readings · free text |
    | 2 | Branch | the branch from the table above (Recommended) · the next closest |
    | 3 | Branch detail | UI: 3 variants on `<existing page>` (Recommended) · 3 on a new page · 2 / 4 / 5. Data: plain DuckDB (Recommended) · dbt on DuckDB (question is about refs, tests, incremental logic). Pipeline: stand-in (Recommended when Airflow is not installed) · `dag.test()`. Logic: none |
-2. **Notes** - `prototypes/<name>/NOTES.md` from `references/templates/NOTES.md`: question, branch, run command, assumptions. `.gitignore` line.
+2. **Notes** - `prototypes/<name>/NOTES.md` from `references/templates/NOTES.md`: question, branch, run command, assumptions, written as the engineer's own notes (CLAUDE.md "Author voice"). `.gitignore` line.
 3. **Read the branch file** and the skills in "Works with". Check the project's pinned versions before using an API.
 4. **Core** - the smallest pure module that can answer the question.
 5. **Shell** - the thinnest thing that drives the core and shows the full state. Start from `references/templates/`.

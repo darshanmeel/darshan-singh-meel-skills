@@ -98,6 +98,7 @@ Answer key (`erwartungshorizont.html`; replace the header text "nur f√ºr Lehrkr√
 ```
 - `weight` in percent, sum 100. `how`: what the task looks like and how it is answered, one sentence. `name_en`: the section heading's English line.
 - `questions`, `minutes`, `total_minutes`: only when a page read states them; else `null` and a line in `unverified`.
+- `unverified` lines state the open point as a fact about the test (`check: <page> - Dauer je Teil nicht angegeben`), never as a note to or about the requester.
 - `sources`: page names (and plain URLs without parameters) actually read. No personal data (`SKILL.md`, Rules).
 
 ## Checks

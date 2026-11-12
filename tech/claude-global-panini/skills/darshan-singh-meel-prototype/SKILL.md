@@ -15,7 +15,7 @@ Throwaway code that answers one question; question → shape; answer = only thin
 | Orchestration flow: "what runs, skips, retries, reruns?" | **Pipeline** | stub tasks, `dag.test()` or plain-Python stand-in | `references/pipeline.md` |
 
 - Two questions → two prototypes. Question names real data ("how many duplicates do we have?") → not a prototype: `darshan-singh-meel-notebook`.
-- Branch unclear + user unreachable → branch matching the code around the request (module → Logic · page → UI · model → Data · DAG → Pipeline); assumption → `NOTES.md`.
+- Branch unclear + user unreachable → branch matching the code around the request (module → Logic · page → UI · model → Data · DAG → Pipeline); reason → `NOTES.md` Assumptions, as a fact about the code ("The change sits in a state module").
 
 ## Works with
 | Need | Skill |
@@ -57,7 +57,7 @@ prototypes/<name>/          git-ignored; <name> = lower case, hyphens, 2-4 words
    | 1 | Question to answer | request restated as one sentence (rec) · 1-2 narrower readings · free text |
    | 2 | Branch | branch from table above (rec) · next closest |
    | 3 | Branch detail | UI: 3 variants on `<existing page>` (rec) · 3 on a new page · 2 / 4 / 5. Data: plain DuckDB (rec) · dbt on DuckDB (question = refs, tests, incremental logic). Pipeline: stand-in (rec when Airflow not installed) · `dag.test()`. Logic: none |
-2. **Notes** - `prototypes/<name>/NOTES.md` from `references/templates/NOTES.md`: question · branch · run command · assumptions. `.gitignore` line.
+2. **Notes** - `prototypes/<name>/NOTES.md` from `references/templates/NOTES.md`: question · branch · run command · assumptions → engineer's own notes (CLAUDE.md "Author voice"). `.gitignore` line.
 3. **Read** branch file + skills in "Works with". Check project's pinned versions before using an API.
 4. **Core** - smallest pure module that can answer the question.
 5. **Shell** - thinnest thing that drives the core + shows full state. Start from `references/templates/`.

@@ -17,7 +17,7 @@ Load `darshan-singh-meel-schule` first: it owns formats, templates, folder, lang
 Output folder: `unterricht/physik/<stufe>/<thema>/` (base convention; `<stufe>` = `jg07`, `e`, `q2-gk`, `q3-lk`).
 
 ## Rules
-- **Curriculum.** Sek I: cite Kompetenzbereich + Teilbereich + Bildungsstandard (end of Jg. 9/10) + Inhaltsfeld + stage. The KC sets no year for a topic: take the year from the user's Fachcurriculum or place it by stage and say so. Oberstufe: cite Kurshalbjahr.Themenfeld, GK or LK, and the Bildungsstandard code (`S 7`, `E 4`). LK-only content (erhöhtes Niveau) never appears in GK material.
+- **Curriculum.** Sek I: cite Kompetenzbereich + Teilbereich + Bildungsstandard (end of Jg. 9/10) + Inhaltsfeld + stage. The KC sets no year for a topic: take the year from the user's Fachcurriculum or place it by stage and state the placement in the Stundenentwurf as a fact (`sek1.md`). Oberstufe: cite Kurshalbjahr.Themenfeld, GK or LK, and the Bildungsstandard code (`S 7`, `E 4`). LK-only content (erhöhtes Niveau) never appears in GK material.
 - **Quantities.** Every number that is a quantity carries its unit, in every line of every file. SI units and the notation in `references/konventionen.md`. Formula symbols as in the KCGO and the school's Formelsammlung; a new symbol is named on first use.
 - **Significant figures.** Data are written with the digits that are meant (`0,200 kg`, not `200 g`, when three digits count). Results carry as many significant digits as the least precise input; intermediate values keep extra digits; rounding only at the end. Sek I stage 1: "sinnvoll runden" with the same logic, without the term.
 - **Decimal sign.** German line: comma (`1,26 s`). English line: point (`1.26 s`). Same digits in both.

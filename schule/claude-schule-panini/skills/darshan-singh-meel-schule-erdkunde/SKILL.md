@@ -14,7 +14,7 @@ Subject side of `darshan-singh-meel-schule` (base). Formats, folders, DE+EN rule
 ## Rules
 - KC cite: Sek I = Kompetenzbereich + Kompetenzerwartung (Ende Jg. 9/10 only) + Inhaltsfeld. Oberstufe = Standard code (`RO1`, `MA4`, `BB3`, `K2`) + `<Halbjahr>.<Nr> <Themenfeld>` + GK/LK. Wording only from refs; else `check: <KC PDF>`.
 - GK never gets LK-only content. Q-phase Abitur Themenfelder per Erlass/year → ask or `check: Abiturerlass`.
-- Sek I year plan not in KC → ask school Fachcurriculum, or use `sek1.md` default and say so.
+- Sek I year plan not in KC → ask school Fachcurriculum, or use `sek1.md` default → KC line marks it as proposal.
 - Every task: Raum · Maßstabsebene (lokal/regional/national/global) · data year.
 - Material `M1…`: title · source line with year · named in its task. No material → operator says so (nennen, beschreiben).
 - Data: official source with station/area, period, source line, or marked "erfundene Daten / invented data". Never real values from memory. Sources → `fachpraxis.md`.

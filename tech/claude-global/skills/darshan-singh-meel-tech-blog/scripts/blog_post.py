@@ -29,6 +29,8 @@ SUSPECT = [
     "essential", "magic", "elegant", "modern", "state-of-the-art", "best practice", "in order to",
     "a number of", "it turns out", "the fact that", "we will", "we'll", "let's", "note that", "significantly",
     "dramatically", "massively", "countless", "myriad", "plethora", "journey", "whether you're",
+    "as discussed", "as requested", "as you requested", "as you asked", "per your request", "our conversation",
+    "you confirmed", "didn't confirm", "haven't confirmed", "the user",
 ]
 PATTERNS = [
     (r"\bnot (just|only|merely)\b[^.?!]*\bbut\b", "not just X but Y"),

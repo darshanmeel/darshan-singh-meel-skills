@@ -65,7 +65,7 @@ Source: Kerncurriculum Hessen, Sekundarstufe I - Gymnasium, Geschichte ("Bildung
 Every Inhaltsfeld relates to all four Kompetenzbereiche.
 
 ## Working default per year (not from the KC - the Fachcurriculum decides)
-Say "Zuordnung nach Arbeitsvorschlag, Fachcurriculum prüfen" when using it. In which years Geschichte is taught: check: Stundentafel and the school's plan.
+When using it, the KC line states it as a fact: "Zuordnung zu Jg. <n> als Arbeitsvorschlag; das Fachcurriculum der Schule kann abweichen." In which years Geschichte is taught: check: Stundentafel and the school's plan.
 
 | Jg. | Typical topics | Epochenbezug |
 |---|---|---|

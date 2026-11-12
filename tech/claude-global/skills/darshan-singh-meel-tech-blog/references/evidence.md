@@ -43,7 +43,7 @@ A claim is anything the reader could check: version numbers, release dates, defa
 | Experience ("in our pipeline this cut reruns") | written as experience, first person, with the conditions - not as a general fact |
 
 - Not accepted as a source for facts: other blogs, Q&A sites, forum posts, AI answers, memory. They can be credited for an idea, not cited for a fact.
-- Official page silent or unreachable → cut the claim, or keep it marked in the reply as `check: <page>` and worded as unverified in the post.
+- Official page silent or unreachable → cut the claim, or keep it marked in the reply as `check: <page>` and stated in the post as the author's open point ("not tested on 3.45 yet").
 - Docs and observed behaviour disagree → say so, show the run, name the version.
 - Superlatives and absolutes ("always", "never", "the fastest", "the only") need the same proof as numbers; usually cut.
 

@@ -19,7 +19,7 @@ Output folder: `unterricht/erdkunde/<stufe>/<thema>/` (also for Oberstufe). Not 
 ## Rules
 - **KC citation.** Sek I: Kompetenzbereich + Kompetenzerwartung (Ende Jg. 9/10 - the Erdkunde KC has no Jg. 6 or Jg. 8 stage) + Inhaltsfeld. Oberstufe: Bildungsstandard with code (`RO1`, `MA4`, `BB3`, `K2`) + `<Kurshalbjahr>.<Nr> <Themenfeld>` + GK or LK. Wording only from `references/sek1.md` / `references/oberstufe.md`; anything else: `check: <KC PDF>`.
 - **GK never gets LK-only content** (erhöhtes Niveau). Q-phase: which Themenfelder beyond 1 and 2 count for the Abitur is set by Erlass per exam year - ask or `check: Abiturerlass`.
-- **Sek I has no year-by-year plan** in the KC. The year comes from the school's Fachcurriculum: ask, or use the working default in `sek1.md` and say so.
+- **Sek I has no year-by-year plan** in the KC. The year comes from the school's Fachcurriculum: ask, or use the working default in `sek1.md`, marked as a proposal in the KC line.
 - **A place, a scale, a date.** Every task names the Raum (place or region), the Maßstabsebene (lokal, regional, national, global) and the year of its data. No "in Afrika" for a fact that holds for one country.
 - **Material carries the task.** Every map, diagram, table, text, photo description and cartoon is numbered `M1, M2, ...`, has a title, a source line with year, and is named in the task that uses it. A task that needs no material says so by its operator (nennen, beschreiben from memory).
 - **Real numbers or marked ones.** Data come from an official source with station/area, period and source line, or are marked "erfundene Daten / invented data". Never estimate real values from memory. Sources: `references/fachpraxis.md`.

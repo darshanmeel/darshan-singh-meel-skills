@@ -7,7 +7,7 @@ Source: "Bildungsstandards und Inhaltsfelder - Das neue Kerncurriculum für Hess
 - Kapitel 7.1: for Physik **no** Kompetenzerwartungen are set for the end of Jg. 6 or Jg. 8 ("lassen sich ... nicht sinnvoll formulieren"). Instead Kapitel 7.2 gives content priorities in two stages:
   - **Stufe 1**: "nach ca. der Hälfte des Stundenkontingents"
   - **Stufe 2**: "zusätzlich dazu nach Abschluss der Jahrgangsstufe 9/10"
-- In which Jahrgang Physik starts and where a topic sits: the school's Fachcurriculum and Kontingentstundentafel. check: user. Default when unknown: Stufe 1 = first two years of Physik, Stufe 2 = the years up to Jg. 10; say that this is an assumption.
+- In which Jahrgang Physik starts and where a topic sits: the school's Fachcurriculum and Kontingentstundentafel. Ask. Default when unknown: Stufe 1 = first two years of Physik, Stufe 2 = the years up to Jg. 10; the Stundenentwurf states the placement as a fact (`Einordnung in Jg. 7: Das Kerncurriculum legt kein Schuljahr fest, maßgeblich ist das Fachcurriculum der Schule.`).
 - Kompetenzbereiche are defined identically for Physik, Chemie and Biologie (only subject-specific additions differ).
 - Basiskonzepte: Materie · Wechselwirkung · System · Energie. Name one per unit; Energie runs through two Inhaltsfelder on purpose.
 

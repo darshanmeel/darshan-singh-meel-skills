@@ -31,7 +31,7 @@ Same rounded card + soft shadow everywhere · decorative gradients · cream + se
 - Forms: one column, labels above, inline validation with the fix, clearly named primary action.
 
 ## Words
-User's words, not system's ("Notifications", not "Webhook config") · buttons say what happens ("Save changes"), same word through the flow · errors: what happened + how to fix, no apology, no vagueness · empty states say what to do next · sentence case, plain verbs, no filler, each text one job.
+User's words, not system's ("Notifications", not "Webhook config") · buttons say what happens ("Save changes"), same word through the flow · errors: what happened + how to fix, no apology, no vagueness · empty states say what to do next · sentence case, plain verbs, no filler, each text one job · about the app for its users, never the chat or how it was built ("as requested" · "Claude" · "demo for you").
 
 ## Quality floor (always, silently)
 Responsive to mobile, no horizontal scroll · keyboard + visible focus, semantic HTML, input labels, alt text on meaningful images · WCAG AA contrast, never colour alone · reduced motion respected; motion only to show what changed after a user action, or one deliberate moment · loading, empty, error states for every data view.

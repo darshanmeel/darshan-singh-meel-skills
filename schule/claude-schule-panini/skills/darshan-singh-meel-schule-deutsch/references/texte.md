@@ -10,7 +10,7 @@
 | Textbooks, Abitur papers, Vergleichsarbeiten, competition tasks | never, also not reworded task by task | - |
 
 - Check the death year before calling a text gemeinfrei; unsure → write a text for the task.
-- Wording of a public-domain text: ask the user to paste the text of the class edition (or to name edition and page) and print that. A text typed from memory is a draft: its source line carries `check: Wortlaut gegen die Klassenausgabe prüfen`, the handover says "not ready" until the user confirms the wording, and task and Erwartungshorizont rest on no single word the user has not confirmed.
+- Wording of a public-domain text: ask the user to paste the text of the class edition (or to name edition and page) and print that. A text typed from memory is a draft: its source line states the open point as a fact, `Wortlaut noch nicht mit der Klassenausgabe abgeglichen.`, the handover says "not ready" until the user confirms the wording, and task and Erwartungshorizont rest on no single word the user has not confirmed.
 - Song settings and anthologies change single words (Eichendorff, Mondnacht V. 4: `nun` in the poem, `nur` in the song text - stated from knowledge, check: class edition). Print one version and name it.
 - Spelling of old texts: keep the historical form when the task is literary (say `Schreibung der Vorlage`), modernise for Grundschule reading texts (say `Schreibung angepasst`).
 - Sachtexte written for the task carry no real persons' quotes and no invented statistics presented as real: label `Zahlen frei erfunden` or use none.

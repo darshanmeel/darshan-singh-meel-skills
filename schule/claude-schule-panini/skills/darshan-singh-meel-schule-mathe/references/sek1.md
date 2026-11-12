@@ -4,7 +4,7 @@ Source: KC Hessen, Sekundarstufe I - Gymnasium, Mathematik ("Bildungsstandards u
 
 ## How to cite
 `KC Hessen, Sek I Gymnasium, Mathematik` · Kompetenzbereich · Kompetenzerwartung with stage `(Ende Jg. 6)`, `(Ende Jg. 8)` or `(Ende Jg. 9/10)` · Leitidee → Inhaltsfeld → Schwerpunkt of the double year.
-- The KC fixes content per double year (5/6, 7/8, 9/10), not per year, and allows shifts across the borders "sofern die Anforderungen am Ende der Jahrgangsstufe 9/10 erreicht werden". The year of a topic comes from the school's Fachcurriculum: ask, or place by the table below and say so.
+- The KC fixes content per double year (5/6, 7/8, 9/10), not per year, and allows shifts across the borders "sofern die Anforderungen am Ende der Jahrgangsstufe 9/10 erreicht werden". The year of a topic comes from the school's Fachcurriculum: ask, or place by the table below and state the placement in the Stundenentwurf as a fact (`Einordnung in Jg. 6; das KC legt Doppeljahrgänge fest`).
 - Kompetenzerwartungen are cumulative: what is expected at the end of Jg. 6 is assumed later and not repeated.
 
 ## Kompetenzbereiche (same six names as in the Primarstufe)

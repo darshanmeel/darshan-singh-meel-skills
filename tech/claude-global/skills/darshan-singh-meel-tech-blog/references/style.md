@@ -38,6 +38,7 @@ The script flags the phrases below (`BANNED` = FAIL, `SUSPECT` and patterns = `?
 | Mirrored closers | a one-line moral at the end of each section; "And that's the beauty of X" | delete |
 | Recap endings | "In conclusion, we have seen", "I hope this helps", "Happy coding" | `Takeaways` with rules |
 | Generic claims | "many developers struggle with", "experts agree" | who, where (link), or cut |
+| Drafting trace | "as discussed", "as you requested", "per your request", "based on our conversation", "you haven't confirmed this on production" | the fact in the author's words: "Not tested on a production workload yet" |
 | Signposting | "As mentioned above", "As we will see later" | link the section or reorder |
 | Padding lists | bullets that restate the paragraph above; 3-word bullets under every heading | keep one form |
 | Decorative structure | a heading over one paragraph; bold lead-ins on every bullet; a table for two items | plain paragraph |

@@ -14,7 +14,7 @@ Load `darshan-singh-meel-schule` first (formats, folders, DE + EN rule, grading,
 ## Rules
 - KC cite → Sek I: Kompetenzbereich · Teilbereich · Kompetenzerwartung (Ende Jg. 6 | Ende Jg. 9/10) · Inhaltsfeld → Oberstufe: Standard code (`S 7`, `E 4`, `K 9`, `B 8`) · `<Kurshalbjahr>.<Nr> <Themenfeld>` · GK/LK → wording only from references, else `check: <KC PDF>`.
 - GK never gets LK-only content · LK may use both.
-- Sek I KC has no year plan → year from school Fachcurriculum: ask, or place by stage and say so.
+- Sek I KC has no year plan → year from school Fachcurriculum: ask, or place by stage → placement stated in Stundenentwurf as fact.
 - Name the system level (Molekül · Zelle · Gewebe · Organ · Organismus · Population · Ökosystem) → mark each change.
 - Causal, not final: no `damit`, `um zu`, "die Natur hat…" · proximate ≠ ultimate cause (KCGO K 7, K 8).
 - Model ≠ reality → label every model, scheme, animation · name one limit from Jg. 9.

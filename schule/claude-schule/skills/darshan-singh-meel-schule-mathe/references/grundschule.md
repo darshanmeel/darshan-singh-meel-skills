@@ -4,7 +4,7 @@ Source: KC Hessen, Primarstufe, Mathematik ("Bildungsstandards und Inhaltsfelder
 
 ## How to cite
 `KC Hessen, Primarstufe, Mathematik` · Kompetenzbereich · Bildungsstandard `(Ende Jg. 4)` · Inhaltsfeld + Schwerpunkt.
-- The KC sets standards for the end of Jg. 4 only; for Jg. 1/2 it describes the development (6.2) and names two anchors: Zahlenraum bis 100 and Größen Geldwerte, Längen, Zeitspannen. Which topic sits in which year: the school's Schulcurriculum - ask, or place by the table "Usual placement" and say so.
+- The KC sets standards for the end of Jg. 4 only; for Jg. 1/2 it describes the development (6.2) and names two anchors: Zahlenraum bis 100 and Größen Geldwerte, Längen, Zeitspannen. Which topic sits in which year: the school's Schulcurriculum - ask, or place by the table "Usual placement" and state the placement in the Stundenentwurf as a fact (`Einordnung in Jg. 3; das KC legt Standards erst für das Ende von Jg. 4 fest`).
 - In the Primarstufe Leitideen and Inhaltsfelder are identical (five).
 
 ## Kompetenzbereiche and Bildungsstandards (Ende Jg. 4) - "Die Lernenden können ..."

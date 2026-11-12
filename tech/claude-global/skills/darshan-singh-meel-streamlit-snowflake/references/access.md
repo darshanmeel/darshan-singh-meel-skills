@@ -84,7 +84,7 @@ Docs: `features/external-access`
 CREATE NETWORK RULE my_db.my_schema.api_rule
   MODE = EGRESS TYPE = HOST_PORT VALUE_LIST = ('api.example.com');
 CREATE SECRET my_db.my_schema.api_key
-  TYPE = GENERIC_STRING SECRET_STRING = '<redacted>';   -- value typed by the user at run time, never committed
+  TYPE = GENERIC_STRING SECRET_STRING = '<redacted>';   -- value entered at run time, never committed
 CREATE EXTERNAL ACCESS INTEGRATION api_eai
   ALLOWED_NETWORK_RULES = (my_db.my_schema.api_rule)
   ALLOWED_AUTHENTICATION_SECRETS = (my_db.my_schema.api_key)

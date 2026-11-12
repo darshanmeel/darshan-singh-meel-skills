@@ -23,7 +23,7 @@ Load `darshan-singh-meel-schule` (rubric, formats, grading, language rule) and `
 5. **Physics checks** - walk `references/checks.md` (P1-P12) file by file.
 6. **Language pairs** - every DE/EN pair with the 3-step test of base `bilingual.md`; terms against physics `begriffe.md`; decimal comma/point; same numbers and units in both lines.
 7. **Animation** - run `node --check` on the page's last `<script>` block (a caption with an unescaped apostrophe stops the player; the check scripts do not see it); step forwards and backwards through every step with the buttons and with ← → after a click on Weiter, screenshot every step (labels covered or cut off), play at each speed, toggle English, print preview; compare every position, value and caption with the worksheet numbers (`checks.md`, P10).
-8. **Base checklist** - areas 1-12 of base `review.md`.
+8. **Base checklist** - areas 1-12 of base `review.md` (area 6 includes author voice: no chat, request or requester in the material).
 9. **Report** - write `reviews/darshan-singh-meel-schule-physik-review-<YYYY-MM-DD-HHMM>.md` in the base report format, with the extra section "Nachgerechnet" (table: task · own result · material's result · match). Add `/reviews/` to `.gitignore` when the folder is first created. Reply: verdict, counts, report path, the three most important fixes.
 10. **Fixes** only on request: apply Must first, re-run both scripts, re-solve the changed tasks, append "Nach Korrektur" with the new verdict to the same report.
 

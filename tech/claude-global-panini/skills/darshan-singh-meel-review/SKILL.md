@@ -46,7 +46,8 @@ Junior can follow in one read? · nesting ≥3 → guard clauses · long functio
 Same result with much less code? → show it · existing helper/stdlib does it · speculative options → remove · dead code, unused imports → remove · dependency for a few lines · out-of-scope edits → revert/split.
 
 ## 7. Slop
-Comments restating code or addressing the user · impossible-case checks, needless try/except, redundant type checks · excessive logging · bloated names, messages, boilerplate · TODOs, placeholders, "example usage" blocks, commented-out code · unasked docs · copy-pasted blocks.
+Comments restating code · impossible-case checks, needless try/except, redundant type checks · excessive logging · bloated names, messages, boilerplate · TODOs, placeholders, "example usage" blocks, commented-out code · unasked docs · copy-pasted blocks.
+- Chat leakage (comments · docstrings · commit/PR messages · docs · generated reports · UI copy addressed to the requester or recalling the chat: "as requested" · "per user" · "as discussed" · "Claude added" · "you haven't confirmed this on prod") → Should; misstates facts or exposes private chat → Must. Fix: fact about the system ("Not yet tested in production").
 
 ## 8. Tests
 Tested? Regression test for bug fixes? · suggest only the 1–3 most valuable missing tests (main path, likeliest edge, error path, security input) · near-duplicates → one parametrised · framework tests → remove · internals → behaviour · over-mocking → mock only slow/external things · flaky (time, sleep, unseeded random, order, network) · **red flag:** weakened, skipped, deleted, special-cased.
@@ -70,7 +71,7 @@ Hacks, workarounds · duplicated logic · outdated/unpinned/EOL versions, deprec
 ## Discipline
 - Committed secret file → flag by path only, never open or quote; scripts, grep, scanners too: exclude those patterns, report path + rule name, value `<redacted>`.
 - Every finding: `file:line` — what · why · smallest fix (snippet if short).
-- Don't invent problems; fine → don't mention. Unsure → Questions. No praise, no code summary, no generic advice. Match project conventions.
+- Don't invent problems; fine → don't mention. Unsure → Questions. No praise, no code summary, no generic advice. Match project conventions. Report may address the reader; never quotes the chat.
 - Must fix: bugs, security, data loss (incl. debt causing them), broken/gamed tests, unintended breaking changes, serious performance.
 - Should fix: design, growing-cost tech debt, needless complexity/code, out-of-scope edits, slop, missing key test, moderate performance.
 - Other findings (optional; CLAUDE.md format: what · why · impact): lower-impact only; real risk → Must/Should.

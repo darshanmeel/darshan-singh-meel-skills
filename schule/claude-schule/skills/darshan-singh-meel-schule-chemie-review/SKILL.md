@@ -24,7 +24,7 @@ Load `darshan-singh-meel-schule` (rubric, formats, grading, language rule) and `
 5. **Chemistry checks** - walk `references/checks.md` (C1-C12) file by file.
 6. **Language pairs** - every DE/EN pair with the 3-step test of base `bilingual.md`; terms against chemistry `begriffe.md`; decimal comma/point; same formulas, numbers and units in both lines.
 7. **Animation** - step forwards and backwards through every step, play at each speed, toggle English, print preview; count atoms and charges in every step (`checks.md`, C10). No browser available → read `STEPS` and count from the code, and list the animation under "Not checked".
-8. **Base checklist** - areas 1-12 of base `review.md`.
+8. **Base checklist** - areas 1-12 of base `review.md` (area 6 includes author voice: no chat, request or requester in the material).
 9. **Report** - write `reviews/darshan-singh-meel-schule-chemie-review-<YYYY-MM-DD-HHMM>.md` in the base report format, with the extra sections "Nachgerechnet" (equations and calculations: own result · material's result · match) and "Sicherheit: offen" (every classification, permission or disposal line that the teacher must still settle). Add `/reviews/` to `.gitignore` when the folder is first created. Reply: verdict, counts, report path, the three most important fixes.
 10. **Fixes** only on request: apply Must first, re-run the script, re-solve the changed tasks, append "Nach Korrektur" with the new verdict to the same report.
 

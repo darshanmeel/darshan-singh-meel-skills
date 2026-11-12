@@ -32,6 +32,7 @@ analysis/<YYYY-MM-DD>-<topic>/
 
 ## 3. Cells
 - Each step: markdown (what it does · what to look for) → query → output kept.
+- Markdown + findings → engineer's voice (CLAUDE.md "Author voice"): "Not yet run on production volumes", not "you need to confirm on prod".
 - Layout auto (say which; user can switch): A — queries in cells (simple SQL) · B — `sql/NN_name.sql` read by cells (procedures/dbt; edit file, rerun cell). `sql/` = SELECT-only; DDL only in user notebooks.
 - Cell 1 tag `setup`: connector/profile params (role, warehouse, schema) + PII key (§6); no SQL, no secrets.
 - First step after setup, every notebook → PII discovery (§6), before any data cell.
@@ -43,7 +44,7 @@ analysis/<YYYY-MM-DD>-<topic>/
 - Each call = fresh kernel → name every cell the Share cell or a join needs in the same call (summary: all checks). Random key per call → hashes compare within one call only; else stored key.
 
 ## 5. User-only notebooks
-- **prerequisite_ddl** (only if helpers needed): cell 1 warning "User only, before work notebook; Claude never runs it" + target · each cell: what/why/how to drop → idempotent statement (`IF NOT EXISTS` / `CREATE OR REPLACE` for helpers only) · last: SELECT status → `PREREQUISITES OK — all cells ran` · commented clean-up cell. Claude: "Run it once, all cells, tell me." Work notebook verifies helpers first; missing → say which cells, stop.
+- **prerequisite_ddl** (only if helpers needed): cell 1 warning "Manual run only, before the work notebook. Never run by `run_cells.py` or an agent." + target · each cell: what/why/how to drop → idempotent statement (`IF NOT EXISTS` / `CREATE OR REPLACE` for helpers only) · last: SELECT status → `PREREQUISITES OK — all cells ran` · commented clean-up cell. Claude: "Run it once, all cells, tell me." Work notebook verifies helpers first; missing → say which cells, stop.
 - **changes**: same warning · each cell: what changes + undo → statement. After user runs → Claude adds SELECT checks to work.
 - Order: prerequisites → checks → changes → checks → final.
 
@@ -77,9 +78,9 @@ Metadata only, before any data cell. Order:
 - Charts/images → aggregates only (k rule), never detail rows.
 
 ### What Claude reads
-- Summaries only → `run_cells.py --summary-only …`; Claude reads only its printout (Share cell, tag `share`); never opens the `.ipynb`, `outputs/`, exports.
+- Summaries only → `run_cells.py --summary-only …`; Claude reads only its printout (Shareable summary cell, tag `share`); never opens the `.ipynb`, `outputs/`, exports.
 - After first run → edit cells by script (nbformat, by cell index), never Read/NotebookEdit; layout B SQL in `sql/` = safe to edit.
-- User runs → ask for output only if needed next, name it (prefer Share cell), "only if fine to send".
+- User runs → ask for output only if needed next, name it (prefer Shareable summary cell), "only if fine to send".
 
 ## 7. Query rules
 - Detail-row SELECTs (not SHOW/DESCRIBE/EXPLAIN, aggregates) → `LIMIT 1000`. `ORDER BY` only for grouped results (by measure) and checks (worst first); none on plain previews unless asked.
@@ -87,11 +88,11 @@ Metadata only, before any data cell. Order:
 - Grain in markdown · prunable filters · small warehouse · params in setup cell.
 
 ## 8. Sections (keep what applies)
-Setup · PII discovery · Inputs (counts, grain, keys, nulls) · Run/preview · Checks (grain, duplicates, reconciliation, edge cases from tests) · Old vs new · Analysis (aggregates, charts) · Performance (runtime, rows, bytes, pruning, query ID) · Findings · **Share with Claude** (last, always, tag `share`: name, cells, role/schema, verdicts, counts/profiles without sensitive values, performance, errors, PII handling).
+Setup · PII discovery · Inputs (counts, grain, keys, nulls) · Run/preview · Checks (grain, duplicates, reconciliation, edge cases from tests) · Old vs new · Analysis (aggregates, charts) · Performance (runtime, rows, bytes, pruning, query ID) · Findings · **Shareable summary** (last, always, tag `share`: name, cells, role/schema, verdicts, counts/profiles without sensitive values, performance, errors, PII handling).
 
 ## 9. Prepare final
-- `<topic>-final.ipynb`: dev → purpose + Does/Doesn't, setup, final changed object, tests/checks with outputs, old vs new, performance, findings, Share cell · analysis → question, queries behind the answer, key results/charts, findings (Confirmed/Not verified).
-- Drop dead ends, superseded versions, side questions. Keep prerequisite notebook only if final tests need it, else suggest clean-up.
+- `<topic>-final.ipynb`: dev → purpose + Does/Doesn't, setup, final changed object, tests/checks with outputs, old vs new, performance, findings, Shareable summary · analysis → question, queries behind the answer, key results/charts, findings (Confirmed/Not verified).
+- Drop dead ends, superseded versions, side questions, notes about the chat or how the notebook was made. Keep prerequisite notebook only if final tests need it, else suggest clean-up.
 - Ask: work notebooks → Archive `<topic>-work-<date>` (rec) · Delete; commit final? Yes · No (rec).
 
 ## 10. Screenshots (only if asked)

@@ -23,7 +23,7 @@ Reviews only → fixes only when asked. Load `darshan-singh-meel-schule` (rubric
 5. `references/checks.md` C1-C12, file by file.
 6. DE/EN pairs → 3-step test (`bilingual.md`) · terms vs `begriffe.md` · decimal comma/point · same formulas, numbers, units in both lines.
 7. Animation → step forward + back · every speed · EN toggle · print preview · count atoms + charges per step (C10) → no browser: read `STEPS`, count from code, list under "Not checked".
-8. Base checklist → areas 1-12 of `review.md`.
+8. Base checklist → areas 1-12 of `review.md` (6 incl. author voice: no chat · request · requester in material).
 9. Report → `reviews/darshan-singh-meel-schule-chemie-review-<YYYY-MM-DD-HHMM>.md`, base format + sections "Nachgerechnet" (own · material's · match) and "Sicherheit: offen" (every classification, permission, disposal line the teacher must settle) → add `/reviews/` to `.gitignore` on first creation → reply: verdict · counts · report path · 3 key fixes.
 10. Fixes on request only → Must first → re-run script → re-solve changed tasks → append "Nach Korrektur" + new verdict to same report.
 

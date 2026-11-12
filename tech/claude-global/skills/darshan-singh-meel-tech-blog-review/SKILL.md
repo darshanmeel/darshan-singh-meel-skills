@@ -39,6 +39,7 @@ Find what would embarrass the author after publishing: code that does not run, f
 - **Version test:** versions named in the post = versions that ran in step 3 = versions the cited pages describe.
 - **Copy-paste test:** blocks contain no prompts, no line numbers, no smart quotes, no tabs mixed with spaces; a block that depends on an earlier one says so.
 - **Slop test:** read the first sentence of every paragraph and the last sentence of every section; cut candidates are openers that set a scene and closers that state a moral.
+- **Voice test:** the post reads as the author's; any trace of the drafting chat ("as discussed", "the user", "Claude", open points addressed to a requester) → Should (area 8); Must when it misstates a fact or exposes private chat content (area 12).
 - **Safety test:** would a reader who copies this into production be harmed (injection, leaked secret, data loss without a warning, cost surprise)? → Must (area 2).
 
 ## References

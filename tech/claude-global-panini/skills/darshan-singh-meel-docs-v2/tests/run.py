@@ -1037,6 +1037,16 @@ _, warn = chk({"Known issues, assumptions, and decisions needed": [
     {"type": "decisions", "rows": [["d", "o", "r", "w"]] * 3}]})
 check("tables: 4 tables in one section -> WARN (M4)", any("4 tables (issues, unused, assumptions, decisions; max 3)" in w for w in warn), warn)
 
+# author voice: chat leakage in visible text -> WARN; owner-voiced facts, reader-facing "you" and code spans pass
+w = []; build.chat_voice({"sections": {"A": [{"type": "bullets", "items": ["You didn't confirm this on prod", "As discussed, retries are 3",
+     "Retention: Not defined in source — confirm with owner"]}]}, "tabs": {}}, ["A"], w)
+w2 = []; build.chat_voice({"sections": {"A": [{"type": "bullets", "items": ["Not yet tested in production", "Owner to decide: retention period",
+      "If you see a 403, ask your admin", "`ask_the_user_flag` is off"]}]}, "tabs": {}, "title": "Orders"}, ["A"], w2)
+w3 = []; build.chat_voice({"sections": {"A": [{"type": "bullets", "items": ["You need to run this on prod to confirm",
+      "Retries could not be checked", "Please verify the schedule"]}]}, "tabs": {}}, ["A"], w3)
+check("author voice: 'run on prod to confirm', 'could not be checked', 'please verify' -> WARN", len(w3) == 3, w3)
+check("author voice: chat phrases -> WARN chat voice, owner voice passes", len(w) == 3 and all("chat voice" in x for x in w) and not w2, (w, w2))
+
 # L8: the full and panini variants ship the same templates and examples
 other = {"claude-global": "claude-global-panini", "claude-global-panini": "claude-global"}.get(SKILL.parents[1].name)
 twin = SKILL.parents[2] / other / "skills" / SKILL.name if other else None

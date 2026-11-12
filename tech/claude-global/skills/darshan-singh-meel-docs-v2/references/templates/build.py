@@ -1734,7 +1734,7 @@ def check(spec, kind, names, plan):
             warn.append(f"app_types {spec.get('app_types', [])} differ from the plan's {plan.get('app_types', [])}: use the plan's")
     else:
         want = REQUIRED[kind]["*"] + [s for a in spec.get("app_types", []) for s in REQUIRED[kind].get(a, [])]
-    warn += [f"missing section: {w} (add it, or one bullet 'Not defined in source - confirm with owner.')"
+    warn += [f"missing section: {w} (add it, or one bullet 'Not defined yet - owner to decide.')"
              for w in dict.fromkeys(want) if w not in have]
     for n in names:
         blocks = flat(spec["sections"][n])
@@ -1818,6 +1818,7 @@ def check(spec, kind, names, plan):
     seen = Counter(str(b.get("title")) for n in names for b in flat(spec["sections"][n]) if b["type"] in ("flow", "er", "journey"))
     err += [f"diagram title '{t}' is used {k} times: every title is unique (name the entry or area apart)" for t, k in seen.items() if k > 1]
     ellipsis(spec, names, err)
+    chat_voice(spec, names, warn)
     budgets(spec, kind, names, warn)
     repeats(spec, names, warn)
     cell_repeats(spec, kind, names, warn)
@@ -2079,6 +2080,26 @@ def strings(x):
     elif isinstance(x, list):
         for v in x:
             yield from strings(v)
+
+
+CHAT = re.compile(r"\b(?:you|the user) (?:said|asked|told|mentioned|requested|(?:did ?n[o']t |have ?n[o']t |never )?confirm(?:ed)?)\b"
+                  r"|\bas (?:discussed|requested)\b|\bper (?:your|the user's) request\b|\b(?:our|this) (?:conversation|chat)\b"
+                  r"|\b(?:ask|check with|confirm with) (?:the user|you)\b|\bconfirm with (?:the )?owner\b|\bnot defined in source\b"
+                  r"|\bno code review\b|\bby Claude\b|\bClaude (?:wrote|generated|drafted|made|built)\b"
+                  r"|\bon prod(?:uction)? to (?:confirm|verify|check)\b|\bplease (?:confirm|verify|check)\b"
+                  r"|\b(?:could ?n[o']t|was ?n[o']t able to) (?:be )?(?:check|verif|confirm|test)\w*", re.I)
+
+
+def chat_voice(spec, names, warn):
+    """The doc reads as written by its owner, not as a record of a chat: no "you said / didn't confirm", "as discussed",
+    "ask the user", "Claude", process notes. Code spans are skipped."""
+    parts = [(n, v) for n in names for v in texts(spec["sections"][n])] + [("tabs", v) for v in texts(spec.get("tabs", {}))]
+    parts += [("title", spec.get(k)) for k in ("title", "subtitle") if isinstance(spec.get(k), str)]
+    for n, v in parts:
+        m = CHAT.search(re.sub(r"`[^`]*`", " ", str(v)))
+        if m:
+            warn.append(f"{n}: chat voice '{m[0]}' in '{str(v)[:60]}': state it as the author, as a fact about the system "
+                        f"('Not yet tested in production', 'Owner to decide: retention period')")
 
 
 def ellipsis(spec, names, err):
@@ -2588,7 +2609,7 @@ def main(spec_path, out_path):
     title = lambda i, n: f"{i + 1} {n}"
     toc = "".join(f'<a href="#s{i}">{esc(title(i, n))}</a>' for i, n in enumerate(names))
     src = (f'<p class="src">Known issues from review <code>{esc(spec["review"])}</code></p>' if spec.get("review") else
-           '<p class="src">No code review: severity by the fixed rubric; Confirmed only where a test or the code proves it</p>'
+           '<p class="src">Severity follows the fixed rubric; Confirmed only where a test or the code proves it</p>'
            if issue_items(spec) else "")
     body = ""
     for i, n in enumerate(names):

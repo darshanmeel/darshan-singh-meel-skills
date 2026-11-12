@@ -45,6 +45,7 @@ Reference data, not a deliverable: **complete coverage, short summaries.** Captu
 - Edge: `evidence: "path:line"` — the exact line that creates it (the call, `JOIN … ON`, `ref()`, `MERGE`).
 - Flow, logic, and data pages cite `path:line` for every step and rule.
 - Unknown → `unclear`; deduced → `inferred`. Never invented.
+- Summaries and pages state facts about the code in plain words; no trace of the chat ("the user said", "as asked"). Setup choices live in `meta.json` only.
 
 **Node types:** repo · folder · file · module · function · class · endpoint · cli_command · ui_screen · job · dag · task · dbt_model · dbt_source · dbt_macro · dbt_test · table · view · column (key/important) · terraform_resource · storage_location · role · config · secret_ref (name only) · external_system · business_rule · flow · process · document · test_case · example_data
 
@@ -70,7 +71,7 @@ Reference data, not a deliverable: **complete coverage, short summaries.** Captu
 - **Opus:** writes the extraction scripts and does all reading and understanding — summaries, calls, flows, rules, processes, data model. Large repos: parallel Opus subagents per folder.
 - **Sonnet:** mechanical only — runs Opus's scripts, writes files from Opus's results, path checks. Never decides what code means.
 - **Never Haiku** for building or updating.
-- **Graph review:** a separate Opus reviewer agent checks the builder's graph against the code before it's done — data model, flows, rules, ~20 random `path:line` references. Graph errors go back to the builder. Format under Report back.
+- **Graph review:** a separate Opus reviewer agent checks the builder's graph against the code before it's done — data model, flows, rules, ~20 random `path:line` references, and pages free of chat references. Graph errors go back to the builder. Format under Report back.
 - No subagents → tell the user to switch to Opus (`/model`) before building. Already on Opus without subagents → the review runs as a separate second pass after the build; say so in the review block.
 
 **Steps**

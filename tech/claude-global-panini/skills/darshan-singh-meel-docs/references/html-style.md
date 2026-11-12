@@ -34,7 +34,7 @@ Typical Technical doc: L0 → L2 → ER → one L3 per important process, each f
 | Data (file, table, sheet) | Grey fill, `DATA` |
 | Data changes shape | Amber box |
 | Repeated part | Dashed purple group, "Repeats for each …" |
-| To confirm / never called | Dashed grey |
+| Not verified / never called | Dashed grey |
 | Failure branch | Red dashed |
 | Swimlane | Grey band, mono caps label |
 | Arrows | Solid = then/calls · dashed = data moves · numbers = order |

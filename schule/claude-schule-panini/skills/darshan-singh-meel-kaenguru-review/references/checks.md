@@ -43,6 +43,7 @@ Added to the 12 areas of the base `review.md`. Rule sources: `wettbewerb.md`, `a
 | Translation changes the problem | "mindestens" → "at most"; "je" dropped | base area 7, Must |
 | Options not ordered | 12, 8, 20, 6, 18 | K5 (Should) |
 | Same letter pattern | key A B C D E A B C D E | K11 |
+| Process note in the material | `check: KCGO PDF` in the meta line; "Mehrfachmarkierung beim Veranstalter nachfragen"; "wie gewünscht 12 Aufgaben" | base area 6 (Should): state the rule or scope as a fact ("Mehrfachmarkierungen zählen hier als falsch") |
 | Stem longer than the idea | five sentences of story for one subtraction | K7/K8 (Should) |
 
 ## Report additions

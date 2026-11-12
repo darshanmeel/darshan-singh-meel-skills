@@ -22,7 +22,7 @@ Load `darshan-singh-meel-schule` (rubric, formats, language) + `darshan-singh-me
 5. Walk `checks.md` N1-N10.
 6. Language pairs: base 3-step test · terms vs NWT `begriffe.md` + physics list · comma/point · same numbers.
 7. Animation: `node --check` on last `<script>` block (unescaped apostrophe in caption stops player) · every step forward/back with buttons and ← → after click on Weiter · screenshot every step (labels covered/cut) · each speed · English toggle · print preview · ratios, rotation directions, cause → effect order vs `technik.md` (system animations).
-8. Base checklist areas 1-12 of `review.md`.
+8. Base checklist areas 1-12 of `review.md` (6 incl. author voice: no chat · request · requester in material).
 9. Report `reviews/darshan-singh-meel-schule-nwt-review-<YYYY-MM-DD-HHMM>.md`: base format + section "Nachgerechnet" (task · own result · material's result · match) · add `/reviews/` to `.gitignore` on first creation · reply: verdict · counts · path · 3 top fixes.
 10. Fixes only on request: Must first → re-run both scripts → re-solve changed tasks → append "Nach Korrektur" + new verdict.
 

@@ -11,7 +11,7 @@ Optional: docs-v2 (diagrams, layout check), knowledge graph (impact). Missing �
 ## Process (fixed)
 1. **Setup prompt** = review skill step 0, with these defaults:
    - Unused files: large review → Yes (Recommended); change review → No (Recommended) — still flag code the change itself made unused.
-   - Graph (large review): built from the current commit, or no source changes since → Use as is (Recommended); else Update first; record it as in the review skill. `.knowledge-graph` may point outside the repo: use that path. No answer → use as is, say so in `scope.reviewed`.
+   - Graph (large review): built from the current commit, or no source changes since → Use as is (Recommended); else Update first; record it as in the review skill. `.knowledge-graph` may point outside the repo: use that path. No answer → use as is; `scope.reviewed` names the graph's commit (a fact, not the unanswered question).
 2. **Goal:** PR description, commit message, or ask. Whole repo → what the repo is for.
 3. **Review** = review skill steps 2–4: diff + callers/readers via the graph (none → code search), tests, every section. Secret files: path only, never opened.
    - No tests or linters → `["tests", "none in repo"]`. Full suite: deps missing → install into a scratch venv if it takes minutes; otherwise `["full suite", "not run (deps missing)"]`. Same for npm/tsc.
@@ -42,5 +42,5 @@ Optional: docs-v2 (diagrams, layout check), knowledge graph (impact). Missing �
 - Summary's fix = the `fix` field, same words.
 - Secrets: never the value. Name the key, cite `path:line`, value as `<redacted>`.
 - Performance: cost grows with one user's data → Should; with all rows, users or tenants → Must.
-- Unsure → Questions, not findings. No praise, no summary of the code.
+- Unsure → Questions, not findings. No praise, no summary of the code. Fields may address the reader; never quote the chat.
 - Verdict: any Must → Request changes · Should only → Approve with changes · none → Approve.

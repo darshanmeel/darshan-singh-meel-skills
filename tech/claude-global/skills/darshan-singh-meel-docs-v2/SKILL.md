@@ -51,7 +51,7 @@ AskUserQuestion(questions=[
 - Markdown / Confluence: four short headed lists, same order.
 
 ## Last section of every document: "Known issues, assumptions, and decisions needed"
-- The body describes intended, current behaviour. Defects, fix effort and approvals only here.
+- The body describes intended, current behaviour. Defects, fix effort and approvals only here. Owner's voice (global Author voice): open points as facts ("Not yet tested in production", "Owner to decide: retention"); build WARNs `chat voice`.
 - Sources: **one code review**, named in `review` (any `reviews/` folder; several and unclear → ask) · failing tests · graph `possible_issue` (Not verified) · code vs docs conflicts · assumptions made.
 - **Severity** (`sev`): from the review, its order kept; Critical/High → Must, Medium → Should, rest → Other; its questions → Question. No review → each issue's `kind` fixes `sev` (rubric: `spec.md`).
 - **Status:** one of the fixed list (`spec.md` → Statuses). Confirm only what a review, test (`test` = `path::name` or command) or the cited code proves; a made-up excerpt → `Not verified`.
@@ -78,7 +78,7 @@ AskUserQuestion(questions=[
 | User guide | users of the app or its output | fixed frame, the important 20% of tasks |
 
 - Section names, order and recipes are fixed (`spec.md`). Free: item counts above minimums, boxes, wording.
-- **Which sections: only the plan.** `not_applicable` → leave out (including one is an ERROR); `required` the source lacks → keep with "Not defined in source — confirm with owner".
+- **Which sections: only the plan.** `not_applicable` → leave out (including one is an ERROR); `required` the source lacks → keep with "Not defined yet — owner to decide".
 
 **Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 flow, 3–7 boxes; no steps table) · Who uses it · Example (journey + 2–6 cards, one non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0 boxes: input/actor → one box per entry group of each kind (table below) → output/store.
 
@@ -151,7 +151,7 @@ What goes into the sections the plan picked:
 
 ## Build (HTML)
 - Never hand-write HTML, CSS or SVG. Output folder must exist (`mkdir -p` it). Spec → `python <skill>/references/templates/build.py generated-docs/_spec/<doc>.json generated-docs/<doc>.html`. Start from the closest `references/examples/*.json` (pipeline, web app, library, user guides, stress).
-- Last line `built <out>: N sections, N WARN (templates <ver>)`. Fix every ERROR and WARN, or explain each remaining WARN in the doc.
+- Last line `built <out>: N sections, N WARN (templates <ver>)`. Fix every ERROR and WARN, or explain each remaining WARN in the reply (never in the doc).
 - `python <skill>/references/templates/check.py <doc.html> <shots_dir>` → 0 `LAYOUT` lines (`LAYOUT <section> | diagram <id> (map-<n>) | <problem> | <text>`); writes `page.png` + `map-<n>.png` per diagram.
 - Builder can't draw it → say so; ask before changing `build.py`.
 - Markdown/Confluence: same plan, sections, diagrams (Mermaid / images), examples. Confluence: never upload; one line on how to import. Word/PDF only if asked.
@@ -172,12 +172,12 @@ Step 0 → graph (if chosen) → Step 1 inventory → per document:
 | 1 Plan | Opus | reads `inventory.json` (plan, profile, flows, items), adds facts, fills the recipes: boxes from graph nodes/edges, sub-flows, examples, issue `kind` → `sev` |
 | 2 Build | Sonnet | writes the spec → `build.py` → fixes every ERROR and WARN; opens the code for any claim not in the plan or `facts.json` |
 | 3a Auto-check | script | `check.py <doc> <shots_dir>` |
-| 3b Accuracy (parallel with 3c) | Opus | every name, number, step vs code and graph; `inventory.py --check-facts` to 0 mismatched; greps every member of each pattern claim; opens each Must/Should `where`; checks each severity and status |
+| 3b Accuracy (parallel with 3c) | Opus | every name, number, step vs code and graph; `inventory.py --check-facts` to 0 mismatched; greps every member of each pattern claim; opens each Must/Should `where`; checks each severity and status; author voice: chat leakage → Should (Must if it misstates a fact or exposes chat content) |
 | 3c Layout | Haiku | runs `check.py`, reads `page.png` and **every** `map-<n>.png`; fails on any LAYOUT line (crossing near a label, label near a foreign line, arrow on no box, decision with <2 arrows, name broken mid-word, …) or confusing diagram |
 | 4 Fix | Sonnet | applies 3a–3c, rebuilds, reruns `check.py` to 0; trims non-essential bullets |
 | 5 Re-render | Haiku | only if layout changed: rerun `check.py`, read the changed shots |
 
-- **Done** = 0 ERROR · 0 WARN (or each explained in the doc) · 0 LAYOUT · accuracy pass passed.
+- **Done** = 0 ERROR · 0 WARN (or each explained in the reply) · 0 LAYOUT · accuracy pass passed.
 - **No subagents:** run 3b yourself as a separate pass after the build; skipped → the reply says "accuracy not reviewed", never "done". Tell the user in one line which model to switch to per phase.
 - Never invent another workflow, skip a phase or swap models.
 - Read as the audience: Overview as a manager · Technical as a new engineer (could deploy from it alone) · User guide as a first-time user.

@@ -14,7 +14,7 @@ One post = one thesis, proven with code that ran and facts that have a source. G
 - **Every block ran, or says why not.** A block that was not run carries `<!-- not-run: <reason> -->` on the line before the fence, and the prose says so in words ("not run here: needs a cloud account").
 - **Every fact has an official source.** Versions, defaults, limits, syntax, release dates, behaviour: read on the official page, linked at the claim. Not found → cut the claim or write it as the author's observation with the measurement. No numbers from memory. Network rule of CLAUDE.md applies: official sites only, nothing private in a request.
 - **Measured numbers carry their setup:** machine, versions, data size, runs, what was measured. No setup → no number.
-- **Every word informs.** Active voice, second person, present tense, short sentences. No hype, no filler, no scene-setting intro, no summary of what was just said. `references/style.md`.
+- **Every word informs.** Active voice, second person, present tense, short sentences. No hype, no filler, no scene-setting intro, no summary of what was just said. The post reads as the author's own: no trace of the chat that shaped it (CLAUDE.md, author voice). `references/style.md`.
 - **Diagram only where it explains** a flow, a structure, a sequence or a before/after that prose needs more than a paragraph for. `references/diagrams.md`.
 - **Honest title.** The title states what the post delivers, within the scope it proves. No "ultimate", no number it does not keep, no question it does not answer.
 - **Original and generic.** No copied text, code or figures beyond a short quoted line with a link. No employer, client, colleague or internal system names, no secrets, no real data rows; examples are synthetic.

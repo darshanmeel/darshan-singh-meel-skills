@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-architecture
-description: Architecture review of a repo from its knowledge graph - the current architecture, problems with path:line evidence, a proposed target built per component (keep / move / later, hybrid by default) from a kind-specific catalogue of moves (e.g. PySpark or pandas doing SQL work → Spark SQL, dbt or DuckDB; ADF or cron chains → Airflow or the platform's jobs; per-env infra copies → Terraform modules), each row with one recommended tool plus 2-3 alternatives the user can ask for instead (keep and later rows too), the target in Technical-doc shape (components, main flows, data model, configuration, security, deploy, operations, tests), current-vs-proposed workflow traces, impact on cost, performance, maintenance and tech debt, and an ordered migration - one HTML page from a JSON spec. Use only when the user asks for an architecture review, a target or better architecture, a redesign or modernisation, "is there a better way to do this", or accepts the offer made after a Technical doc; also "use <alternative> instead" on an existing review.
+description: Architecture review of a repo from its knowledge graph - the current architecture, problems with path:line evidence, a proposed target built per component (keep / move / later, hybrid by default) from a kind-specific catalogue of moves (e.g. PySpark or pandas doing SQL work → Spark SQL, dbt or DuckDB; ADF or cron chains → Airflow or the platform's jobs; per-env infra copies → Terraform modules), each row with one recommended tool plus 2-3 alternatives on every row, the target in Technical-doc shape (components, main flows, data model, configuration, security, deploy, operations, tests), current-vs-proposed workflow traces, impact on cost, performance, maintenance and tech debt, and an ordered migration - one HTML page from a JSON spec. Use only when the user asks for an architecture review, a target or better architecture, a redesign or modernisation, "is there a better way to do this", or accepts the offer made after a Technical doc; also "use <alternative> instead" on an existing review.
 ---
 
 # Architecture review
@@ -9,7 +9,7 @@ Current → problems → keep/move/later → target → workflows → impact →
 - **Every word carries a fact or an insight.** Lists and diagrams; no prose tables (tables only for keep/move/later, Impact, traces and docs-v2 row blocks).
 - **Input → Process → Output** with the output of each step: target Main flows (4) are strips with a `why`; workflows (5) trace one case current vs proposed.
 - **Every claim is evidence or a labelled estimate:** `path:line`, a `facts.json` fact, or `estimate` + assumption.
-- Global CLAUDE.md rules apply (local files only, relative paths, never open secret files, never read data rows).
+- Global CLAUDE.md rules apply (local files only, relative paths, never open secret files, never read data rows, author voice: the page reads as the architect's own, open points as facts, no chat).
 - `<skill>` = this folder; `<docs-v2>` = `darshan-singh-meel-docs-v2` beside it. Fields, ERROR/WARN: `references/spec.md`. Moves: `references/patterns.md`.
 
 ## Step 0 — ask first
@@ -33,7 +33,7 @@ One prompt (skip what the user already said this session):
 | 10 | Impact per change: cost · performance · maintenance · tech debt · risk | Opus | `impact` |
 | 11 | Migration: High fixes first, then quick wins; effort, risk, rollback | Opus | `migration` |
 | 12 | Build: `mkdir -p generated-docs/_spec` → `python <skill>/references/templates/build.py generated-docs/_spec/architecture.json generated-docs/architecture.html` → fix every ERROR and WARN | Sonnet | page |
-| 13 | Accuracy + feasibility: `build.py --checklist <spec>` → open each item, fix the spec, tick it (`- [x]`) → rebuild: "Accuracy: N of N checked" | Opus | ticked checklist |
+| 13 | Accuracy + feasibility + voice: `build.py --checklist <spec>` → open each item, fix the spec, tick it (`- [x]`) → rebuild: "Accuracy: N of N checked" | Opus | ticked checklist |
 | 14 | Layout: `python <docs-v2>/references/templates/check.py <html> generated-docs/_spec/shots` (1280 and 390 px) → 0 `LAYOUT`; `python <skill>/references/templates/shots.py <html> generated-docs/_spec/shots` → read every `map-<n>.png`, `s1…s8.png` and `p1…p8.png` (native size) | Haiku | 0 LAYOUT, shots read |
 
 - **Done** = 0 ERROR · 0 WARN · 0 LAYOUT · checklist all ticked · shots read. Otherwise the reply says what is missing ("accuracy not reviewed", "layout not checked"), never "done".

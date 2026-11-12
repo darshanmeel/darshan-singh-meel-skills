@@ -46,7 +46,7 @@ AskUserQuestion(questions=[
 - Md/Confluence: 4 headed lists.
 
 ## Last section: "Known issues, assumptions, and decisions needed"
-- Defects · effort · approvals only here; body = intended current behaviour.
+- Defects · effort · approvals only here; body = intended current behaviour. Owner's voice (global Author voice): open points as facts ("Not yet tested in production", "Owner to decide: retention"); build WARN `chat voice`.
 - Sources: **one review** in `review` (any `reviews/`; several + unclear → ask) · failing tests · graph `possible_issue` (Not verified) · code ≠ docs · assumptions.
 - **`sev`:** review order; Critical/High → Must, Medium → Should, rest → Other, questions → Question. No review → `kind` fixes `sev` (rubric: `spec.md`).
 - **Status:** fixed list (`spec.md` → Statuses); confirm only what review · test (`test` = `path::name`/command) · cited code proves; made-up excerpt → `Not verified`.
@@ -67,7 +67,7 @@ AskUserQuestion(questions=[
 ## Documents
 - **Overview** (business, newcomers): screen per section, no code names, top 20%. **Technical** (engineers): **complete**, row per inventory item in its typed table. **User guide** (app/output users): fixed frame, top 20% of tasks.
 - Names · order · recipes fixed (`spec.md`); free: counts above minimums · boxes · wording.
-- **Sections = plan only.** `not_applicable` → out (else ERROR); `required`, no source → "Not defined in source — confirm with owner".
+- **Sections = plan only.** `not_applicable` → out (else ERROR); `required`, no source → "Not defined yet — owner to decide".
 
 **Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 flow, 3–7 boxes, no steps) · Who uses it · Example (journey + 2–6 cards, ≥1 non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0: input/actor → box per entry group per kind → output/store.
 
@@ -122,7 +122,7 @@ Interface section · table | h3 unit | data model | graph diagram | io:
 
 ## Build (HTML)
 - Never hand-write HTML/CSS/SVG. Output folder exists (`mkdir -p`). `python <skill>/references/templates/build.py generated-docs/_spec/<doc>.json generated-docs/<doc>.html`; start from closest `references/examples/*.json` (pipeline, web app, library, user guides, stress).
-- Last line `built <out>: N sections, N WARN (templates <ver>)`. Fix each ERROR + WARN, or explain WARN in doc.
+- Last line `built <out>: N sections, N WARN (templates <ver>)`. Fix each ERROR + WARN, or explain WARN in reply (never doc).
 - `python <skill>/references/templates/check.py <doc.html> <shots_dir>` → 0 `LAYOUT` (`LAYOUT <section> | diagram <id> (map-<n>) | <problem> | <text>`); writes `page.png` + `map-<n>.png`.
 - Can't draw → say so; ask before changing `build.py`.
 - Md/Confluence: same plan · sections · diagrams (Mermaid/images) · examples. Confluence: never upload; one import line. Word/PDF only if asked.
@@ -139,10 +139,10 @@ Interface section · table | h3 unit | data model | graph diagram | io:
 Step 0 → graph (if chosen) → Step 1 → per doc:
 1. **Plan** (Opus): `inventory.json` → facts · recipes (boxes from graph nodes/edges, sub-flows, examples, `kind` → `sev`).
 2. **Build** (Sonnet): spec → `build.py` → fix all ERROR + WARN; claims outside plan/`facts.json` → open code.
-3. a **Auto-check** (script): `check.py <doc> <shots_dir>`. b **Accuracy** (Opus, ∥ c): names · numbers · steps vs code + graph; `inventory.py --check-facts` to 0; grep each pattern member; open each Must/Should `where`; check severity + status. c **Layout** (Haiku): `check.py`, read `page.png` + **every** `map-<n>.png`; fail on any LAYOUT (crossing near label, label near foreign line, arrow on no box, decision <2 arrows, name broken mid-word, …) or confusing diagram.
+3. a **Auto-check** (script): `check.py <doc> <shots_dir>`. b **Accuracy** (Opus, ∥ c): names · numbers · steps vs code + graph; `inventory.py --check-facts` to 0; grep each pattern member; open each Must/Should `where`; check severity + status; author voice: chat leakage → Should (Must: misstated fact · exposed chat content). c **Layout** (Haiku): `check.py`, read `page.png` + **every** `map-<n>.png`; fail on any LAYOUT (crossing near label, label near foreign line, arrow on no box, decision <2 arrows, name broken mid-word, …) or confusing diagram.
 4. **Fix** (Sonnet): apply 3a–c, rebuild, `check.py` to 0; trim bullets.
 5. **Re-render** (Haiku), layout changed only: `check.py`, read changed shots.
-- **Done** = 0 ERROR · 0 WARN (or explained) · 0 LAYOUT · accuracy passed.
+- **Done** = 0 ERROR · 0 WARN (or explained in reply) · 0 LAYOUT · accuracy passed.
 - No subagents → 3b yourself, separate pass; skipped → "accuracy not reviewed", never "done". Tell user model per phase, one line.
 - Never another workflow · skipped phase · swapped model. Read as manager · new engineer (could deploy from it alone) · first-time user.
 - Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion.

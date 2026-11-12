@@ -11,7 +11,7 @@ Source: Kerncurriculum gymnasiale Oberstufe Chemie, Ausgabe 2024, Stand 21.04.20
 | Q3 | Das chemische Gleichgewicht | the content inside Q3.1-Q3.3 that is set by Erlass |
 | Q4 | Energie und Nachhaltigkeit | the content inside Q4.1 that is set by Erlass |
 
-- Q-Phase: nine binding Themenfelder. Which content inside Q2.1, Q2.2, Q3.1-Q3.3 and Q4.1 is binding for an exam year: check: Abiturerlass of the course's exam year (kultus.hessen.de → Landesabitur). Until read, treat the whole Themenfeld at the course's level as teachable and say so.
+- Q-Phase: nine binding Themenfelder. Which content inside Q2.1, Q2.2, Q3.1-Q3.3 and Q4.1 is binding for an exam year: check: Abiturerlass of the course's exam year (kultus.hessen.de → Landesabitur). Until read, treat the whole Themenfeld at the course's level as teachable and say so in the hand-over reply.
 - "zum Beispiel" = suggestion, not binding; "am Beispiel" = binding (KCGO 3.3). Parts of a Themenfeld may move between neighbouring half-years.
 - `grundlegendes Niveau` = GK and LK; `erhöhtes Niveau` = LK only. The E-Phase has no GK/LK split.
 - Citation: `KCGO Hessen, Chemie` · Kompetenzbereich · standard with code · `Q3.2 Protolysegleichgewichte`, `GK` or `LK`.

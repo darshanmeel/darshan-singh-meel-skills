@@ -37,7 +37,7 @@ Output folder: `unterricht/nawi-technik/<stufe>/<thema>/` (`jg09`, `jg10`; young
    | Work form | Konstruktionsaufgabe mit Produkt (Recommended) · Experiment mit Auswertung · Recherche und Bewertung |
    | Material at hand | Standard-Sammlung Physik (Recommended) · Baukasten/Mikrocontroller vorhanden · nur Alltagsmaterial |
 
-   Ask for the school's NWT curriculum (module title, year, hours); without it use the module table and say so.
+   Ask for the school's NWT curriculum (module title, year, hours); without it use the module table; the Stundenentwurf states module and year as facts (`Modul der Schule: Mobilität - Fahrradgetriebe`, Jg. 9) and the hand-over reply names the table as the basis.
 2. **Read** `references/hessen-nwt.md` once, `references/module.md` for the module, `references/technik.md` always; physics `konventionen.md` for calculations, `experimente.md` for experiments, `animationen.md` for animations; `references/begriffe.md` for the glossary.
 3. **Plan** - base 5 lines plus: product or question · requirements (3-5, measurable) · quantities with units and expected values · tools, materials and hazards · carrying subject and KC anchor · how it is assessed (criteria → Vermerk).
 4. **Create** from the base templates, German line then English line. Double lessons (90 min) are the default for practical work: two Erarbeitung/Sicherung rounds.

@@ -23,7 +23,7 @@ Load `darshan-singh-meel-schule` (rubric, formats, grading, language rule) + `da
 6. Language pairs → every DE/EN pair with the 3-step test of base `bilingual.md` · terms vs `begriffe.md` · comma in German and formula-only lines, point in English sentences incl. their formulas · otherwise same numbers, units, formulas · operator pair per base `operatoren.md`.
 7. Figures + animation → recompute ≥3 coordinates per figure from stated scale · headless browser (Playwright Python with Chromium/installed Chrome; own short script, local files only): no external request, no JS error · step forward/back, each speed, English toggle, print preview · compare parts, values, captions with worksheet numbers (M9-M10).
 8. Print → PDF per file via same browser (`page.pdf`, A4) or `chrome --headless --print-to-pdf` → page count · no split task/formula · answer squares fit model solution · sum row + grade key whole. "Not checked" for 7-8 only if no browser starts; say which was tried.
-9. Base checklist → areas 1-12 of base `review.md`.
+9. Base checklist → areas 1-12 of base `review.md` (6 incl. author voice: no chat · request · requester in material).
 10. Report → `reviews/darshan-singh-meel-schule-mathe-review-<YYYY-MM-DD-HHMM>.md` in base report format + section "Nachgerechnet" (table from `checks.md`) · first creation of `reviews/` → add `/reviews/` to `.gitignore` · reply: verdict · counts · report path · top 3 fixes.
 11. Fixes (only on request) → Must first · rerun both scripts · re-solve changed tasks · append "Nach Korrektur" with new verdict to the same report.
 

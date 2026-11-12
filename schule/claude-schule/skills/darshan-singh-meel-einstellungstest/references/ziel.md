@@ -14,8 +14,8 @@ Web search for the target's test: structure, areas, timing, provider, published 
 - Search with the target words only (employer, occupation, "Einstellungstest", "Online-Test", "Auswahlverfahren"); never send file contents, code, project or person names. A pasted invitation gives only the employer and the occupation.
 - Take: areas and their order · task formats · time per part · aids (calculator) · pause rule · device hints · whether a personality, SJT or game part exists · the look of published sample questions.
 - Sample questions: read for type, length and difficulty; never copy, translate or renumber them, never store them. Write originals in the same style.
-- Each fact goes into `profil.json` with its page in `sources`. A fact only on a rank-3 page, or inferred, goes into `unverified` as `check: <page>` and is told to the user so.
-- No page found: say so, use the general mix of `bereiche.md` shifted by occupation, mark every section `unverified`.
+- Each fact goes into `profil.json` with its page in `sources`. A fact only on a rank-3 page, or inferred, goes into `unverified` as `check: <page>` and is named in the reply.
+- No page found: say so in the reply, use the general mix of `bereiche.md` shifted by occupation, mark every section `unverified`.
 
 ## 2 Profile
 - `profil.json` (`formate.md`): target, sections with module, topics, weight, how the task looks, pages read, `unverified`.

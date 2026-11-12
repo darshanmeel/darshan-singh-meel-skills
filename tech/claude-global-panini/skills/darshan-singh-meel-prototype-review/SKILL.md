@@ -46,6 +46,7 @@ Find what makes the answer untrustworthy or clean-up unsafe: does not run · ans
   - dependency or lock files changed → Must (area 11).
   - No git → compare with `NOTES.md` list, say check was partial.
 - **Clean-up test** (`Status: done`): "Keep" names a real target file for everything absorbed; following it leaves no file · mount line · switcher · dependency behind.
+- **Voice test:** `NOTES.md` · comments · UI copy = engineer's own (CLAUDE.md "Author voice"): no "you said/asked/confirmed" · "the user" · "Claude" · "as requested" · how-it-was-made notes; open points as facts ("Not yet run on real volumes"). Leak → Should (area 10); misstated fact or private chat content → Must (area 12).
 
 ## References
 | File | Read when |

@@ -27,6 +27,13 @@
 - Don't write outside the project, or upload/sync anything, unless I explicitly ask. Exception: the shared `../<name>-graphs/` folder (related repos) once I've approved it.
 - **Paths in graphs, docs, answers, and reports are always relative to the repo root** — never absolute or machine-specific (`/Users/…`, `/home/…`, `C:\…`, `~/…`). Check output for absolute paths before finishing.
 
+## Author voice in produced files
+- Docs, architecture reviews, blog posts, teaching material, notebooks' notes, prototypes' NOTES.md read as written by their owner — the architect, engineer, or teacher — not as a record of a chat. First person (`we`, `I`) where the author states a decision; plain statements otherwise.
+- The chat improves the content; it never appears in it. No "you said / asked / confirmed / didn't confirm", "as discussed", "the user", "Claude", "per your request", "based on our conversation", or how and by whom the file was made.
+- Open points, assumptions and limits are stated as facts about the system, in the author's words: "Not yet tested in production", not "you haven't confirmed this on prod"; "Owner to decide: retention period", not "ask the user".
+- Only what the reader needs. No notes on what was skipped, what the writer couldn't check, or which questions were asked.
+- Code reviews and other reports to me may address me, but still don't quote the chat.
+
 ## Data handling
 - **Scripts do the bulk work:** write and run Python (AST, regex, dbt manifest, DDL parsing, pandas/openpyxl) to inventory, extract, count, and summarise. Read files yourself only where judgment is needed — the relevant lines or the script's summary, not whole files.
 - **Never open secret files:** `.env*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.jks`, `*.keystore`, `id_*` (SSH keys), `credentials*`, `secrets*`, `*.tfvars`, `*.tfstate*`, `.npmrc`, `.pypirc`, `.netrc`, `.git-credentials`, `.docker/config.json`, service-account `*.json` keys, `kubeconfig`, dbt `profiles.yml` (one exception: the check script of `darshan-singh-meel-prototype` may read the key names, never the values, of a `prototypes/<name>/profiles.yml` it made from its template), or anything whose name or path suggests secrets. Record only that the file exists. Applies to scripts, grep and scanners too: exclude these patterns; report path + rule name, value `<redacted>`.

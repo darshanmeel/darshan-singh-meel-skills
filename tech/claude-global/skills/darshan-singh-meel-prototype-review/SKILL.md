@@ -41,6 +41,7 @@ Find what makes the prototype's answer untrustworthy or its clean-up unsafe: it 
 - **Stub test (Pipeline):** every task body, line by line: print, sleep, in-memory write, small return, planned raise. Anything else → Must (area 9).
 - **Containment test:** in a git project, `git status --porcelain` and `git diff --stat`: every path outside `prototypes/` must be listed under "Files outside prototypes/" (or be the one mount line in the host page); `reviews/` and the `.gitignore` lines for `/prototypes/` and `/reviews/` are exempt, other `prototypes/*` folders belong to their own `NOTES.md`; and `git check-ignore prototypes/<name>` must succeed. Search the real tree for imports of `prototypes/` and for `prototype` in file names. Dependency or lock files changed → Must (area 11). No git → compare with the list in `NOTES.md` and say the check was partial.
 - **Clean-up test** (`Status: done`): "Keep" names a real target file for everything absorbed, and following it leaves no file, mount line, switcher or dependency behind.
+- **Voice test:** `NOTES.md`, code comments and UI copy read as the engineer's own (CLAUDE.md "Author voice"): no "you said / asked / confirmed", "the user", "Claude", "as requested", notes on how the prototype was made; open points as facts ("Not yet run on real volumes"). Leak → Should (area 10); Must when it misstates a fact or exposes private chat content (area 12).
 
 ## References
 | File | Read when |

@@ -76,7 +76,7 @@ A sheet states the expected observation only in the Lösung and in the lesson pl
 | Pedigree | circle = female, square = male, filled = affected; generations I, II, III; persons numbered; invented families only |
 | Nucleic acids | strands with 5' and 3' ends; mRNA codons read 5'→3'; Code-Sonne from the inside outwards |
 | Equations | Fotosynthese: 6 CO₂ + 6 H₂O → C₆H₁₂O₆ + 6 O₂ (Lichtenergie, Chlorophyll); Zellatmung: C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O; atoms balanced, energy named |
-| Values that differ by textbook | ATP yield of cell respiration, Ruhepotenzial (about −70 mV), duration of an Aktionspotenzial: write "ca." and use the value of the class's book - ask or state the assumption |
+| Values that differ by textbook | ATP yield of cell respiration, Ruhepotenzial (about −70 mV), duration of an Aktionspotenzial: write "ca." and use the value of the class's book - ask; otherwise the Lösung names the basis (`ca. −70 mV; Lehrbücher nennen leicht abweichende Werte`) |
 | Names | species in italics, genus capital (*Elodea canadensis*); German common name first in Sek I |
 | Language | "angepasst sein / Angepasstheit" (state), not "sich anpassen" for evolution; "Individuen mit ... haben mehr Nachkommen" instead of "die Art will ..." |
 

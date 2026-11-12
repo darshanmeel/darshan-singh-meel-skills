@@ -27,7 +27,7 @@ One format for all subjects, Jg. 1-10. Each subject PDF ("Bildungsstandards und 
 | Inhaltsfelder | binding content areas, paired with the Kompetenzerwartungen | **cite one per lesson** |
 | Synopsen | competence growth Jg. 4 → 9/10 | check prior knowledge |
 
-- The KC sets standards for stages (4, 6, 8, 9/10), not for single years. Which topic sits in which year is fixed by the school's Schulcurriculum / Fachcurriculum - ask the user when the year matters; otherwise place the topic by the KC stage and say so.
+- The KC sets standards for stages (4, 6, 8, 9/10), not for single years. Which topic sits in which year is fixed by the school's Schulcurriculum / Fachcurriculum - ask the user when the year matters; otherwise place the topic by the KC stage and state it in the Stundenentwurf as a fact (`Einordnung nach KC-Stufe 6; Jahrgang laut Schulcurriculum`).
 - Each KC has a Leitfaden (planning guide) on the same page.
 
 ## Kerncurriculum gymnasiale Oberstufe (KCGO; revised version phased in from the Einführungsphase, second half of 2024/25)

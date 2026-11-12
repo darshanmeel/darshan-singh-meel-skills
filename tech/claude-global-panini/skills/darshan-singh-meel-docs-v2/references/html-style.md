@@ -10,7 +10,7 @@
 
 ## Diagram notation — one meaning each
 - Person: pill, ink border · step/system: white box, 8 px radius · `code`: teal, 4 px radius, mono name · `entry`: 2 px ink border · `data`: grey fill · `shape` (data changes shape): amber.
-- Decision: lavender pill, ≥2 out-arrows · `fail`: red dashed border, `fail` edge red · `confirm` (to confirm / outside repo): grey dashed border.
+- Decision: lavender pill, ≥2 out-arrows · `fail`: red dashed border, `fail` edge red · `confirm` (outside repo / inferred): grey dashed border.
 - Group "Repeats for each …": dashed purple frame, label top-left · fan-out "N children": solid light-purple frame · lane: grey band, mono caps label.
 - Arrows: solid = then/calls · dashed = data moves (animated) · black dots = order.
 - Box: `tag` (mono caps) · title · `sub` · 1–3 bullets · IN (blue outline) / OUT (green fill) · `runs` · "▸ Diagram X" link. `data-tip` hover = extra, never content.

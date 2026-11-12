@@ -63,11 +63,11 @@ Final exam of the Berufssprachkurse (§ 45a AufenthG, DeuFöV): Spezialberufsspr
 
 ## Other exams (not covered in detail)
 - Deutsch-Test für Zuwanderer (DTZ, A2·B1, Integrationskurs) and Leben in Deutschland: check: bamf.de. Use the A2/B1 material rules of this skill; format not read.
-- DSH, TestDaF, ÖSD, DSD: not covered; say so.
+- DSH, TestDaF, ÖSD, DSD: not covered; say so in the reply.
 
 ## Building exam practice
 1. Name exam, level, version date and which parts are practised; one part per 45 min lesson is realistic.
-2. Copy for that part: number of items, item type, text type and length, time, points. Scale a full mock down only with the user's consent and say what was cut.
+2. Copy for that part: number of items, item type, text type and length, time, points. Scale a full mock down only with the user's consent; the header states the parts practised as a fact (`Kurzfassung: Lesen Teil 1 und 2`).
 3. Hören: write the Hörtext (dialogue or announcement) into the Erwartungshorizont as "Hörtext zum Vorlesen", with speaker labels and how often it is played (as in the exam).
 4. Erwartungshorizont: key, points per item, conversion as in the exam (for example items × 3,33), Prädikat table, pass mark.
 5. Schreiben and Sprechen: task card in the test, rubric from `bewertung.md` and one model answer at pass level and one at full marks in the Erwartungshorizont.

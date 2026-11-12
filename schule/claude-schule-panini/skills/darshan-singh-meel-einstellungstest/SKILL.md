@@ -15,7 +15,7 @@ Scope: original practice material for online tests employers use before an Ausbi
 
 ## Rules
 - Original items only: never copy, translate, renumber an item from provider · employer · book · training site · pages read for areas and formats, never items · every sheet footer "Übungsmaterial … keine Originalaufgaben".
-- Generic material: no invitation · TAN · PIN · login · token link · applicant or recruiter name · test date · person's result in any file or reply · user pastes such → use only target (occupation · sector · employer), say rest left out.
+- Generic material: no invitation · TAN · PIN · login · token link · applicant or recruiter name · test date · person's result in any file or reply · user pastes such → use only target (occupation · sector · employer), say in reply rest left out.
 - Test facts only from pages read in job C (named in output) or verified table in `ziel.md` · unsure → `check: <page>` · never state pass mark, provider scoring, item count as fact.
 - Item: one question · exactly 4 options · exactly one correct (`answer` 0-3) · solvable in `time_seconds` · no calculator unless item allows · difficulty 1-3 mixed in every file · correct index spread evenly 0-3.
 - Distractor = result of one nameable mistake (`bereiche.md`, `aufgabenbau.md`) · no filler.

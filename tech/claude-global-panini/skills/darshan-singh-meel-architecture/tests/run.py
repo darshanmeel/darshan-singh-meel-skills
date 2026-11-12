@@ -102,6 +102,8 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("one workflow", edit(lambda s: s.update(workflows=s["workflows"][:1])), 0, "workflows: 1 given"),
     ("workflow unknown change", edit(lambda s: s["workflows"][0].update(changes=["C9"])), 1, "change 'C9' is no change id"),
     ("filler word", edit(lambda s: C(s, 0).update(why="a robust way to scan days of rows")), 0, "filler: 'robust'"),
+    ("chat voice in a question", edit(lambda s: s["questions"].append("As discussed, the user decides the retention period.")), 0, "voice: 'As discussed'"),
+    ("could-not-check note", edit(lambda s: s["assumptions"].append(["We could not check the prod schedule", "C1 timing rests on it"])), 0, "voice: 'We could not check'"),
     ("repeated sentence", edit(lambda s: C(s, 1).update(why=C(s, 0)["why"])), 0, "repeat:"),
     ("lead too long", edit(lambda s: s.update(summary="One. Two. Three.")), 0, "has 3 sentences"),
     ("migration unknown change", edit(lambda s: M(s, 0).update(changes=["C9"])), 1, "change 'C9' is no change id"),
@@ -281,7 +283,7 @@ def main():
         code, out, page, _ = build(BASE, build=fake / "darshan-singh-meel-architecture/references/templates/build.py")
         shutil.rmtree(fake.parent, ignore_errors=True)
         ok = (code == 0 and "0 WARN" in out and "note: docs-v2" in out and "Layout not checked" in out
-              and page.count("Diagram drawn as text") == 3 and "int_order_revenue" in page and "Snowflake Tasks" in page
+              and "Diagram drawn as text" not in page and page.count("<h3 id=\"d-") >= 3 and "int_order_revenue" in page and "Snowflake Tasks" in page
               and "clear the failed task" in page and 'id="ex-5.1b"' in page and "--red:" in page)
         report(f"{name} → built-in style, text diagrams and strips", ok, out)
     print(f"{n - fails}/{n} passed")

@@ -38,6 +38,7 @@ Find what embarrasses the author after publishing: code that fails · wrong fact
 - Versions: named in post = ran in step 3 = described by cited pages.
 - Copy-paste: no prompts · line numbers · smart quotes · mixed tabs/spaces; dependent block says so.
 - Slop: first sentence of each paragraph + last of each section → scene-setting openers · moral closers = cut.
+- Voice: author's own; drafting-chat trace ("as discussed" · "the user" · "Claude" · open points addressed to a requester) → Should (area 8); misstates a fact · exposes private chat content → Must (area 12).
 - Safety: copy into production harms reader (injection · leaked secret · data loss without warning · cost surprise) → Must (area 2).
 
 ## References

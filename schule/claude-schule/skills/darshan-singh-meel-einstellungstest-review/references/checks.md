@@ -52,6 +52,7 @@ Added to the 12 areas of the base `review.md`. Rule sources: `bereiche.md`, `auf
 | Unnamed source | profile weight taken from a prep page that is not in `sources` | E11 |
 | Faking advice | "Stimme bei Teamfragen immer voll zu." | E9, Must |
 | Sheet differs from JSON | options reordered on the sheet, key letter not adjusted | E1 (script) |
+| Process note in a file | `unverified`: "check: <page> - vom Nutzer nicht bestätigt"; explanation: "wie gewünscht ohne Trick" | base area 6 (Should): state the open point as a fact about the test ("Dauer je Teil nicht angegeben") |
 
 ## Report additions
 - Section "Nachgerechnet": the blind-solving table, shortened to: id · difficulty · own result · own index · key · match · other options wrong · seconds. Unkeyed items: id · "ohne Schlüssel" · explanation fair (yes/no).

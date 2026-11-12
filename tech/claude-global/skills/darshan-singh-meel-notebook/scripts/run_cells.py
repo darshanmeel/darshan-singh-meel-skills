@@ -193,7 +193,7 @@ def main(path, wanted, summary=False):
     setup = tagged(nb, "setup")
     share = tagged(nb, "share") if summary else set()
     if summary and not share:
-        sys.exit("--summary-only needs the Share with Claude cell tagged 'share'")
+        sys.exit("--summary-only needs the Shareable summary cell tagged 'share'")
     last = max(set(wanted) | share)
     to_run = sorted(set(wanted) | share | {i for i in setup if i < last})
     for f in sorted(nb_dir.glob("sql/**/*.sql")):
@@ -221,7 +221,7 @@ def main(path, wanted, summary=False):
     nbformat.write(nb, path)
     print(f"ran cells {to_run}; outputs saved to {path}")
     if summary:
-        print("--- Share with Claude (only output shown; do not open the notebook) ---")
+        print("--- Shareable summary (only output shown; do not open the notebook) ---")
         # Only this call's share output: a cell skipped after a setup failure still holds an earlier run's text.
         print(share_text(nb, share) if share <= ran else "(share cell not run in this call — no summary)")
     if failed:
@@ -241,7 +241,7 @@ def share_text(nb, cells):
 
 
 def tagged(nb, tag):
-    """Code cells with this tag: 'setup' (connection, imports) runs first; 'share' = the Share with Claude cell."""
+    """Code cells with this tag: 'setup' (connection, imports) runs first; 'share' = the Shareable summary cell."""
     return {i for i, c in enumerate(nb.cells, 1)
             if c.cell_type == "code" and tag in c.get("metadata", {}).get("tags", [])}
 

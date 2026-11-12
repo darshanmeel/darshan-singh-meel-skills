@@ -17,7 +17,7 @@ Load `darshan-singh-meel-schule` first (formats, templates, folder, language, gr
 Folder: `unterricht/physik/<stufe>/<thema>/` · `<stufe>` = `jg07` · `e` · `q2-gk` · `q3-lk`.
 
 ## Rules
-- Curriculum: Sek I → Kompetenzbereich + Teilbereich + Bildungsstandard (end Jg. 9/10) + Inhaltsfeld + stage · KC sets no year → take Fachcurriculum of user or place by stage and say so. Oberstufe → Kurshalbjahr.Themenfeld · GK/LK · standard code (`S 7`, `E 4`) · LK-only content never in GK.
+- Curriculum: Sek I → Kompetenzbereich + Teilbereich + Bildungsstandard (end Jg. 9/10) + Inhaltsfeld + stage · KC sets no year → take Fachcurriculum of user or place by stage → placement stated in Stundenentwurf as fact (`sek1.md`). Oberstufe → Kurshalbjahr.Themenfeld · GK/LK · standard code (`S 7`, `E 4`) · LK-only content never in GK.
 - Quantity = number + unit, every line, every file · SI + `references/konventionen.md` · symbols as KCGO/Formelsammlung · new symbol named on first use.
 - Digits: write the digits meant (`0,200 kg`) · result = least precise input · rounding only at end · Sek I stage 1: "sinnvoll runden", no term.
 - Decimal: DE comma (`1,26 s`) · EN point (`1.26 s`) · same digits.

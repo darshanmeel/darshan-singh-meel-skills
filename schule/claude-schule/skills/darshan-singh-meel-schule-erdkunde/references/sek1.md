@@ -74,7 +74,7 @@ Source: Kerncurriculum Hessen, Sekundarstufe I - Gymnasium, Erdkunde ("Bildungss
 - Every Inhaltsfeld relates to all four Kompetenzbereiche.
 
 ## Working default per year (not from the KC - the Fachcurriculum decides)
-Say "Zuordnung nach Arbeitsvorschlag, Fachcurriculum prüfen" when using it.
+When using it, the KC line states it as a fact: "Zuordnung zu Jg. <n> als Arbeitsvorschlag; das Fachcurriculum der Schule kann abweichen."
 
 | Jg. | Typical topics | Inhaltsfeld |
 |---|---|---|

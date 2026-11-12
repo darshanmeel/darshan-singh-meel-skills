@@ -49,6 +49,8 @@ PLACEHOLDER = {"skipped", "skip", "not run", "not called", "n/a", "na", "none", 
 FILLER = re.compile(r"\b(robust|seamless(?:ly)?|leverag(?:e|es|ing)|cutting[- ]edge|state[- ]of[- ]the[- ]art|best[- ]in[- ]class|"
                     r"world[- ]class|game[- ]chang\w*|synerg\w*|holistic|next[- ]generation|simply|basically|very|really|"
                     r"comprehensive|powerful|in order to|it is important to note|note that)\b", re.I)
+CHAT = re.compile(r"\b(you|your|the user|claude|as discussed|as agreed|as requested|per (?:your )?request|(?:our|this) (?:conversation|chat)|"
+                  r"confirm with|(?:we|i) (?:could not|couldn't|did not|didn't) (?:check|verify|confirm))\b", re.I)
 SECRET = re.compile(r"(^|/)(\.env[^/]*|[^/]*\.(pem|key|p12|pfx|jks|keystore|tfvars)|[^/]*\.tfstate[^/]*|id_(rsa|dsa|ecdsa|ed25519)[^/]*|"
                     r"credentials[^/]*|secrets?[^/]*|\.npmrc|\.pypirc|\.netrc|\.git-credentials|\.docker/config\.json|"
                     r"kubeconfig[^/]*|profiles\.yml)$|(^|/)[^/]*secret[^/]*/", re.I)
@@ -426,6 +428,8 @@ def word_rules(spec, warn):
             warn.append(f"words: {where} has {n} sentences (max {LEAD_SENT}): lead with the conclusion, cut the rest")
         for m in FILLER.finditer(re.sub(r"`[^`]*`", " ", t)):
             warn.append(f"filler: '{m[0]}' in {where}: say the fact (a name, number, consequence) or cut the word")
+        for m in CHAT.finditer(re.sub(r"`[^`]*`", " ", t)):
+            warn.append(f"voice: '{m[0]}' in {where}: write as the architect, no chat; an open point is a fact ('not yet tested in production')")
         for part in re.split(r"(?<=[.;!?])\s+", re.sub(r"`[^`]*`", lambda m: m[0].replace(" ", "_"), t)):
             w = re.findall(r"\w+", part.lower())
             if len(w) >= 6:
@@ -882,7 +886,7 @@ def inputs(spec_path, root, check_files, warn):
 
 def render(spec, R, used, stamp, head, accuracy):
     """Returns (page, terminal lines, layout warns)."""
-    esc, diagram, strip, plain = R["esc"], R["diagram"], R["strip"], R["why"]
+    esc, diagram, strip = R["esc"], R["diagram"], R["strip"]
     ids, late = iter("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), []
     probs = sorted(spec.get("problems", []), key=lambda p: (SEVS.index(p["sev"]), int(p["id"][1:])))
     pr = spec["proposal"]
@@ -908,8 +912,7 @@ def render(spec, R, used, stamp, head, accuracy):
             late.append(f"diagram {did} ({where}): a box text is cut with … (full text only on hover): shorten label or sub")
         cap = (f'<p class="key">Key: {esc(dg["key"])}</p>' if dg.get("key") else "") + (
             f'<p class="cap">Notice: {esc(dg["notice"])}</p>' if dg.get("notice") else "")
-        why = f'<p class="cap">Diagram drawn as text: {plain}.</p>' if plain else ""
-        return f'<h3 id="d-{did}">Diagram {did} &middot; {esc(dg["title"])}</h3>{out}{cap}{why}'
+        return f'<h3 id="d-{did}">Diagram {did} &middot; {esc(dg["title"])}</h3>{out}{cap}'
 
     def based(r, cell=False):
         src = short if cell else code
@@ -967,7 +970,7 @@ def render(spec, R, used, stamp, head, accuracy):
             for k, m in enumerate(moves, 1))
         s4 += "<h3>Keep, move, later</h3>"
         if any(m.get("alternatives") for m in moves):
-            s4 += '<p class="key">Alternatives = tools to ask for: "use &lt;tool&gt; instead for M&lt;n&gt;" rebuilds the target around it.</p>'
+            s4 += '<p class="key">Alternatives = other current tools that fit the row, each with its trade-off.</p>'
         s4 += (
                f'<div class="scroll"><table class="tt moves"><tr>{"".join(f"<th>{h}</th>" for h in th)}</tr>{body}</table></div>')
     s4 += draw(pr["diagram"], "proposal")
@@ -1001,7 +1004,7 @@ def render(spec, R, used, stamp, head, accuracy):
         s4 += f"<h3>{name}</h3>{out}"
     s4 += "<h3>Changes</h3>"
     if any(c.get("tool") for c in pr["changes"]):
-        s4 += '<p class="key">Each move: one pick and its alternatives; ask "use &lt;alternative&gt; instead" to rebuild the target around it.</p>'
+        s4 += '<p class="key">Each move: the pick we recommend and its alternatives, each with its trade-off.</p>'
     for c in pr["changes"]:
         t = c.get("tool")
         pick = (f'<li><b>Pick:</b> {esc(t["name"])} &mdash; {esc(t["why"])}</li><li><b>Alternatives:</b> '
@@ -1052,7 +1055,7 @@ def render(spec, R, used, stamp, head, accuracy):
     s8 = ("<h3>Questions</h3><ul>" + "".join(f"<li>{esc(q)}</li>" for q in spec["questions"]) + "</ul>" if spec.get("questions") else "")
     s8 += ("<h3>Assumptions</h3><ul>" + "".join(f"<li><b>{esc(a)}</b> &mdash; {esc(b)}</li>" for a, b in spec["assumptions"]) + "</ul>"
            if spec.get("assumptions") else "")
-    secs = zip(SECTIONS, [s1, s2, s3 or "<p>No problems found.</p>", s4, s5 or "<p>No workflows given.</p>", s6, s7, s8 or "<p>None.</p>"])
+    secs = zip(SECTIONS, [s1, s2, s3 or "<p>No problems found.</p>", s4, s5 or "<p>No workflows.</p>", s6, s7, s8 or "<p>None.</p>"])
     toc = "".join(f'<a href="#s{i}">{i + 1} {t}</a>' for i, t in enumerate(SECTIONS))
     secs_html = "".join(f'<section><h2 id="s{i}">{i + 1} {t}</h2>{h}</section>' for i, (t, h) in enumerate(secs))
     stamp = [spec.get("date") or datetime.now().strftime("%Y-%m-%d %H:%M")] + stamp + ([f"review {spec['review']}"] if spec.get("review") else [])
@@ -1150,6 +1153,7 @@ def items(spec):
     for k, m in enumerate(spec.get("migration", []), 1):
         out.append(f"migration {k}: rollback undoes it, stateful stores too; nothing it needs comes later #{tag([m, [picks.get(c) for c in m.get('changes', [])]])}")
     out.append("diagrams: every box and label matches the code or a change (no box marked changed that does not change)")
+    out.append("voice: reads as the architect's own; no chat or how the page was made; open points as facts ('not yet tested in production')")
     out.append("terms: technical terms exact (symmetric vs asymmetric keys, automatic vs manual switches); no dates or schedules without a source")
     return out
 

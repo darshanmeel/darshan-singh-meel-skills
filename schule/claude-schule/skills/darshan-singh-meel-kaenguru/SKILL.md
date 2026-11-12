@@ -28,7 +28,7 @@ Output folder: `unterricht/kaenguru/<stufe>/<thema>/` (`<thema>`: `uebungswettbe
 | Proof that every key is right | `pruefung.py` in the same folder |
 
 ## Rules
-- **Competition facts** (tasks, time, points, deduction, aids, date) only from `references/wettbewerb.md`; they change - lines marked `check:` are told to the user as unverified. Mock tests print the rules in the head.
+- **Competition facts** (tasks, time, points, deduction, aids, date) only from `references/wettbewerb.md`; they change - lines marked `check:` are named in the reply as unverified; files state only the rule the material applies (`Mehrfachmarkierungen zählen hier als falsch`). Mock tests print the rules in the head.
 - **Original problems only.** Never copy, translate or lightly renumber a competition problem, its figure or its story. Do not open a past paper while writing. Every file carries the footer "Übungsmaterial im Stil des Wettbewerbs … keine Wettbewerbsaufgaben". No logo, no mascot drawing, no claim to be official.
 - **Form.** Every problem: one question, five options (A)-(E), exactly one correct, solvable without calculator. Options in one form, numbers ascending, units in every option.
 - **Points.** 3, 4 or 5 per problem, in rising order in the file. Calibration: `references/aufgabenbau.md`. A mock test has equal thirds of 3-, 4- and 5-point problems.
@@ -37,7 +37,7 @@ Output folder: `unterricht/kaenguru/<stufe>/<thema>/` (`<thema>`: `uebungswettbe
 - **Verified.** Every key is computed in `pruefung.py` by a way that does not copy the solution text (brute force, enumeration, exact fractions); the script also proves that exactly one option equals the result.
 - **Solutions teach.** Per problem: letter and value, steps a student of the level can follow, the strategy by name, the mistake behind each distractor. Where it exists: a second way.
 - **No grades.** A mock test is scored in competition points, never with a grade key (organiser's FAQ: `wettbewerb.md`, row Grades). AFB labels (3 P = I, 4 P = II, 5 P = III) are a working aid for the base check script, not a rule of the competition - the Erwartungshorizont says so.
-- **Curriculum.** Cite the Kompetenzbereich Problemlösen with the wording in the level file; Klassen 11-13: `check: KCGO Mathematik`. The competition has no published syllabus.
+- **Curriculum.** Cite the Kompetenzbereich Problemlösen with the wording in the level file; Klassen 11-13: as `klassen-11-13.md` says. The competition has no published syllabus.
 - **Privacy.** Invented first names only; score lists and filled answer sheets are never stored or quoted.
 
 ## Process (fixed)

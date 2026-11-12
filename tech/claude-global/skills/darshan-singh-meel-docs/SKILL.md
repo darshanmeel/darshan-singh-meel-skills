@@ -5,7 +5,7 @@ description: Write diagram-first documentation (READMEs, code/repo explanations,
 
 # Docs
 
-Maximum information, minimum words. Write like a senior tech architect who can explain anything to anyone. Global rules in CLAUDE.md apply (local files only, relative paths, data handling).
+Maximum information, minimum words. Write like a senior tech architect who can explain anything to anyone, in the owner's voice (CLAUDE.md "Author voice in produced files"). Global rules in CLAUDE.md apply (local files only, relative paths, data handling).
 
 ## Step 0 — ask first (new docs only)
 Before reading sources or writing anything. Silent pre-check: does a graph exist (`./<repo>-knowledge-graph/` or `./.knowledge-graph` pointer), and does it list related repos / a system graph? Then **one AskUserQuestion call, headers and labels exactly as in this table**.
@@ -39,6 +39,7 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - **Last section of every document: "Known issues, assumptions, and decisions needed"** — the full detail behind the "Top issues" tab.
   - Sources: review reports, failing tests, the graph's `possible_issue` notes, conflicts ("Code vs docs"), and assumptions made while writing.
   - Every item labelled **Confirmed** (a review or test proved it) or **Not verified** (noticed, not checked). Never present unverified items as fact.
+  - Each item is a fact about the system, not a request to the reader: "Not yet tested in production", not "run this on prod to confirm".
   - **Overview:** max 5 bullets in plain words — what's affected and what it means for the reader (e.g. "Per-app cost figures may be overstated; total spend is correct"). No file paths, no fix details.
   - **Decisions needed** (any document, only if real): one line each — the decision, options, recommendation, and what happens if it waits (e.g. "Choose how agent cost is split: per reply (recommended) or per session — until then, agent splits differ by date range").
   - **Technical:** table `Issue | Where (path:line) | Impact | Status | Suggested fix (one line)`, then `Assumption | Why it matters`.
@@ -68,7 +69,7 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 **Technical** — engineers; real names and detail, incl. deploy & access
 - Real names: components, data flow, data model, configs, commands, failure modes, performance, security.
 - Diagrams: architecture, flows, ER, lineage, DAG. Examples as code, queries, commands, input → output.
-- **Deploy & access (always):** environments + deployment diagram · how to deploy and roll back (exact commands/CI steps) · prerequisites (tools, versions, config names — never values) · how to access (URLs, schemas, roles, how to request) · how to check it's healthy. If the source doesn't define something: "Not defined in source — confirm with owner".
+- **Deploy & access (always):** environments + deployment diagram · how to deploy and roll back (exact commands/CI steps) · prerequisites (tools, versions, config names — never values) · how to access (URLs, schemas, roles, how to request) · how to check it's healthy. If the source doesn't define something: "<item>: not documented yet — owner to decide", also listed under Decisions needed.
 - Decisions (what + why) and design risks (limitations go in the opening tabs).
 
 **User guide** — anyone who uses the app or its output, UI or not; task-based, plain steps
@@ -82,8 +83,8 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - **Diagram first, then bullets, then example.** Every document has at least one diagram.
 - **Simplest correct explanation wins.** Plain words; explain a needed term once ("idempotent (safe to rerun — same result)"); spell out acronyms in the Overview; an everyday analogy when it helps, never so simple it's wrong.
 - **Lead each section with the conclusion.** Concrete over abstract ("daily at 6 AM", not "periodic cadence").
-- **Accurate:** every name, number, command, and diagram matches the source. Never invent; if unsure, "unclear — verify".
-- **Architect voice:** state decisions, not deliberation (no estimates, discussion, rejected options, or version history). Cover the important 20%; name the folder for the rest (`other helpers: utils/`).
+- **Accurate:** every name, number, command, and diagram matches the source. Never invent; if unsure, state it as an open fact ("Retry count not yet verified") and list it in the last section.
+- **Architect voice:** state decisions in first person ("We load daily because…"), not deliberation (no estimates, discussion, rejected options, or version history). No trace of the chat or how the doc was made. Cover the important 20%; name the folder for the rest (`other helpers: utils/`).
 - **Only the major risks, assumptions, and gotchas** — the ones that could cause wrong data, outages, security problems, big cost, or a rewrite. Overview: max 3. Technical: max 5–10. Rank by impact.
 - **Banned:** intros/outros ("This document describes…", "In summary"), restating diagrams in prose, marketing words (robust, seamless, leverage), generic best-practice padding, emoji.
 - **No Other findings section inside a document** (the chat reply may have one) — anything worth noting goes in "Known issues, assumptions, and decisions needed" (last section).
@@ -130,7 +131,7 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 ## Formats
 - **HTML:** per `references/html-style.md` — light, flat, printable, all CSS/JS inline (no CDN), fully readable with JavaScript off.
 - **Markdown:** Mermaid diagrams (`sequenceDiagram`, `flowchart LR`, `erDiagram`), tables, tagged code blocks.
-- **Confluence:** storage-format XHTML; diagrams rendered locally to PNG/SVG in an assets folder and referenced as attachments; code and expand macros; no scripts. Finish with one line on how to import. Never upload yourself.
+- **Confluence:** storage-format XHTML; diagrams rendered locally to PNG/SVG in an assets folder and referenced as attachments; code and expand macros; no scripts. End the reply (not the file) with one line on how to import. Never upload yourself.
 - **Word / PDF:** only if explicitly asked; diagrams as images.
 - Several formats → identical content.
 
@@ -144,8 +145,8 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 1. Step 0 questions.
 2. Graph (if chosen) → else read sources with scripts first (CLAUDE.md data handling).
 3. Opus plans each document: sections, diagrams, examples.
-4. Build, then verify every name, number, command, and example against the source; render and screenshot every diagram (no renderer installed → ask once; if no, say "layout not visually checked").
-5. Trim: delete any bullet that isn't essential and any prose sentence left over.
+4. Build, then verify every name, number, command, and example against the source; render and screenshot every diagram (no renderer installed → ask once; if no, say "layout not visually checked" in the reply, not the document).
+5. Trim: delete any bullet that isn't essential and any prose sentence left over. Rewrite any chat leakage ("you said", "the user", "as discussed", "confirm with", "Claude", requests to the reader like "run on prod to confirm", notes on what was skipped, unchecked or asked) as the author's statement — a Should fix; Must if it misstates a fact or exposes private chat content.
 6. Read as the audience: Overview as a manager (no unexplained jargon) · Technical as a new engineer (could deploy and access from it alone) · User guide as a first-time user (every task doable without help).
 7. After a Technical doc is built, end the reply with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" — no other unprompted suggestions.
 

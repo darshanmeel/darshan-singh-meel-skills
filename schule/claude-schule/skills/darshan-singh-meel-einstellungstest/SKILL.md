@@ -16,7 +16,7 @@ Writes original practice material for the online tests employers use before an A
 
 ## Rules
 - **Original items only.** Never copy, translate or renumber an item from a provider, employer, book or training site. Pages are read for areas and formats, never for items. Every sheet carries the footer "Übungsmaterial … keine Originalaufgaben".
-- **Generic material.** No invitation, TAN, PIN, login, link with a token, applicant or recruiter name, test date or result of a person in any file or reply. If the user pastes such details, use only the target (occupation, sector, employer) and say that the rest was left out.
+- **Generic material.** No invitation, TAN, PIN, login, link with a token, applicant or recruiter name, test date or result of a person in any file or reply. If the user pastes such details, use only the target (occupation, sector, employer) and say in the reply that the rest was left out.
 - **Facts about tests** only from the pages read in job C (named in the output) or the verified table in `ziel.md`; anything unsure is `check: <page>`. Never state a pass mark, a provider's scoring or an item count as fact.
 - **Item form.** One question, exactly 4 options, exactly one correct (`answer` 0-3), solvable in `time_seconds` without calculator unless the item says one is allowed. Difficulty 1-3 mixed in every file; the correct index spread evenly over 0-3.
 - **Distractors.** Each wrong option is the result of one nameable mistake (`bereiche.md`, `aufgabenbau.md`). No filler.

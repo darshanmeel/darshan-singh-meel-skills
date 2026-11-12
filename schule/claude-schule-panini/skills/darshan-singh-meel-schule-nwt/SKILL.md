@@ -33,7 +33,7 @@ Folder: `unterricht/nawi-technik/<stufe>/<thema>/` · `jg09` · `jg10` · younge
    - Module: 3 fitting modules from `references/module.md` or free text.
    - Work form: Konstruktionsaufgabe mit Produkt (rec) · Experiment mit Auswertung · Recherche und Bewertung.
    - Material: Standard-Sammlung Physik (rec) · Baukasten/Mikrocontroller · only Alltagsmaterial.
-   - Ask school's NWT curriculum (module, year, hours) · none → module table, say so.
+   - Ask school's NWT curriculum (module, year, hours) · none → module table · Stundenentwurf states module + year as facts (`Modul der Schule: Mobilität - Fahrradgetriebe`, Jg. 9) · reply names table as basis.
 2. Read: `hessen-nwt.md` once · `module.md` (module) · `technik.md` always · physics `konventionen.md` (calculations), `experimente.md` (experiments), `animationen.md` (animations) · `begriffe.md`.
 3. Plan: base 5 lines + product/question · 3-5 measurable requirements · quantities with units, expected values · tools, materials, hazards · carrying subject + KC anchor · assessment (criteria → Vermerk).
 4. Create from base templates, DE line → EN line · practical work = double lesson (90 min), two Erarbeitung/Sicherung rounds.

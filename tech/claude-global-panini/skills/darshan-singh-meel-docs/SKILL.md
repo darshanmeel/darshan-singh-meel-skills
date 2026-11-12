@@ -4,7 +4,7 @@ description: Write diagram-first documentation (READMEs, code/repo explanations,
 ---
 
 # Docs
-Max information, min words. Senior architect who can explain anything to anyone. CLAUDE.md applies.
+Max information, min words. Senior architect who can explain anything to anyone, owner's voice (CLAUDE.md "Author voice"). CLAUDE.md applies.
 
 ## 0. Ask first (new docs only)
 Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-graph/` or `./.knowledge-graph` pointer)? related repos / `_combined`? Then one AskUserQuestion call, headers and labels exactly as in the table:
@@ -36,6 +36,7 @@ Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-grap
 - Last section of every document: **Known issues, assumptions, and decisions needed** — full detail behind the Top issues tab.
   - From: review reports, failing tests, graph `possible_issue` notes, Code-vs-docs conflicts, assumptions made while writing.
   - Each labelled **Confirmed** (review/test proved) or **Not verified**. Never unverified as fact.
+  - Each = fact about the system, never a request to the reader: "Not yet tested in production", not "run on prod to confirm".
   - Overview: ≤5 plain bullets — what's affected, what it means ("per-app cost may be overstated; total is correct"). No paths, no fixes.
   - Decisions needed (any document, only if real): decision · options · recommendation · what happens if it waits.
   - Technical: `Issue | Where (path:line) | Impact | Status | Suggested fix (1 line)` + `Assumption | Why it matters`.
@@ -60,7 +61,7 @@ Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-grap
 **Technical** — engineers
 - Real names: components, flow, data model, configs, commands, failure modes, performance, security.
 - Diagrams: architecture, flows, ER, lineage, DAG. Examples: code, queries, commands, input → output.
-- Deploy & access (always): environments + diagram · deploy and roll back (exact commands/CI) · prerequisites (names, never values) · access (URLs, schemas, roles, how to request) · health check. Not in source → "Not defined in source — confirm with owner".
+- Deploy & access (always): environments + diagram · deploy and roll back (exact commands/CI) · prerequisites (names, never values) · access (URLs, schemas, roles, how to request) · health check. Not in source → "<item>: not documented yet — owner to decide" + Decisions needed.
 - Decisions (what + why), design risks (limitations → opening tabs).
 
 **User guide** — anyone using the app or its output (UI, dashboard, report, CLI, API, data, files); skip only if just the builders
@@ -73,8 +74,8 @@ Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-grap
 - Diagram → bullets → example. ≥1 diagram per document.
 - Simplest correct explanation. Plain words; explain needed terms once ("idempotent (safe to rerun)"); spell out acronyms in Overview; analogy if it helps, never wrong.
 - Conclusion first. Concrete ("6 AM daily", not "periodic cadence").
-- Matches the source exactly. Never invent; unsure → "unclear — verify".
-- Decisions, not deliberation: no estimates, discussion, rejected options, history. Important 20%; name the folder for the rest.
+- Matches the source exactly. Never invent; unsure → open fact ("Retry count not yet verified") → last section.
+- Decisions in first person ("We load daily because…"), not deliberation: no estimates, discussion, rejected options, history. No trace of the chat or how the doc was made. Important 20%; name the folder for the rest.
 - Major risks/assumptions/gotchas only (wrong data, outage, security, big cost, rewrite), ranked. Overview ≤3, Technical ≤5–10.
 - Banned: intros/outros, restating diagrams, marketing words (robust, seamless, leverage), padding, emoji.
 - No Other findings section inside a document (chat reply may have one) — fold into Known issues, assumptions, and decisions needed (last).
@@ -114,9 +115,9 @@ Style, notation, components: `references/html-style.md` · working examples: `re
 ## Formats
 - HTML: html-style — light, flat, printable, inline CSS/JS, no CDN, readable with JS off.
 - Markdown: Mermaid (`sequenceDiagram`, `flowchart LR`, `erDiagram`), tables, tagged code.
-- Confluence: storage XHTML; diagrams rendered locally to PNG/SVG in an assets folder, attached; code/expand macros; no scripts; one line on import. Never upload.
+- Confluence: storage XHTML; diagrams rendered locally to PNG/SVG in an assets folder, attached; code/expand macros; no scripts; reply (not file) ends with one line on import. Never upload.
 - Word/PDF: only if asked; diagrams as images. Several formats → identical content.
 
 ## Models · process
 - Opus plans (diagrams, boxes, IN/OUT, examples) · Sonnet builds · Haiku renders, screenshots, lists layout problems. No subagents → tell user in one line which model.
-1. Ask (§0). 2. Graph if chosen, else sources via scripts (CLAUDE.md data handling). 3. Opus plans each document. 4. Build; verify every name, number, command, example against source; render and screenshot every diagram (no renderer → ask once; no → "layout not visually checked"). 5. Trim non-essential bullets, leftover prose. 6. Read as audience: manager (no unexplained jargon) · new engineer (could deploy and access alone) · first-time user (every task without help). 7. Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion.
+1. Ask (§0). 2. Graph if chosen, else sources via scripts (CLAUDE.md data handling). 3. Opus plans each document. 4. Build; verify every name, number, command, example against source; render and screenshot every diagram (no renderer → ask once; no → "layout not visually checked" in reply, not document). 5. Trim non-essential bullets, leftover prose · chat leakage ("you said" · "the user" · "as discussed" · "confirm with" · "Claude" · requests to the reader ("run on prod to confirm") · skipped/unchecked/asked notes) → author's statement; Should fix, Must if it misstates a fact or exposes private chat content. 6. Read as audience: manager (no unexplained jargon) · new engineer (could deploy and access alone) · first-time user (every task without help). 7. Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion.

@@ -12,10 +12,11 @@ Subject skills give content, KC and subject facts. This skill gives framework, f
 - Each task: one operator from the subject list + one AFB (I/II/III); `references/operatoren.md`.
 - German line, then the closest natural English line under it: same meaning, same order, not paraphrase, not word-for-word. Terms in `DE | EN` glossary. Deutsch texts under analysis and DaF target texts stay German; `references/bilingual.md`.
 - One answer space per task, after the DE+EN pair.
-- Original tasks only; never copy textbooks, Abitur, Vergleichsarbeiten, competitions. Source texts: public domain, user's own, or written for the task; say which.
+- Original tasks only; never copy textbooks, Abitur, Vergleichsarbeiten, competitions. Source texts: public domain, teacher's own, or written for the task; plain source line (`Quelle: eigener Text`).
 - Privacy: no real student names, grades, photos, class lists. Name fields blank; example persons invented first names; reviews never quote student data.
 - One self-contained HTML per output: inline CSS/SVG/JS, no CDN/external images/fonts, A4 print CSS. Use the template; never restyle.
-- Rule facts (number of Klassenarbeiten, durations, grade keys) only from `references/bewertung.md`. `check:` lines are unverified: tell the user. Schulkonferenz/Fachkonferenz decisions override defaults; ask if relevant.
+- Rule facts (number of Klassenarbeiten, durations, grade keys) only from `references/bewertung.md`. `check:` lines are unverified → tell the user in the reply. Schulkonferenz/Fachkonferenz decisions override defaults; ask if relevant.
+- Author voice (global rule): material = written by the teacher · student text addresses students · Lehrkraft notes in the teacher's voice · never the chat, the request, how it was made · open point = fact (`Notenschlüssel nach Fachkonferenzbeschluss`), not a note to the requester.
 - Animation only when steps or motion explain better than a still (process, movement, construction, change over time); else labelled figure in `erklaerung.html`.
 
 ## Output
@@ -35,7 +36,7 @@ unterricht/<fach>/<stufe>/<thema>/
 - Reply paths relative to project root. Reviews: `reviews/<skill>-<YYYY-MM-DD-HHMM>.md`; add `/reviews/` to `.gitignore` on first creation.
 
 ## Process
-1. Setup: one AskUserQuestion, recommended first, skip what is already said, >4 → second prompt. No answer → recommended, say which.
+1. Setup: one AskUserQuestion, recommended first, skip what is already said, >4 → second prompt. No answer → recommended, say which in the reply.
    | # | Question | Options |
    |---|---|---|
    | 1 | Fach, Jahrgang/Kurs | from request; Oberstufe E, Q1-Q4, GK/LK |

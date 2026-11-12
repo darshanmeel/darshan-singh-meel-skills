@@ -48,4 +48,4 @@ Official docs: docs.snowflake.com/en/developer-guide/streamlit/ — unsure → c
 - Push work to SQL; cache query results with a `ttl`. Container runtime shares the cache across viewers → never cache per-user data there without session scope.
 - Dedicated small query warehouse, short auto-suspend; small compute pool, auto-suspend (`cost.md`).
 - Pin every package; version change → redeploy.
-- Ref marks "not verified" → say so, or check the docs first; never state as fact.
+- Ref marks "not verified" → say so, or check the docs first; never state as fact · in files: fact about the app ("Not yet tested on the container runtime"), not a note to the reader.

@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-architecture
-description: Architecture review of a repo from its knowledge graph - the current architecture, problems with path:line evidence, a proposed target built per component (keep / move / later, hybrid by default) from a kind-specific catalogue of moves (e.g. PySpark or pandas doing SQL work → Spark SQL, dbt or DuckDB; ADF or cron chains → Airflow or the platform's jobs; per-env infra copies → Terraform modules), each row with one recommended tool plus 2-3 alternatives the user can ask for instead (keep and later rows too), the target in Technical-doc shape (components, main flows, data model, configuration, security, deploy, operations, tests), current-vs-proposed workflow traces, impact on cost, performance, maintenance and tech debt, and an ordered migration - one HTML page from a JSON spec. Use only when the user asks for an architecture review, a target or better architecture, a redesign or modernisation, "is there a better way to do this", or accepts the offer made after a Technical doc; also "use <alternative> instead" on an existing review.
+description: Architecture review of a repo from its knowledge graph - the current architecture, problems with path:line evidence, a proposed target built per component (keep / move / later, hybrid by default) from a kind-specific catalogue of moves (e.g. PySpark or pandas doing SQL work → Spark SQL, dbt or DuckDB; ADF or cron chains → Airflow or the platform's jobs; per-env infra copies → Terraform modules), each row with one recommended tool plus 2-3 alternatives on every row, the target in Technical-doc shape (components, main flows, data model, configuration, security, deploy, operations, tests), current-vs-proposed workflow traces, impact on cost, performance, maintenance and tech debt, and an ordered migration - one HTML page from a JSON spec. Use only when the user asks for an architecture review, a target or better architecture, a redesign or modernisation, "is there a better way to do this", or accepts the offer made after a Technical doc; also "use <alternative> instead" on an existing review.
 ---
 
 # Architecture review
@@ -9,7 +9,7 @@ Current → problems → keep/move/later → target → workflows → impact →
 - Each word = fact or insight. Lists + diagrams; no prose tables (only keep/move/later · Impact · traces · docs-v2 row blocks).
 - Input → Process → Output, output per step: target Main flows (4) = strips + `why`; workflows (5) = one trace current vs proposed.
 - Each claim = `path:line` · `facts.json` fact · `estimate` + assumption.
-- CLAUDE.md applies (local only · relative paths · no secret files · no data rows).
+- CLAUDE.md applies (local only · relative paths · no secret files · no data rows · author voice: page = architect's own, open points as facts, no chat).
 - `<skill>` = this folder; `<docs-v2>` = sibling `darshan-singh-meel-docs-v2`. Fields, ERROR/WARN → `references/spec.md`. Moves → `references/patterns.md`.
 
 ## Step 0 — ask
@@ -31,7 +31,7 @@ One prompt (skip what user said this session):
 10. Impact (Opus): per change · cost · performance · maintenance · tech debt · risk.
 11. Migration (Opus): High fixes first → quick wins · effort · risk · rollback.
 12. Build (Sonnet): `mkdir -p generated-docs/_spec` → `python <skill>/references/templates/build.py generated-docs/_spec/architecture.json generated-docs/architecture.html` → fix all ERROR + WARN.
-13. Accuracy + feasibility (Opus): `build.py --checklist <spec>` → open each item, fix spec, tick `- [x]` → rebuild → "Accuracy: N of N checked".
+13. Accuracy + feasibility + voice (Opus): `build.py --checklist <spec>` → open each item, fix spec, tick `- [x]` → rebuild → "Accuracy: N of N checked".
 14. Layout (Haiku): `<docs-v2>/references/templates/check.py <html> generated-docs/_spec/shots` (1280 + 390 px) → 0 LAYOUT; `<skill>/references/templates/shots.py <html> generated-docs/_spec/shots` → read every `map-<n>.png`, `s1…s8.png`, `p1…p8.png`.
 - Done = 0 ERROR · 0 WARN · 0 LAYOUT · checklist ticked · shots read. Else reply names what is missing ("accuracy not reviewed", "layout not checked"), never "done".
 - No subagents unless asked: 13 = own separate pass; tell user model per phase, one line.

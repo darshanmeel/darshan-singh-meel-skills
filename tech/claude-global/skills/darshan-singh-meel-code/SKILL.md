@@ -58,7 +58,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - No wrappers, managers, factories, or interfaces with a single use.
 - No defensive checks for impossible cases; no try/except around code that can't fail.
 - No unrequested logging, prints, or boilerplate.
-- No comments or docstrings that restate the code; comments only explain *why*. No comments addressed to the user.
+- No comments or docstrings that restate the code; comments only explain *why*. Comments, docstrings, commit and PR messages describe the code, never the chat: no "as requested", "per user", "as discussed", "Claude added".
 - No placeholders, TODOs, "example usage" blocks, commented-out code, or unused parameters.
 - No new README, docs, or summary files unless asked.
 

@@ -13,7 +13,7 @@ Load `darshan-singh-meel-schule` first: owns formats, templates, folder, languag
 - Out: `unterricht/mathematik/<stufe>/<thema>/`, `<stufe>` = `jg03` · `jg06` · `e` · `q1-gk` · `q3-lk`.
 
 ## Rules
-- Curriculum: cite per level reference (Kompetenzbereich + Kompetenzerwartung + stage + Inhaltsfeld; Oberstufe: Kurshalbjahr.Themenfeld + GK/LK + code). KC fixes stages, not years → year from school curriculum or reference placement, say so. LK content never in GK material.
+- Curriculum: cite per level reference (Kompetenzbereich + Kompetenzerwartung + stage + Inhaltsfeld; Oberstufe: Kurshalbjahr.Themenfeld + GK/LK + code). KC fixes stages, not years → year from school curriculum or reference placement → placement stated in Stundenentwurf as fact. LK content never in GK material.
 - Every task solved twice, every answer checked: second way confirms; each solution element with `data-aufgabe` has `data-check` recomputing the answer, ≥1 expression puts the answer back into the given data; `scripts/check_rechnung.py` passes. Task not clean → rewrite the task, not the solution.
 - Numbers fit level and goal: inside the year's Zahlenraum · by-hand results clean · calculator tasks state rounding · realistic sizes with units · build backwards from the result → `konventionen.md`.
 - Notation: German in German lines and formulas (`,` · `·` · `:` · `P(2|3)` · `[a; b]`); English sentence → decimal point, also in formulas inside it, nothing else changes; formula-only line once, German notation. Formulas MathML/plain HTML, never images or script libs.

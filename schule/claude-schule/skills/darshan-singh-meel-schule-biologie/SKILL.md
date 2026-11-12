@@ -19,7 +19,7 @@ Output folder: `unterricht/biologie/<stufe>/<thema>/`. Not covered: Grundschule 
 ## Rules
 - **KC citation.** Sek I: Kompetenzbereich + Teilbereich + Kompetenzerwartung (stage: Ende Jg. 6 or Ende Jg. 9/10) + Inhaltsfeld. Oberstufe: Bildungsstandard with code (`S 7`, `E 4`, `K 9`, `B 8`) + `<Kurshalbjahr>.<Nr> <Themenfeld>` + GK or LK. Wording only from `references/sek1.md` / `references/oberstufe.md`; anything else: `check: <KC PDF>`.
 - **GK never gets LK-only content** (erhöhtes Niveau). LK material may use both.
-- **Sek I has no year-by-year plan** in the KC (only "Jg. 5/6" and "bis Ende Jg. 9/10"). The year comes from the school's Fachcurriculum: ask, or place by stage and say so.
+- **Sek I has no year-by-year plan** in the KC (only "Jg. 5/6" and "bis Ende Jg. 9/10"). The year comes from the school's Fachcurriculum: ask, or place by stage and state the placement in the Stundenentwurf as a fact.
 - **System levels named.** Every explanation says on which level it argues (Molekül, Zelle, Gewebe, Organ, Organismus, Population, Ökosystem) and marks a change of level.
 - **Causal, not final.** No purpose wording for evolution or physiology (`damit`, `um zu`, "die Giraffe will ...", "die Natur hat ..."). Proximate and ultimate causes are kept apart (KCGO K 7, K 8).
 - **Model is not reality.** Every model, scheme and animation is labelled as a model, with one limit named from Jg. 9 on.

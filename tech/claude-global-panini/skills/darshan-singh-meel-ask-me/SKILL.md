@@ -34,3 +34,4 @@ Verify by: <tests/checks>
 Open risks: <if any>
 ```
 "Good to start?" (user already said go → skip; show plan, start) → build with `darshan-singh-meel-code`.
+- Plan into a file (design doc · ticket · `NOTES.md`) → owner's voice (CLAUDE.md "Author voice"): defaults → decisions ("We use a 3-day lookback") · risks → facts ("Not yet tested on production volumes") · no reference to the interview.

@@ -9,7 +9,7 @@ Checks · severity · discipline · data stack → **`darshan-singh-meel-review`
 Optional: docs-v2 (diagrams, layout check), knowledge graph (impact). Missing → from code; no git · tests · linters → notes, never failures.
 
 ## Process
-1. Setup = review step 0. Recs: unused files → large Yes · change No (still flag code the change made unused). Graph (large): built at HEAD / no source change since → Use as is; else Update first; record as review skill. `.knowledge-graph` may point outside repo → use it. No answer → as is, say so in `scope.reviewed`.
+1. Setup = review step 0. Recs: unused files → large Yes · change No (still flag code the change made unused). Graph (large): built at HEAD / no source change since → Use as is; else Update first; record as review skill. `.knowledge-graph` may point outside repo → use it. No answer → as is; `scope.reviewed` names graph commit (fact, not the unanswered question).
 2. Goal: PR · commit · ask. Whole repo → what it's for.
 3. Review = review steps 2–4; no graph → code search. Secret files: path only, never opened.
    - No tests/linters → `["tests", "none in repo"]`. Deps missing → scratch venv if minutes; else `not run (deps missing)`. Same npm/tsc.
@@ -39,5 +39,5 @@ Optional: docs-v2 (diagrams, layout check), knowledge graph (impact). Missing �
 - Summary fix = `fix`, same words.
 - Secrets: never the value. Key + `path:line`, value `<redacted>`.
 - Perf: grows with one user's data → Should; all rows/users/tenants → Must.
-- Unsure → Questions. No praise, no code summary.
+- Unsure → Questions. No praise, no code summary. May address reader; never quote the chat.
 - Verdict: Must → Request changes · Should → Approve with changes · none → Approve.

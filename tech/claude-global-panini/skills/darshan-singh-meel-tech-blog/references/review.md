@@ -11,17 +11,17 @@ Used by `darshan-singh-meel-tech-blog-review` (all columns) and by step 10 of th
 | 5 | Title honesty | title, description and summary promise exactly what the post delivers: same scope, same tool and version, same strength ("faster" needs the number; "how to" needs working steps; "why" needs the cause) | the title promises something the post does not deliver |
 | 6 | Structure | summary gives the answer; headings state points and work as an outline alone; order follows the reader's need; one point per section; prerequisites with versions; limits section; `Takeaways` are rules, with nothing new | no summary or no takeaways; a reader cannot find the steps; sections in an order that breaks understanding |
 | 7 | Clarity for the reader | terms defined for the reader in the brief and used consistently; no step assumes unstated knowledge; no ambiguous "this/it"; each code block introduced and its output explained; nothing explained that this reader already knows at length | the stated reader cannot follow a required step |
-| 8 | Style and slop | `style.md`: active voice, second person, present tense; no hype, filler, scene-setting, announcing, false contrasts, recap endings; adjectives backed by facts; sentence and paragraph length; no exclamation marks, emoji, em-dash chains | hype or filler in title, summary or takeaways; a `BANNED` phrase anywhere |
+| 8 | Style and slop | `style.md`: active voice, second person, present tense; no hype, filler, scene-setting, announcing, false contrasts, recap endings; adjectives backed by facts; sentence and paragraph length; no exclamation marks, emoji, em-dash chains; author's voice: no trace of the drafting chat ("as discussed", "as you requested", "the user", "Claude", open points addressed to a requester), open points stated as facts ("not tested on PostgreSQL yet") | hype or filler in title, summary or takeaways; a `BANNED` phrase anywhere |
 | 9 | Length fit | word count within the brief's range; each section's length matches its weight for the thesis; nothing padded, nothing essential missing; code share fits the type | more than 25 % outside the range without a reason |
 | 10 | Figures | each figure explains something prose could not do shorter; referred to in the text; same names as text and code; renders; readable; alt text or a caption sentence states the content; no fact only in the figure | a figure shows something false or contradicts the text; a figure does not render |
 | 11 | Links and form | front matter and brief complete; slug rule; descriptive link text; no dead local targets; fence languages; code wrapped at 80; no placeholders; no machine paths; HTML (if any) self-contained and equal to the Markdown | placeholder left; dead local target; HTML differs from the Markdown |
-| 12 | Originality and privacy | no copied passages, code or figures beyond a short quoted line with a link; no employer, client, colleague or internal system names; synthetic examples | copied protected content; private or confidential information |
+| 12 | Originality and privacy | no copied passages, code or figures beyond a short quoted line with a link; no employer, client, colleague or internal system names; synthetic examples | copied protected content; private or confidential information, including content from the drafting chat |
 
 ## Severity
 | Level | Meaning |
 |---|---|
 | Must | wrong, not reproducible, misleading, unsafe, or breaks a "Must when" above - fix before publishing |
-| Should | correct but weakens the post: unclear, padded, off-style, weak structure |
+| Should | correct but weakens the post: unclear, padded, off-style, weak structure, a trace of the drafting chat (Must when it misstates a fact or exposes private chat content) |
 | Other | optional polish; at most 5, only if worth knowing |
 
 - Every finding: place (line or heading, quoted words) · what · why · fix (the rewritten sentence, the corrected value, the missing step).
