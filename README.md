@@ -31,6 +31,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `review-v2` | Code review with a fixed HTML report from a JSON spec: main review, then a detailed section per file with Must/Should findings, diagrams only where they help |
 | `docs` | Diagram-first docs (v1): READMEs, KT, design docs, user guides, runbooks |
 | `docs-v2` | Docs from any repo's knowledge graph: fixed inventory → plan → builder + checks; same structure every run |
+| `docs-tech-summary` | Mid-depth tech summary for engineers and tech leads (~10 min read): components, main flows, data model, integrations, stack, deploy, security, run locally, top risks; one HTML page from a JSON spec with a depth budget |
 | `architecture` | Architecture review: current, problems, per-component keep/move/later target (Technical-doc shape), each pick with 2–3 alternatives, workflows, impact on cost/performance/maintenance/tech debt, migration; on request or offered after a Technical doc |
 | `requirements-brief` | Requirements brief: pasted requirements, epics and data → one HTML page with SVG (context, traceable requirements, per-source data points, linking, flows, data findings, tech options per need with the given stack kept, what needs to be done, gaps and risks); `requirements-brief-review` re-reads the inputs and checks it |
 | `tech-blog` | English technical blog posts: thesis, outline, every code snippet run, claims from official docs; `tech-blog-review` checks them |

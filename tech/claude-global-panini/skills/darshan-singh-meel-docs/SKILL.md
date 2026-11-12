@@ -1,10 +1,11 @@
 ---
 name: darshan-singh-meel-docs
-description: Write diagram-first documentation (READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, summaries of PDFs/Word/slides). ALWAYS starts new docs by asking 4 questions in one prompt — which documents (Overview, Technical, User guide), format (HTML, Markdown, or Confluence), whether to build/update the knowledge graph first, and where example data comes from — then writes one self-contained file per document to ./generated-docs/ (refreshing existing docs after a change needs no questions). Use when asked to document, explain, or write up code, a repo, or a document. Not for requirements briefs (a brief from pasted requirements, epics, source tables → darshan-singh-meel-requirements-brief).
+description: Write diagram-first documentation (READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, summaries of PDFs/Word/slides). ALWAYS starts new docs by asking 4 questions in one prompt — which documents (Overview, Technical, User guide), format (HTML, Markdown, or Confluence), whether to build/update the knowledge graph first, and where example data comes from — then writes one self-contained file per document to ./generated-docs/ (refreshing existing docs after a change needs no questions). Use when asked to document, explain, or write up code, a repo, or a document. Not for requirements briefs (a brief from pasted requirements, epics, source tables → darshan-singh-meel-requirements-brief) or a mid-depth tech summary for engineers and tech leads (→ darshan-singh-meel-docs-tech-summary).
 ---
 
 # Docs
 Max information, min words. Senior architect who can explain anything to anyone, owner's voice (CLAUDE.md "Author voice"). CLAUDE.md applies.
+- Not for / see: mid-depth tech summary (engineers, tech leads, 10–15 min) → `darshan-singh-meel-docs-tech-summary` · requirements brief → `darshan-singh-meel-requirements-brief` · architecture review → `darshan-singh-meel-architecture`.
 
 ## 0. Ask first (new docs only)
 Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-graph/` or `./.knowledge-graph` pointer)? related repos / `_combined`? Then one AskUserQuestion call, headers and labels exactly as in the table:
@@ -14,6 +15,7 @@ Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-grap
 | Q2 | Format | Which format? | yes | HTML (rec) · Markdown · Confluence |
 | Q3 | Graph | Use the knowledge graph? | no | Exists: Update, then document from it (rec) · As is · Skip. None: Build first (rec) · Skip |
 | Q4 | Examples | Example data from? | no | Tests and docs, then code (rec) · I'll point to a folder · Illustrative |
+- Tech summary ∉ Q1: asked for (or Q1 "Other: tech summary") → `darshan-singh-meel-docs-tech-summary`, its own setup questions.
 - All 4 asked unless answered = user said it in own words this session. From the graph skill's docs prompt: Documents, Format, Graph ("As is") answered → ask only Examples. Recommendations, defaults, CLAUDE.md, skill text are never answers; HTML is only rec.
 - Self-check before writing any file: Documents, Format, Graph, Examples each asked or explicitly answered? No → stop, ask.
 

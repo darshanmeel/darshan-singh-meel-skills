@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-docs-v2
-description: Docs v2 — darshan-singh-meel-docs on a fixed pipeline: shipped inventory script plans from the knowledge graph (inventory.json), fixed builder renders HTML from a JSON spec (fixed sections, typed tables, diagram ids/titles, required examples), fixed workflow → same code, same-looking docs. Any repo kind (pipelines, dbt, web APIs, UIs, CLIs, libraries, Terraform, ML/streaming, config/docs, monorepos). Only when the user asks for docs v2 / darshan-singh-meel-docs-v2: diagram-first READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, PDF/Word/slide summaries. New docs → ALWAYS 4 questions in one prompt (documents Overview/Technical/User guide · format HTML/Markdown/Confluence · graph first · example source) → one self-contained file per document in ./generated-docs/; refresh after a change → no questions.
+description: Docs v2 — darshan-singh-meel-docs on a fixed pipeline — shipped inventory script plans from the knowledge graph (inventory.json), fixed builder renders HTML from a JSON spec (fixed sections, typed tables, diagram ids/titles, required examples), fixed workflow → same code, same-looking docs. Any repo kind (pipelines, dbt, web APIs, UIs, CLIs, libraries, Terraform, ML/streaming, config/docs, monorepos). Only when the user asks for docs v2 / darshan-singh-meel-docs-v2 — diagram-first READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, PDF/Word/slide summaries. New docs → ALWAYS 4 questions in one prompt (documents Overview/Technical/User guide · format HTML/Markdown/Confluence · graph first · example source) → one self-contained file per document in ./generated-docs/; refresh after a change → no questions. Not for a mid-depth tech summary (→ darshan-singh-meel-docs-tech-summary).
 ---
 
 # Docs v2
@@ -8,6 +8,7 @@ Max info, min words; senior architect, anyone follows.
 - Show (diagrams · tables · bullets · examples), no prose; numbers + names over prose.
 - Each word = fact or insight (what · how · why · number · name · consequence); no word target, cut only empty words. **Each fact once, where the reader looks** (build WARNs `repeat:`, cells down a column too). Cut filler (repeated cells · placeholder rows · constant columns · restatements); add insight: why a step/rule exists · what breaks if it fails · for whom (step `why`, rule Why / impact). Section lead = its main insight, never the heading again. Section → what · how · why (+ who · when · where). Global CLAUDE.md applies.
 - Exact rules · fields · columns · titles · ERROR/WARN → `references/templates/spec.md`; build enforces.
+- Not for / see: mid-depth tech summary (engineers, tech leads, 10–15 min) → `darshan-singh-meel-docs-tech-summary`.
 - **`<skill>`** = this folder. Its scripts only, never a repo copy (WARN `inventory.json was written by templates X`).
 
 ## Step 0 — ask, always
@@ -24,6 +25,7 @@ AskUserQuestion(questions=[
  {header:"Examples", question:"Where should example data come from?", multiSelect:false,
   options:["Tests and docs, then derived from code (Recommended)","I'll point to a folder or file","Illustrative data"]}])
 ```
+- Tech summary ∉ Documents: asked for (or "Other: tech summary") → `darshan-singh-meel-docs-tech-summary`, its own setup questions.
 - Answer = user's words this session, never defaults · recs · CLAUDE.md · skill text; self-check before any file.
 - Single doc <~30 pages → "Skip, read the document directly" first.
 - Related repos → next: **Scope** (multi) This repo (rec) · Whole system · Each related repo.

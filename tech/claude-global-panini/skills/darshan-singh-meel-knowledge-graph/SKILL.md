@@ -75,7 +75,7 @@ Reference data: complete coverage, short summaries — every function, query, mo
   - Other skills' graph setup answers → update first `--choice now` · as is `--choice skip`.
 - Docs question: only after graph update finished; never with graph question, never mid-task (end of next reply). Worklist `docs_ask` true → one AskUserQuestion: `Graph updated (<one-line summary>). Update the docs that cover the changes: <worklist docs>?` Update now in background (rec) · Later · No.
   - Docs = tagged `darshan-singh-meel-docs` (v1/v2) or in marker folder, in `generated-docs/` (or shared, §8), citing changed lines/files/nodes or naming removed/changed things (`_spec/` excluded). Collect in `docs_pending` until refreshed.
-  - Update now → background agent, docs skill, those docs only, no questions (docs-v2: own refresh steps) → `update.py --docs done` (`--docs done <doc> …` for some). One line when done.
+  - Update now → background agent, docs skill, those docs only, no questions (docs-v2: own refresh steps; `tech-summary.*` → `darshan-singh-meel-docs-tech-summary` Updating) → `update.py --docs done` (`--docs done <doc> …` for some). One line when done.
   - Later → `--docs later` (ask after next graph update) · No → `--docs no` (ask only when an update adds docs). Both keep the note.
   - Docs built/refreshed in this task anyway → no docs question; `--docs done` after.
 - Staleness note (`say` = `note`): `update.py --status` line, one line in Other findings, every repo reply. No question, never blocks; stops once updated.

@@ -114,7 +114,7 @@ Reference data, not a deliverable: **complete coverage, short summaries.** Captu
 **Docs question:** only after a graph update finished, never with the graph question, never mid-task (end of the next reply). Worklist `docs_ask` true → one AskUserQuestion:
 `Graph updated (<one-line summary>). Update the docs that cover the changes: <worklist docs>?` Update now in background (Recommended) · Later · No.
 - Docs = files tagged `darshan-singh-meel-docs` (v1 or v2), or in a folder with the `.generated-by-darshan-singh-meel-docs` marker, in this repo's `generated-docs/` (or the shared one, section 8), that cite changed lines, files or nodes, or name removed or changed things (`_spec/` excluded). They collect in `docs_pending` until refreshed.
-- **Update now** → background agent runs the docs skill on those docs only (same documents and formats, no setup questions; docs-v2 uses its own refresh steps), then `update.py --docs done` (`--docs done <doc> …` for some only). One line when done.
+- **Update now** → background agent runs the docs skill on those docs only (same documents and formats, no setup questions; docs-v2 uses its own refresh steps; a `tech-summary.*` doc goes to `darshan-singh-meel-docs-tech-summary`, section Updating), then `update.py --docs done` (`--docs done <doc> …` for some only). One line when done.
 - **Later** → `--docs later`: asked again after the next graph update. **No** → `--docs no`: asked again only when an update adds docs. Both keep the note.
 - Docs built or refreshed in this task anyway → no docs question; `--docs done` after.
 

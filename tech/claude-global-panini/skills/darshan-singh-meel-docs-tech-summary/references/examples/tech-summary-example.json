@@ -1,0 +1,239 @@
+{
+  "title": "parcel-tracker: tech summary",
+  "date": "2026-11-12",
+  "subtitle": "Python 3.12 · FastAPI and Celery on AWS ECS · staff orders and carrier events → labels, parcel status, emails",
+  "commit": "a1b2c3d",
+  "graph": "knowledge graph at a1b2c3d",
+  "sections": {
+    "At a glance": {
+      "lead": "One API, one worker and one database: staff create shipments in the web app, the worker keeps parcel status current from the carriers.",
+      "blocks": [
+        {"type": "facts", "rows": [
+          ["What", "Creates shipments, prints labels and tracks parcels across carriers"],
+          ["Stack", "Python 3.12 · FastAPI · Celery · PostgreSQL 16 · Redis 7 · React 18"],
+          ["Runs on", "AWS ECS Fargate in `eu-central-1`; staging and production"],
+          ["Schedule", "API on demand; carrier poll every 10 min"],
+          ["In → out", "staff orders, carrier events → label PDFs, parcel status, customer emails"],
+          ["Owner", "Logistics platform team"]
+        ]},
+        {"type": "scope",
+         "does": ["Creates shipments and A6 label PDFs", "Tracks parcel status from carrier APIs", "Emails customers on delivery or exception"],
+         "doesnt": ["Manage orders: the shop system owns them", "Handle returns or refunds", "Bill carriers"],
+         "limits": ["Status lags the carrier by up to 10 min", "Up to 20 parcels per shipment", "Labels in one format: A6 PDF"]},
+        {"type": "rules", "rows": [
+          {"rule": "A shipment cannot change once its label exists; staff cancel and recreate it.", "where": "api/services/shipments.py:77"},
+          {"rule": "A parcel status only moves forward; an older carrier event never overwrites a newer one.", "where": "worker/tasks/poll.py:58"}
+        ]}
+      ]
+    },
+    "Components": {
+      "lead": "Six runtime parts; the API and the worker share one PostgreSQL database and talk through a Redis queue.",
+      "blocks": [
+        {"type": "flow", "title": "Runtime components", "key": "Grey fill = data store · dashed border = external system · pill = person",
+         "nodes": [
+           {"id": "staff", "label": "Shop staff", "kind": "actor", "col": 0, "row": 0},
+           {"id": "web", "label": "web", "sub": "React SPA", "col": 1, "row": 0},
+           {"id": "api", "label": "api", "sub": "FastAPI", "kind": "entry", "col": 2, "row": 0},
+           {"id": "redis", "label": "redis", "sub": "Celery broker", "kind": "store", "col": 3, "row": 0},
+           {"id": "labels", "label": "labels bucket", "sub": "S3", "kind": "store", "col": 1, "row": 1},
+           {"id": "pg", "label": "postgres", "sub": "RDS PostgreSQL 16", "kind": "store", "col": 2, "row": 1},
+           {"id": "worker", "label": "worker", "sub": "Celery worker + beat", "kind": "job", "col": 3, "row": 1},
+           {"id": "email", "label": "Email service", "sub": "SMTP relay", "kind": "external", "col": 2, "row": 2},
+           {"id": "carrier", "label": "Carrier tracking APIs", "kind": "external", "col": 3, "row": 2}
+         ],
+         "edges": [
+           {"from": "staff", "to": "web", "label": "browser"},
+           {"from": "web", "to": "api", "label": "REST /v1"},
+           {"from": "api", "to": "redis", "label": "enqueue"},
+           {"from": "api", "to": "labels", "label": "PDF"},
+           {"from": "api", "to": "pg", "label": "SQL"},
+           {"from": "redis", "to": "worker", "label": "jobs"},
+           {"from": "worker", "to": "pg", "label": "events"},
+           {"from": "worker", "to": "email", "label": "notify"},
+           {"from": "worker", "to": "carrier", "label": "poll"}
+         ]},
+        {"type": "components", "rows": [
+          {"name": "web", "does": "Shipment forms, label download, parcel timeline", "tech": "React 18, Vite", "where": "web/src/"},
+          {"name": "api", "does": "REST API, sign-in, label rendering; the only writer of shipments", "tech": "FastAPI, SQLAlchemy 2", "where": "api/"},
+          {"name": "worker", "does": "Polls carriers, stores tracking events, sends emails", "tech": "Celery 5 with beat", "where": "worker/"},
+          {"name": "postgres", "does": "Shipments, parcels, tracking events, users", "tech": "PostgreSQL 16 on RDS", "where": "api/db/"},
+          {"name": "redis", "does": "Job queue between api and worker; no business data", "tech": "Redis 7 on ElastiCache", "where": "worker/app.py"},
+          {"name": "labels bucket", "does": "Label PDFs, read through presigned URLs", "tech": "S3, SSE-S3", "where": "infra/storage/"}
+        ]}
+      ]
+    },
+    "Main flows": {
+      "lead": "Three flows cover what a new engineer meets first: creating a shipment, tracking it, and signing in.",
+      "blocks": [
+        {"type": "seq", "title": "Create a shipment and its label",
+         "why": "The label must exist before staff leave the form: the carrier pickup scan needs it.",
+         "participants": [
+           {"id": "web", "label": "web"}, {"id": "api", "label": "api"},
+           {"id": "pg", "label": "postgres", "kind": "store"}, {"id": "labels", "label": "labels bucket", "kind": "store"}],
+         "steps": [
+           {"from": "web", "to": "api", "do": "POST /v1/shipments", "out": "validated order and address", "where": "api/routes/shipments.py:28",
+            "alt": "422 with the failing fields"},
+           {"from": "api", "to": "pg", "do": "insert shipment, status CREATED", "out": "`shipments` row and its parcels", "where": "api/services/shipments.py:41"},
+           {"from": "api", "to": "labels", "do": "render and store label PDF", "out": "`labels/SHP-1042.pdf`", "where": "api/services/labels.py:17"},
+           {"from": "api", "to": "web", "do": "return shipment and label URL", "out": "201, presigned URL valid 15 min", "back": true}
+         ],
+         "example": {"in": "POST /v1/shipments\n{\"carrier\": \"CX\", \"parcels\": [{\"weight_g\": 1200}],\n \"to\": {\"postcode\": \"10115\", \"country\": \"DE\"}}",
+                     "out": "201 Created\n{\"id\": \"SHP-1042\", \"status\": \"CREATED\",\n \"label_url\": \"https://<bucket>/labels/SHP-1042.pdf?X-Amz-Expires=900\"}",
+                     "source": "from tests/api/test_shipments.py::test_create_shipment (synthetic values)"}},
+        {"type": "seq", "title": "Track parcel status",
+         "why": "We poll every 10 minutes because two of the three carriers offer no webhooks.",
+         "participants": [
+           {"id": "redis", "label": "redis", "kind": "store"}, {"id": "worker", "label": "worker", "kind": "job"},
+           {"id": "carrier", "label": "Carrier tracking APIs", "kind": "external"}, {"id": "pg", "label": "postgres", "kind": "store"},
+           {"id": "email", "label": "Email service", "kind": "external"}],
+         "steps": [
+           {"from": "worker", "to": "redis", "do": "beat enqueues poll_active every 10 min", "out": "one job per carrier", "where": "worker/schedules.py:9"},
+           {"from": "redis", "to": "worker", "do": "deliver poll job", "out": "carrier code and cursor", "back": true},
+           {"from": "worker", "to": "carrier", "do": "fetch events since cursor", "out": "new tracking events", "where": "worker/carriers/client.py:34",
+            "alt": "429 → retry with backoff, at most 5 times"},
+           {"from": "worker", "to": "pg", "do": "upsert events, update parcel status", "out": "`tracking_events` rows, new `parcels.status`", "where": "worker/tasks/poll.py:52"},
+           {"from": "worker", "to": "email", "do": "notify on DELIVERED or EXCEPTION", "out": "one email per status change", "where": "worker/tasks/notify.py:21"}
+         ],
+         "example": {"in": "carrier event\n{\"tracking_no\": \"CX123456789\", \"code\": \"DLV\",\n \"at\": \"2026-03-02T14:05:00Z\"}",
+                     "out": "tracking_events: (parcel_id 77, DELIVERED, 2026-03-02 14:05)\nparcels.status: IN_TRANSIT → DELIVERED\nemail: delivered template",
+                     "source": "from tests/worker/test_poll.py::test_delivered_event (synthetic values)"}},
+        {"type": "seq", "title": "Staff sign-in",
+         "why": "Roles come from identity-provider groups, so access is granted in one place.",
+         "participants": [
+           {"id": "staff", "label": "Shop staff", "kind": "actor"}, {"id": "web", "label": "web"},
+           {"id": "api", "label": "api"}, {"id": "idp", "label": "Identity provider", "kind": "external"}],
+         "steps": [
+           {"from": "staff", "to": "web", "do": "open the app", "out": "redirect to sign-in (OIDC code flow)"},
+           {"from": "web", "to": "api", "do": "GET /v1/auth/callback with code", "out": "authorization code and state", "where": "api/auth/routes.py:15"},
+           {"from": "api", "to": "idp", "do": "exchange code for tokens", "out": "ID token, 1 h", "where": "api/auth/oidc.py:40",
+            "alt": "401 when state or nonce do not match"},
+           {"from": "api", "to": "web", "do": "set session cookie", "out": "HttpOnly cookie, role from `groups` claim", "back": true}
+         ]}
+      ]
+    },
+    "Data model": {
+      "lead": "Five tables; a shipment has parcels, a parcel has tracking events. Alembic owns the schema.",
+      "blocks": [
+        {"type": "er", "title": "Core tables (schema `tracker`)", "key": "Solid = foreign key · dashed = logical link, not enforced · 1:N = one to many",
+         "entities": [
+           {"id": "users", "name": "users", "keys": ["PK id", "UK email_hash", "role"]},
+           {"id": "shipments", "name": "shipments", "keys": ["PK id", "FK created_by", "FK carrier_code", "status"], "more": 9},
+           {"id": "parcels", "name": "parcels", "keys": ["PK id", "FK shipment_id", "UK tracking_no", "status"], "more": 4},
+           {"id": "events", "name": "tracking_events", "keys": ["PK id", "FK parcel_id", "occurred_at"], "more": 3},
+           {"id": "carriers", "name": "carriers", "keys": ["PK code", "poll_cursor"], "more": 2}
+         ],
+         "rels": [
+           {"a": "users", "b": "shipments", "card": "1:N", "on": "created_by"},
+           {"a": "shipments", "b": "parcels", "card": "1:N", "on": "shipment_id"},
+           {"a": "parcels", "b": "events", "card": "1:N", "on": "parcel_id"},
+           {"a": "carriers", "b": "shipments", "card": "1:N", "on": "carrier_code", "logical": true}
+         ]},
+        {"type": "bullets", "items": [
+          "`tracking_events` is append-only; `parcels.status` holds the latest status.",
+          "Recipient name and address live in `shipments`; they are personal data.",
+          "Migrations: `api/db/migrations/` (Alembic)."
+        ]}
+      ]
+    },
+    "Integrations": {
+      "lead": "Four external systems; carrier keys and SMTP credentials are per environment in Secrets Manager.",
+      "blocks": [
+        {"type": "integrations", "rows": [
+          {"system": "Carrier tracking APIs", "direction": "out", "via": "HTTPS REST, polled", "data": "tracking events per parcel", "auth": "API key per carrier"},
+          {"system": "Email service", "direction": "out", "via": "SMTP over TLS", "data": "delivery and exception emails", "auth": "SMTP user `tracker-mailer`"},
+          {"system": "Identity provider", "direction": "both", "via": "OIDC code flow", "data": "staff identity, `groups` claim", "auth": "client `parcel-tracker`"},
+          {"system": "Shop system", "direction": "in", "via": "CSV upload in web", "data": "orders to ship", "auth": "staff session"}
+        ]}
+      ]
+    },
+    "Tech stack": {
+      "lead": "Versions as pinned in the repo; the lock files hold the exact builds.",
+      "blocks": [
+        {"type": "stack", "rows": [
+          {"layer": "Language", "tech": "Python", "version": "3.12", "pinned_in": ".python-version"},
+          {"layer": "API", "tech": "FastAPI", "version": "0.115.*", "pinned_in": "pyproject.toml"},
+          {"layer": "ORM and migrations", "tech": "SQLAlchemy / Alembic", "version": "2.0.* / 1.13.*", "pinned_in": "pyproject.toml"},
+          {"layer": "Jobs", "tech": "Celery", "version": "5.4.*", "pinned_in": "pyproject.toml"},
+          {"layer": "Database", "tech": "PostgreSQL", "version": "16", "pinned_in": "infra/db/main.tf"},
+          {"layer": "Queue", "tech": "Redis", "version": "7.2", "pinned_in": "docker-compose.yml"},
+          {"layer": "Frontend", "tech": "React / Vite", "version": "18.3 / 5.4", "pinned_in": "web/package.json"},
+          {"layer": "Container", "tech": "python:3.12-slim", "version": "3.12-slim", "pinned_in": "Dockerfile"},
+          {"layer": "Infra", "tech": "Terraform / AWS provider", "version": ">= 1.9 / ~> 5.0", "pinned_in": "infra/versions.tf"},
+          {"layer": "CI", "tech": "GitHub Actions", "version": "not pinned", "pinned_in": ".github/workflows/deploy.yml"}
+        ]}
+      ]
+    },
+    "Deploy and environments": {
+      "lead": "One image for api and worker; a merge to main deploys staging, a `v*` tag deploys production after approval.",
+      "blocks": [
+        {"type": "envs", "rows": [
+          {"env": "local", "runs_on": "docker compose (postgres, redis) + processes", "deploy": "see Run locally", "access": "localhost"},
+          {"env": "staging", "runs_on": "ECS Fargate, 1 api + 1 worker task", "deploy": "automatic on merge to `main`", "access": "VPN + SSO role `tracker-staging-dev`"},
+          {"env": "production", "runs_on": "ECS Fargate, 2 api + 2 worker tasks", "deploy": "tag `v*`, manual approval in CI", "access": "SSO role `tracker-prod-ops`, read-only by default"}
+        ]},
+        {"type": "bullets", "items": [
+          "Pipeline: test → build image → push to ECR → `terraform apply` → ECS rolling update.",
+          "Rollback: rerun the deploy job with the previous image tag.",
+          "Healthy: `GET /healthz` returns 200 and the worker logs `beat: tick` every 10 min.",
+          "Infra lives in `infra/`, one module per concern, one state per environment."
+        ]}
+      ]
+    },
+    "Security and access": {
+      "lead": "Staff sign in with OIDC; three roles; no secret is stored in the repo.",
+      "blocks": [
+        {"type": "table", "head": ["Topic", "How it works", "Where"], "rows": [
+          ["Roles", "`viewer`, `operator`, `admin` from the `groups` claim; checked per route", "`api/auth/deps.py`"],
+          ["Secrets", "Secrets Manager names `tracker/<env>/db`, `tracker/<env>/carrier-keys`; values `<redacted>`", "`infra/secrets/`"],
+          ["Personal data", "Recipient name and address encrypted at rest (RDS, S3 SSE)", "`infra/db/`, `infra/storage/`"],
+          ["Label links", "Presigned S3 URLs, valid 15 min; the bucket is private", "`api/services/labels.py`"],
+          ["Network", "api behind an ALB with TLS; worker has no inbound port", "`infra/network/`"]
+        ]}
+      ]
+    },
+    "Run locally": {
+      "lead": "Docker for postgres and redis, the rest as local processes; about five minutes from clone to first shipment.",
+      "blocks": [
+        {"type": "commands", "rows": [
+          {"cmd": "docker compose up -d postgres redis", "does": "start the two stores", "expect": "2 containers healthy"},
+          {"cmd": "uv sync", "does": "install Python dependencies from `uv.lock`"},
+          {"cmd": "uv run alembic upgrade head", "does": "create the schema", "expect": "Running upgrade -> 0012"},
+          {"cmd": "uv run uvicorn api.main:app --reload", "does": "start the API on port 8000", "expect": "Uvicorn running on http://127.0.0.1:8000"},
+          {"cmd": "uv run celery -A worker.app worker -B -l info", "does": "start worker and beat", "expect": "celery@host ready"},
+          {"cmd": "npm --prefix web run dev", "does": "start the web app", "expect": "Local: http://localhost:5173/"},
+          {"cmd": "uv run pytest", "does": "run the test suite", "expect": "all tests pass"}
+        ]},
+        {"type": "bullets", "items": ["Settings come from environment variables listed in `docs/config.md`; local values from the team vault."]}
+      ]
+    },
+    "Top risks": {
+      "lead": "Polling cost and the deploy migration race matter most; both have a known fix.",
+      "blocks": [
+        {"type": "risks", "rows": [
+          {"risk": "Migrations run at every container start", "impact": "two tasks can migrate at once during a production deploy", "status": "Confirmed",
+           "mitigation": "run migrations as a one-off ECS task before the rollout", "where": "api/entrypoint.sh:4"},
+          {"risk": "Carrier rate limits as volume grows", "impact": "429s delay status by more than 10 min", "status": "Design risk",
+           "mitigation": "move carriers that offer them to webhooks"},
+          {"risk": "Duplicate carrier events", "impact": "a customer may get two delivery emails", "status": "Not verified",
+           "mitigation": "unique key on carrier event id", "where": "worker/tasks/poll.py:63"},
+          {"risk": "Single Redis node without persistence", "impact": "queued jobs lost on restart until the next beat tick", "status": "Design risk",
+           "mitigation": "acceptable today: beat re-enqueues within 10 min"},
+          {"risk": "Label PDFs kept without end", "impact": "storage cost grows every month", "status": "Owner to decide",
+           "mitigation": "Owner to decide: retention period, then an S3 lifecycle rule"}
+        ]}
+      ]
+    },
+    "Where to look next": {
+      "blocks": [
+        {"type": "pointers", "rows": [
+          {"topic": "Every setting and its default", "go": "`generated-docs/technical.html` → Configuration", "why": "full config table"},
+          {"topic": "Every endpoint with request and response", "go": "`api/routes/`; OpenAPI at `/docs` on a running api"},
+          {"topic": "Column-level data model", "go": "`api/db/models.py`, `api/db/migrations/`"},
+          {"topic": "Infra modules and state", "go": "`infra/`", "why": "one folder per module"},
+          {"topic": "Stuck polls, reruns, backfills", "go": "`generated-docs/technical.html` → Operations"},
+          {"topic": "Test layout and fixtures", "go": "`tests/`"}
+        ]}
+      ]
+    }
+  }
+}

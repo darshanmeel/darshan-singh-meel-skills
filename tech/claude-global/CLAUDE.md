@@ -11,7 +11,7 @@
 - **End of reply, in order:** summary · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
 - **`Skills:` line:** `Skills: <skills used this turn> (<reference files read>)`, or `Skills: none`. E.g. `Skills: darshan-singh-meel-code, darshan-singh-meel-data-platform (sql.md, dbt.md)`. With the skill-usage hook installed, a full log is kept in `~/.claude/skill-usage.log`.
 - A correction of something you said earlier goes first: what was wrong, what's right.
-- **Other findings — optional.** Only if something is genuinely worth knowing; otherwise leave the section out. One plain bullet each: **what** it is · **why** it matters · **impact** of doing it vs not. Example: `Upload files are never deleted — storage grows every month; a 90-day cleanup keeps cost flat, skipping it means cost keeps rising.`
+- **Other findings — optional.** Only if something is genuinely worth knowing; otherwise leave the section out. Only about the current repo or folder (and its subfolders) — never about other repos or folders read only as input or test data. One plain bullet each: **what** it is · **why** it matters · **impact** of doing it vs not. Example: `Upload files are never deleted — storage grows every month; a 90-day cleanup keeps cost flat, skipping it means cost keeps rising.`
 
 ## Asking questions
 - Use AskUserQuestion: up to **4 questions per prompt**, shown together as tabs (tool limit); a 5th+ goes in a second prompt right after. Recommended option first. Skip only what I already said in my own words this session — defaults and recommendations are never answers. No answer → use the recommended options and say which.
@@ -69,6 +69,7 @@
 | Review v2 (fixed report: main review, then a detailed section per file with Must/Should findings) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs: READMEs, KT, design docs, user guides, runbooks | `darshan-singh-meel-docs` |
 | Docs, version 2 (fixed builder: same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
+| Tech summary: mid-depth technical doc — components, main flows, data model, stack, deploy, risks (~10 min read) | `darshan-singh-meel-docs-tech-summary` |
 | Architecture review: current, problems, proposed target (Technical-doc shape), impact on cost/performance/maintenance/tech debt — when I ask, or offered after a Technical doc | `darshan-singh-meel-architecture` |
 | Requirements brief: what is asked, data, flows, gaps, tech options, what needs to be done (one HTML page with SVG) / review one | `darshan-singh-meel-requirements-brief` / `darshan-singh-meel-requirements-brief-review` |
 | Write an English technical blog post / review one | `darshan-singh-meel-tech-blog` / `darshan-singh-meel-tech-blog-review` |

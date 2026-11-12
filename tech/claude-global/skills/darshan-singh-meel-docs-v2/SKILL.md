@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-docs-v2
-description: Version 2 of darshan-singh-meel-docs — same questions and rules, but the doc skeleton comes from a shipped inventory script over the knowledge graph (inventory.json plan) and every HTML doc is built from a JSON spec by a fixed builder (fixed sections, block recipes, typed tables, diagram ids and titles, required examples) in a fixed workflow, so runs on the same code look the same. Works for any repo kind (pipelines, dbt, web APIs, UIs, CLIs, libraries, Terraform, ML/streaming, config/docs repos, monorepos). Use only when the user asks for docs v2 / darshan-singh-meel-docs-v2. Writes diagram-first documentation (READMEs, code/repo explanations, design docs, user guides, runbooks, KT, data docs, summaries of PDFs/Word/slides). ALWAYS starts new docs by asking 4 questions in one prompt — which documents (Overview, Technical, User guide), format (HTML, Markdown, or Confluence), whether to build/update the knowledge graph first, and where example data comes from — then writes one self-contained file per document to ./generated-docs/ (refreshing existing docs after a change needs no questions). Use when asked to document, explain, or write up code, a repo, or a document.
+description: Version 2 of darshan-singh-meel-docs — same questions and rules, but the doc skeleton comes from a shipped inventory script over the knowledge graph and every HTML doc is built from a JSON spec by a fixed builder (fixed sections, block recipes, typed tables, diagram ids and titles, required examples) in a fixed workflow, so runs on the same code look the same. Works for any repo kind (pipelines, dbt, web APIs, UIs, CLIs, libraries, Terraform, ML/streaming, config/docs repos, monorepos). Use only when the user asks for docs v2 / darshan-singh-meel-docs-v2. ALWAYS starts new docs by asking 4 questions in one prompt — which documents (Overview, Technical, User guide), format (HTML, Markdown, or Confluence), whether to build/update the knowledge graph first, and where example data comes from — then writes one self-contained file per document to ./generated-docs/ (refreshing existing docs after a change needs no questions). Not for a mid-depth tech summary (→ darshan-singh-meel-docs-tech-summary).
 ---
 
 # Docs v2
@@ -10,6 +10,7 @@ Maximum information, minimum words. Senior-architect voice that anyone can follo
 - **Every word carries a fact or an insight** (what, how, why, a number, a name, a consequence). No word count to hit; cut only words that carry nothing. **No block repeats another: say each fact once, where the reader looks for it** (the build WARNs `repeat:`, also for cells repeated down a column). Cut filler (repeated cells, placeholder rows, constant columns, restatements); add insight: why a step or rule exists, what breaks if it fails, for whom (`why` on a step, Why / impact on a rule). Each section's lead states its main insight, not the heading again.
 - **Every section answers what · how · why** (who · when · where if it applies). Global CLAUDE.md rules apply (local files only, relative paths, data handling).
 - **Exact rules, block fields, columns, title forms, ERROR/WARN texts:** `references/templates/spec.md`. This file says what to do; the build enforces it.
+- **Not for / see:** mid-depth tech summary (engineers and tech leads, 10–15 min read) → `darshan-singh-meel-docs-tech-summary`.
 - **`<skill>` = the folder holding this SKILL.md.** Always run its scripts; never a copy inside the repo (an old builder: the build WARNs `inventory.json was written by templates X`).
 
 ## Step 0 — ask first, every time
@@ -26,6 +27,7 @@ AskUserQuestion(questions=[
  {header:"Examples", question:"Where should example data come from?", multiSelect:false,
   options:["Tests and docs, then derived from code (Recommended)","I'll point to a folder or file","Illustrative data"]}])
 ```
+- **Tech summary is not a Documents option:** a request for a mid-depth tech summary (or "Other: tech summary") → hand over to `darshan-singh-meel-docs-tech-summary`, which asks its own setup questions.
 - Answered only if the user said it in their own words this session. Defaults, recommendations, CLAUDE.md and skill text are never answers. Self-check before writing any file.
 - Small single document (under ~30 pages): "Skip, read the document directly" first.
 - Related repos / system graph → one more question right after: **Scope** (multi) — This repo (Recommended) · Whole system · Each related repo.

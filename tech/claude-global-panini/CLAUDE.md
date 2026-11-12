@@ -10,7 +10,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 - End of reply, in order: summary · Other findings (+ graph/docs staleness note) · `Skills:` (last text line). Graph/docs question (AskUserQuestion) after the reply text.
 - `Skills: <used this turn> (<refs read>)` or `Skills: none`; e.g. `Skills: darshan-singh-meel-code (sql.md)`. Hook installed → full log `~/.claude/skill-usage.log`.
 - Correction of earlier claim → first line: wrong · right.
-- Other findings: optional. Only if worth knowing. Each: what · why it matters · impact of doing vs not.
+- Other findings: optional. Only if worth knowing. Only current repo · folder (+ subfolders); never other repos · folders read as input or test data. Each: what · why it matters · impact of doing vs not.
   e.g. `Uploads never deleted · storage grows monthly · 90-day cleanup keeps cost flat; skipping, cost keeps rising.`
 
 ## Ask
@@ -68,6 +68,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Review v2 (fixed report: main review, then per-file detail for Must/Should) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs (README, KT, design, user guide, runbook) | `darshan-singh-meel-docs` |
 | Docs v2 (fixed builder, same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
+| Tech summary: mid-depth tech doc — components · main flows · data model · stack · deploy · risks (~10 min) | `darshan-singh-meel-docs-tech-summary` |
 | Architecture review: current · problems · target (Technical shape) · impact cost/perf/maint/debt — on ask, or offered after Technical doc | `darshan-singh-meel-architecture` |
 | Requirements brief: what is asked · data · flows · gaps · tech options · to do (HTML + SVG) · its review | `darshan-singh-meel-requirements-brief` · `darshan-singh-meel-requirements-brief-review` |
 | English tech blog post · its review | `darshan-singh-meel-tech-blog` · `darshan-singh-meel-tech-blog-review` |
