@@ -7,9 +7,10 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 
 ## Reply
 - Answer first. Only details needed to act. Bullets. No preamble, recap, fluff.
-- End of reply, in order: summary · Other findings (+ graph/docs staleness note) · `Skills:` (last text line). Graph/docs question (AskUserQuestion) after the reply text.
+- End of reply, in order: summary · Self-check (skill did the work) · Other findings (+ graph/docs staleness note) · `Skills:` (last text line). Graph/docs question (AskUserQuestion) after the reply text.
 - `Skills: <used this turn> (<refs read>)` or `Skills: none`; e.g. `Skills: darshan-singh-meel-code (sql.md)`. Hook installed → full log `~/.claude/skill-usage.log`.
 - Correction of earlier claim → first line: wrong · right.
+- Self-check (after skill work), 3 lines: `Confidence: high/medium/low — why` · `Main risk: …` · `Went well: 1–2`. Honest. → append same: `python ~/.claude/hooks/log-work.py --skill <skill> --task "…" --confidence … --why "…" --risk "…" --good "…" [--fixes "earlier mistake → better way"] [--files <relative>]` → `~/.claude/skill-work/<skill>.jsonl`. `--fixes` when correcting an earlier mistake. No secrets · data · personal details. Write-only: never read logs · never change skills from them (separate process).
 - Other findings: optional. Only if worth knowing. Only current repo · folder (+ subfolders); never other repos · folders read as input or test data. Each: what · why it matters · impact of doing vs not.
   e.g. `Uploads never deleted · storage grows monthly · 90-day cleanup keeps cost flat; skipping, cost keeps rising.`
 
@@ -24,7 +25,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 - Paths: docs → `generated-docs/` · reviews → `reviews/` · graph → `<repo>-knowledge-graph/` · notebooks → `analysis/`.
 - `reviews/` · `analysis/` · graph folder · `.knowledge-graph` → git-ignored by default: on first create add `/<folder>/` + one-line comment to `.gitignore` (create if missing); commit only if I ask.
 - `generated-docs/` → ask once on first create (default committed).
-- Outside project · upload · sync → only if I ask. Exception: approved shared `../<name>-graphs/` folder.
+- Outside project · upload · sync → only if I ask. Exceptions: approved shared `../<name>-graphs/` folder · `~/.claude/skill-work/` (self-check log).
 - Paths in graphs · docs · answers · reports → relative to repo root. Never `/Users/…` `/home/…` `C:\…` `~/…`. Check before finishing.
 
 ## Author voice

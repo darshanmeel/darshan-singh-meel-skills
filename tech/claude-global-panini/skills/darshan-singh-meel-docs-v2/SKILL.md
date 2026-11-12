@@ -147,4 +147,4 @@ Step 0 → graph (if chosen) → Step 1 → per doc:
 - **Done** = 0 ERROR · 0 WARN (or explained in reply) · 0 LAYOUT · accuracy passed.
 - No subagents → 3b yourself, separate pass; skipped → "accuracy not reviewed", never "done". Tell user model per phase, one line.
 - Never another workflow · skipped phase · swapped model. Read as manager · new engineer (could deploy from it alone) · first-time user.
-- Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion.
+- Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion. CLAUDE.md Self-check still before it.

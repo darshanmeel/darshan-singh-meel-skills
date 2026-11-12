@@ -183,4 +183,4 @@ Step 0 → graph (if chosen) → Step 1 inventory → per document:
 - **No subagents:** run 3b yourself as a separate pass after the build; skipped → the reply says "accuracy not reviewed", never "done". Tell the user in one line which model to switch to per phase.
 - Never invent another workflow, skip a phase or swap models.
 - Read as the audience: Overview as a manager · Technical as a new engineer (could deploy from it alone) · User guide as a first-time user.
-- After a Technical doc is built, end the reply with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" — no other unprompted suggestions.
+- After a Technical doc is built, end the reply with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" — no other unprompted suggestions. The CLAUDE.md Self-check still comes before it.

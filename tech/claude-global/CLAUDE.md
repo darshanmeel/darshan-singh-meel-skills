@@ -8,8 +8,9 @@
 ## Communication
 - Replies read like good docs: minimal, to the point, bullets, no fluff, no preamble, no recaps.
 - Lead with the answer or result; only the details needed to act.
-- **End of reply, in order:** summary · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
+- **End of reply, in order:** summary · Self-check (when a skill did the work) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
 - **`Skills:` line:** `Skills: <skills used this turn> (<reference files read>)`, or `Skills: none`. E.g. `Skills: darshan-singh-meel-code, darshan-singh-meel-data-platform (sql.md, dbt.md)`. With the skill-usage hook installed, a full log is kept in `~/.claude/skill-usage.log`.
+- **Self-check** — after work done with a skill, three short lines: `Confidence: high/medium/low — why` · `Main risk: what could undermine the work` · `Went well: 1–2 things`. Honest, not modest or inflated. Then append the same as one entry: `python ~/.claude/hooks/log-work.py --skill <skill> --task "…" --confidence … --why "…" --risk "…" --good "…" [--good "…"] [--fixes "earlier mistake and the better way"] [--files <relative paths>]` → `~/.claude/skill-work/<skill>.jsonl`. `--fixes` when the work corrects an earlier mistake (own or a skill's). No secrets, data or personal details in entries. Write-only: never read these logs or change a skill from them — a separate process does that.
 - A correction of something you said earlier goes first: what was wrong, what's right.
 - **Other findings — optional.** Only if something is genuinely worth knowing; otherwise leave the section out. Only about the current repo or folder (and its subfolders) — never about other repos or folders read only as input or test data. One plain bullet each: **what** it is · **why** it matters · **impact** of doing it vs not. Example: `Upload files are never deleted — storage grows every month; a 90-day cleanup keeps cost flat, skipping it means cost keeps rising.`
 
@@ -24,7 +25,7 @@
 - Output goes to the current project: docs → `generated-docs/`, reviews → `reviews/`, graph → `<repo>-knowledge-graph/`, notebooks → `analysis/`.
 - `reviews/`, `analysis/`, the graph folder and `.knowledge-graph` are **git-ignored by default** — on first creation add `/<folder>/` plus a one-line comment to `.gitignore` (create it if missing). Committed only if I ask.
 - `generated-docs/`: ask once on first creation whether to commit (default: committed).
-- Don't write outside the project, or upload/sync anything, unless I explicitly ask. Exception: the shared `../<name>-graphs/` folder (related repos) once I've approved it.
+- Don't write outside the project, or upload/sync anything, unless I explicitly ask. Exceptions: the shared `../<name>-graphs/` folder (related repos) once I've approved it; `~/.claude/skill-work/` (self-check log).
 - **Paths in graphs, docs, answers, and reports are always relative to the repo root** — never absolute or machine-specific (`/Users/…`, `/home/…`, `C:\…`, `~/…`). Check output for absolute paths before finishing.
 
 ## Author voice in produced files

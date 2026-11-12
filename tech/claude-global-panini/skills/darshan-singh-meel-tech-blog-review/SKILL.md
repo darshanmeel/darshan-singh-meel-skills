@@ -30,6 +30,7 @@ Find what embarrasses the author after publishing: code that fails · wrong fact
 6. **Checklist** - areas 1-12 of `<blog skill dir>/references/review.md`; style vs that skill's `references/style.md`.
 7. **Figures + HTML** - render every figure; `blog/<slug>.html` present → rebuild with `--html` into a copy → diff vs Markdown.
 8. **Report** - `reviews/tech-blog-review-<YYYY-MM-DD-HHMM>.md` from `references/format.md`; first creation → add `/reviews/` to `.gitignore`. Reply: verdict · counts · Must lines · report path.
+9. Self-check → reply ends with CLAUDE.md Self-check (confidence · main risk · went well) → `python ~/.claude/hooks/log-work.py --skill darshan-singh-meel-tech-blog-review …`; fork → logs own entry.
 
 ## Extra checks
 - Title: one sentence of what it promises → paragraph that delivers it. Missing or narrower → Must (area 5).

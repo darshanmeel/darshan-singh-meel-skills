@@ -53,6 +53,6 @@ Guards against: overbuilt code, bloated abstractions, side-edits, silent assumpt
 - Labelled throwaway scripts (still no hidden errors or secrets) · explicit refactor requests (surgical rule = requested scope).
 
 ## Summary
-- End of reply, in order: summary · Other findings (+ graph/docs staleness note) · `Skills:` line (last text line); graph/docs question after the reply text.
+- End of reply, in order: summary · Self-check (CLAUDE.md) · Other findings (+ graph/docs staleness note) · `Skills:` line (last text line); graph/docs question after the reply text.
 - Summary: **Changed** (one line each) · **Why** (one line) · **Verified** · **Not verified / risks** · Other findings (optional).
 - Graph exists → after commit or task end: graph question or graph/docs staleness note, per `update.py --dry-run` ("Keep it updated" in knowledge-graph skill).

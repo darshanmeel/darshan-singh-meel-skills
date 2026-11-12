@@ -21,6 +21,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 - **`CLAUDE.md`** — global rules: push back, reply style, questions, local-only output, data handling and secrets, read-only querying, network, code style, skill routing, knowledge graph, model choice.
 - **`hooks/`**
   - `log-skill.py` — logs every skill used to `~/.claude/skill-usage.log`.
+  - `log-work.py` — after skill work, appends a self-check (confidence, main risk, what went well, fixes of earlier mistakes) to `~/.claude/skill-work/<skill>.jsonl`, for a later process that improves the skills.
   - `install-skill-log.py` — adds that hook to `~/.claude/settings.json` (UTF-8 safe, idempotent).
 - **`skills/`** (all prefixed `darshan-singh-meel-`)
 

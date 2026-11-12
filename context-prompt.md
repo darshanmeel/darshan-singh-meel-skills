@@ -51,6 +51,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-streamlit-snowflake` | Streamlit in Snowflake only (privileges, deploy, runtimes, limits); loaded with `-streamlit` |
 | `-streamlit-snowflake-react` | React widget or prebuilt React app inside Streamlit in Snowflake (warehouse v1 / container v2, fetch bridge, deploy checks); loaded with `-streamlit-snowflake` |
 - **Hook:** `hooks/log-skill.py` logs skill use to `~/.claude/skill-usage.log`; `install-skill-log.py` adds it to settings.
+- **Self-check:** after skill work, reply ends with Confidence · Main risk · Went well, and `hooks/log-work.py` appends it to `~/.claude/skill-work/<skill>.jsonl` (write-only; a separate process reviews it).
 - **Data rules:** never open secret files (.env, keys, credentials…). Structure, not data. Examples come from tests, fixtures or code, or are synthetic. No PII in docs.
 
 ## Docs rules (both versions)

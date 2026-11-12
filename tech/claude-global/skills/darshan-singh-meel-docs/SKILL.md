@@ -150,5 +150,5 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 4. Build, then verify every name, number, command, and example against the source; render and screenshot every diagram (no renderer installed → ask once; if no, say "layout not visually checked" in the reply, not the document).
 5. Trim: delete any bullet that isn't essential and any prose sentence left over. Rewrite any chat leakage ("you said", "the user", "as discussed", "confirm with", "Claude", requests to the reader like "run on prod to confirm", notes on what was skipped, unchecked or asked) as the author's statement — a Should fix; Must if it misstates a fact or exposes private chat content.
 6. Read as the audience: Overview as a manager (no unexplained jargon) · Technical as a new engineer (could deploy and access from it alone) · User guide as a first-time user (every task doable without help).
-7. After a Technical doc is built, end the reply with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" — no other unprompted suggestions.
+7. After a Technical doc is built, end the reply with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" — no other unprompted suggestions. The CLAUDE.md Self-check still comes before it.
 

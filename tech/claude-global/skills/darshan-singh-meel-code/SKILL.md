@@ -91,7 +91,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Explicit refactor/cleanup requests: the "surgical" rule applies to the requested scope.
 
 ## Final summary
-End of reply, in order: summary · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line); a graph or docs question comes after the reply text.
+End of reply, in order: summary · Self-check (CLAUDE.md) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line); a graph or docs question comes after the reply text.
 - **Changed:** files/models and what changed, one line each
 - **Why:** root cause or reasoning, one sentence
 - **Verified:** how it was checked and the result

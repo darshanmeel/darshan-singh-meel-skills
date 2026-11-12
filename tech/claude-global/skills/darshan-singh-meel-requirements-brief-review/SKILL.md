@@ -29,6 +29,7 @@ Find what would mislead the reader: a requirement missing or misread, a data poi
 9. **Voice and words** — `<brief skill>/references/style.md`: chat voice ("you said", "as requested", "the requester", "the user", notes on what was skipped) → Should, Must when it misstates a fact or exposes private content; a fact said in two sections → Should; a string over 40 words, filler, a request to the reader → Should.
 10. **Data handling** — any data row, real value of a sensitive-looking column, person's name, e-mail, phone, secret value or absolute path in the page, the spec, `profile.json` or the report → Must (Privacy). For `_spec/inputs/` and `_spec/text/` only two checks: both git-ignored, and nothing personal from them quoted anywhere else.
 11. **Report** — `reviews/requirements-brief-<YYYY-MM-DD-HHMM>.md` from `references/format.md`; add `/reviews/` to `.gitignore` when the folder is first created. Reply: verdict, counts, the Must lines, report path.
+12. **Self-check** - the reply ends with the CLAUDE.md Self-check (confidence · main risk · went well), logged with `python ~/.claude/hooks/log-work.py --skill darshan-singh-meel-requirements-brief-review …`; this skill runs as a fork, so it logs its own entry.
 
 ## Specific tests
 - **Reader test:** read At a glance and the context diagram only: can the reader say what is asked, from where, how often, for whom? A missing piece → Must (Clarity).

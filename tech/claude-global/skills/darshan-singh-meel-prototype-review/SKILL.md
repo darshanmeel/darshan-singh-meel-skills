@@ -31,6 +31,7 @@ Find what makes the prototype's answer untrustworthy or its clean-up unsafe: it 
 5. **Checklist** - walk areas 1-12 of `<prototype skill dir>/references/review.md`, with the branch file (`logic.md`, `ui.md`, `data.md`, `pipeline.md`) for the branch's rules.
 6. **Containment** - see below.
 7. **Report** - `reviews/prototype-review-<YYYY-MM-DD-HHMM>.md` from `references/format.md` (name taken → append `-<name>`, never overwrite); add `/reviews/` plus a one-line comment to `.gitignore` when the folder is first created. Reply: verdict, counts, the Must lines, report path.
+8. **Self-check** - the reply ends with the CLAUDE.md Self-check (confidence · main risk · went well), logged with `python ~/.claude/hooks/log-work.py --skill darshan-singh-meel-prototype-review …`; this skill runs as a fork, so it logs its own entry.
 
 ## Specific checks beyond the checklist
 - **Deciding-case test:** name the one case that separates the possible answers (the tie, the late row, the wrong-state action, the failed task, the layout at real data density). It must be reachable and visible in the output. Not reachable → Must (area 2).
