@@ -43,7 +43,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-knowledge-graph` | detailed, verifiable repo map in a git-ignored `<repo>-knowledge-graph/` (nodes and edges with `path:line`, data model, flows); mapping only, never a code review (suspicious code → "not verified"); Opus builds it, a separate Opus agent reviews it; after a commit, asks (update now in background · after next commit · when work is done · skip), then separately asks about the affected docs; declined → "Graph/Docs are N commits behind" note in every later repo reply; fast incremental updates via `references/update.py`; related repos share `../<name>-graphs/` + `_combined/` |
 | `-notebook` | every data query goes through notebook cells in `analysis/`; Claude runs only read-only SELECT cells; DML/DDL/DCL go in notebooks I run; PII handled metadata-first (PII discovery step; keyed hashing for masked values) |
 | `-data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC; checks official docs sites only when unsure |
-| `-ask-me` | plans unclear tasks with me in rounds of ≤4 questions |
+| `-ask-me` | plans unclear tasks with me, one question at a time |
 | `-prototype` (+ `-review`) | throwaway prototype answering one design question: logic · UI variants · DuckDB/dbt on synthetic data · Airflow flow, `prototypes/<name>/` |
 | `-frontend` | UI design rules (look, layout, accessibility) for dashboards, data apps; used with the build skills below |
 | `-frontend-react` | build React + TypeScript + component-library UIs; package a React component for Streamlit |

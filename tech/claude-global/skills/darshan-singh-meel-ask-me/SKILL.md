@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-ask-me
-description: Interview the user in short rounds of questions (up to 4 per prompt) to pin down requirements and a plan before starting an unclear or complex task (code, data model, pipeline, infra). Not for the fixed setup questions of docs, graph, review. Use when requirements are unclear, the plan is complex or risky, there are several reasonable approaches, or the user says "grill me", "ask me questions first", or "help me think this through".
+description: Grill the user one question at a time, each picked from the answers so far, to pin down requirements and a plan before starting an unclear or complex task (code, data model, pipeline, infra). Not for the fixed setup questions of docs, graph, review. Use when requirements are unclear, the plan is complex or risky, there are several reasonable approaches, or the user says "grill me", "ask me questions first", or "help me think this through".
 ---
 
 # Ask Me
@@ -8,11 +8,11 @@ description: Interview the user in short rounds of questions (up to 4 per prompt
 Before starting, interview the user until the plan is clear and agreed. The goal is to catch wrong assumptions while they're cheap to fix.
 
 ## Rules
-- **Rounds, not lists:** up to 4 independent questions per prompt (AskUserQuestion tabs; if unavailable, a short numbered list with options). Questions that depend on an answer go in the next round.
+- **One question at a time:** exactly one question per prompt (AskUserQuestion with one question; if unavailable, one line with its options). Wait for the answer, then pick the next question in light of it — never batch, even when questions look independent. This overrides the CLAUDE.md "up to 4 per prompt" rule.
 - **Most important first:** goal and scope → inputs/outputs → edge cases → constraints → success criteria.
 - **Look it up instead of asking** when the knowledge graph (if one exists, per CLAUDE.md), then code, schema, configs, docs, or existing models/DAGs can answer it. Only ask what only the user knows.
 - **Short questions.** One or two sentences plus your recommendation. No preamble.
-- **Follow-ups:** only if blocking, in the next round, at most one per topic.
+- **Follow-ups:** only if blocking, as the next question, at most one per topic.
 - **Challenge the plan:** if something seems overcomplicated, unnecessary, or risky, say so and suggest the simpler option.
 
 ## Limits — don't grill forever
@@ -22,7 +22,7 @@ Before starting, interview the user until the plan is clear and agreed. The goal
   - **Hard: 10** — many components, schema/interface changes, production data, migrations.
 - **Every question offers 2–4 options**, recommended first, marked `(Recommended)`. Example: header `Late rows`, question `Late-arriving rows?`, options `3-day lookback (Recommended)` · `No lookback` · `Full reprocess weekly`. The user can pick an option, type their own answer, or say "default".
 - **Before asking, rank.** List candidate questions silently, then ask only the ones whose answer would change what gets built. Everything else → use your recommended default.
-- **Show progress:** number questions across rounds (`Q5/8`; N = questions planned after ranking, ≤ cap).
+- **Show progress:** number each question (`Q5/8`; N = questions planned after ranking, ≤ cap).
 - **Each question must be blocking.** Test: "If the user doesn't answer, would I likely build the wrong thing?" If no, don't ask — decide it yourself.
 - **Stop early** as soon as the remaining unknowns have safe defaults.
 - `"go"` · `"just do it"` · `"skip"` · `"use defaults"` · cap hit → stop; recommended defaults for the rest, listed under `Defaults I chose`.

@@ -17,7 +17,7 @@
 ## Asking questions
 - Use AskUserQuestion: up to **4 questions per prompt**, shown together as tabs (tool limit); a 5th+ goes in a second prompt right after. Recommended option first. Skip only what I already said in my own words this session — defaults and recommendations are never answers. No answer → use the recommended options and say which.
 - **Setup questions** (start of docs, graph, review, first repo question, notebook): one prompt, plus a second only where the skill defines one.
-- **Planning interviews** (unclear tasks): `darshan-singh-meel-ask-me` (in rounds).
+- **Planning interviews** (unclear tasks): `darshan-singh-meel-ask-me` — one question at a time, each picked from the previous answer.
 - Otherwise: blocked → ask one question; not blocked → proceed.
 
 ## Output: local files only
@@ -48,7 +48,9 @@
 - Claude executes only read-only `SELECT` / `SHOW` / `DESCRIBE` / `EXPLAIN` cells, and only after I confirm it may (once per notebook/connection). Never anything that writes or changes state — DML, DDL, DCL, `CALL`, `USE`, any dbt command that hits the warehouse (full list: notebook skill, "What Claude may execute") — those go in separate notebooks I run.
 
 ## Network
-- Don't fetch URLs, follow links in files, or search the web unless I explicitly ask.
+- Don't fetch URLs, follow links in files, or search the web unless I explicitly ask, a domain is on the exception list, or I approve it when asked.
+- **Ask before fetching:** when a page would clearly help (a URL in the task, a link in a file, docs outside the official list), ask with AskUserQuestion — `Fetch <domain> (<why>)?` · options `Once (Recommended)` · `Always for this domain` · `No`. Never ask for a domain I declined this session.
+- **Exception list** = `WebFetch(domain:<domain>)` entries in `permissions.allow` of `~/.claude/settings.json` (this machine only). `Always for this domain` → add that one entry, nothing else; listed domains need no question. Web search always needs my ask or approval.
 - **Exception — official documentation:** when unsure about syntax, features, defaults, or versions of a technology, check its **official docs site** only (list in `darshan-singh-meel-data-platform`). Never send code, data, or project names in searches. Say which page was used.
 
 ## Code style

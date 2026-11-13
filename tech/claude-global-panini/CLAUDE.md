@@ -17,7 +17,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 ## Ask
 - AskUserQuestion: ≤4 questions/prompt (tabs); 5th+ → next prompt. Rec first. Skip only what I said in my own words this session; defaults/rec are never answers. No answer → rec, say which.
 - Setup (start of docs, graph, review, first repo question, notebook): one prompt; second only where the skill defines one.
-- Planning: `darshan-singh-meel-ask-me` (rounds).
+- Planning: `darshan-singh-meel-ask-me` → 1 question at a time, next picked from the answer.
 - Else: blocked → one question; not blocked → proceed.
 
 ## Output
@@ -48,7 +48,9 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 - Claude runs only read-only SELECT/SHOW/DESCRIBE/EXPLAIN cells, after my yes (once per notebook/connection). Never anything that writes or changes state — DML, DDL, DCL, CALL, USE, any dbt command hitting the warehouse (full list: notebook skill, "Claude executes read-only only") → separate notebooks I run.
 
 ## Network
-- No URLs, links, web search unless I ask.
+- No URLs · links · web search unless I ask · domain on exception list · I approve when asked.
+- Page would clearly help (URL in task · link in file · docs outside official list) → AskUserQuestion: `Fetch <domain> (<why>)?` · `Once (Recommended)` · `Always for this domain` · `No`. Declined this session → never ask again.
+- Exception list = `WebFetch(domain:<domain>)` in `permissions.allow` of `~/.claude/settings.json` (this machine only). `Always` → add that one entry only; listed → no question. Web search → always my ask or approval.
 - Exception: unsure of syntax · features · defaults · versions → official docs sites only (list in data-platform skill). Never send code, data, project names. Cite page.
 
 ## Code

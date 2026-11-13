@@ -39,7 +39,7 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
 | `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
 | `data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance |
-| `ask-me` | Plan unclear tasks in short question rounds |
+| `ask-me` | Plan unclear tasks by grilling me, one question at a time |
 | `prototype` | Throwaway prototypes in git-ignored `prototypes/<name>/` that answer one design question: logic (terminal app over a pure module), UI variants, data model / dbt on synthetic DuckDB, Airflow flow; `prototype-review` runs and checks them |
 | `frontend` | UI design rules: layout, type, colour, states, accessibility |
 | `frontend-react` | Build React + TypeScript UIs with a component library; React components for Streamlit |
