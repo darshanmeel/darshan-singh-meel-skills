@@ -1054,9 +1054,10 @@ story_ = lambda **k: {"type": "story", "case": "rejected", "headline": "A bad ro
                       "stages": [stage("In", cols=["id", "v"], rows=[["1", {"hl": "x"}]]), stage("Shown", msg="Refused"),
                                  stage("Stored", rows=[["rows", "0"]])], "source": "tests/test_a.py:1", **k}
 filb = {"type": "file", "path": "src/a.py", "purpose": "Runs the job. Reads `src/b.py` values.", "called_by": [], "calls": ["b.py"],
-        "data": ["sales.orders"], "blocks": [{"type": "table", "cols": ["Function", "Does"], "rows": [["`run_all`", "runs"]]}]}
-tfb = {"type": "testfile", "path": "tests/test_a.py", "checks": ["a.py"], "proves": "the job runs", "count": 3,
-       "topics": [["`test_x`", "one row in, one row out"]]}
+        "data": ["sales.orders"], "chains": ["run_all → load"], "notice": "sends no SQL itself", "tested_by": ["tests/test_a.py"],
+        "functions": [["`run_all`", "src/a.py:1", "runs the job", "`b.py`", "—"]]}
+tfb = {"type": "testfile", "path": "tests/test_a.py", "checks": ["a.py"], "proves": "the job runs", "count": 3, "purpose": "Runs the job on one row.",
+       "topics": [["Run", "one row in, one row out"]], "tests": [["`test_x`", "tests/test_a.py:1", "one row → one row"]]}
 dep_fl = {"type": "flow", "nodes": [box("a"), box("b", col=1)], "edges": [{"from": "a", "to": "b"}]}
 spec = tech({"Main flows": mf(extra=[story_(), story_(case="edge")]),
              "Code files": [{"type": "entries", "rows": [["app", "`src/a.py`", "`run_all()`"]]}, filb],
@@ -1080,10 +1081,17 @@ check("story: free block, outside the Main flows recipe (no recipe ERROR)", "rec
 check("code files: entries always a table; purpose box, small map, details on click",
       "<h3>Entry points</h3>" in p and "<th>Starts at</th>" in p and '<div class="file subt" id="f-src-a-py">' in p
       and '<div class="purpose"><b>Main purpose</b>' in p and '<div class="fmap">' in p and 'entry point</span>' in p
-      and '<span class="fc data">sales.<wbr>orders</span>' in p and '<summary>Show the details</summary>' in p, out)
+      and '<span class="fc data">sales.<wbr>orders</span>' in p and '<summary>Show call details (1)</summary>' in p
+      and "THIS FILE &middot; 1 FUNCTION<" in p and 'class="fc chain"' in p and "<b>Notice:</b> sends no SQL itself" in p
+      and "<b>Tested by:</b>" in p and "<th>Called from</th>" in p, out)
 check("tests: test map svg and table from testfile blocks, folded topics per test file",
       '<div class="tmap"><svg' in p and "<th>What it proves</th>" in p and '<div class="tf subt" id="t-tests-test-a-py"><details class="fold">' in p
-      and "&middot; 3 tests &middot; 1 topic" in p and "<th>Topic</th>" in p, out)
+      and "&middot; 3 tests &middot; 1 topic" in p and "<th>Test</th>" in p and "<b>Topics:</b> Run" in p
+      and "<th>Tests</th>" in p and "Runs the job on one row." in p and "not a repo file" not in out, out)
+spec = tech({"Code files": [dict(filb, calls=["data", "b.py"], functions=[])], "Tests": [dict(tfb, checks=["logic"], tests=[])]})
+out, rc = run(RP, spec)
+check("file/testfile: module names (not repo files) -> WARN; missing functions / tests tables -> WARN",
+      rc == 0 and "data not a repo file" in out and "logic not a repo file" in out and "add `functions`" in out and "add `tests`" in out, out)
 spec = tech({"Main flows": mf(extra=[story_()] * 4 + [story_(stages=[stage("only")], why="")])})
 err, warn = build.check(spec, "technical", sorted(spec["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
 check("story: >3 per section -> WARN; 1 stage -> ERROR; no why -> WARN",

@@ -5,6 +5,7 @@ from there; cited paths and lines, backticked names and box labels are checked a
 for technical docs, coverage against <spec folder>/inventory.json written by inventory.py)
 The model writes only the spec (content, boxes, arrows, examples). Spec format: spec.md.
 """
+import fnmatch
 import html
 import json
 import math
@@ -1241,6 +1242,10 @@ def story(b):
             f'<div class="js">{"<div class=ar>&rarr;</div>".join(stages)}</div>{why}</div>')
 
 
+FUNC_COLS = ["Function", "Lines", "Does", "Calls (other files, data)", "Called from"]
+TEST_COLS = ["Test", "Lines", "What it proves (input → result)"]
+
+
 def chips(names, cls=""):
     return "".join(f'<span class="fc {cls}">{esc(x, True)}</span>' for x in names)
 
@@ -1253,23 +1258,34 @@ def file_block(b, kind):
     side = lambda lab, xs, cls="": (f'<div class="fcol"><span class="lbl2">{lab}</span>{chips(xs, cls)}</div>' if xs else "")
     left = side("CALLED BY", b.get("called_by") or []) or '<div class="fcol"><span class="lbl2">CALLED BY</span><span class="fc none">entry point</span></div>'
     right = side("CALLS", b.get("calls") or []) + side("DATA", b.get("data") or [], "data")
-    fmap = (f'<div class="fmap">{left}<div class="far">&rarr;</div><div class="fcol mid"><span class="fc me">{esc(b["path"], True)}</span></div>'
+    fns = b.get("functions") or []
+    count = f'<span class="lbl2">THIS FILE &middot; {len(fns)} FUNCTION{"S" if len(fns) != 1 else ""}</span>' if fns else ""
+    chain = "".join(f'<span class="fc chain">{esc(c, True)}</span>' for c in b.get("chains") or [])
+    fmap = (f'<div class="fmap">{left}<div class="far">&rarr;</div><div class="fcol mid">{count}<span class="fc me">{esc(b["path"], True)}</span>{chain}</div>'
             + (f'<div class="far">&rarr;</div><div class="fright">{right}</div>' if right else "") + "</div>")
-    inner = "".join(block(x, kind) for x in b.get("blocks") or [])
-    more = f'<details class="fold"><summary>{esc(b.get("summary") or "Show the details")}</summary>{inner}</details>' if inner else ""
+    key = ('<p class="key">Left: files that call it · middle: this file and its longest call chains · right: files it calls and data it touches.</p>')
+    notes = (f'<p class="lead"><b>Notice:</b> {esc(b["notice"])}</p>' if b.get("notice") else "") +             (f'<p class="lead"><b>Tested by:</b> {", ".join(esc("`" + x + "`", True) for x in b["tested_by"])}</p>' if b.get("tested_by") else "")
+    inner = (table(FUNC_COLS, fns) if fns else "") + "".join(block(x, kind) for x in b.get("blocks") or [])
+    label = b.get("summary") or (f"Show call details ({len(fns)})" if fns else "Show the details")
+    more = f'<details class="fold"><summary>{esc(label)}</summary>{inner}</details>' if inner else ""
     return (f'<div class="file subt" id="{a}"><h3><code>{esc(b["path"], True)}</code></h3>'
-            f'<div class="purpose"><b>Main purpose</b>{esc(b.get("purpose", ""))}</div>{fmap}{more}</div>')
+            f'<div class="purpose"><b>Main purpose</b>{esc(b.get("purpose", ""))}</div>{fmap}{key}{notes}{more}</div>')
 
 
 def testfile(b):
     """One test file folded: summary = path, test count, what it proves; inside one row per topic (what each proves)."""
     a = "t-" + slug(b["path"])
     sub(a, b["path"], True)
-    topics = b.get("topics") or []
-    n = f' &middot; {b["count"]} tests' if b.get("count") and b["count"] != len(topics) else ""
+    topics, cases = b.get("topics") or [], b.get("tests") or []
+    k = b.get("count") or len(cases)
+    n = f' &middot; {k} tests' if k and k != len(topics) else ""
     head = (f'<code>{esc(b["path"], True)}</code>{n} &middot; {len(topics)} topic{"s" if len(topics) != 1 else ""}'
             + (f' &mdash; {esc(b["proves"])}' if b.get("proves") else ""))
-    body = table(["Topic", "What it proves"], topics) if topics else ""
+    body = (f'<div class="purpose"><b>Main purpose</b>{esc(b["purpose"])}</div>' if b.get("purpose") else "")
+    if cases:
+        body += (f'<p class="lead"><b>Topics:</b> {" &middot; ".join(esc(x[0]) for x in topics)}</p>' if topics else "") + table(TEST_COLS, cases)
+    elif topics:
+        body += table(["Topic", "What it proves"], topics)
     src = f'<p class="src">{esc(b["source"], True)}</p>' if b.get("source") else ""
     return f'<div class="tf subt" id="{a}"><details class="fold"><summary>{head}</summary>{body}{src}</details></div>'
 
@@ -1299,8 +1315,9 @@ def tests_map(tfs):
 
 
 def tests_table(tfs):
-    rows = [[f'`{b["path"]}`', ", ".join(f"`{c}`" for c in b.get("checks") or []), b.get("proves", "")] for b in tfs]
-    return table(["Test file", "Checks", "What it proves"], rows)
+    rows = [[f'`{b["path"]}`', str(b.get("count") or len(b.get("tests") or []) or ""), ", ".join(f"`{c}`" for c in b.get("checks") or []),
+             b.get("proves", "")] for b in tfs]
+    return table(["Test file", "Tests", "Checks", "What it proves"], rows)
 
 
 def flows_first(blocks):
@@ -2033,6 +2050,11 @@ def new_block_check(n, b, err, warn):
             err.append(f"{n}: file block needs path and purpose (2-3 lines: what the file is for)")
         elif len(SENT.split(str(b["purpose"]).strip())) > 3 or len(str(b["purpose"]).split()) > 60:
             warn.append(f"words: {n}: file `{b['path']}` purpose is over 3 sentences or 60 words: keep the main purpose; details go in its blocks")
+        fns = b.get("functions")
+        if not fns:
+            warn.append(f"{n}: file `{b.get('path')}`: add `functions` (one row per function: {', '.join(FUNC_COLS)}), from the graph")
+        else:
+            err += [f"{n}: file `{b.get('path')}` functions row has {len(r)} cells, want {len(FUNC_COLS)}: {r}" for r in fns if len(r) != len(FUNC_COLS)]
         bad = [x.get("type") for x in b.get("blocks") or [] if x.get("type") not in INNER and x.get("type") not in TYPED]
         if bad:
             err.append(f"{n}: file `{b.get('path')}` blocks {bad} not allowed inside a file block (use {sorted(INNER)} or a typed table)")
@@ -2042,6 +2064,24 @@ def new_block_check(n, b, err, warn):
         bad = [r for r in b.get("topics") or [] if not isinstance(r, list) or len(r) != 2]
         if bad or not b.get("topics"):
             (err if bad else warn).append(f"{n}: testfile `{b.get('path')}`: topics = [[topic, what it proves], ...]" + (f", got {bad[:2]}" if bad else ""))
+        cases = b.get("tests")
+        if not cases:
+            warn.append(f"{n}: testfile `{b.get('path')}`: add `tests` (one row per test: {', '.join(TEST_COLS)})")
+        else:
+            err += [f"{n}: testfile `{b.get('path')}` tests row has {len(r)} cells, want {len(TEST_COLS)}: {r}" for r in cases if len(r) != len(TEST_COLS)]
+
+
+def file_names(spec, names, files, warn):
+    """file and testfile blocks: called_by, calls and checks name repo files (a path, a file name or a glob such as
+    `app/screen_*.py`), never a bare module name, so a reader can open them."""
+    files = [str(x) for x in files]
+    found = lambda x: any(x == p or p.endswith("/" + x) or fnmatch.fnmatch(p, x) or fnmatch.fnmatch(p, "*/" + x) for p in files)
+    for n in names:
+        for b in flat(spec["sections"][n]):
+            keys = ("called_by", "calls") if b["type"] == "file" else ("checks",) if b["type"] == "testfile" else ()
+            miss = [x for k in keys for x in b.get(k) or [] if not found(x)]
+            if miss:
+                warn.append(f"{n}: `{b.get('path')}`: {', '.join(miss[:6])} not a repo file: name files (path, file name or glob), not modules")
 
 
 def step_ids(spec, names, field="where"):
@@ -2815,6 +2855,7 @@ def main(spec_path, out_path):
         cites(spec, names, root, files, err, warn)
         cite_content(spec, names, root, files, warn)
         identifiers(spec, names, root, files, warn, kind, inv)
+        file_names(spec, names, files, warn)
         facts_warn(spec_path, root, files, warn)
         if inv and inv.get("tests"):
             synthetic_share(spec, names, inv["tests"], warn)
