@@ -45,7 +45,7 @@ JS = r"""(narrow) => {
     document.querySelectorAll('.ipo, .trace').forEach(t => { if (t.scrollWidth > t.clientWidth + 1 || R(t).right > innerWidth)
       add(t, `${t.matches('.ipo') ? 'ipo strip' : 'example traces'} wider than page at 390px`); });
     document.querySelectorAll('main table:not(.res):not(.trace)').forEach(t => {  // tables: rows stack, nothing scrolls or is cut
-      if (t.closest('.map, .card, .journey, .payload')) return;
+      if (t.closest('.map, .card, .journey, .payload, .story')) return;
       const box = t.parentElement.classList.contains('scroll') ? t.parentElement : t;
       if (box.scrollWidth > box.clientWidth + 1 || R(t).right > innerWidth) add(t, 'table wider than page at 390px');
       t.querySelectorAll('td').forEach(c => { if (c.scrollWidth > c.clientWidth + 1) add(c, 'value cut off at 390px'); broken(c, ' at 390px'); });

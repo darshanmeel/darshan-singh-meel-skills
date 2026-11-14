@@ -32,7 +32,7 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
   - **Does** (3–5): what it does for this reader (Overview: business outcomes · Technical: what the components handle · User guide: tasks users can do).
   - **Doesn't** (3–5): out of scope by design — so nobody expects it (e.g. "Doesn't edit source data", "Doesn't manage user access — that's the platform team").
   - **Limitations** (only real ones, ≤5): constraints inside the scope (e.g. "Refreshed daily at 6 AM, not real-time", "Reads cached 5 minutes", "Uploads up to 50 MB"). Only here, not at the end.
-  - **Top issues** (up to 10; Overview up to 5; only real ones; most important first): one line each with Confirmed / Not verified. Overview in plain words; Technical may name components. Full details are in the last section. None → "No known issues".
+  - **Top issues** (up to 10; Overview up to 5; most important first): only real problems the reader must act on (a blocker, wrong data, a security gap), one line each with Confirmed / Not verified. Never "not yet run / tested in <environment>" lines or speculative code notes: those go in the last section, if anywhere. Overview in plain words; Technical may name components. Full details are in the last section. None → "No known issues".
 - HTML: CSS-only tabs (radio inputs), Does open by default; with JS off they still work; in print all four show one after another.
 - Markdown / Confluence: four short headed lists in the same order (Confluence may use a tabs or expand macro if available).
 
@@ -73,10 +73,13 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - Diagrams: architecture, flows, ER, lineage, DAG. Examples as code, queries, commands, input → output.
 - **Deploy & access (always):** environments + deployment diagram · how to deploy and roll back (exact commands/CI steps) · prerequisites (tools, versions, config names — never values) · how to access (URLs, schemas, roles, how to request) · how to check it's healthy. If the source doesn't define something: "<item>: not documented yet — owner to decide", also listed under Decisions needed.
 - Decisions (what + why) and design risks (limitations go in the opening tabs).
+- **Entry points (apps, services, CLIs, jobs):** one table `App or job | For | Entry file | Starts at (function, path:line)` from the deploy config, above a file-to-file main-path diagram: actors → entry files → screens/handlers → shared code → data stores. No detail in it; one dashed line per second path.
+- **Per code file (one folded block each, a menu sub-item):** a **Main purpose** box (2–3 plain lines: what the file is for, what it leaves to other files) → a small diagram (called by → this file with its call chains → files it calls and data objects it reads/writes, from the graph's edges) → the call tables, folded behind "Show call details (N)".
+- **Tests (when the repo has tests):** a diagram `test file → code it checks`, a table `Test file | Tests | Checks | What it proves`, then per test file a folded block: topics, what each proves, its test names and lines. The run commands last.
 
 **User guide** — anyone who uses the app or its output, UI or not; task-based, plain steps
 - Include whenever someone uses the app or its output (UI, dashboard, report, CLI, API, data consumers, emailed files); skip only if only the builders use it.
-- "How to <task>": numbered steps, what the user sees at each, an example per task.
+- "How to <task>": numbered steps, what the user sees at each, then up to 3 journey examples: the result and one failure, not the steps again.
 - UI: screen-flow diagram, `Element | What it does` table, `[Screenshot: <screen>]` only where words aren't enough. Non-UI: commands, requests/responses, which table/dashboard answers which question.
 - `Problem | What to do` — top 5. Who to contact. No internals.
 
@@ -118,7 +121,12 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 
 - Cite the source in small mono text (`from tests/test_rules.py:42`).
 - Small and realistic (3–5 rows), never foo/bar; in a proper format (table, pretty JSON, formatted SQL, command block), never squeezed into prose.
-- Important rules and flows get 2–4 example cards: typical, then edge / rejected / failure cases that behave differently.
+- **Journey examples, at most 3 per section** (typical first, then one that warns, blocks or fails), only where one teaches something:
+  - Headline = the point in one plain sentence; reading only it teaches the rule. Never a label ("Warn: duplicate key").
+  - 2–3 stages left to right, like one record moving through the system: the input as a small grid (row numbers, the cell that causes the outcome highlighted) → what the user sees (the exact message text) → what is stored or the result.
+  - One "Why it matters" line; the source in small mono text.
+  - No code words as labels ("orders rows, INSERT", "flag REJECT_ON_ERROR"); real table or column names only in a stage's caption.
+  - HTML: write them as JSON and render with `references/layout.py --examples` (format in its docstring).
 - Key example missing, or data may be sensitive → ask once (one prompt).
 
 ## Templates (sections for the Technical document unless noted)
@@ -132,6 +140,7 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 
 ## Formats
 - **HTML:** per `references/html-style.md` — light, flat, printable, all CSS/JS inline (no CDN), fully readable with JavaScript off.
+  - After writing each page, run `python <skill>/references/layout.py <page.html> [--examples <examples.json>]`. It adds a left menu (one section shown per click, CSS only; sub-items per folded block, shown when their section is open), folds step tables that sit under a diagram, and renders the journey examples. Rerun after every edit; it replaces what it added before.
 - **Markdown:** Mermaid diagrams (`sequenceDiagram`, `flowchart LR`, `erDiagram`), tables, tagged code blocks.
 - **Confluence:** storage-format XHTML; diagrams rendered locally to PNG/SVG in an assets folder and referenced as attachments; code and expand macros; no scripts. End the reply (not the file) with one line on how to import. Never upload yourself.
 - **Word / PDF:** only if explicitly asked; diagrams as images.
@@ -147,7 +156,7 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 1. Step 0 questions.
 2. Graph (if chosen) → else read sources with scripts first (CLAUDE.md data handling).
 3. Opus plans each document: sections, diagrams, examples.
-4. Build, then verify every name, number, command, and example against the source; render and screenshot every diagram (no renderer installed → ask once; if no, say "layout not visually checked" in the reply, not the document).
+4. Build, run `layout.py`, then verify every name, number, command, and example against the source; render and screenshot every diagram (no renderer installed → ask once; if no, say "layout not visually checked" in the reply, not the document).
 5. Trim: delete any bullet that isn't essential and any prose sentence left over. Rewrite any chat leakage ("you said", "the user", "as discussed", "confirm with", "Claude", requests to the reader like "run on prod to confirm", notes on what was skipped, unchecked or asked) as the author's statement — a Should fix; Must if it misstates a fact or exposes private chat content.
 6. Read as the audience: Overview as a manager (no unexplained jargon) · Technical as a new engineer (could deploy and access from it alone) · User guide as a first-time user (every task doable without help).
 7. After a Technical doc is built, end the reply with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" — no other unprompted suggestions. The CLAUDE.md Self-check still comes before it.

@@ -84,7 +84,7 @@ AskUserQuestion(questions=[
 
 **Overview:** What it is and why (`labels` What · Why · Key idea · Result) · How it works (one L0 flow, 3–7 boxes; no steps table) · Who uses it · Example (journey + 2–6 cards, one non-typical) · Value and cost · Schedule · Design and operational risks (≤3) · Words used. L0 boxes: input/actor → one box per entry group of each kind (table below) → output/store.
 
-**Technical:** Overview · Architecture (L2 flow + `components`, one box per top-level module or folder; library: + `api` table, Call · Returns · Raises · Where, one row per `plan.api` name) · the interface sections the plan requires · Main flows · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
+**Technical:** Overview · Architecture (L2 flow + `components`, one box per top-level module or folder; library: + `api` table, Call · Returns · Raises · Where, one row per `plan.api` name) · the interface sections the plan requires · Main flows · Code files (optional) · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
 - **Main flows:** per plan `main_flows` h3 (exact text, order): `h3 ipo flow* io?`. One `ipo` per h3 = Input → Process → Output, each step showing its output:
   - `input` (with its source) · `steps [{do ≤8 words, out, where path:line}]` covering the plan's ordered steps, **≤7**: merge plumbing (parse argv, dispatch, fetch) into the step that produces data, `graph: [k, …]` = the graph steps it covers · `output` (where it lands).
   - `out` names what the step produces with a name or number its `do` lacks ("HTTP request" after "fetch(…)" says nothing).
@@ -95,6 +95,8 @@ AskUserQuestion(questions=[
 - **Coverage:** every item of a `plan.coverage` type (incl. storage locations, business rules, processes) by exact name in visible text — a box label, step or table row. Never in a hover `tip` (not counted); groups have no `tip`. Long names: full name in a table row. A name defined in several places: name each, or the count next to it (`` `var.region` (4 modules) ``). Leave out only via `coverage_skip {name: why}`. Items that say the same thing share one group row: "13 schema files: `a`, `b`, …", or a pattern row ending in `{"covers": [names]}` (counts for coverage; count and names are its hover title: no "(2 graph rules)" in a cell, WARN). Unused and marker files: one group row.
 - **Data model** (only if the plan requires it: ≥2 tables/views/dbt models or any fk; else name the table in Architecture `components`): one `er` per plan area, title = the plan's `ER: <area>`, in order; `views` only if the graph has views.
 - **Business rules:** one `rules` row per business_rule node: Rule (a phrase a reader understands, never an identifier alone (WARN); graph ids in Where or `covers`) · Example in → out (values) · Why / impact (why it exists, what breaks for whom without it; WARN when empty; never a citation, WARN) · Where (`basename:line`); no examples block. One rule over N entities = one row "… applies to: a, b, c". A rule a Main flows step already shows → `see step 5.1.3`; Where empty, or other lines than the step's. **Operations** (only if the plan requires it: pipeline, dbt, web API, streaming): one `tasks` table (Task · Command · When · Where), one heading row per task with its rows under it; Tasks only `Rerun and backfill` (plan `rerun_and_backfill`) or the plan's `how_tos` (process nodes + `Run the tests`), plan order: the exact text, or plain words with the how-to in Where or `covers`. A how-to that is a flow → point to its Main flows h3. A command Deploy or Commands gives → point there. **Deploy:** every `plan.deploy` unit and `deploys` source in a steps or environments row; one row per file kind (all Dockerfiles in one). **Configuration:** `Default (code) / deploy value`.
+- **Code files** (optional, any repo with code): `entries` (App · Entry file · Starts at) → a file-to-file main-path flow → one `file` block per code file: `purpose` (2–3 lines), `called_by` / `calls` / `data` (from graph `imports`, `calls`, `reads`/`writes`), its call tables in `blocks` (shown on click).
+- **Tests:** one `testfile` block per test file (folder + `covers` for a group, e.g. SQL tests): `checks` (code it tests, from graph `imports`/`calls`), `proves` (one line), `topics` (one row per test or group: what it proves, from the test's docstring or name). The build draws the test map and the table.
 - **Repeats:** a repeated pattern → one group "Repeats for each …" + one sub-flow; every member named in a table row (fan-out frames: the build).
 
 **User guide:** How it reaches you · Screens · What answers what · How to … (one per real task) · When data is fresh · History and deletions · Errors and messages · Problems and fixes · Who to contact. No internals; tasks from screens, routes, commands, consumer queries.
@@ -127,15 +129,18 @@ What goes into the sections the plan picked:
 | Data model | `er` only; views in a table |
 | Input → steps → output, examples traced through each step | ipo (Main flows) |
 | One record through stages | journey (not in Main flows) |
+| One example as a journey: the point, 2–3 stages, the cause highlighted, why it matters | `story` (any section, ≤3 per section) |
 
 - Every flow, ER and journey: `id` (A, B… in doc order) + fixed title form (`spec.md` → Diagram ids and titles; Main flows: the build writes it). Steps or area per section: `plan.diagram_titles`.
 - One-line `key` + `notice` on each. Boxes: `tag`, 1–3 `bullets`, `in`/`out`, `runs`, `see`. Technical: real names; Overview/User guide: business words. A `decision` box needs ≥2 outgoing arrows.
 - Layout is the build's (`spec.md` → Layout). Too wide or crowded → it errors with the fix; follow it.
+- **Page (every document, by the build):** fixed left menu of sections (wide screens); a click shows only that section; sub-items (h3s, files, test files) appear once their section is open; diagrams come before the step tables they explain, which fold behind "Show the steps (N)".
 
 ## Examples
 - **Every main flow, rule and user task gets examples.** Source order: tests/fixtures → docs/README → derived from code (`derived from <path:line>`) → synthetic (`synthetic: true`). Cite each (`source`). Realistic, 2–5 rows, no real data, no PII.
 - **Repo has tests:** example a of each main flow from a test; ≤⅓ of all examples synthetic (WARN).
 - **Every example:** `case` (typical · edge · rejected · failure), `title`, `expect` (one line: what we want), `in`, `out`. The build adds the id (5.1a) — never in `tag`; naming a missing example → ERROR. Never invent a case the code lacks.
+- **The examples that teach most** (any document type, ≤3 per section): a `story` — headline = the point, 2–3 stages left to right (file → what the user sees → what is stored), the cause cell `{"hl": …}`, one "why it matters" line.
 - **Where:** Main flows → ipo traces (above) · Business rules → in the rule row · Overview → 2–6 cards that add a case the journey does not show · User guide How to → cards or io for the result and the failure, not the steps again · else cards. Record changing → journey · query/request/command/call/UI action → io.
 - Key example missing or data may be sensitive → ask once.
 

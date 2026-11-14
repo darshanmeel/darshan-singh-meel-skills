@@ -25,7 +25,7 @@ ORDER = {
     "overview": ["What it is and why", "How it works", "Who uses it", "Example", "Value and cost", "Schedule",
                  "Design and operational risks", "Words used"],
     "technical": ["Overview", "Architecture", "Job DAG and schedule", "Screens and navigation", "Endpoints", "Commands",
-                  "Events and messages", "Main flows", "Data model", "Business rules", "Configuration",
+                  "Events and messages", "Main flows", "Code files", "Data model", "Business rules", "Configuration",
                   "Security and access", "Deploy and environments", "Operations", "Performance and limits", "Tests",
                   "Key decisions"],
     "user-guide": ["How it reaches you", "Screens", "What answers what", "How to *", "When data is fresh",
@@ -51,10 +51,10 @@ RECIPES = {
         "Job DAG and schedule": "flow+ schedule bullets?", "Screens and navigation": "flow+ elements bullets?",
         "Endpoints": "flow+ endpoints bullets?", "Commands": "flow+ commands bullets?",
         "Events and messages": "flow+ events bullets?",
-        "Main flows": "(h3 ipo flow* io?)+",
+        "Main flows": "(h3 ipo flow* io?)+", "Code files": "text? entries? flow? file* bullets?",
         "Data model": "text? er+ views? bullets?", "Business rules": "rules", "Configuration": "config bullets?",
         "Security and access": "(access bullets?|bullets)", "Deploy and environments": "flow? steps io* environments? bullets?",
-        "Operations": "io* symptoms tasks? io*", "Performance and limits": "bullets", "Tests": "tests io* bullets?",
+        "Operations": "io* symptoms tasks? io*", "Performance and limits": "bullets", "Tests": "(tests testfile*|testfile+) io* bullets?",
         "Key decisions": "choices", LAST: "text? issues unused? assumptions? decisions?"},
     "user-guide": {
         "How it reaches you": "flow bullets? examples?", "Screens": "flow+ elements",
@@ -80,10 +80,15 @@ TYPED = {  # builder-owned headers; the spec gives rows only
     "problems": ["Problem", "What to do"], "views": ["View", "Built from", "Rows"],
     "unused": ["File", "Why it looks unused", "Status"], "assumptions": ["Assumption", "Why it matters"],
     "decisions": ["Decision", "Options", "Recommendation", "If it waits"],
+    "entries": ["App", "Entry file", "Starts at"],
 }
-TYPED_H3 = {"unused": "Unused files", "assumptions": "Assumptions", "decisions": "Decisions needed"}
+TYPED_H3 = {"unused": "Unused files", "assumptions": "Assumptions", "decisions": "Decisions needed", "entries": "Entry points"}
 L0_LABELS = ["What", "Why", "Key idea", "Result"]
-EXAMPLE_BLOCKS = {"examples", "io", "journey", "ipo"}
+EXAMPLE_BLOCKS = {"examples", "io", "journey", "ipo", "story"}
+FREE = {"story"}  # blocks any section may hold (not part of its recipe): at most MAX_STORIES per section
+MAX_STORIES = 3
+STORY_CLS = {"typical": "ok", "edge": "warn", "rejected": "block", "failure": "block"}
+NESTED = {"file"}  # blocks holding their own `blocks` (shown behind a click), checked apart from the section recipe
 CASES = ["typical", "edge", "rejected", "failure"]
 EX_FIELDS = ["case", "title", "expect", "in", "out"]
 IPO_FIELDS = ["case", "title", "expect", "in", "at", "out"]  # a trace: one `at` value per step
@@ -128,7 +133,7 @@ SPREAD = 40  # px between arrow ends when 2 or more meet one box side (capped by
 BRK = re.compile(r"(?<=[_/])|(?<=[.-])(?!\d)|(?<=(?<!\d)[.-])|(?<=[a-z])(?=[A-Z])")
 NUMS = re.compile(r"\d+(?:[.:–-]\d+)+")  # versions, dates, line ranges: never broken
 _ids = [0]
-POS = {"kind": "", "slot": "", "sec": 0, "h3": 0, "ex": 0, "said": set()}  # where block() is: example ids, steps columns
+POS = {"kind": "", "slot": "", "sec": 0, "h3": 0, "ex": 0, "said": set(), "subs": []}  # where block() is: example ids, steps columns
 LATE = []  # warnings found while drawing (printed with the coverage warnings); used by review-v2
 
 
@@ -942,7 +947,8 @@ def result_table(r):
     syn = set(r.get("synthetic", []))
     head = "".join(f"<th>{esc(c)}</th>" for c in r["cols"])
     cell = lambda v: '<span class="tc">NULL</span>' if v is None else esc(v)
-    body = "".join("<tr>" + "".join(f'<td>{cell(v)}{" <span class=\"chip syn\">synthetic</span>" if j == 0 and i in syn else ""}</td>'
+    chip = ' <span class="chip syn">synthetic</span>'
+    body = "".join("<tr>" + "".join(f'<td>{cell(v)}{chip if j == 0 and i in syn else ""}</td>'
                                     for j, v in enumerate(row)) + "</tr>" for i, row in enumerate(r["rows"]))
     return f'<div class="scroll"><table class="res"><tr>{head}</tr>{body}</table></div>'
 
@@ -1156,6 +1162,8 @@ def ipo(b):
         f'{why(s)}{br(s)}{where(s)}</li>' for k, s in enumerate(st, 1)) + end("io-out", "OUTPUT", b["output"])
     files = list(dict.fromkeys(m[1] for s in st for m in PATH_RE.finditer(str(s.get("where") or ""))))
     out = f'<ol class="ipo">{strip}</ol>' + (f'<p class="src">Sources: {" &middot; ".join(esc(f) for f in files)}</p>' if files else "")
+    if b.get("_fold"):  # the flow diagram above shows the path: the strip waits behind one click
+        out = f'<details class="fold"><summary>Show the steps ({len(st)})</summary>{out}</details>'
     items = [(ex_id(), c) for c in b.get("examples") or []]
     if not items:
         return out
@@ -1191,13 +1199,157 @@ def ipo(b):
     return out + (f'<p class="src">{src}</p>' if src else "")
 
 
+def slug(text):
+    return re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
+
+
+def sub(anchor, text, path=False):
+    """A menu sub-item of the current section (hidden in the menu until its section is open); path: a file path (mono)."""
+    POS["subs"].append((anchor, text, path))
+
+
+def cell_html(c):
+    """A story table cell: text, or {"hl": value} for the cell that causes the outcome (highlighted)."""
+    if isinstance(c, dict):
+        return f'<td class="hl">{esc(show(c.get("hl")), True)}</td>'
+    return f'<td>{esc(show(c), True)}</td>'
+
+
+def story(b):
+    """An example drawn as a journey: headline (the point), 2-3 stages left to right (a table, key/value rows or a
+    message), the cause cell highlighted, one "Why it matters" line. Numbered like every example."""
+    i, cls = ex_id(), STORY_CLS.get(b.get("case"), "ok")
+    stages = []
+    for st in b.get("stages") or []:
+        head = f'<div class="h"><b>{esc(st.get("title", ""))}</b>' + (f'<small>{esc(st["sub"])}</small>' if st.get("sub") else "") + "</div>"
+        body = f'<div class="msg {cls}">{esc(st["msg"], True)}</div>' if st.get("msg") else ""
+        rows = st.get("rows") or []
+        if rows and st.get("cols"):
+            body += ('<div class="tw"><table><tr>' + "".join(f"<th>{esc(c)}</th>" for c in st["cols"]) + "</tr>"
+                     + "".join("<tr>" + "".join(cell_html(c) for c in r) + "</tr>" for r in rows) + "</table></div>")
+        elif rows:
+            body += ('<div class="tw"><table>' + "".join(f'<tr><td class="kv">{esc(r[0], True)}</td>{cell_html(r[1] if len(r) > 1 else "")}</tr>'
+                                                        for r in rows) + "</table></div>")
+        stages.append(f'<div class="st">{head}{body}</div>')
+    src = f' <span class="src">{esc(b["source"], True)}</span>' if b.get("source") else ""
+    syn = ' <span class="chip syn">synthetic</span>' if b.get("synthetic") else ""
+    why = f'<p class="why"><b>Why it matters:</b> {esc(b.get("why", ""), True)}{src}</p>' if b.get("why") else (f'<p class="why">{src}</p>' if src else "")
+    return (f'<div class="story {cls}" id="ex-{i}"><div class="hd"><span class="exn">EXAMPLE {i}</span>'
+            f'<span class="oc">{esc(b.get("outcome") or b.get("case", ""))}</span>{syn}<b>{esc(b.get("headline", ""))}</b></div>'
+            f'<div class="js">{"<div class=ar>&rarr;</div>".join(stages)}</div>{why}</div>')
+
+
+def chips(names, cls=""):
+    return "".join(f'<span class="fc {cls}">{esc(x, True)}</span>' for x in names)
+
+
+def file_block(b, kind):
+    """One code file: path, a 2-3 line "Main purpose" box, a small map (called by -> this file -> calls and data
+    objects), then its details (call chains, tables) behind one click. A menu sub-item of its section."""
+    a = "f-" + slug(b["path"])
+    sub(a, b["path"], True)
+    side = lambda lab, xs, cls="": (f'<div class="fcol"><span class="lbl2">{lab}</span>{chips(xs, cls)}</div>' if xs else "")
+    left = side("CALLED BY", b.get("called_by") or []) or '<div class="fcol"><span class="lbl2">CALLED BY</span><span class="fc none">entry point</span></div>'
+    right = side("CALLS", b.get("calls") or []) + side("DATA", b.get("data") or [], "data")
+    fmap = (f'<div class="fmap">{left}<div class="far">&rarr;</div><div class="fcol mid"><span class="fc me">{esc(b["path"], True)}</span></div>'
+            + (f'<div class="far">&rarr;</div><div class="fright">{right}</div>' if right else "") + "</div>")
+    inner = "".join(block(x, kind) for x in b.get("blocks") or [])
+    more = f'<details class="fold"><summary>{esc(b.get("summary") or "Show the details")}</summary>{inner}</details>' if inner else ""
+    return (f'<div class="file subt" id="{a}"><h3><code>{esc(b["path"], True)}</code></h3>'
+            f'<div class="purpose"><b>Main purpose</b>{esc(b.get("purpose", ""))}</div>{fmap}{more}</div>')
+
+
+def testfile(b):
+    """One test file folded: summary = path, test count, what it proves; inside one row per topic (what each proves)."""
+    a = "t-" + slug(b["path"])
+    sub(a, b["path"], True)
+    topics = b.get("topics") or []
+    n = f' &middot; {b["count"]} tests' if b.get("count") and b["count"] != len(topics) else ""
+    head = (f'<code>{esc(b["path"], True)}</code>{n} &middot; {len(topics)} topic{"s" if len(topics) != 1 else ""}'
+            + (f' &mdash; {esc(b["proves"])}' if b.get("proves") else ""))
+    body = table(["Topic", "What it proves"], topics) if topics else ""
+    src = f'<p class="src">{esc(b["source"], True)}</p>' if b.get("source") else ""
+    return f'<div class="tf subt" id="{a}"><details class="fold"><summary>{head}</summary>{body}{src}</details></div>'
+
+
+def tests_map(tfs):
+    """Tests section: test file (left) -> the code it checks (right), drawn from the testfile blocks' `checks`."""
+    left = [b["path"] for b in tfs]
+    right = list(dict.fromkeys(c for b in tfs for c in b.get("checks") or []))
+    if not right:
+        return ""
+    bh, gap, w, bw = 26, 8, 760, 300
+    rows = max(len(left), len(right))
+    hgt = rows * (bh + gap) + gap
+    y = lambda k, n: gap + k * (bh + gap) + (rows - n) * (bh + gap) / 2
+    short = lambda t: t if len(t) <= 40 else t[:18] + "\u2026" + t[-20:]
+    box = lambda x, yy, t, cls: (f'<rect x="{x}" y="{yy:.0f}" width="{bw}" height="{bh}" rx="5" class="{cls}"/>'
+                                 f'<text x="{x + 10}" y="{yy + 17:.0f}">{html.escape(short(t))}<title>{html.escape(t)}</title></text>')
+    mid = lambda k, n: y(k, n) + bh / 2
+    lines = "".join(
+        f'<path d="M{bw},{mid(i, len(left)):.0f} C{bw + 80},{mid(i, len(left)):.0f} {w - bw - 80},{mid(j, len(right)):.0f} '
+        f'{w - bw},{mid(j, len(right)):.0f}" class="ln"/>'
+        for i, b in enumerate(tfs) for j, c in enumerate(right) if c in (b.get("checks") or []))
+    svg = (f'<svg viewBox="0 0 {w} {hgt:.0f}" role="img" aria-label="test files and the code they check">{lines}'
+           + "".join(box(0, y(i, len(left)), t, "tb") for i, t in enumerate(left))
+           + "".join(box(w - bw, y(j, len(right)), t, "cb") for j, t in enumerate(right)) + "</svg>")
+    return f'<div class="tmap">{svg}<p class="key">Left: test files. Right: the code each one checks.</p></div>'
+
+
+def tests_table(tfs):
+    rows = [[f'`{b["path"]}`', ", ".join(f"`{c}`" for c in b.get("checks") or []), b.get("proves", "")] for b in tfs]
+    return table(["Test file", "Checks", "What it proves"], rows)
+
+
+def flows_first(blocks):
+    """Main flows: under an h3 with a flow diagram, the diagram (and its sub-flows) comes first and the ipo strip
+    folds behind "Show the steps (N)"; the example traces stay open. Spec order is unchanged (ids, checks)."""
+    out, group = [], []
+
+    def flush():
+        tops = [b for b in group if b["type"] == "flow"]
+        if tops:
+            head = [b for b in group if b["type"] == "h3"]
+            rest = [dict(b, _fold=True) if b["type"] == "ipo" else b for b in group if b["type"] not in ("h3", "flow")]
+            out.extend(head + tops + rest)
+        else:
+            out.extend(group)
+    for b in blocks:
+        if b["type"] == "h3" and group:
+            flush()
+            group = []
+        group.append(b)
+    flush()
+    return out
+
+
+def section_html(blocks, kind, name):
+    """A section's blocks: Main flows diagrams first; a steps table after a diagram folds behind "Show the steps (N)";
+    with testfile blocks, the test map (and, without a tests table, a table from them) before the first one."""
+    bs = flows_first(blocks) if (kind, name) == ("technical", "Main flows") else blocks
+    tfs = [b for b in bs if b["type"] == "testfile"]
+    out, seen_flow, drew = "", False, False
+    for b in bs:
+        t = b["type"]
+        if tfs and not drew and t in ("tests", "testfile"):
+            out += tests_map(tfs) + ("" if t == "tests" else tests_table(tfs))
+            drew = True
+        if t == "steps" and seen_flow:
+            b = dict(b, _fold=True)
+        seen_flow = seen_flow or t == "flow"
+        out += block(b, kind)
+    return out
+
+
 def block(b, kind):
     t = b["type"]
     if t == "text":
         out = f'<p class="lead">{esc(b["text"])}</p>'
     elif t == "h3":
         POS["h3"], POS["ex"] = POS["h3"] + 1, 0
-        out = f'<h3>{esc(b["text"])}</h3>'
+        a = f'h-{POS["sec"]}-{POS["h3"]}'
+        sub(a, b["text"])
+        out = f'<h3 id="{a}">{esc(b["text"])}</h3>'
     elif t == "bullets":
         out = "<ul>" + "".join(f"<li>{esc(i)}</li>" for i in b["items"]) + "</ul>"
     elif t == "labels":
@@ -1208,7 +1360,7 @@ def block(b, kind):
     elif t in TYPED:  # 1-2 rows: one line each, not a table (tasks: a table, a heading row per task)
         cv = b.get("_covers")
         rows = (tasks_table(b["rows"], cv) if t == "tasks" and len(b["rows"]) > 1 else
-                table(TYPED[t], b["rows"], t == "rules", cv) if len(b["rows"]) > 2 else rows_list(TYPED[t], b["rows"], cv))
+                table(TYPED[t], b["rows"], t == "rules", cv) if len(b["rows"]) > 2 or t == "entries" else rows_list(TYPED[t], b["rows"], cv))
         link = lambda m: f'<a href="#st-{m[1]}">step {m[1]}</a>'
         rows = re.sub(r'\bstep <span class="nw">(\d+\.\d+\.\d+)</span>', link, rows) if t == "rules" else rows
         out = (f"<h3>{TYPED_H3[t]}</h3>" if t in TYPED_H3 else "") + rows
@@ -1219,6 +1371,8 @@ def block(b, kind):
                                                                                      for h, c in zip(cols, r)) + "</tr>"
                        for i, r in enumerate(b["rows"], 1))
         out = f'<div class="scroll"><table class="tt steps"><tr>{head}</tr>{body}</table></div>'
+        if b.get("_fold"):  # the diagram above shows the path: the table waits behind one click
+            out = f'<details class="fold"><summary>Show the steps ({len(b["rows"])})</summary>{out}</details>'
     elif t == "terms":
         out = '<ul class="terms">' + "".join(f"<li><b>{esc(a)}</b> &mdash; {esc(m)}</li>" for a, m in b["items"]) + "</ul>"
     elif t == "io":
@@ -1227,6 +1381,12 @@ def block(b, kind):
         out = examples(b)
     elif t == "ipo":
         out = ipo(b)
+    elif t == "story":
+        return story(b)
+    elif t == "file":
+        return file_block(b, kind)
+    elif t == "testfile":
+        return testfile(b)
     elif t == "issues":
         out = issues(b, kind)
     elif t == "details":
@@ -1245,7 +1405,7 @@ def block(b, kind):
             POS["said"].add(b["key"])
         out += f'<p class="cap">Notice: {esc(b["notice"])}</p>' if b.get("notice") else ""
     else:
-        die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, ipo, issues, details, flow, er, journey, {', '.join(TYPED)})")
+        die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, ipo, issues, details, flow, er, journey, story, file, testfile, {', '.join(TYPED)})")
     return out + (f'<p class="src">{esc(b["source"], True)}</p>' if b.get("source") else "")
 
 
@@ -1281,6 +1441,11 @@ def step_cols(b, kind, sec):
 
 def flat(blocks):
     return [x for b in blocks for x in (b["blocks"] if b["type"] == "details" else [b])]
+
+
+def deep(blocks):
+    """flat, plus the blocks inside file blocks (for citations)."""
+    return [y for x in flat(blocks) for y in [x] + (flat(x.get("blocks") or []) if x["type"] in NESTED else [])]
 
 
 def rx(recipe, relax=False):
@@ -1744,6 +1909,10 @@ def check(spec, kind, names, plan):
             warn.append(f"{n}: {len(tt)} tables ({', '.join(tt)}; max {MAX_TABLES}): fewer tables - merge rows that say the same "
                         f"thing, give a 1-2 row table as a line, or say a fact once in a bullet")
         recipe = RECIPES.get(kind, {}).get(slot(kind, n))
+        stories = types.count("story")
+        if stories > MAX_STORIES:
+            warn.append(f"{n}: {stories} story examples (max {MAX_STORIES} per section): keep the ones that teach the most")
+        types = [t for t in types if t not in FREE]
         if recipe and not fits(recipe, types):
             short = fits(recipe, types, relax=True)
             (warn if short else err).append(f"{n}: recipe `{recipe}`, got `{' '.join(types) or '(empty)'}`"
@@ -1764,6 +1933,8 @@ def check(spec, kind, names, plan):
                 example_items(n, b["items"], err, warn, main)
             if t == "ipo":
                 ipo_check(n, b, err, warn, main)
+            if t in ("story", "file", "testfile"):
+                new_block_check(n, b, err, warn)
             if t == "er" and len(b["entities"]) > 9:
                 err.append(f"{n}: ER has {len(b['entities'])} tables (max ~9): split it into one ER per area")
             if t == "h3" and fixed and not b["text"].startswith(fixed):
@@ -1823,6 +1994,46 @@ def check(spec, kind, names, plan):
     repeats(spec, names, warn)
     cell_repeats(spec, kind, names, warn)
     return err, warn
+
+
+INNER = {"text", "bullets", "labels", "table", "steps", "io", "examples", "story"}  # blocks a file block may hold
+
+
+def new_block_check(n, b, err, warn):
+    """story: case, headline, 2-3 stages, a highlighted cause cell, a why. file: path, a 2-3 line purpose, inner blocks
+    without diagrams or h3s. testfile: path, topics [[topic, what it proves]]."""
+    t = b["type"]
+    if t == "story":
+        st = b.get("stages") or []
+        if b.get("case") not in CASES:
+            err.append(f"{n}: story '{b.get('headline', '')}': case must be one of {CASES}, got '{b.get('case')}'")
+        if not b.get("headline"):
+            err.append(f"{n}: story needs a headline (one line: the point of the example)")
+        if not 2 <= len(st) <= 3:
+            err.append(f"{n}: story '{b.get('headline', '')}' has {len(st)} stages: want 2-3, left to right")
+        hl = any(isinstance(c, dict) and "hl" in c for x in st for r in x.get("rows") or [] for c in r)
+        if not hl and not any(x.get("msg") for x in st):
+            warn.append(f"{n}: story '{b.get('headline', '')}': mark the cell that causes the outcome as {{\"hl\": value}}")
+        if not b.get("why"):
+            warn.append(f"{n}: story '{b.get('headline', '')}': add `why` (one line: why it matters, for whom)")
+        for x in st:
+            k = len(x.get("cols") or [])
+            err += [f"{n}: story stage '{x.get('title', '')}' row has {len(r)} cells, want {k}: {r}" for r in x.get("rows") or []
+                    if k and len(r) != k]
+    elif t == "file":
+        if not b.get("path") or not b.get("purpose"):
+            err.append(f"{n}: file block needs path and purpose (2-3 lines: what the file is for)")
+        elif len(SENT.split(str(b["purpose"]).strip())) > 3 or len(str(b["purpose"]).split()) > 60:
+            warn.append(f"words: {n}: file `{b['path']}` purpose is over 3 sentences or 60 words: keep the main purpose; details go in its blocks")
+        bad = [x.get("type") for x in b.get("blocks") or [] if x.get("type") not in INNER and x.get("type") not in TYPED]
+        if bad:
+            err.append(f"{n}: file `{b.get('path')}` blocks {bad} not allowed inside a file block (use {sorted(INNER)} or a typed table)")
+    elif t == "testfile":
+        if not b.get("path"):
+            err.append(f"{n}: testfile block needs path")
+        bad = [r for r in b.get("topics") or [] if not isinstance(r, list) or len(r) != 2]
+        if bad or not b.get("topics"):
+            (err if bad else warn).append(f"{n}: testfile `{b.get('path')}`: topics = [[topic, what it proves], ...]" + (f", got {bad[:2]}" if bad else ""))
 
 
 def step_ids(spec, names, field="where"):
@@ -2277,10 +2488,11 @@ def cite_texts(spec, names):
     for n, m in ticks(spec, names):
         yield n, f"`{m}`"
     for n in names:
-        for b in flat(spec["sections"][n]):
+        for b in deep(spec["sections"][n]):
             items = [c for c in b.get("items", []) if isinstance(c, dict)]
             items += [c for c in (b.get("steps") or []) + (b.get("examples") or []) if b["type"] == "ipo" and isinstance(c, dict)]
             whole = [b.get("source")] + [c.get(k) for c in items for k in ("source", "where")]
+            whole += [b.get("path")] if b["type"] in ("file", "testfile") else []
             if b["type"] in TYPED and "Where" in TYPED[b["type"]]:
                 k = TYPED[b["type"]].index("Where")
                 whole += [r[k] for r in b["rows"] if len(r) > k]
@@ -2413,7 +2625,7 @@ def identifiers(spec, names, root, files, warn, kind, inv=None):
 
 def visible(page):
     """The text a reader sees: no tags, no hover tips, no CSS; names joined again where the build put break points."""
-    page = re.sub(r"<style>.*?</style>|<title>.*?</title>", " ", page, flags=re.S)
+    page = re.sub(r'<style>.*?</style>|<title>.*?</title>|<nav class="side".*?</nav>', " ", page, flags=re.S)  # the menu repeats headings
     page = re.sub(r'<wbr>|<span class="nw">([^<]*)</span>', lambda m: m[1] or "", page)
     return html.unescape(re.sub(r"<[^>]+>", " ", page))
 
@@ -2425,6 +2637,7 @@ def coverage(spec, page, inv, warn):
     page_text, skip = arrows(visible(page)), spec.get("coverage_skip", {})
     calls = " | ".join(str(r[0]) for b in flat(spec["sections"].get("Architecture", [])) if b["type"] == "api" for r in b["rows"] if r)
     cov = {x for bs in spec["sections"].values() for b in flat(bs) for c in b.get("_covers") or [] for x in c or []}
+    cov |= {x for bs in spec["sections"].values() for b in flat(bs) if b["type"] == "testfile" for x in b.get("covers") or []}
     known = set(inv["tests"]) | {x["name"] for v in inv["items"].values() for x in v} | {x["name"] for x in inv["plan"].get("api", [])}
     known |= set(inv["plan"].get("how_tos", []))
     if cov - known:
@@ -2527,7 +2740,7 @@ def fact_numbers(page, spec_path, warn):
         facts = json.loads((Path(spec_path).parent / "facts.json").read_text(encoding="utf-8")).get("facts", [])
     except (OSError, ValueError, AttributeError):
         return
-    text = re.sub(r"\s+", " ", visible(re.sub(r'<nav class="toc">.*?</nav>|<h2 .*?</h2>', " ", page, flags=re.S)))  # no section numbers
+    text = re.sub(r"\s+", " ", visible(re.sub(r'<nav class="toc">.*?</nav>|<h2[ >].*?</h2>', " ", page, flags=re.S)))  # no section numbers
     nums = [f for f in facts if isinstance(f, dict) and re.fullmatch(r"\d+", str(f.get("value", "")))]
     plain = lambda f: re.sub(r"\s*\(.*?\)", "", str(f.get("fact", ""))).strip()
     for f in nums:
@@ -2611,15 +2824,23 @@ def main(spec_path, out_path):
     src = (f'<p class="src">Known issues from review <code>{esc(spec["review"])}</code></p>' if spec.get("review") else
            '<p class="src">Severity follows the fixed rubric; Confirmed only where a test or the code proves it</p>'
            if issue_items(spec) else "")
-    body = ""
+    body, menu, rules = "", "", []
     for i, n in enumerate(names):
-        POS.update(kind=kind, slot=slot(kind, n), sec=i + 1, h3=0, ex=0, said=set())
-        body += (f'<section><h2 id="s{i}">{esc(title(i, n))}</h2>{src if n == LAST else ""}'
-                 f'{"".join(block(b, kind) for b in sections[n])}</section>')
+        POS.update(kind=kind, slot=slot(kind, n), sec=i + 1, h3=0, ex=0, said=set(), subs=[])
+        body += (f'<section id="s{i}"><h2>{esc(title(i, n))}</h2>{src if n == LAST else ""}'
+                 f'{section_html(sections[n], kind, n)}</section>')
+        menu += f'<a href="#s{i}">{esc(title(i, n))}</a>'
+        if POS["subs"]:
+            menu += f'<div class="sub" data-for="s{i}">' + "".join(f'<a href="#{a}"{" class=p" if p else ""}>{esc(t, True)}</a>' for a, t, p in POS["subs"]) + "</div>"
+            rules.append(f'body:has(#s{i}:target, #s{i} :target) .side .sub[data-for="s{i}"] {{ display:block; }}')
+        rules.append(f'body:has(#s{i}:target, #s{i} :target) .side a[href="#s{i}"] {{ background:var(--soft); font-weight:600; }}')
+    nav = (f'<nav class="side" aria-label="Sections"><div class="t">{esc(spec["title"])}</div><a href="#top" class="all">Whole page</a>{menu}</nav>')
+    menu_css = "@media (min-width:1360px) { " + " ".join(rules) + " }"
     css = (Path(__file__).parent / "style.css").read_text(encoding="utf-8")
     sub = f'<p class="sub1">{esc(spec["subtitle"])}</p>' if spec.get("subtitle") else ""
     page = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
-            f'<meta name="generator" content="darshan-singh-meel-docs-v2 {ver}"><title>{esc(spec["title"])}</title><style>{css}</style></head><body><main>'
+            f'<meta name="generator" content="darshan-singh-meel-docs-v2 {ver}"><title>{esc(spec["title"])}</title><style>{css}\n{menu_css}</style></head>'
+            f'<body class="withnav">{nav}<main id="top">'
             f'<div class="eyebrow">{kind.replace("-", " ")}</div><h1>{esc(spec["title"])}</h1>{stamp(spec, out.parent, files, stale_n)}{sub}'
             f'{tabs(spec)}<nav class="toc">{toc}</nav>{body}</main></body></html>')
     ids = set(re.findall(r'id="ex-([^"]+)"', page))

@@ -29,7 +29,7 @@ Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-grap
   - Does (3–5): Overview business outcomes · Technical what components handle · User guide tasks.
   - Doesn't (3–5): out of scope by design ("doesn't edit source data", "access managed by platform team").
   - Limitations (real, ≤5): constraints inside scope ("daily 6 AM, not real-time", "reads cached 5 min", "uploads ≤50 MB"). Only here.
-  - Top issues (≤10; Overview ≤5; only real; most important first): one line each + Confirmed / Not verified. Details in last section. None → "No known issues".
+  - Top issues (≤10; Overview ≤5; most important first): only real problems to act on (blocker · wrong data · security gap), one line each + Confirmed / Not verified. Never "not yet run / tested in <env>" or speculative code notes → last section, if anywhere. Details in last section. None → "No known issues".
 - HTML: CSS-only radio tabs, Does open, work with JS off; print shows all four. Markdown/Confluence: four headed lists, same order (Confluence: tabs/expand macro ok).
 - Overview/User guide plain words; Technical may name components.
 
@@ -65,9 +65,12 @@ Before reading sources or writing. Silent check: graph (`./<repo>-knowledge-grap
 - Diagrams: architecture, flows, ER, lineage, DAG. Examples: code, queries, commands, input → output.
 - Deploy & access (always): environments + diagram · deploy and roll back (exact commands/CI) · prerequisites (names, never values) · access (URLs, schemas, roles, how to request) · health check. Not in source → "<item>: not documented yet — owner to decide" + Decisions needed.
 - Decisions (what + why), design risks (limitations → opening tabs).
+- Entry points (apps · services · CLIs · jobs): table `App or job | For | Entry file | Starts at (function, path:line)` from deploy config → file-to-file main-path diagram: actors → entry files → screens/handlers → shared code → data stores. No detail; dashed line per second path.
+- Per code file (one folded block, menu sub-item): **Main purpose** box (2–3 plain lines: what it's for, what it leaves to others) → small diagram (called by → file + call chains → files called, data read/written; graph edges) → call tables folded "Show call details (N)".
+- Tests (repo has tests): diagram `test file → code it checks` · table `Test file | Tests | Checks | What it proves` · per test file folded block: topics, what each proves, test names + lines. Run commands last.
 
 **User guide** — anyone using the app or its output (UI, dashboard, report, CLI, API, data, files); skip only if just the builders
-- "How to <task>": numbered steps, what the user sees, example each.
+- "How to <task>": numbered steps, what the user sees → ≤3 journey examples: result + one failure, not the steps again.
 - UI: screen flow, `Element | What it does`, `[Screenshot: <screen>]` only if needed. Non-UI: commands, requests/responses, which table/dashboard answers what.
 - `Problem | What to do` ≤5. Who to contact. No internals.
 
@@ -102,7 +105,12 @@ Style, notation, components: `references/html-style.md` · working examples: `re
 - No data rows in docs/diagrams: built from structure; examples only from tests/fixtures/docs/code or synthetic (`illustrative`). Never query the DB for examples; never PII in a document, even masked.
 - Source order: tests and docs (fixtures, dbt tests, README/spec examples, samples) → derived from code (follow real logic with realistic inputs from its defaults and rules, show result, e.g. `add(1, 3) → 4`; run it, else label `derived from <path:line>`) → illustrative (labelled).
 - Cite source in small mono text (`from tests/test_rules.py:42`). 3–5 realistic rows, never foo/bar. Proper format (table, pretty JSON, formatted SQL, command block), never squeezed into prose.
-- Important rules/flows → 2–4 cards: typical, then edge / rejected / failure that behave differently.
+- **Journey examples, ≤3 per section** (typical first, then one that warns, blocks or fails), only where one teaches:
+  - Headline = the point, one plain sentence; alone it teaches the rule. Never a label ("Warn: duplicate key").
+  - 2–3 stages left → right, one record through the system: input as small grid (row numbers, cause cell highlighted) → what the user sees (exact message) → what is stored / result.
+  - One "Why it matters" line; source in small mono.
+  - No code words as labels ("orders rows, INSERT", "flag REJECT_ON_ERROR"); real table/column names only in a stage caption.
+  - HTML: JSON → `references/layout.py --examples` (format: its docstring).
 - Missing key example or sensitive data → ask once.
 
 ## Templates (Technical unless noted)
@@ -116,10 +124,11 @@ Style, notation, components: `references/html-style.md` · working examples: `re
 
 ## Formats
 - HTML: html-style — light, flat, printable, inline CSS/JS, no CDN, readable with JS off.
+  - Each page written → `python <skill>/references/layout.py <page.html> [--examples <examples.json>]`: left menu (one section per click, CSS only; sub-items per folded block, shown when section open) · folds step tables under a diagram · renders journey examples. Rerun after every edit; replaces its own output.
 - Markdown: Mermaid (`sequenceDiagram`, `flowchart LR`, `erDiagram`), tables, tagged code.
 - Confluence: storage XHTML; diagrams rendered locally to PNG/SVG in an assets folder, attached; code/expand macros; no scripts; reply (not file) ends with one line on import. Never upload.
 - Word/PDF: only if asked; diagrams as images. Several formats → identical content.
 
 ## Models · process
 - Opus plans (diagrams, boxes, IN/OUT, examples) · Sonnet builds · Haiku renders, screenshots, lists layout problems. No subagents → tell user in one line which model.
-1. Ask (§0). 2. Graph if chosen, else sources via scripts (CLAUDE.md data handling). 3. Opus plans each document. 4. Build; verify every name, number, command, example against source; render and screenshot every diagram (no renderer → ask once; no → "layout not visually checked" in reply, not document). 5. Trim non-essential bullets, leftover prose · chat leakage ("you said" · "the user" · "as discussed" · "confirm with" · "Claude" · requests to the reader ("run on prod to confirm") · skipped/unchecked/asked notes) → author's statement; Should fix, Must if it misstates a fact or exposes private chat content. 6. Read as audience: manager (no unexplained jargon) · new engineer (could deploy and access alone) · first-time user (every task without help). 7. Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion. CLAUDE.md Self-check still before it.
+1. Ask (§0). 2. Graph if chosen, else sources via scripts (CLAUDE.md data handling). 3. Opus plans each document. 4. Build → `layout.py` → verify every name, number, command, example against source; render and screenshot every diagram (no renderer → ask once; no → "layout not visually checked" in reply, not document). 5. Trim non-essential bullets, leftover prose · chat leakage ("you said" · "the user" · "as discussed" · "confirm with" · "Claude" · requests to the reader ("run on prod to confirm") · skipped/unchecked/asked notes) → author's statement; Should fix, Must if it misstates a fact or exposes private chat content. 6. Read as audience: manager (no unexplained jargon) · new engineer (could deploy and access alone) · first-time user (every task without help). 7. Technical doc built → reply ends with one line: "Architecture review with a proposed target (darshan-singh-meel-architecture)?" No other unprompted suggestion. CLAUDE.md Self-check still before it.

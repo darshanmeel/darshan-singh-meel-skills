@@ -96,7 +96,15 @@ Every diagram: a one-line key beside it and a one-line "Notice:" caption.
 - Output is always static SVG/HTML in the page, restyled to this palette — never rendered at view time.
 - Tables, lists, and bars use normal flex/grid layout.
 
+## Page layout (layout.py)
+- **Diagram first, details on click.** A section shows its diagram and key bullets; step and call tables under a diagram sit in `<details class="fold">` ("Show the steps (N)", "Show call details (N)").
+- **Left menu, one section at a time.** Every `<section>` has an id and an `<h2>`; a click shows only that section (`:target`, no JS). Nothing clicked = the whole page, so print and no-CSS readers get everything.
+- **Sub-items** = `<details id="…"><summary>…</summary>` directly inside a section (one per code file, per test file). They show in the menu only once their section is open.
+- **Main purpose box** (`.purpose`): 2–3 plain lines on top of each per-file block, before any code names.
+- Phone width: the menu hides; wide diagrams and tables scroll inside their own box, never the page.
+
 ## Checks before finishing
+- Screenshot each page at 1400 px with a menu link clicked, and at 390 px: no page-wide horizontal scroll, no label on a line or box edge, no arrows crossing labels.
 - Text never overflows or touches a border: size boxes from the longest label (~7.5px per mono character at 12px, plus padding) or shorten it; tags sit inside the padding.
 - Canvas ≤ 1000px wide — no horizontal scroll; split into two diagrams instead (except pre-rendered lineage/DAG SVGs, which scroll in their frame).
 - Arrows never cross boxes or labels; parallel lines ≥ 20px apart; labels ≥ 12px, 2–4 words.

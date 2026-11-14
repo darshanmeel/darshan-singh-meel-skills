@@ -1047,6 +1047,59 @@ w3 = []; build.chat_voice({"sections": {"A": [{"type": "bullets", "items": ["You
 check("author voice: 'run on prod to confirm', 'could not be checked', 'please verify' -> WARN", len(w3) == 3, w3)
 check("author voice: chat phrases -> WARN chat voice, owner voice passes", len(w) == 3 and all("chat voice" in x for x in w) and not w2, (w, w2))
 
+# ---- page features: left menu, diagram first, stories, code files, test files (generic, every doc type) ----
+RP = W / "rp"; repo(RP, {"src/a.py": "def run_all(): pass\n" + "x = 1\n" * 9, "src/b.py": "y = 2\n", "tests/test_a.py": "def test_x(): pass\n"})
+stage = lambda t, **k: {"title": t, **k}
+story_ = lambda **k: {"type": "story", "case": "rejected", "headline": "A bad row is refused", "why": "nothing wrong is stored",
+                      "stages": [stage("In", cols=["id", "v"], rows=[["1", {"hl": "x"}]]), stage("Shown", msg="Refused"),
+                                 stage("Stored", rows=[["rows", "0"]])], "source": "tests/test_a.py:1", **k}
+filb = {"type": "file", "path": "src/a.py", "purpose": "Runs the job. Reads `src/b.py` values.", "called_by": [], "calls": ["b.py"],
+        "data": ["sales.orders"], "blocks": [{"type": "table", "cols": ["Function", "Does"], "rows": [["`run_all`", "runs"]]}]}
+tfb = {"type": "testfile", "path": "tests/test_a.py", "checks": ["a.py"], "proves": "the job runs", "count": 3,
+       "topics": [["`test_x`", "one row in, one row out"]]}
+dep_fl = {"type": "flow", "nodes": [box("a"), box("b", col=1)], "edges": [{"from": "a", "to": "b"}]}
+spec = tech({"Main flows": mf(extra=[story_(), story_(case="edge")]),
+             "Code files": [{"type": "entries", "rows": [["app", "`src/a.py`", "`run_all()`"]]}, filb],
+             "Deploy and environments": [dep_fl, {"type": "steps", "rows": [["a", "b", "c"]]}, {"type": "environments", "rows": []}],
+             "Tests": [tfb]})
+out, rc = run(RP, spec)
+p = page(RP)
+check("menu: fixed side menu lists every section; sections carry the anchor id; sub-item CSS per section",
+      rc == 0 and '<nav class="side" aria-label="Sections">' in p and '<a href="#top" class="all">Whole page</a>' in p
+      and '<section id="s0"><h2>1 Overview</h2>' in p and 'body:has(#s3:target, #s3 :target) .side .sub[data-for="s3"]' in p, out)
+check("menu: sub-items for h3s, file and test-file blocks (paths in mono)",
+      'href="#f-src-a-py" class=p>' in p and 'href="#t-tests-test-a-py" class=p>' in p and '<a href="#h-3-1">' in p, out)
+check("css: a menu click shows one section (:target), only on wide screens",
+      "main > section:not(:target):not(:has(:target))" in (T / "style.css").read_text(encoding="utf-8") and "@media (min-width:1360px)" in p, "")
+check("fold: a steps table after a diagram folds behind 'Show the steps (N)'",
+      '<details class="fold"><summary>Show the steps (1)</summary>' in p, out)
+check("story: journey with id, outcome badge, highlighted cause cell, message, why line",
+      'class="story block" id="ex-3.1c"' in p and '<td class="hl">x</td>' in p and '<div class="msg block">Refused</div>' in p
+      and "<b>Why it matters:</b> nothing wrong is stored" in p and 'class="story warn"' in p, out)
+check("story: free block, outside the Main flows recipe (no recipe ERROR)", "recipe" not in out, out)
+check("code files: entries always a table; purpose box, small map, details on click",
+      "<h3>Entry points</h3>" in p and "<th>Starts at</th>" in p and '<div class="file subt" id="f-src-a-py">' in p
+      and '<div class="purpose"><b>Main purpose</b>' in p and '<div class="fmap">' in p and 'entry point</span>' in p
+      and '<span class="fc data">sales.<wbr>orders</span>' in p and '<summary>Show the details</summary>' in p, out)
+check("tests: test map svg and table from testfile blocks, folded topics per test file",
+      '<div class="tmap"><svg' in p and "<th>What it proves</th>" in p and '<div class="tf subt" id="t-tests-test-a-py"><details class="fold">' in p
+      and "&middot; 3 tests &middot; 1 topic" in p and "<th>Topic</th>" in p, out)
+spec = tech({"Main flows": mf(extra=[story_()] * 4 + [story_(stages=[stage("only")], why="")])})
+err, warn = build.check(spec, "technical", sorted(spec["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
+check("story: >3 per section -> WARN; 1 stage -> ERROR; no why -> WARN",
+      any("5 story examples (max 3" in w for w in warn) and any("has 1 stages: want 2-3" in e for e in err)
+      and any("add `why`" in w for w in warn), (err, warn))
+spec = tech({"Code files": [dict(filb, blocks=[{"type": "flow", "nodes": [box()]}])], "Tests": [{"type": "testfile", "path": "tests/test_a.py", "topics": [["only"]]}]})
+err, warn = build.check(spec, "technical", sorted(spec["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
+check("file: a diagram inside a file block -> ERROR; testfile topic rows need 2 cells -> ERROR",
+      any("not allowed inside a file block" in e for e in err) and any("topics = [[topic, what it proves]" in e for e in err), err)
+blk = build.flows_first([{"type": "h3", "text": "a"}, {"type": "ipo"}, {"type": "flow", "id": "Q"}, {"type": "h3", "text": "b"}, {"type": "ipo"}])
+check("main flows: an h3 with a diagram shows it first and folds its strip; a linear h3 keeps its order",
+      [b["type"] for b in blk] == ["h3", "flow", "ipo", "h3", "ipo"] and blk[2].get("_fold") and not blk[4].get("_fold"), blk)
+check("menu: headings and the menu are not counted as visible text", "1 Overview" not in build.visible('<nav class="side"><a>1 Overview</a></nav>'), "")
+r = subprocess.run([sys.executable, str(T / "check.py"), str(RP / "generated-docs/doc.html")], capture_output=True, text=True, encoding="utf-8")
+check("check.py: page with menu, stories, code files and test files has no layout problem", r.returncode == 0, r.stdout + r.stderr)
+
 # L8: the full and panini variants ship the same templates and examples
 other = {"claude-global": "claude-global-panini", "claude-global-panini": "claude-global"}.get(SKILL.parents[1].name)
 twin = SKILL.parents[2] / other / "skills" / SKILL.name if other else None
