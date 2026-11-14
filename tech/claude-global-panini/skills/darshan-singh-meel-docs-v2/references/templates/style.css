@@ -216,3 +216,9 @@ section[id], .subt, h3[id] { scroll-margin-top:12px; }
 
 @media (max-width:720px) { .story .js, .fmap { flex-direction:column; align-items:stretch; } .story .ar, .far { transform:rotate(90deg); height:24px; flex:none; } .fcol.mid { flex:none; } }
 @media print { .side { display:none !important; } body.withnav main { margin-left:0; } main > section, section > :not(input) { display:revert !important; } }
+
+/* callouts: what the reader must not miss (block = never do, warn = take care, note = good to know) */
+.callout { margin:12px 0; padding:11px 16px; border:1px solid var(--red); border-radius:8px; background:#FCEBEC; color:var(--red); font-weight:600; line-height:1.5; }
+.callout.warn { border-color:var(--amber-ink); background:var(--amber); color:var(--amber-ink); }
+.callout.note { border-color:var(--blue); background:var(--soft); color:var(--ink); font-weight:500; }
+.callout code { font-weight:500; }

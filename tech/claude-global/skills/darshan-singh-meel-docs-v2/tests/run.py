@@ -1096,6 +1096,14 @@ check("file: a diagram inside a file block -> ERROR; testfile topic rows need 2 
 blk = build.flows_first([{"type": "h3", "text": "a"}, {"type": "ipo"}, {"type": "flow", "id": "Q"}, {"type": "h3", "text": "b"}, {"type": "ipo"}])
 check("main flows: an h3 with a diagram shows it first and folds its strip; a linear h3 keeps its order",
       [b["type"] for b in blk] == ["h3", "flow", "ipo", "h3", "ipo"] and blk[2].get("_fold") and not blk[4].get("_fold"), blk)
+spec = tech({"Security and access": [{"type": "bullets", "items": ["a", "b"]}, {"type": "callout", "text": "Never grant `PUBLIC`.", "source": "README.md:3"},
+                                     {"type": "callout", "kind": "warn", "text": "Shared roles see all rows."}]})
+out, rc = run(RP, spec); p = page(RP)
+check("callout: red block box (default) and amber warn box, code and source kept, no recipe ERROR",
+      rc == 0 and '<div class="callout block">Never grant <code>PUBLIC</code>.</div><p class="src">' in p and '<div class="callout warn">' in p, out)
+spec = tech({"Security and access": [{"type": "bullets", "items": ["a"]}] + [{"type": "callout", "text": "x"}] * 4 + [{"type": "callout", "kind": "red", "text": "y"}]})
+err, warn = build.check(spec, "technical", sorted(spec["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
+check("callout: >3 per section -> WARN; unknown kind -> ERROR", any("5 callouts" in w for w in warn) and any("callout needs" in e for e in err), (err, warn))
 check("menu: headings and the menu are not counted as visible text", "1 Overview" not in build.visible('<nav class="side"><a>1 Overview</a></nav>'), "")
 r = subprocess.run([sys.executable, str(T / "check.py"), str(RP / "generated-docs/doc.html")], capture_output=True, text=True, encoding="utf-8")
 check("check.py: page with menu, stories, code files and test files has no layout problem", r.returncode == 0, r.stdout + r.stderr)

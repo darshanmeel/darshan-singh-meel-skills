@@ -85,8 +85,10 @@ TYPED = {  # builder-owned headers; the spec gives rows only
 TYPED_H3 = {"unused": "Unused files", "assumptions": "Assumptions", "decisions": "Decisions needed", "entries": "Entry points"}
 L0_LABELS = ["What", "Why", "Key idea", "Result"]
 EXAMPLE_BLOCKS = {"examples", "io", "journey", "ipo", "story"}
-FREE = {"story"}  # blocks any section may hold (not part of its recipe): at most MAX_STORIES per section
+FREE = {"story", "callout"}  # blocks any section may hold (not part of its recipe): at most MAX_STORIES / MAX_CALLOUTS per section
 MAX_STORIES = 3
+MAX_CALLOUTS = 3
+CALLOUT_KINDS = ("block", "warn", "note")
 STORY_CLS = {"typical": "ok", "edge": "warn", "rejected": "block", "failure": "block"}
 NESTED = {"file"}  # blocks holding their own `blocks` (shown behind a click), checked apart from the section recipe
 CASES = ["typical", "edge", "rejected", "failure"]
@@ -1383,6 +1385,8 @@ def block(b, kind):
         out = ipo(b)
     elif t == "story":
         return story(b)
+    elif t == "callout":
+        out = f'<div class="callout {b.get("kind", "block")}">{esc(b["text"])}</div>'
     elif t == "file":
         return file_block(b, kind)
     elif t == "testfile":
@@ -1405,7 +1409,7 @@ def block(b, kind):
             POS["said"].add(b["key"])
         out += f'<p class="cap">Notice: {esc(b["notice"])}</p>' if b.get("notice") else ""
     else:
-        die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, ipo, issues, details, flow, er, journey, story, file, testfile, {', '.join(TYPED)})")
+        die(f"unknown block type '{t}' (allowed: text, h3, bullets, labels, table, steps, terms, io, examples, ipo, issues, details, flow, er, journey, story, callout, file, testfile, {', '.join(TYPED)})")
     return out + (f'<p class="src">{esc(b["source"], True)}</p>' if b.get("source") else "")
 
 
@@ -1912,6 +1916,8 @@ def check(spec, kind, names, plan):
         stories = types.count("story")
         if stories > MAX_STORIES:
             warn.append(f"{n}: {stories} story examples (max {MAX_STORIES} per section): keep the ones that teach the most")
+        if types.count("callout") > MAX_CALLOUTS:
+            warn.append(f"{n}: {types.count('callout')} callouts (max {MAX_CALLOUTS} per section): keep only what the reader must not miss")
         types = [t for t in types if t not in FREE]
         if recipe and not fits(recipe, types):
             short = fits(recipe, types, relax=True)
@@ -1935,6 +1941,8 @@ def check(spec, kind, names, plan):
                 ipo_check(n, b, err, warn, main)
             if t in ("story", "file", "testfile"):
                 new_block_check(n, b, err, warn)
+            if t == "callout" and (not b.get("text") or b.get("kind", "block") not in CALLOUT_KINDS):
+                err.append(f"{n}: callout needs `text` (one or two sentences) and kind one of {CALLOUT_KINDS}, got {b.get('kind')}")
             if t == "er" and len(b["entities"]) > 9:
                 err.append(f"{n}: ER has {len(b['entities'])} tables (max ~9): split it into one ER per area")
             if t == "h3" and fixed and not b["text"].startswith(fixed):

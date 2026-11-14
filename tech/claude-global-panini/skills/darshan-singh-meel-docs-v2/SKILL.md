@@ -102,7 +102,7 @@ Interface section · table | h3 unit | data model | graph diagram | io:
 - Boxes = graph nodes, real names (Overview/User guide: business words in `sub`) · arrows = edges · steps = `part_of` order · failure/retry paths where graph/code has them.
 
 ## Diagrams
-- Big picture → L0, 3–7 boxes · order/who → L1, lanes, numbered · architecture → L2, lanes per platform/kind, `code` boxes · inside a box → sub-flow (`parent`), ≤2 levels, not Overview · data model → `er` only, views in table · input → steps → output + traced examples → ipo (Main flows) · one record through stages → journey (not Main flows) · one example as journey (point, 2–3 stages, cause highlighted, why it matters) → `story` (any section, ≤3 per section).
+- Big picture → L0, 3–7 boxes · order/who → L1, lanes, numbered · architecture → L2, lanes per platform/kind, `code` boxes · inside a box → sub-flow (`parent`), ≤2 levels, not Overview · data model → `er` only, views in table · input → steps → output + traced examples → ipo (Main flows) · one record through stages → journey (not Main flows) · one example as journey (point, 2–3 stages, cause highlighted, why it matters) → `story` (any section, ≤3 per section). · rule/risk the reader must not miss (security, data loss, never-do) → `callout` (red block · amber warn · blue note; any section, ≤3 per section; only when source states one · none normal · never invented).
 - Flow · ER · journey: `id` (A, B… doc order) + title form (`spec.md`; Main flows: build). Steps/area: `plan.diagram_titles`.
 - One-line `key` + `notice`. Boxes: `tag` · 1–3 `bullets` · `in`/`out` · `runs` · `see`. Technical real names; others business words. `decision` → ≥2 out-arrows.
 - Layout = build's (`spec.md` → Layout); too wide/crowded → ERROR with fix; follow it.

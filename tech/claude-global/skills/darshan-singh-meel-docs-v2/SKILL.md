@@ -130,6 +130,7 @@ What goes into the sections the plan picked:
 | Input → steps → output, examples traced through each step | ipo (Main flows) |
 | One record through stages | journey (not in Main flows) |
 | One example as a journey: the point, 2–3 stages, the cause highlighted, why it matters | `story` (any section, ≤3 per section) |
+| A rule or risk the reader must not miss (security, data loss, never-do) | `callout` (red block · amber warn · blue note; any section, ≤3 per section; only when the source states one, none is normal, never invented) |
 
 - Every flow, ER and journey: `id` (A, B… in doc order) + fixed title form (`spec.md` → Diagram ids and titles; Main flows: the build writes it). Steps or area per section: `plan.diagram_titles`.
 - One-line `key` + `notice` on each. Boxes: `tag`, 1–3 `bullets`, `in`/`out`, `runs`, `see`. Technical: real names; Overview/User guide: business words. A `decision` box needs ≥2 outgoing arrows.
