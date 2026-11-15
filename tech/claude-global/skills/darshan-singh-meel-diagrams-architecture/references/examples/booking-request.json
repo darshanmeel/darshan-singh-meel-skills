@@ -1,0 +1,98 @@
+{
+ "id": "booking-request",
+ "type": "request-path",
+ "title": "POST /holds: one request through the tiers",
+ "key": "Band = tier · number = hop order · label = protocol and time budget · sub = p95 measured at that box",
+ "notice": "Most of the 300 ms budget goes to the row lock in bookings-db; the edge tiers add under 20 ms.",
+ "groups": [
+  {
+   "id": "client",
+   "label": "client"
+  },
+  {
+   "id": "edge",
+   "label": "edge"
+  },
+  {
+   "id": "app",
+   "label": "application"
+  },
+  {
+   "id": "data",
+   "label": "data"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "browser",
+   "label": "Browser",
+   "kind": "client",
+   "group": "client"
+  },
+  {
+   "id": "cdn",
+   "label": "CDN",
+   "kind": "edge",
+   "p95": "6 ms",
+   "group": "edge"
+  },
+  {
+   "id": "waf",
+   "label": "WAF + LB",
+   "kind": "edge",
+   "p95": "9 ms",
+   "group": "edge"
+  },
+  {
+   "id": "api",
+   "label": "booking-api",
+   "kind": "app",
+   "p95": "240 ms",
+   "group": "app"
+  },
+  {
+   "id": "redis",
+   "label": "price-cache",
+   "kind": "cache",
+   "p95": "2 ms",
+   "group": "data"
+  },
+  {
+   "id": "pg",
+   "label": "bookings-db",
+   "kind": "store",
+   "p95": "190 ms",
+   "group": "data"
+  }
+ ],
+ "edges": [
+  {
+   "from": "browser",
+   "to": "cdn",
+   "label": "HTTPS"
+  },
+  {
+   "from": "cdn",
+   "to": "waf",
+   "label": "origin"
+  },
+  {
+   "from": "waf",
+   "to": "api",
+   "label": "HTTP",
+   "ms": 20
+  },
+  {
+   "from": "api",
+   "to": "redis",
+   "label": "GET price",
+   "ms": 5
+  },
+  {
+   "from": "api",
+   "to": "pg",
+   "label": "SELECT FOR UPDATE",
+   "ms": 200
+  }
+ ]
+}

@@ -1,0 +1,110 @@
+{
+  "id": "agent-disputes",
+  "type": "agent-loop",
+  "title": "Billing-dispute agent: one ticket through the plan-act-observe loop",
+  "key": "Teal frame = agent loop · teal box = tool · hexagon = guardrail · figure = human · dashed amber = human approval",
+  "notice": "issue_credit over 200 EUR waits for a finance approver to sign off; every other tool call runs unattended.",
+  "agent": "dispute-agent · repeats until done, max 8",
+  "steps": [
+    {
+      "id": "plan",
+      "label": "Plan next action",
+      "sub": "LLM with tool calling",
+      "kind": "model"
+    },
+    {
+      "id": "act",
+      "label": "Run tool call"
+    },
+    {
+      "id": "observe",
+      "label": "Observe result",
+      "sub": "append to scratchpad"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ticket",
+      "label": "Dispute ticket",
+      "sub": "helpdesk webhook",
+      "kind": "client"
+    },
+    {
+      "id": "inguard",
+      "label": "Redact PII",
+      "kind": "guard"
+    },
+    {
+      "id": "notes",
+      "label": "Case memory",
+      "sub": "past tickets, per customer",
+      "kind": "store"
+    },
+    {
+      "id": "invoice",
+      "label": "lookup_invoice",
+      "sub": "billing API, read-only",
+      "kind": "tool"
+    },
+    {
+      "id": "approver",
+      "label": "Finance approver",
+      "kind": "human"
+    },
+    {
+      "id": "credit",
+      "label": "issue_credit",
+      "sub": "billing API, write",
+      "kind": "tool"
+    },
+    {
+      "id": "outguard",
+      "label": "Policy check",
+      "kind": "guard"
+    },
+    {
+      "id": "reply",
+      "label": "Reply to customer",
+      "kind": "output"
+    }
+  ],
+  "edges": [
+    {
+      "from": "ticket",
+      "to": "inguard"
+    },
+    {
+      "from": "inguard",
+      "to": "plan"
+    },
+    {
+      "from": "notes",
+      "to": "plan",
+      "label": "recall"
+    },
+    {
+      "from": "act",
+      "to": "invoice"
+    },
+    {
+      "from": "plan",
+      "to": "outguard",
+      "label": "done"
+    },
+    {
+      "from": "outguard",
+      "to": "reply"
+    },
+    {
+      "from": "act",
+      "to": "credit",
+      "label": "over 200 EUR"
+    },
+    {
+      "from": "approver",
+      "to": "credit",
+      "label": "signs off",
+      "kind": "approval"
+    }
+  ]
+}

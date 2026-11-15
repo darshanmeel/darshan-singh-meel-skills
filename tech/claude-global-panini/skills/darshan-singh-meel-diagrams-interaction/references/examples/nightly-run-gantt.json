@@ -1,0 +1,25 @@
+{
+  "id": "nightly-run-gantt",
+  "type": "gantt",
+  "style": "airflow",
+  "title": "orders_nightly run of 14 Nov: where the two hours went",
+  "key": "Row = task · dashed grey = queued, waiting for a worker slot · bar = running, border colour = final state (legend) · dotted line = SLA 04:00",
+  "notice": "dbt_marts queued 38 minutes behind the backfill DAG for a worker slot; the run itself took 22 minutes.",
+  "start": "02:00",
+  "end": "04:30",
+  "markers": [{"date": "04:00", "label": "SLA 04:00"}],
+  "sections": [
+    {"id": "extract", "label": "extract"},
+    {"id": "transform", "label": "transform (dbt)"},
+    {"id": "publish", "label": "publish"}
+  ],
+  "tasks": [
+    {"id": "wait", "label": "wait_for_export", "section": "extract", "queued": "02:00", "start": "02:01", "end": "02:14", "state": "success"},
+    {"id": "orders", "label": "load_orders", "section": "extract", "queued": "02:14", "start": "02:15", "end": "02:31", "state": "success"},
+    {"id": "payments", "label": "load_payments", "section": "extract", "queued": "02:14", "start": "02:16", "end": "02:40", "state": "success"},
+    {"id": "stg", "label": "dbt_staging", "section": "transform", "queued": "02:40", "start": "02:42", "end": "03:04", "state": "success"},
+    {"id": "marts", "label": "dbt_marts", "section": "transform", "queued": "03:04", "start": "03:42", "end": "04:04", "state": "success"},
+    {"id": "tests", "label": "dbt_test_marts", "section": "transform", "queued": "04:04", "start": "04:05", "end": "04:09", "state": "up_for_retry"},
+    {"id": "refresh", "label": "refresh_dashboards", "section": "publish", "queued": "04:09", "start": "04:09", "end": "04:12", "state": "running"}
+  ]
+}

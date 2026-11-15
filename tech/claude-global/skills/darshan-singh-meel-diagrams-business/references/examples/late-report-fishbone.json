@@ -1,0 +1,63 @@
+{
+ "id": "late-report-fishbone",
+ "type": "fishbone",
+ "title": "Why the daily sales report arrives late",
+ "key": "Head = problem · bone = cause category · text = cause, dash = sub-cause",
+ "notice": "Three of the twelve causes sit under Data: late and duplicate source exports drive most delays.",
+ "problem": "Daily sales report after 09:00",
+ "sub": "12 of 20 days in October",
+ "categories": [
+  {
+   "label": "Data",
+   "causes": [
+    {
+     "label": "POS export arrives late",
+     "causes": [
+      "store servers in batch window"
+     ]
+    },
+    "Duplicate files block the load",
+    "Schema change unannounced"
+   ]
+  },
+  {
+   "label": "Process",
+   "causes": [
+    "Manual approval step",
+    "No owner on weekends"
+   ]
+  },
+  {
+   "label": "Technology",
+   "causes": [
+    "Warehouse queue at 06:00",
+    "Retries without backoff"
+   ]
+  },
+  {
+   "label": "People",
+   "causes": [
+    "One engineer knows the job",
+    "No runbook"
+   ]
+  },
+  {
+   "label": "Schedule",
+   "causes": [
+    "Job starts at fixed 05:00",
+    {
+     "label": "Waits for finance close",
+     "causes": [
+      "month-end only"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "Monitoring",
+   "causes": [
+    "Alert goes to a shared inbox"
+   ]
+  }
+ ]
+}

@@ -4,7 +4,7 @@ description: Coding discipline for minimal, correct, secure, efficient changes w
 ---
 
 # Code
-Guards against: overbuilt code, bloated abstractions, side-edits, silent assumptions, false "done". CLAUDE.md applies. Data work → also `darshan-singh-meel-data-platform` (only refs for tools in use).
+Guards against: overbuilt code, bloated abstractions, side-edits, silent assumptions, false "done". CLAUDE.md applies. Data work → also `darshan-singh-meel-data-platform` (only refs for tools in use). Snowflake · Databricks · dbt → also `darshan-singh-meel-snowflake` · `-databricks` · `-dbt`.
 
 ## Before
 - Read the code, its callers/downstream models, tests. Reuse project patterns (helpers, macros, operators, logging, tests).

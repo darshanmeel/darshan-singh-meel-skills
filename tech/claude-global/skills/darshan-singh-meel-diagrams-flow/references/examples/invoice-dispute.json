@@ -1,0 +1,42 @@
+{
+  "id": "invoice-dispute",
+  "type": "swimlane",
+  "title": "Invoice dispute: customer, accounts receivable and finance lead",
+  "key": "Thin circle = start · thick circle = end · envelope = message event · diamond X = one path · dashed = message between pools",
+  "notice": "The credit note needs the finance lead only above 1,000 EUR; below that the AR clerk closes the dispute alone.",
+  "pools": [{"id": "cust", "label": "Customer"}, {"id": "fin", "label": "Finance (ACME Ltd)"}],
+  "lanes": [
+    {"id": "buyer", "label": "Buyer", "pool": "cust"},
+    {"id": "ar", "label": "AR clerk", "pool": "fin"},
+    {"id": "lead", "label": "Finance lead", "pool": "fin"}
+  ],
+  "nodes": [
+    {"id": "s", "kind": "start", "label": "Invoice wrong", "lane": "buyer"},
+    {"id": "raise", "label": "Raise dispute", "tag": "portal form", "lane": "buyer"},
+    {"id": "got", "kind": "start", "trigger": "message", "label": "Dispute received", "lane": "ar"},
+    {"id": "check", "label": "Check delivery and price", "tag": "user task", "lane": "ar"},
+    {"id": "valid", "kind": "gateway", "label": "Valid?", "lane": "ar"},
+    {"id": "big", "kind": "gateway", "label": "Over 1,000 EUR?", "lane": "ar"},
+    {"id": "sign", "label": "Approve credit note", "tag": "user task", "lane": "lead"},
+    {"id": "credit", "label": "Issue credit note", "tag": "service task", "lane": "ar"},
+    {"id": "deny", "label": "Explain rejection", "lane": "ar"},
+    {"id": "e", "kind": "end", "trigger": "message", "label": "Customer told", "lane": "ar"},
+    {"id": "read", "label": "Read answer", "lane": "buyer"},
+    {"id": "se", "kind": "end", "label": "Closed", "lane": "buyer"}
+  ],
+  "flows": [
+    {"from": "s", "to": "raise"},
+    {"from": "raise", "to": "got", "type": "message", "label": "dispute"},
+    {"from": "got", "to": "check"},
+    {"from": "check", "to": "valid"},
+    {"from": "valid", "to": "big", "label": "yes"},
+    {"from": "valid", "to": "deny", "label": "no"},
+    {"from": "big", "to": "sign", "label": "yes"},
+    {"from": "big", "to": "credit", "label": "no"},
+    {"from": "sign", "to": "credit"},
+    {"from": "credit", "to": "e"},
+    {"from": "deny", "to": "e"},
+    {"from": "e", "to": "read", "type": "message", "label": "answer"},
+    {"from": "read", "to": "se"}
+  ]
+}

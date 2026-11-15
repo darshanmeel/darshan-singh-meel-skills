@@ -1,0 +1,13 @@
+# Sources
+
+| Fact | Page |
+|---|---|
+| BPMN 2.0.2 (formal, January 2014), pages of the PDF: Table 7.1 basic elements, lanes run horizontally or vertically (p. 27); catching markers unfilled, throwing filled, non-interrupting dashed (p. 29); task rounded rectangle, single thin line (p. 184); sequence flow solid line with solid arrowhead, conditional flow mini-diamond not out of a gateway (p. 125), default flow slash marker (p. 126); message flow dashed line, open circle start, open arrowhead, never inside one pool (p. 149); start event single thin line (p. 267), end event single thick line (p. 275), intermediate event double thin line (p. 279); gateway diamond (p. 316), exclusive marker X MAY be used (p. 319), inclusive marker circle MUST (p. 321), parallel marker plus sign MUST (p. 322) | https://www.omg.org/spec/BPMN/2.0.2/PDF (about page https://www.omg.org/spec/BPMN/2.0.2/About-BPMN) |
+| UML 2.5.1 (December 2017): state machines (clause 14, transition label `trigger [guard] / behavior`, initial, final, choice, composite state) and activities (clause 15, fork/join bar, decision/merge diamond, activity final, flow final, partitions) | https://www.omg.org/spec/UML/2.5.1/PDF (about page https://www.omg.org/spec/UML/2.5.1/About-UML); check: clause numbers and notation figures in the PDF |
+| Mermaid `stateDiagram-v2`: `[*]` start/end, `-->` with `: label`, `state "desc" as id`, composite `state X { }`, `<<choice>>`, `<<fork>>`, `<<join>>`, `direction LR`, `classDef` (not on start/end or composites), transitions cannot join inner states of different composites | https://mermaid.js.org/syntax/stateDiagram.html |
+| Mermaid flowchart shapes: `[/ /]` lean-r (input/output), `[[ ]]` subproc, `@{ shape: fork }`, `sm-circ` (start), `fr-circ` (stop), `dbl-circ`, `diam`; directions TB/TD/BT/LR/RL | https://mermaid.js.org/syntax/flowchart.html |
+| Airflow task instance states incl. `up_for_retry` ("failed, but has retry attempts left and will be rescheduled"), `retries`, `retry_delay` | https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/tasks.html |
+| Airflow human-in-the-loop operators (task pauses for approval or input) | https://airflow.apache.org/docs/apache-airflow-providers-standard/stable/operators/hitl.html; check: operator names and the `awaiting_input` state on that page's API reference |
+
+- Flowchart shape meanings follow the Mermaid shape list (terminal = stadium, process = rectangle, decision = rhombus, input/output = lean-right parallelogram, subprocess = double-sided rectangle, database = cylinder).
+- Colours are the base skill's palette; neither BPMN nor UML prescribes colours.

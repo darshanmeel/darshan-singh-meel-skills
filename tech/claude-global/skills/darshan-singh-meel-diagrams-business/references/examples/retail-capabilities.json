@@ -1,0 +1,111 @@
+{
+ "id": "retail-capabilities",
+ "type": "capability-map",
+ "title": "Retail business capabilities: maturity heat map",
+ "key": "Frame = L1 capability area · box = L2 capability (sub = L3) · colour and tag = maturity (legend)",
+ "notice": "Demand forecasting is missing and pricing is weak: both sit in Merchandising, the area to fund first.",
+ "areas": [
+  {
+   "id": "cust",
+   "label": "Customer",
+   "caps": [
+    {
+     "label": "Customer identity",
+     "heat": "strong",
+     "children": [
+      "login",
+      "consent"
+     ]
+    },
+    {
+     "label": "Loyalty",
+     "heat": "adequate"
+    },
+    {
+     "label": "Customer service",
+     "heat": "weak",
+     "children": [
+      "chat",
+      "returns"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "merch",
+   "label": "Merchandising",
+   "caps": [
+    {
+     "label": "Assortment planning",
+     "heat": "adequate"
+    },
+    {
+     "label": "Pricing",
+     "heat": "weak",
+     "children": [
+      "promotions",
+      "markdowns"
+     ]
+    },
+    {
+     "label": "Demand forecasting",
+     "heat": "missing"
+    }
+   ]
+  },
+  {
+   "id": "sell",
+   "label": "Selling",
+   "caps": [
+    {
+     "label": "Online store",
+     "heat": "strong"
+    },
+    {
+     "label": "Store POS",
+     "heat": "adequate"
+    },
+    {
+     "label": "Marketplace",
+     "heat": "weak"
+    }
+   ]
+  },
+  {
+   "id": "fulfil",
+   "label": "Fulfilment",
+   "caps": [
+    {
+     "label": "Inventory",
+     "heat": "adequate",
+     "children": [
+      "stock",
+      "transfers"
+     ]
+    },
+    {
+     "label": "Warehouse ops",
+     "heat": "strong"
+    },
+    {
+     "label": "Last-mile delivery",
+     "heat": "adequate"
+    }
+   ]
+  },
+  {
+   "id": "data",
+   "label": "Data & insight",
+   "caps": [
+    {
+     "label": "Reporting",
+     "heat": "strong"
+    },
+    {
+     "label": "Customer analytics",
+     "heat": "adequate"
+    }
+   ]
+  }
+ ]
+}

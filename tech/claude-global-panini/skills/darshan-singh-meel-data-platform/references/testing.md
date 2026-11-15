@@ -1,6 +1,6 @@
 # Minimal tests for data work
 
-- **dbt:** see `dbt.md` Tests.
+- **dbt:** `darshan-singh-meel-dbt` → `references/tests-contracts.md` (PK `unique` + `not_null`, critical FKs, riskiest rule).
 - **SQL / Spark logic:** one tiny fixture (4–6 rows) covering main case, a duplicate, a NULL, and a late/boundary row — one test.
 - **Python transforms:** one parametrized test per function with the key cases.
 - **Airflow:** one DAG integrity test for all DAGs (imports cleanly, no cycles).

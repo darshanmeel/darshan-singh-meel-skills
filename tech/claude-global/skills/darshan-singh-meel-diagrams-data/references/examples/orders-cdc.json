@@ -1,0 +1,100 @@
+{
+  "id": "orders-cdc",
+  "type": "cdc-streaming",
+  "title": "Orders CDC: database changes to the lakehouse and search",
+  "key": "Shape and colour = role (legend) · tag on topics = partitions and retention · red = dead-letter path · dotted = schema lookup",
+  "notice": "Both consumers read orders.enriched, so the enricher's lag is the freshness of the lakehouse and of search.",
+  "nodes": [
+    {
+      "id": "pg",
+      "label": "orders-db",
+      "role": "db",
+      "sub": "PostgreSQL, logical replication"
+    },
+    {
+      "id": "cdc",
+      "label": "orders-cdc",
+      "role": "connector",
+      "sub": "Debezium source"
+    },
+    {
+      "id": "t_orders",
+      "label": "orders.cdc",
+      "role": "topic",
+      "partitions": 12,
+      "retention": "7d"
+    },
+    {
+      "id": "enrich",
+      "label": "order-enricher",
+      "role": "processor",
+      "sub": "Flink, 5 min window"
+    },
+    {
+      "id": "t_enriched",
+      "label": "orders.enriched",
+      "role": "topic",
+      "partitions": 12,
+      "retention": "3d"
+    },
+    {
+      "id": "t_dlq",
+      "label": "orders.dlq",
+      "role": "dlq",
+      "retention": "14d"
+    },
+    {
+      "id": "lake",
+      "label": "bronze.orders_cdc",
+      "role": "sink",
+      "sub": "Delta, 1 min micro-batch"
+    },
+    {
+      "id": "search",
+      "label": "orders search index",
+      "role": "sink"
+    },
+    {
+      "id": "registry",
+      "label": "Schema registry",
+      "role": "registry"
+    }
+  ],
+  "edges": [
+    {
+      "from": "pg",
+      "to": "cdc",
+      "label": "WAL"
+    },
+    {
+      "from": "cdc",
+      "to": "t_orders"
+    },
+    {
+      "from": "t_orders",
+      "to": "enrich"
+    },
+    {
+      "from": "enrich",
+      "to": "t_enriched"
+    },
+    {
+      "from": "enrich",
+      "to": "t_dlq",
+      "kind": "failure"
+    },
+    {
+      "from": "t_enriched",
+      "to": "lake"
+    },
+    {
+      "from": "t_enriched",
+      "to": "search"
+    },
+    {
+      "from": "cdc",
+      "to": "registry",
+      "kind": "lookup"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "sales-star",
+  "type": "star-schema",
+  "title": "Sales mart: fct_sales and its dimensions",
+  "key": "Blue header = fact (grain in sub) · teal = dimension · grey = snowflaked outrigger · bar = one, crow's foot = many",
+  "notice": "dim_date plays two roles (order and ship date), so every date filter must say which key it uses.",
+  "fact": {
+    "id": "fct_sales",
+    "sub": "1 row per order line",
+    "columns": [
+      "order_date_key int FK",
+      "ship_date_key int FK",
+      "customer_key int FK",
+      "product_key int FK",
+      "store_key int FK",
+      "net_amount decimal",
+      "qty int"
+    ]
+  },
+  "dimensions": [
+    {
+      "id": "dim_date",
+      "side": "left",
+      "via": "order / ship date",
+      "columns": [
+        "date_key int PK",
+        "fiscal_week int"
+      ],
+      "more": 9
+    },
+    {
+      "id": "dim_customer",
+      "side": "left",
+      "sub": "SCD type 2",
+      "columns": [
+        "customer_key int PK",
+        "segment text"
+      ],
+      "more": 5
+    },
+    {
+      "id": "dim_product",
+      "side": "right",
+      "columns": [
+        "product_key int PK",
+        "category_key int FK"
+      ],
+      "more": 7
+    },
+    {
+      "id": "dim_store",
+      "side": "right",
+      "columns": [
+        "store_key int PK",
+        "region text"
+      ],
+      "more": 3
+    },
+    {
+      "id": "dim_category",
+      "parent": "dim_product",
+      "columns": [
+        "category_key int PK",
+        "name text"
+      ]
+    }
+  ]
+}

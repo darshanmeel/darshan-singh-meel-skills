@@ -1,0 +1,109 @@
+{
+  "id": "model-release-handoff",
+  "type": "handoff",
+  "style": "airflow",
+  "title": "churn-model v4 release: handoffs between teams, week 46",
+  "key": "Lane = team · box = step (state of this release in the border, legend) · amber arrow = handoff to another team, label = days it waited there",
+  "notice": "Seven of the nine days are waiting at handoffs; the security review queue alone is three days.",
+  "columns": [
+    "day 1",
+    "day 2",
+    "day 3",
+    "day 6",
+    "day 7-9"
+  ],
+  "lanes": [
+    {
+      "id": "ds",
+      "label": "Data science"
+    },
+    {
+      "id": "mlp",
+      "label": "ML platform"
+    },
+    {
+      "id": "sec",
+      "label": "Security"
+    },
+    {
+      "id": "ops",
+      "label": "Operations"
+    }
+  ],
+  "steps": [
+    {
+      "id": "train",
+      "lane": "ds",
+      "col": 0,
+      "label": "Train + evaluate",
+      "operator": "notebook",
+      "state": "success"
+    },
+    {
+      "id": "card",
+      "lane": "ds",
+      "col": 1,
+      "label": "Write model card",
+      "operator": "manual",
+      "state": "success"
+    },
+    {
+      "id": "pkg",
+      "lane": "mlp",
+      "col": 2,
+      "label": "Package + register",
+      "operator": "CI pipeline",
+      "state": "success"
+    },
+    {
+      "id": "review",
+      "lane": "sec",
+      "col": 3,
+      "label": "Security review",
+      "operator": "ticket",
+      "state": "running"
+    },
+    {
+      "id": "canary",
+      "lane": "mlp",
+      "col": 4,
+      "label": "Canary 5%",
+      "operator": "Argo rollout",
+      "state": "scheduled"
+    },
+    {
+      "id": "promote",
+      "lane": "ops",
+      "col": 4,
+      "label": "Promote to 100%",
+      "operator": "change request",
+      "state": "none"
+    }
+  ],
+  "handoffs": [
+    {
+      "from": "train",
+      "to": "card"
+    },
+    {
+      "from": "card",
+      "to": "pkg",
+      "label": "1 d"
+    },
+    {
+      "from": "pkg",
+      "to": "review",
+      "label": "3 d"
+    },
+    {
+      "from": "review",
+      "to": "canary",
+      "label": "1 d"
+    },
+    {
+      "from": "canary",
+      "to": "promote",
+      "label": "2 d"
+    }
+  ]
+}

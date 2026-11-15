@@ -1,0 +1,26 @@
+{
+ "id": "ai-assistant-swot",
+ "type": "swot",
+ "title": "SWOT: launching an AI support assistant",
+ "key": "Rows = internal / external · columns = helpful / harmful · colour per quadrant",
+ "notice": "The strongest pair is our ticket history (strength) against rising support cost (opportunity).",
+ "strengths": [
+  "Eight years of labelled support tickets",
+  "Product docs already in one knowledge base",
+  "Team with RAG experience"
+ ],
+ "weaknesses": [
+  "No evaluation set for answer quality",
+  "Knowledge base has 30% outdated pages"
+ ],
+ "opportunities": [
+  "Support cost grows 18% a year",
+  "Customers ask for 24/7 help",
+  "Upsell to premium support tier"
+ ],
+ "threats": [
+  "Wrong answers damage trust",
+  "EU AI Act transparency duties",
+  "Competitor launched a free assistant"
+ ]
+}

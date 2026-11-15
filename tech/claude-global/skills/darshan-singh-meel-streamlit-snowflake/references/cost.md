@@ -1,6 +1,6 @@
 # Cost
 
-Docs: docs.snowflake.com/en/developer-guide/streamlit/object-management/billing. Warehouse sizing and resource monitors: `darshan-singh-meel-data-platform` → `snowflake.md`.
+Docs: docs.snowflake.com/en/developer-guide/streamlit/object-management/billing. Warehouse sizing and resource monitors: `darshan-singh-meel-snowflake` → `warehouses.md`, `cost.md`.
 
 ## What is billed
 | | Warehouse runtime | Container runtime |

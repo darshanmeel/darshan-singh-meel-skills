@@ -1,0 +1,100 @@
+{
+  "id": "retail-mesh",
+  "type": "data-mesh",
+  "title": "Retail data mesh: domains, data products and consumers",
+  "key": "Frame = domain (owning team) · bold box = data product (colour = product type, legend) · cylinder = operational system · arrow label = output port",
+  "notice": "customer_360 is the only aggregate product, so the Customer domain owns the join every consumer relies on.",
+  "group_layout": "columns",
+  "domains": [
+    {
+      "id": "orders",
+      "label": "Orders",
+      "owner": "checkout team"
+    },
+    {
+      "id": "customer",
+      "label": "Customer",
+      "owner": "CRM team"
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing",
+      "owner": "growth team"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "shop_db",
+      "label": "shop-db",
+      "kind": "system",
+      "domain": "orders"
+    },
+    {
+      "id": "orders_p",
+      "label": "orders",
+      "kind": "source_aligned",
+      "slo": "hourly, 99.5%",
+      "domain": "orders"
+    },
+    {
+      "id": "crm",
+      "label": "CRM",
+      "kind": "system",
+      "domain": "customer"
+    },
+    {
+      "id": "profiles",
+      "label": "customer_profiles",
+      "kind": "source_aligned",
+      "slo": "daily",
+      "domain": "customer"
+    },
+    {
+      "id": "c360",
+      "label": "customer_360",
+      "kind": "aggregate",
+      "slo": "daily 06:00",
+      "domain": "customer"
+    },
+    {
+      "id": "segments",
+      "label": "campaign_segments",
+      "kind": "consumer_aligned",
+      "slo": "daily",
+      "domain": "marketing"
+    },
+    {
+      "id": "email",
+      "label": "Email campaigns",
+      "kind": "consumer"
+    }
+  ],
+  "edges": [
+    {
+      "from": "shop_db",
+      "to": "orders_p"
+    },
+    {
+      "from": "crm",
+      "to": "profiles"
+    },
+    {
+      "from": "orders_p",
+      "to": "c360",
+      "label": "orders_v2"
+    },
+    {
+      "from": "profiles",
+      "to": "c360"
+    },
+    {
+      "from": "c360",
+      "to": "segments",
+      "label": "c360_daily"
+    },
+    {
+      "from": "segments",
+      "to": "email"
+    }
+  ]
+}

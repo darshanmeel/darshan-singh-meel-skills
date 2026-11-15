@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-frontend
-description: Design rules for app UIs — web apps, internal tools, data apps, dashboards, forms, landing pages — clear, distinctive, accessible, minimal: layout, type, color, states. Use when building a new UI or reshaping/restyling one — it sets how the UI looks and behaves; the building is done with darshan-singh-meel-frontend-react or darshan-singh-meel-streamlit (load both). Skip only for non-visual React/Streamlit work (bug fix, deploy, tests, caching). Not for documentation pages (use darshan-singh-meel-docs).
+description: Design rules for app UIs — web apps, internal tools, data apps, dashboards, forms, landing pages — clear, distinctive, accessible, minimal - layout, type, color, states. Use when building a new UI or reshaping/restyling one — it sets how the UI looks and behaves; the building is done with darshan-singh-meel-frontend-react or darshan-singh-meel-streamlit (load both). Skip only for non-visual React/Streamlit work (bug fix, deploy, tests, caching). Not for documentation pages (use darshan-singh-meel-docs).
 ---
 
 # Frontend

@@ -7,7 +7,7 @@ description: Coding discipline for minimal, correct, secure, efficient changes w
 
 Guards against common AI coding failures: overcomplicated code, bloated abstractions, unrequested side-edits, silent assumptions, and unverified "done" claims. Global rules in CLAUDE.md apply.
 
-**Data work:** for SQL, dbt, Snowflake, Databricks/PySpark, Python pipelines, Airflow, Azure Data Factory, Terraform, cloud storage, or RBAC, also follow the `darshan-singh-meel-data-platform` skill (only the reference files for the tools in use).
+**Data work:** for SQL, dbt, Snowflake, Databricks/PySpark, Python pipelines, Airflow, Azure Data Factory, Terraform, cloud storage, or RBAC, also follow the `darshan-singh-meel-data-platform` skill (only the reference files for the tools in use). Snowflake, Databricks or dbt work → also `darshan-singh-meel-snowflake`, `darshan-singh-meel-databricks` or `darshan-singh-meel-dbt`.
 
 ## 1. Understand before changing
 - Read the relevant code first: the function/model, its callers or downstream models, and tests.

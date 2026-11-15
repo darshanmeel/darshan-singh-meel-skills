@@ -1,0 +1,34 @@
+{
+  "id": "shop-lineage",
+  "type": "boxes",
+  "style": "dbt",
+  "title": "Orders lineage: sources to the revenue dashboard",
+  "key": "Pill colour = resource kind (legend below) · column = project layer · tag = kind and materialization · sub = tests",
+  "notice": "fct_orders is the only model the dashboard reads, so its 6 tests guard every revenue number.",
+  "groups": [
+    {"id": "sources", "label": "sources"},
+    {"id": "staging", "label": "staging"},
+    {"id": "marts", "label": "marts"},
+    {"id": "exposures", "label": "exposures"}
+  ],
+  "nodes": [
+    {"id": "src_orders", "label": "shop.orders", "kind": "source", "group": "sources"},
+    {"id": "src_payments", "label": "stripe.payments", "kind": "source", "group": "sources"},
+    {"id": "seed_fx", "label": "fx_rates", "kind": "seed", "group": "sources"},
+    {"id": "stg_orders", "label": "stg_orders", "kind": "model", "materialized": "view", "tests": 2, "group": "staging"},
+    {"id": "stg_payments", "label": "stg_payments", "kind": "model", "materialized": "view", "tests": 2, "group": "staging"},
+    {"id": "fct_orders", "label": "fct_orders", "kind": "model", "materialized": "incremental", "tests": 6, "group": "marts"},
+    {"id": "dim_customers", "label": "dim_customers", "kind": "model", "materialized": "table", "tests": 3, "group": "marts"},
+    {"id": "dash", "label": "Revenue dashboard", "kind": "exposure", "group": "exposures"}
+  ],
+  "edges": [
+    {"from": "src_orders", "to": "stg_orders"},
+    {"from": "src_payments", "to": "stg_payments"},
+    {"from": "stg_orders", "to": "fct_orders"},
+    {"from": "stg_payments", "to": "fct_orders"},
+    {"from": "seed_fx", "to": "fct_orders"},
+    {"from": "stg_orders", "to": "dim_customers"},
+    {"from": "fct_orders", "to": "dash"},
+    {"from": "dim_customers", "to": "dash"}
+  ]
+}

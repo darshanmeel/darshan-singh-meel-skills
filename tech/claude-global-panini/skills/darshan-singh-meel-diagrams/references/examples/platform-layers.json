@@ -1,0 +1,22 @@
+{
+  "id": "platform-layers",
+  "type": "layers",
+  "title": "Analytics platform, layer by layer",
+  "key": "Band = layer, top consumes the one below · box = component · cylinder = storage",
+  "notice": "Only the serving layer is reachable from outside the VNet; every other layer is private.",
+  "layers": [
+    {"id": "serve", "label": "Serving", "items": [
+      {"id": "bi", "label": "Power BI", "sub": "12 reports"},
+      {"id": "api", "label": "Metrics API", "sub": "FastAPI on AKS"},
+      {"id": "nb", "label": "Notebooks", "sub": "analysts only"}]},
+    {"id": "model", "label": "Modelling", "items": [
+      {"id": "dbt", "label": "dbt Core 1.8", "sub": "staging → marts"},
+      {"id": "tests", "label": "dbt tests", "sub": "run on every build"}]},
+    {"id": "store", "label": "Storage", "items": [
+      {"id": "wh", "label": "Snowflake", "sub": "RAW · ANALYTICS", "shape": "cylinder"},
+      {"id": "lake", "label": "ADLS Gen2", "sub": "landing files, 90 days", "shape": "cylinder"}]},
+    {"id": "ingest", "label": "Ingestion", "items": [
+      {"id": "adf", "label": "Data Factory", "sub": "6 pipelines, hourly"},
+      {"id": "cdc", "label": "CDC stream", "sub": "Debezium → Event Hubs"}]}
+  ]
+}

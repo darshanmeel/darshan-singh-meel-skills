@@ -1,0 +1,77 @@
+{
+ "id": "team-deps",
+ "type": "team-topology",
+ "style": "dbt",
+ "title": "Checkout teams: who depends on whom",
+ "key": "Pill colour = team type (legend) · column = team role · line = interaction mode (legend)",
+ "notice": "Both stream-aligned teams consume the payments platform as a service; only Fraud models needs close collaboration.",
+ "groups": [
+  {
+   "id": "enable",
+   "label": "enabling"
+  },
+  {
+   "id": "stream",
+   "label": "stream-aligned"
+  },
+  {
+   "id": "plat",
+   "label": "platform"
+  }
+ ],
+ "teams": [
+  {
+   "id": "sre",
+   "label": "SRE coaching",
+   "type": "enabling",
+   "group": "enable"
+  },
+  {
+   "id": "cart",
+   "label": "Cart & checkout",
+   "type": "stream-aligned",
+   "sub": "web, app",
+   "group": "stream"
+  },
+  {
+   "id": "subs",
+   "label": "Subscriptions",
+   "type": "stream-aligned",
+   "group": "stream"
+  },
+  {
+   "id": "pay",
+   "label": "Payments platform",
+   "type": "platform",
+   "group": "plat"
+  },
+  {
+   "id": "fraud",
+   "label": "Fraud models",
+   "type": "complicated-subsystem",
+   "group": "plat"
+  }
+ ],
+ "interactions": [
+  {
+   "from": "sre",
+   "to": "cart",
+   "mode": "facilitating"
+  },
+  {
+   "from": "cart",
+   "to": "pay",
+   "mode": "x-as-a-service"
+  },
+  {
+   "from": "subs",
+   "to": "pay",
+   "mode": "x-as-a-service"
+  },
+  {
+   "from": "cart",
+   "to": "fraud",
+   "mode": "collaboration"
+  }
+ ]
+}

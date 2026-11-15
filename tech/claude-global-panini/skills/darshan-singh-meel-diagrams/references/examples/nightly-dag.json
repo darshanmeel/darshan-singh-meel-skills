@@ -1,0 +1,88 @@
+{
+  "id": "nightly-dag",
+  "type": "boxes",
+  "style": "airflow",
+  "group_layout": "columns",
+  "title": "orders_nightly: last night's run",
+  "key": "Box = task (operator in the tag) · border colour = state of this run (legend below) · frame = task group",
+  "notice": "load_payments failed on an expired API token, so both marts were skipped as upstream_failed.",
+  "groups": [
+    {
+      "id": "extract",
+      "label": "extract"
+    },
+    {
+      "id": "transform",
+      "label": "transform (dbt)"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "wait",
+      "label": "wait_for_export",
+      "operator": "S3KeySensor",
+      "state": "success"
+    },
+    {
+      "id": "orders",
+      "label": "load_orders",
+      "operator": "PythonOperator",
+      "state": "success",
+      "group": "extract"
+    },
+    {
+      "id": "payments",
+      "label": "load_payments",
+      "operator": "PythonOperator",
+      "state": "failed",
+      "group": "extract"
+    },
+    {
+      "id": "staging",
+      "label": "dbt_staging",
+      "operator": "BashOperator",
+      "state": "upstream_failed",
+      "group": "transform"
+    },
+    {
+      "id": "marts",
+      "label": "dbt_marts",
+      "operator": "BashOperator",
+      "state": "upstream_failed",
+      "group": "transform"
+    },
+    {
+      "id": "notify",
+      "label": "notify_on_call",
+      "operator": "EmptyOperator",
+      "state": "success"
+    }
+  ],
+  "edges": [
+    {
+      "from": "wait",
+      "to": "orders"
+    },
+    {
+      "from": "wait",
+      "to": "payments"
+    },
+    {
+      "from": "orders",
+      "to": "staging"
+    },
+    {
+      "from": "payments",
+      "to": "staging"
+    },
+    {
+      "from": "staging",
+      "to": "marts"
+    },
+    {
+      "from": "payments",
+      "to": "notify",
+      "label": "one_failed"
+    }
+  ]
+}

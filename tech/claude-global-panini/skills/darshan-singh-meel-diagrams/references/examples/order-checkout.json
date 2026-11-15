@@ -1,0 +1,104 @@
+{
+  "id": "order-checkout",
+  "type": "boxes",
+  "title": "Checkout: from basket to confirmed order",
+  "key": "Rounded = service step · diamond = decision · cylinder = store · dashed arrow = async event · red = failure path",
+  "notice": "Payment is the only synchronous call to a third party; everything after the order is written runs from the event.",
+  "groups": [
+    {
+      "id": "api",
+      "label": "checkout-api (Python, FastAPI)"
+    },
+    {
+      "id": "workers",
+      "label": "order-workers (Python, Celery)",
+      "tone": "teal"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "web",
+      "label": "Web shop",
+      "shape": "actor"
+    },
+    {
+      "id": "validate",
+      "label": "Validate basket",
+      "sub": "stock, price, address",
+      "group": "api"
+    },
+    {
+      "id": "pay",
+      "label": "Charge card",
+      "tag": "PSP REST",
+      "group": "api"
+    },
+    {
+      "id": "ok",
+      "label": "Paid?",
+      "shape": "diamond",
+      "group": "api"
+    },
+    {
+      "id": "orders",
+      "label": "orders",
+      "sub": "PostgreSQL 16",
+      "shape": "cylinder"
+    },
+    {
+      "id": "reject",
+      "label": "Return 402",
+      "sub": "basket kept 30 min",
+      "tone": "red",
+      "group": "api"
+    },
+    {
+      "id": "mail",
+      "label": "Send confirmation",
+      "group": "workers"
+    },
+    {
+      "id": "ship",
+      "label": "Create shipment",
+      "sub": "carrier API",
+      "group": "workers"
+    }
+  ],
+  "edges": [
+    {
+      "from": "web",
+      "to": "validate",
+      "label": "POST /checkout"
+    },
+    {
+      "from": "validate",
+      "to": "pay"
+    },
+    {
+      "from": "pay",
+      "to": "ok"
+    },
+    {
+      "from": "ok",
+      "to": "orders",
+      "label": "yes: insert"
+    },
+    {
+      "from": "ok",
+      "to": "reject",
+      "label": "no",
+      "tone": "red"
+    },
+    {
+      "from": "orders",
+      "to": "mail",
+      "label": "order.created",
+      "style": "dashed"
+    },
+    {
+      "from": "orders",
+      "to": "ship",
+      "style": "dashed"
+    }
+  ]
+}

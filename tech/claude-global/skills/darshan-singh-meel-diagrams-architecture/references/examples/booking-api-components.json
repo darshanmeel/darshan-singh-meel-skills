@@ -1,0 +1,95 @@
+{
+ "id": "booking-api-components",
+ "type": "c4-component",
+ "title": "booking-api: components",
+ "key": "Teal = component in this container · blue = other container · cylinder = database · dashed frame = container boundary",
+ "notice": "HoldService is the only component that locks rows, so a double booking can only start in one place.",
+ "groups": [
+  {
+   "id": "api",
+   "label": "booking-api"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "web",
+   "label": "Web app",
+   "kind": "container",
+   "tech": "React",
+   "desc": "Checkout UI"
+  },
+  {
+   "id": "router",
+   "label": "HTTP routes",
+   "kind": "component",
+   "tech": "FastAPI router",
+   "desc": "/search, /holds, /bookings",
+   "group": "api"
+  },
+  {
+   "id": "search",
+   "label": "SearchService",
+   "kind": "component",
+   "tech": "Python",
+   "desc": "Availability and price",
+   "group": "api"
+  },
+  {
+   "id": "hold",
+   "label": "HoldService",
+   "kind": "component",
+   "tech": "Python",
+   "desc": "15-minute holds, row locks",
+   "group": "api"
+  },
+  {
+   "id": "repo",
+   "label": "BookingRepository",
+   "kind": "component",
+   "tech": "SQLAlchemy 2",
+   "desc": "All SQL lives here",
+   "group": "api"
+  },
+  {
+   "id": "db",
+   "label": "bookings-db",
+   "kind": "database",
+   "tech": "PostgreSQL 16",
+   "desc": "Listings, holds, bookings"
+  }
+ ],
+ "edges": [
+  {
+   "from": "web",
+   "to": "router",
+   "label": "Calls",
+   "tech": "JSON/HTTPS"
+  },
+  {
+   "from": "router",
+   "to": "search",
+   "label": "Finds rooms"
+  },
+  {
+   "from": "router",
+   "to": "hold",
+   "label": "Places hold"
+  },
+  {
+   "from": "search",
+   "to": "repo",
+   "label": "Reads"
+  },
+  {
+   "from": "hold",
+   "to": "repo",
+   "label": "Locks, writes"
+  },
+  {
+   "from": "repo",
+   "to": "db",
+   "label": "Queries",
+   "tech": "SQL"
+  }
+ ]
+}

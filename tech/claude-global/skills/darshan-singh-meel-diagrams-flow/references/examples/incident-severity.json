@@ -1,0 +1,18 @@
+{
+  "id": "incident-severity",
+  "type": "decision-tree",
+  "title": "Incident severity: which SEV level to open",
+  "key": "Box = question · pill = severity to open · label on the line = answer",
+  "notice": "Customer impact decides first; data loss is SEV1 even when only one customer is hit.",
+  "nodes": [
+    {"id": "q1", "label": "Are customers affected?"},
+    {"id": "q2", "label": "Data lost or exposed?", "parent": "q1", "answer": "yes"},
+    {"id": "q3", "label": "Internal tool down for a team?", "parent": "q1", "answer": "no"},
+    {"id": "sev1", "label": "SEV1", "sub": "page on-call now", "tone": "red", "parent": "q2", "answer": "yes"},
+    {"id": "q4", "label": "More than 5% of requests failing?", "parent": "q2", "answer": "no"},
+    {"id": "sev2", "label": "SEV2", "sub": "page within 15 min", "tone": "amber", "parent": "q4", "answer": "yes"},
+    {"id": "sev3", "label": "SEV3", "sub": "ticket, next working day", "tone": "blue", "parent": "q4", "answer": "no"},
+    {"id": "sev3b", "label": "SEV3", "sub": "ticket, next working day", "tone": "blue", "parent": "q3", "answer": "yes"},
+    {"id": "none", "label": "No incident", "sub": "normal backlog", "parent": "q3", "answer": "no"}
+  ]
+}

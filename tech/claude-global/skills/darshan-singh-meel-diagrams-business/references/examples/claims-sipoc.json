@@ -1,0 +1,40 @@
+{
+ "id": "claims-sipoc",
+ "type": "sipoc",
+ "title": "Motor claims handling: SIPOC",
+ "key": "Columns = suppliers, inputs, process steps, outputs, customers · blue box = high-level step, top to bottom",
+ "notice": "Three of five inputs come from outside the insurer, so the assess step depends on partner garages and police.",
+ "suppliers": [
+  "Policyholder",
+  "Partner garages",
+  "Police",
+  "Policy admin system"
+ ],
+ "inputs": [
+  "First notice of loss",
+  "Photos of damage",
+  "Repair estimate",
+  "Police report",
+  "Policy and cover data"
+ ],
+ "process": [
+  "Register claim",
+  "Check cover",
+  "Assess damage",
+  "Decide and pay",
+  "Close claim"
+ ],
+ "outputs": [
+  "Claim decision",
+  "Payment",
+  "Repair order",
+  "Fraud referral"
+ ],
+ "customers": [
+  "Policyholder",
+  "Garage",
+  "Finance",
+  "Fraud team"
+ ],
+ "scope": "from first notice of loss to claim closed; excludes recovery from third parties"
+}

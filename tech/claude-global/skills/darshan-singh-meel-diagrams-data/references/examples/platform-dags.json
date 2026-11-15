@@ -1,0 +1,59 @@
+{
+  "id": "platform-dags",
+  "type": "airflow-overview",
+  "title": "Data platform DAGs: schedules and asset triggers",
+  "key": "Box = DAG (schedule in the tag, last run state as border and text) · dashed purple = asset-triggered · dashed blue = TriggerDagRun",
+  "notice": "dbt_build waits for both ingest DAGs, so a failed ingest_crm run holds back churn scoring and the finance export.",
+  "dags": [
+    {
+      "id": "ingest_crm",
+      "schedule": "@hourly",
+      "tasks": 6,
+      "state": "failed",
+      "outlets": [
+        "raw.crm"
+      ]
+    },
+    {
+      "id": "ingest_erp",
+      "schedule": "0 2 * * *",
+      "tasks": 9,
+      "state": "success",
+      "outlets": [
+        "raw.erp"
+      ]
+    },
+    {
+      "id": "dbt_build",
+      "schedule": [
+        "raw.crm",
+        "raw.erp"
+      ],
+      "tasks": 14,
+      "state": "queued",
+      "outlets": [
+        "marts.core"
+      ]
+    },
+    {
+      "id": "churn_scoring",
+      "schedule": [
+        "marts.core"
+      ],
+      "tasks": 4
+    },
+    {
+      "id": "finance_export",
+      "schedule": null,
+      "tasks": 3
+    }
+  ],
+  "links": [
+    {
+      "from": "dbt_build",
+      "to": "finance_export",
+      "kind": "trigger",
+      "label": "TriggerDagRunOperator"
+    }
+  ]
+}

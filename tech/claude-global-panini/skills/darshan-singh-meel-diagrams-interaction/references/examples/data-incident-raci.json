@@ -1,0 +1,17 @@
+{
+  "id": "data-incident-raci",
+  "type": "raci",
+  "title": "Data incident: who does what when a mart is wrong",
+  "key": "R responsible (does the work) · A accountable (one per task, signs off) · C consulted (two-way) · I informed (one-way)",
+  "notice": "The domain owner, not the platform team, is accountable for telling consumers - the step that was skipped in the March incident.",
+  "roles": ["On-call data engineer", "Platform team", "Domain data owner", "Analytics engineer", "BI consumers"],
+  "tasks": [
+    {"label": "Detect and open incident", "cells": ["A/R", "I", "I", "", ""]},
+    {"label": "Pause downstream jobs", "cells": ["R", "A", "I", "C", ""]},
+    {"label": "Find the root cause", "cells": ["R", "C", "C", "A", ""]},
+    {"label": "Fix the model or source", "cells": ["C", "C", "A", "R", ""]},
+    {"label": "Backfill affected dates", "cells": ["R", "A", "I", "C", ""]},
+    {"label": "Tell consumers", "cells": ["C", "", "A/R", "C", "I"]},
+    {"label": "Write the post-mortem", "cells": ["R", "C", "A", "C", "I"]}
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: darshan-singh-meel-data-platform
-description: Rules for data platform work — SQL, dbt, Snowflake, Databricks, Spark/PySpark, Athena, Iceberg, Python, Airflow, Azure Data Factory, Terraform, AWS S3 and Azure storage, RBAC, and data governance — including using current versions and checking official documentation when in doubt. Use whenever writing, reviewing, deploying, or documenting anything on that stack.
+description: Cross-stack rules for data platform work — SQL, Spark/PySpark, Delta, Athena, Iceberg, Python, Airflow, Azure Data Factory, Terraform, AWS S3 and Azure storage, RBAC, and data governance — plus the shared rules (grain, idempotency, least privilege, destructive changes, current versions, official documentation when in doubt) that also hold for Snowflake, Databricks and dbt, whose deep work goes to darshan-singh-meel-snowflake, darshan-singh-meel-databricks and darshan-singh-meel-dbt. Use whenever writing, reviewing, deploying, or documenting anything on that stack.
 ---
 
 # Data Platform Rules
@@ -10,9 +10,10 @@ Read only the reference files (`references/<file>`) for the tools in the task. S
 | Tool / topic | File | Official docs |
 |---|---|---|
 | SQL (any engine) | `sql.md` | the engine's own docs |
-| dbt | `dbt.md` | docs.getdbt.com |
-| Snowflake (incl. RBAC, cost) | `snowflake.md` | docs.snowflake.com |
-| Databricks, Spark/PySpark (any platform), Delta, Unity Catalog | `databricks.md` | docs.databricks.com · spark.apache.org/docs · docs.delta.io |
+| dbt (all dbt work) | `darshan-singh-meel-dbt` skill; `dbt.md` = pointer | docs.getdbt.com |
+| Snowflake (questions, cost, performance, RBAC, pipelines, audit apps) | `darshan-singh-meel-snowflake` skill; `snowflake.md` = pointer | docs.snowflake.com |
+| Databricks platform (Unity Catalog, compute, jobs, system tables, audit apps) | `darshan-singh-meel-databricks` skill | docs.databricks.com |
+| Spark/PySpark (any platform), Delta | `databricks.md` | spark.apache.org/docs · docs.delta.io · docs.databricks.com |
 | Athena, Glue Data Catalog | `athena.md` | docs.aws.amazon.com |
 | Iceberg tables | `iceberg.md` | iceberg.apache.org/docs |
 | Python pipelines, pandas | `python.md` | docs.python.org · pandas.pydata.org/docs · each library's own docs site |
@@ -23,6 +24,8 @@ Read only the reference files (`references/<file>`) for the tools in the task. S
 | Access model across all platforms | `rbac.md` | IAM, Lake Formation → docs.aws.amazon.com · Entra ID → learn.microsoft.com |
 | Data governance: ownership, classification, lineage, retention | `governance.md` | — |
 | Minimal tests for data work | `testing.md` | — |
+
+Snowflake, Databricks or dbt work → load that skill alongside this one (reviews: its `-review` partner). This skill keeps the cross-stack rules below; the stack skill holds the platform depth.
 
 Querying data (checks, analysis, metadata) → always via `darshan-singh-meel-notebook`: notebook cells only; what Claude may execute: notebook skill, "What Claude may execute".
 

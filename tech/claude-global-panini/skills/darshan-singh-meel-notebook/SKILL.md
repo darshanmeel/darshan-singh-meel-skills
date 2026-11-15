@@ -4,7 +4,7 @@ description: Notebook-first data work — every query against data (checks, anal
 ---
 
 # Notebook
-Every data/metadata query → a notebook cell, never direct. Notebook = the record (rerun, review, copy). CLAUDE.md + data-platform apply.
+Every data/metadata query → a notebook cell, never direct. Notebook = the record (rerun, review, copy). CLAUDE.md + data-platform apply. Snowflake · Databricks · dbt platform questions (cost · performance · lineage · grants · failures) → that skill (`darshan-singh-meel-snowflake` · `-databricks` · `-dbt`) gives queries + notebook templates; execution rules here still apply.
 
 ## 1. Setup — one prompt
 | Header | Question | Options |

@@ -48,6 +48,6 @@ Use it when the question is about refs and layers, tests, snapshots, or incremen
 - dbt's own tests (`unique`, `not_null`, a singular test) are part of the answer when the question is "which test catches this?"; otherwise print verdicts and skip them.
 
 ## Absorb
-- What moves: the chosen SQL (or model), rewritten for the target dialect, with the grain in the description and the minimal tests of `dbt.md`.
+- What moves: the chosen SQL (or model), rewritten for the target dialect, with the grain in the description and the minimal tests of `darshan-singh-meel-dbt` → `tests-contracts.md`.
 - What never moves: the synthetic rows as seeds, the DuckDB file, the prototype profile, the shell.
 - First run against the warehouse is the user's, through `darshan-singh-meel-notebook`.

@@ -4,7 +4,7 @@ description: Thorough code review for correctness, security, performance, design
 ---
 
 # Review
-Check everything; report only what matters. CLAUDE.md applies. Data work → also `darshan-singh-meel-data-platform` (refs for tools in the diff only) → §10.
+Check everything; report only what matters. CLAUDE.md applies. Data work → also `darshan-singh-meel-data-platform` (refs for tools in the diff only) → §10. Snowflake · Databricks · dbt in diff → also `darshan-singh-meel-snowflake` · `-databricks` · `-dbt` rules; their answers, notebooks, audit apps → their `-review`.
 
 ## 0. Setup — one prompt
 - Size: change = diff · PR · commit of any size, or ≤20 named files. Large = whole repo · folder · >20 named files.

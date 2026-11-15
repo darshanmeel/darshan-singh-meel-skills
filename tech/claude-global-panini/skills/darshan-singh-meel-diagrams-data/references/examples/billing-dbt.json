@@ -1,0 +1,96 @@
+{
+  "id": "billing-dbt",
+  "type": "dbt-lineage",
+  "title": "Billing dbt project: lineage from sources to the MRR board",
+  "key": "Pill colour = resource type (legend) · column = folder layer · tag = type and materialization · sub = data tests",
+  "notice": "int_mrr_moves is the only path into fct_mrr, so a late invoices load delays every MRR number on the board.",
+  "nodes": [
+    {
+      "id": "src_accounts",
+      "label": "app.accounts",
+      "resource_type": "source",
+      "layer": "sources"
+    },
+    {
+      "id": "src_invoices",
+      "label": "billing.invoices",
+      "resource_type": "source",
+      "layer": "sources"
+    },
+    {
+      "id": "plan_prices",
+      "resource_type": "seed",
+      "layer": "sources"
+    },
+    {
+      "id": "stg_accounts",
+      "resource_type": "model",
+      "materialized": "view",
+      "tests": 3,
+      "layer": "staging",
+      "depends_on": [
+        "src_accounts"
+      ]
+    },
+    {
+      "id": "stg_invoices",
+      "resource_type": "model",
+      "materialized": "view",
+      "tests": 4,
+      "layer": "staging",
+      "depends_on": [
+        "src_invoices"
+      ]
+    },
+    {
+      "id": "accounts_snap",
+      "resource_type": "snapshot",
+      "layer": "staging",
+      "depends_on": [
+        "src_accounts"
+      ]
+    },
+    {
+      "id": "int_mrr_moves",
+      "resource_type": "model",
+      "materialized": "ephemeral",
+      "tests": 1,
+      "layer": "intermediate",
+      "depends_on": [
+        "stg_invoices",
+        "plan_prices"
+      ]
+    },
+    {
+      "id": "dim_accounts",
+      "resource_type": "model",
+      "materialized": "table",
+      "tests": 5,
+      "layer": "marts",
+      "depends_on": [
+        "stg_accounts",
+        "accounts_snap"
+      ]
+    },
+    {
+      "id": "fct_mrr",
+      "resource_type": "model",
+      "materialized": "incremental",
+      "tests": 6,
+      "layer": "marts",
+      "depends_on": [
+        "int_mrr_moves"
+      ]
+    },
+    {
+      "id": "mrr_board",
+      "label": "MRR board",
+      "resource_type": "exposure",
+      "layer": "exposures",
+      "depends_on": [
+        "fct_mrr",
+        "dim_accounts"
+      ]
+    }
+  ]
+}

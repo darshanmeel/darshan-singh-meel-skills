@@ -1,0 +1,31 @@
+{
+  "id": "expense-approval",
+  "type": "approval-workflow",
+  "title": "Expense claim approval: manager, then finance above 500 EUR",
+  "key": "Tag = role · SLA under the name · green = approved · red = rejected · dashed amber = sent back · dashed blue = escalation",
+  "notice": "Finance only sees claims above 500 EUR; a manager who does not act in 3 days is skipped to their own manager.",
+  "steps": [
+    {"id": "submit", "label": "Submit claim", "kind": "submit", "role": "employee", "sub": "receipts attached"},
+    {"id": "mgr", "label": "Manager review", "kind": "review", "role": "line manager", "sla": "3 days"},
+    {"id": "amt", "label": "Over 500 EUR?", "kind": "decision"},
+    {"id": "fin", "label": "Finance check", "kind": "approve", "role": "finance", "sla": "2 days"},
+    {"id": "skip", "label": "Skip-level review", "kind": "review", "role": "manager's manager"},
+    {"id": "pay", "label": "Pay with salary", "kind": "auto", "role": "payroll"},
+    {"id": "no", "label": "Claim rejected", "kind": "end", "tone": "red"},
+    {"id": "done", "label": "Paid", "kind": "end", "tone": "green"}
+  ],
+  "edges": [
+    {"from": "submit", "to": "mgr"},
+    {"from": "mgr", "to": "amt", "outcome": "approved"},
+    {"from": "mgr", "to": "submit", "outcome": "changes"},
+    {"from": "mgr", "to": "no", "outcome": "rejected"},
+    {"from": "mgr", "to": "skip", "outcome": "escalate", "label": "no action 3 days"},
+    {"from": "skip", "to": "amt", "outcome": "approved"},
+    {"from": "skip", "to": "no", "outcome": "rejected"},
+    {"from": "amt", "to": "fin", "label": "yes"},
+    {"from": "amt", "to": "pay", "label": "no"},
+    {"from": "fin", "to": "pay", "outcome": "approved"},
+    {"from": "fin", "to": "no", "outcome": "rejected"},
+    {"from": "pay", "to": "done"}
+  ]
+}

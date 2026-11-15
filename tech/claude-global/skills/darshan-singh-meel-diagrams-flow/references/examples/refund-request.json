@@ -1,0 +1,33 @@
+{
+  "id": "refund-request",
+  "type": "flowchart",
+  "title": "Refund request: from the support form to money back",
+  "key": "Pill = start / end · box = step · diamond = decision · slanted box = input · cylinder = store · red = rejection path",
+  "notice": "Only refunds above 200 EUR wait for a person; everything else is paid back in the same request.",
+  "nodes": [
+    {"id": "start", "label": "Customer submits refund form", "kind": "start"},
+    {"id": "form", "label": "Order number, reason, amount", "kind": "io"},
+    {"id": "lookup", "label": "Look up order", "sub": "orders-api GET /orders/{id}"},
+    {"id": "window", "label": "Within 30 days?", "kind": "decision"},
+    {"id": "amount", "label": "Over 200 EUR?", "kind": "decision"},
+    {"id": "review", "label": "Agent reviews", "sub": "support queue, 1 working day", "kind": "manual"},
+    {"id": "pay", "label": "Issue refund", "sub": "payments-api POST /refunds"},
+    {"id": "ledger", "label": "refunds", "sub": "PostgreSQL", "kind": "store"},
+    {"id": "reject", "label": "Send rejection mail", "tone": "red"},
+    {"id": "done", "label": "Refund closed", "kind": "end"}
+  ],
+  "edges": [
+    {"from": "start", "to": "form"},
+    {"from": "form", "to": "lookup"},
+    {"from": "lookup", "to": "window"},
+    {"from": "window", "to": "amount", "label": "yes"},
+    {"from": "window", "to": "reject", "label": "no", "tone": "red"},
+    {"from": "amount", "to": "review", "label": "yes"},
+    {"from": "amount", "to": "pay", "label": "no"},
+    {"from": "review", "to": "pay", "label": "approved"},
+    {"from": "review", "to": "reject", "label": "declined", "tone": "red"},
+    {"from": "pay", "to": "ledger"},
+    {"from": "ledger", "to": "done"},
+    {"from": "reject", "to": "done"}
+  ]
+}

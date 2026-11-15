@@ -1,0 +1,88 @@
+{
+ "id": "booking-events",
+ "type": "event-driven",
+ "title": "Booking events: who publishes, who subscribes",
+ "key": "Blue = producer · lav = topic · teal = consumer · red = dead-letter queue · solid = publish · dashed = subscribe",
+ "notice": "booking.confirmed has three consumers; a failing email consumer parks its messages in the DLQ instead of blocking the others.",
+ "groups": [
+  {
+   "id": "broker",
+   "label": "event bus (Kafka 3.7)"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "api",
+   "label": "booking-api",
+   "kind": "producer"
+  },
+  {
+   "id": "pay",
+   "label": "payment-worker",
+   "kind": "producer"
+  },
+  {
+   "id": "t_conf",
+   "label": "booking.confirmed",
+   "kind": "topic",
+   "group": "broker"
+  },
+  {
+   "id": "t_paid",
+   "label": "payment.captured",
+   "kind": "topic",
+   "group": "broker"
+  },
+  {
+   "id": "mail",
+   "label": "email-sender",
+   "kind": "consumer"
+  },
+  {
+   "id": "crm",
+   "label": "crm-sync",
+   "kind": "consumer"
+  },
+  {
+   "id": "wh",
+   "label": "warehouse-loader",
+   "kind": "consumer"
+  },
+  {
+   "id": "dlq",
+   "label": "email.dlq",
+   "sub": "after 5 retries",
+   "kind": "dlq"
+  }
+ ],
+ "edges": [
+  {
+   "from": "api",
+   "to": "t_conf"
+  },
+  {
+   "from": "pay",
+   "to": "t_paid"
+  },
+  {
+   "from": "t_conf",
+   "to": "mail"
+  },
+  {
+   "from": "t_conf",
+   "to": "crm"
+  },
+  {
+   "from": "t_conf",
+   "to": "wh"
+  },
+  {
+   "from": "t_paid",
+   "to": "wh"
+  },
+  {
+   "from": "mail",
+   "to": "dlq"
+  }
+ ]
+}

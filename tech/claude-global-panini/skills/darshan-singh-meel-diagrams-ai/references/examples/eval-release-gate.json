@@ -1,0 +1,95 @@
+{
+  "id": "eval-release-gate",
+  "type": "eval-pipeline",
+  "title": "Release gate for the support assistant: eval run on candidate v14",
+  "key": "Frames run top to bottom · lav = model call · figure = human grader · green / red = metric meets / misses its gate",
+  "notice": "Groundedness at 0.91 misses its 0.95 gate, so candidate v14 is blocked although answer quality improved.",
+  "datasets": [
+    {
+      "id": "golden",
+      "label": "golden_qa",
+      "sub": "420 questions"
+    },
+    {
+      "id": "adversarial",
+      "label": "red_team_set",
+      "sub": "150 prompts"
+    }
+  ],
+  "run": [
+    {
+      "id": "candidate",
+      "label": "Assistant v14",
+      "sub": "new prompt + reranker"
+    }
+  ],
+  "graders": [
+    {
+      "id": "judge",
+      "label": "LLM judge",
+      "sub": "rubric, 1-5",
+      "grader": "model",
+      "metrics": [
+        "quality",
+        "grounded"
+      ]
+    },
+    {
+      "id": "rules",
+      "label": "Policy checks",
+      "sub": "regex + classifier",
+      "grader": "code",
+      "metrics": [
+        "unsafe"
+      ]
+    },
+    {
+      "id": "spot",
+      "label": "Spot review",
+      "sub": "40 samples",
+      "grader": "human",
+      "metrics": [
+        "quality"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "quality",
+      "label": "Answer quality",
+      "value": 4.3,
+      "threshold": 4.0
+    },
+    {
+      "id": "grounded",
+      "label": "Groundedness",
+      "value": 0.91,
+      "threshold": 0.95
+    },
+    {
+      "id": "unsafe",
+      "label": "Unsafe answers %",
+      "value": 0.4,
+      "threshold": 1.0,
+      "higher_is_better": false
+    }
+  ],
+  "gate": {
+    "id": "gate",
+    "label": "All gates met?"
+  },
+  "outcomes": [
+    {
+      "id": "ship",
+      "label": "Promote to canary",
+      "when": "yes"
+    },
+    {
+      "id": "block",
+      "label": "Block release",
+      "sub": "open eval report",
+      "when": "no",
+      "fail": true
+    }
+  ]
+}

@@ -38,7 +38,10 @@ Restart Claude Code. Existing files with the same names in `~/.claude/` are over
 | `tech-blog` | English technical blog posts: thesis, outline, every code snippet run, claims from official docs; `tech-blog-review` checks them |
 | `knowledge-graph` | Detailed, verifiable repo map; answers "what does X do / what calls what" |
 | `notebook` | Every data query through notebook cells; read-only only; PII discovery first, keyed masking |
-| `data-platform` | SQL, dbt, Snowflake, Databricks/Spark, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance |
+| `data-platform` | Cross-stack rules: SQL, Spark/Delta, Athena, Iceberg, Airflow, ADF, Terraform, RBAC, governance, pinned versions, official docs; Snowflake, Databricks and dbt depth lives in their own skills |
+| `snowflake` | Snowflake SME: cost, warehouses, performance, joins and columns, lineage, pipelines, grants, failures, audit-type apps; read-only SQL with how to read it, in a notebook (connection first, a note per query), on screen or in `.sql` files; `snowflake-review` re-derives and checks the answers |
+| `databricks` | Databricks SME: cost and DBUs, compute, performance, joins and columns, lineage, jobs, Unity Catalog grants, audit logs, audit-type apps; read-only system-table SQL, in a notebook, on screen or in `.sql` files; `databricks-review` re-derives and checks the answers |
+| `dbt` | All dbt work on Snowflake and Databricks: models, incrementals, snapshots, tests, macros, slim CI, performance and cost, lineage from `manifest.json`, project health, debugging; never runs warehouse commands; `dbt-review` checks models and answers |
 | `ask-me` | Plan unclear tasks by grilling me, one question at a time |
 | `prototype` | Throwaway prototypes in git-ignored `prototypes/<name>/` that answer one design question: logic (terminal app over a pure module), UI variants, data model / dbt on synthetic DuckDB, Airflow flow; `prototype-review` runs and checks them |
 | `frontend` | UI design rules: layout, type, colour, states, accessibility |

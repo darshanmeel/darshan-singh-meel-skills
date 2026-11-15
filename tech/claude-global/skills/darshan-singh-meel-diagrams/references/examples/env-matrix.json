@@ -1,0 +1,13 @@
+{
+  "id": "env-matrix",
+  "type": "grid",
+  "title": "Where each service runs",
+  "key": "Row = service · column = environment · green = deployed on merge · amber = manual release · grey = not deployed",
+  "notice": "Production releases of the order workers are still manual; every other service deploys from main.",
+  "columns": ["dev", "test", "staging", "production"],
+  "rows": [
+    {"label": "checkout-api", "cells": [{"label": "on merge", "tone": "green"}, {"label": "on merge", "tone": "green"}, {"label": "on merge", "tone": "green"}, {"label": "on merge", "tone": "green"}]},
+    {"label": "order-workers", "cells": [{"label": "on merge", "tone": "green"}, {"label": "on merge", "tone": "green"}, {"label": "manual", "tone": "amber"}, {"label": "manual", "sub": "change ticket", "tone": "amber"}]},
+    {"label": "metrics-api", "cells": [{"label": "on merge", "tone": "green"}, {"label": "not deployed", "tone": "soft"}, {"label": "on merge", "tone": "green"}, {"label": "on merge", "tone": "green"}]}
+  ]
+}

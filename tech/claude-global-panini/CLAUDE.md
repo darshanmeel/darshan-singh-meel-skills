@@ -84,7 +84,10 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Build/test/deploy Streamlit app (any host) | `darshan-singh-meel-streamlit` |
 | Streamlit in Snowflake (+ `-streamlit`) | `darshan-singh-meel-streamlit-snowflake` |
 | React widget · prebuilt React app in Streamlit in Snowflake (warehouse v1 · container v2, fetch bridge, deploy checks) | `darshan-singh-meel-streamlit-snowflake-react` |
-| SQL, dbt, Snowflake, Databricks, Spark, Athena, Iceberg, Python, Airflow, ADF, Terraform, storage, RBAC, governance | `darshan-singh-meel-data-platform` (+ above) |
+| Snowflake SME, answers in minutes: cost/credits · warehouses · performance · which queries join which tables on which columns · dependencies, what breaks · failures, issues · grants, logins · audit-type apps; read-only SQL → notebook · screen · `.sql` · its review | `darshan-singh-meel-snowflake` · `darshan-singh-meel-snowflake-review` |
+| Databricks SME, answers in minutes: cost/DBUs · compute · performance · which queries join which tables on which columns · lineage, what breaks · job failures · UC grants, audit logs · audit-type apps; read-only system-table SQL → notebook · screen · `.sql` · its review | `darshan-singh-meel-databricks` · `darshan-singh-meel-databricks-review` |
+| dbt, all work: models · incrementals · snapshots · tests · macros · slim CI · perf/cost · lineage, impact · project health · debugging · its review | `darshan-singh-meel-dbt` · `darshan-singh-meel-dbt-review` |
+| Cross-stack data rules: SQL, Spark, Delta, Athena, Iceberg, Python, Airflow, ADF, Terraform, storage, RBAC, governance, pinned versions, official docs; also with Snowflake · Databricks · dbt skills | `darshan-singh-meel-data-platform` (+ above) |
 - Non-trivial task → check `~/.claude/skills`, `./.claude/skills` first.
 - Missing useful skill → propose name · job · why; create in `./.claude/skills/<name>/` only after yes. One skill, one job.
 

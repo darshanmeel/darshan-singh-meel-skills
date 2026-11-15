@@ -1,0 +1,28 @@
+{
+  "id": "serving-llm-gateway",
+  "type": "model-serving",
+  "title": "LLM gateway: how a completion request reaches a model",
+  "key": "Dark box = gateway · diamond = routing decision · cylinder = cache · lav = model endpoint · dashed amber = fallback",
+  "notice": "A cache hit never reaches a model; on a provider timeout the router falls back to the self-hosted model, not to a retry.",
+  "groups": [
+    {"id": "hosted", "label": "External providers"},
+    {"id": "own", "label": "Self-hosted (GPU pool)"}
+  ],
+  "nodes": [
+    {"id": "apps", "label": "Product apps", "sub": "12 services", "kind": "client"},
+    {"id": "gw", "label": "LLM gateway", "sub": "auth, quotas, PII filter", "kind": "gateway"},
+    {"id": "cache", "label": "Semantic cache", "sub": "Redis, TTL 1 h", "kind": "cache"},
+    {"id": "router", "label": "Route by task", "kind": "router"},
+    {"id": "large", "label": "large-model API", "sub": "complex tasks", "kind": "model", "group": "hosted"},
+    {"id": "small", "label": "small-model API", "sub": "classification", "kind": "model", "group": "hosted"},
+    {"id": "local", "label": "open-weights 8B", "sub": "vLLM, 4 GPUs", "kind": "model", "group": "own"}
+  ],
+  "edges": [
+    {"from": "apps", "to": "gw", "label": "POST /v1/complete"},
+    {"from": "gw", "to": "cache", "label": "lookup"},
+    {"from": "cache", "to": "router", "label": "miss"},
+    {"from": "router", "to": "large", "label": "reasoning"},
+    {"from": "router", "to": "small", "label": "short tasks"},
+    {"from": "router", "to": "local", "label": "timeout", "kind": "fallback"}
+  ]
+}

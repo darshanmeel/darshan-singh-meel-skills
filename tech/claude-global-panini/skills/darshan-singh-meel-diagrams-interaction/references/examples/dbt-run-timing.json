@@ -1,0 +1,24 @@
+{
+  "id": "dbt-run-timing",
+  "type": "gantt",
+  "style": "dbt",
+  "title": "dbt build of 14 Nov: model timing by thread",
+  "key": "Row = resource, grouped by the thread that ran it · bar = run time, colour = resource kind (legend) · grey arrow = waits for its parent",
+  "notice": "fct_orders holds thread 1 for 7 of the 12 minutes; threads 2 and 3 sit idle from 04:04 until it ends, so more threads would not help.",
+  "start": "04:00:00",
+  "end": "04:12:30",
+  "sections": [
+    {"id": "t1", "label": "Thread 1"},
+    {"id": "t2", "label": "Thread 2"},
+    {"id": "t3", "label": "Thread 3"}
+  ],
+  "tasks": [
+    {"id": "orders_seed", "label": "country_codes", "kind": "seed", "section": "t1", "start": "04:00:00", "end": "04:00:40"},
+    {"id": "stg_orders", "label": "stg_orders", "kind": "model", "section": "t1", "start": "04:00:40", "end": "04:02:10"},
+    {"id": "fct_orders", "label": "fct_orders", "kind": "model", "section": "t1", "after": ["stg_orders", "stg_payments"], "minutes": 7.2},
+    {"id": "stg_payments", "label": "stg_payments", "kind": "model", "section": "t2", "start": "04:00:05", "end": "04:02:30"},
+    {"id": "dim_customers", "label": "dim_customers", "kind": "model", "section": "t2", "start": "04:02:30", "end": "04:04:10"},
+    {"id": "snap", "label": "customers_snapshot", "kind": "snapshot", "section": "t3", "start": "04:00:05", "end": "04:03:20"},
+    {"id": "test_fct", "label": "test fct_orders", "kind": "test", "section": "t3", "after": ["fct_orders"], "minutes": 0.6}
+  ]
+}

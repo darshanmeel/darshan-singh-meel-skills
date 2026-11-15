@@ -1,0 +1,57 @@
+{
+ "id": "platform-themes",
+ "type": "mind-map",
+ "title": "Data platform 2027: themes and initiatives",
+ "key": "Centre = goal · coloured box = theme · plain box = initiative · sub text = deliverables",
+ "notice": "Trust and cost each carry three initiatives; self-service has one, so it is the theme at risk.",
+ "root": "Data platform 2027",
+ "branches": [
+  {
+   "label": "Trust",
+   "children": [
+    "Data contracts",
+    {
+     "label": "Quality checks",
+     "children": [
+      "freshness",
+      "volume"
+     ]
+    },
+    "Lineage in catalog"
+   ]
+  },
+  {
+   "label": "Cost",
+   "children": [
+    "Warehouse right-sizing",
+    "Storage tiering",
+    "Chargeback per team"
+   ]
+  },
+  {
+   "label": "Speed",
+   "children": [
+    "Slim CI",
+    {
+     "label": "Dev sandboxes",
+     "children": [
+      "zero-copy clones"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "Self-service",
+   "children": [
+    "Semantic layer"
+   ]
+  },
+  {
+   "label": "AI",
+   "children": [
+    "LLM query assistant",
+    "Feature store"
+   ]
+  }
+ ]
+}

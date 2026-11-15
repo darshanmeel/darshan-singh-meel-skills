@@ -1,0 +1,105 @@
+{
+ "id": "booking-layers",
+ "type": "layered-architecture",
+ "title": "booking-api: layers and the one rule break",
+ "key": "Band = layer, calls go down one layer · right column = cross-cutting · red arrow = breaks the layer rule",
+ "notice": "The reports endpoint queries the database directly, skipping the service and repository layers.",
+ "rule": "strict",
+ "layers": [
+  {
+   "id": "api",
+   "label": "API",
+   "items": [
+    {
+     "id": "routes",
+     "label": "HTTP routes",
+     "sub": "FastAPI"
+    },
+    {
+     "id": "reports",
+     "label": "Reports endpoint",
+     "sub": "/reports/*"
+    }
+   ]
+  },
+  {
+   "id": "svc",
+   "label": "Services",
+   "items": [
+    {
+     "id": "holds",
+     "label": "HoldService"
+    },
+    {
+     "id": "search",
+     "label": "SearchService"
+    }
+   ]
+  },
+  {
+   "id": "repo",
+   "label": "Repositories",
+   "items": [
+    {
+     "id": "brepo",
+     "label": "BookingRepository",
+     "sub": "SQLAlchemy 2"
+    }
+   ]
+  },
+  {
+   "id": "data",
+   "label": "Data",
+   "items": [
+    {
+     "id": "pg",
+     "label": "bookings-db",
+     "sub": "PostgreSQL 16",
+     "kind": "store"
+    }
+   ]
+  }
+ ],
+ "cross_cutting": {
+  "label": "cross-cutting",
+  "items": [
+   {
+    "id": "auth",
+    "label": "Auth",
+    "sub": "JWT check"
+   },
+   {
+    "id": "log",
+    "label": "Logging",
+    "sub": "JSON to stdout"
+   }
+  ]
+ },
+ "edges": [
+  {
+   "from": "routes",
+   "to": "holds"
+  },
+  {
+   "from": "routes",
+   "to": "search"
+  },
+  {
+   "from": "holds",
+   "to": "brepo"
+  },
+  {
+   "from": "search",
+   "to": "brepo"
+  },
+  {
+   "from": "brepo",
+   "to": "pg"
+  },
+  {
+   "from": "reports",
+   "to": "pg",
+   "label": "raw SQL"
+  }
+ ]
+}

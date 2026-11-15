@@ -85,7 +85,10 @@
 | Build, test, deploy a Streamlit app (any host) | `darshan-singh-meel-streamlit` |
 | Streamlit hosted in Snowflake (alongside `-streamlit`) | `darshan-singh-meel-streamlit-snowflake` |
 | React component or prebuilt React app inside Streamlit in Snowflake (warehouse v1 / container v2, fetch bridge, deploy checks) | `darshan-singh-meel-streamlit-snowflake-react` |
-| SQL, dbt, Snowflake, Databricks, Spark, Athena, Iceberg, Python, Airflow, ADF, Terraform, cloud storage, RBAC, governance | `darshan-singh-meel-data-platform` (alongside the skills above) |
+| Snowflake SME: questions answered in minutes — cost and credits, warehouses, performance, which queries join which tables on which columns, dependencies and what breaks, failures and issues, grants and logins, audit-type apps; read-only SQL in a notebook, on screen or in `.sql` files / review one | `darshan-singh-meel-snowflake` / `darshan-singh-meel-snowflake-review` |
+| Databricks SME: questions answered in minutes — cost and DBUs, compute, performance, which queries join which tables on which columns, lineage and what breaks, job failures, Unity Catalog grants and audit logs, audit-type apps; read-only SQL on system tables in a notebook, on screen or in `.sql` files / review one | `darshan-singh-meel-databricks` / `darshan-singh-meel-databricks-review` |
+| dbt: all dbt work — models, incrementals, snapshots, tests, macros, slim CI, performance and cost, lineage and impact, project health, debugging / review one | `darshan-singh-meel-dbt` / `darshan-singh-meel-dbt-review` |
+| Cross-stack data rules: SQL, Spark, Delta, Athena, Iceberg, Python, Airflow, ADF, Terraform, cloud storage, RBAC, governance, pinned versions, official docs — also loaded with the Snowflake, Databricks and dbt skills | `darshan-singh-meel-data-platform` (alongside the skills above) |
 
 - Before a non-trivial task, check `~/.claude/skills` and `./.claude/skills` for a fitting skill and use it.
 - Missing a skill that would clearly help? Tell me its name, what it does, and why; create it in `./.claude/skills/<name>/SKILL.md` only after I approve. One skill, one job.

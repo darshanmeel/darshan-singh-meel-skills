@@ -1,0 +1,35 @@
+{
+  "id": "data-access-blueprint",
+  "type": "service-blueprint",
+  "title": "Data access request: what the analyst sees and what runs behind it",
+  "key": "Lane = blueprint layer · dashed lines = interaction, visibility, internal interaction · red thick = fail point · arrow = triggers",
+  "notice": "The fail point sits backstage: grants are applied by hand from the ticket, so the analyst waits on a person they never see.",
+  "max_w": 150,
+  "items": [
+    {"id": "ev_form", "lane": "evidence", "col": 0, "label": "Request form"},
+    {"id": "ev_mail", "lane": "evidence", "col": 2, "label": "Approval e-mail"},
+    {"id": "ev_cat", "lane": "evidence", "col": 3, "label": "Catalog shows access"},
+    {"id": "c_req", "lane": "customer", "col": 0, "label": "Picks role, submits"},
+    {"id": "c_wait", "lane": "customer", "col": 1, "label": "Waits, checks status"},
+    {"id": "c_ok", "lane": "customer", "col": 2, "label": "Reads approval"},
+    {"id": "c_query", "lane": "customer", "col": 3, "label": "Runs first query"},
+    {"id": "f_bot", "lane": "frontstage", "col": 0, "label": "Access bot confirms", "sub": "chat"},
+    {"id": "f_mgr", "lane": "frontstage", "col": 1, "label": "Manager approves", "sub": "in the ticket"},
+    {"id": "b_grant", "lane": "backstage", "col": 2, "label": "Admin applies grant by hand", "fail": true},
+    {"id": "b_audit", "lane": "backstage", "col": 3, "label": "Audit log entry"},
+    {"id": "s_idp", "lane": "support", "col": 1, "label": "Identity provider", "sub": "group sync"},
+    {"id": "s_wh", "lane": "support", "col": 2, "label": "Warehouse roles", "sub": "Terraform"}
+  ],
+  "edges": [
+    {"from": "c_req", "to": "c_wait"},
+    {"from": "c_wait", "to": "c_ok"},
+    {"from": "c_ok", "to": "c_query"},
+    {"from": "c_req", "to": "f_bot"},
+    {"from": "f_bot", "to": "f_mgr"},
+    {"from": "f_mgr", "to": "b_grant"},
+    {"from": "b_grant", "to": "s_wh"},
+    {"from": "s_idp", "to": "f_mgr"},
+    {"from": "b_grant", "to": "c_ok"},
+    {"from": "c_query", "to": "b_audit"}
+  ]
+}

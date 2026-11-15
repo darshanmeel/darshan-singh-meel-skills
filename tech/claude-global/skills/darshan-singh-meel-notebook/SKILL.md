@@ -4,7 +4,7 @@ description: Notebook-first data work — every query against data (checks, anal
 ---
 
 # Notebook
-Every query against data or metadata goes through a notebook cell — never run directly. The notebook is the record: easy to rerun, review, and copy from. CLAUDE.md and `darshan-singh-meel-data-platform` apply.
+Every query against data or metadata goes through a notebook cell — never run directly. The notebook is the record: easy to rerun, review, and copy from. CLAUDE.md and `darshan-singh-meel-data-platform` apply. Snowflake, Databricks or dbt platform questions (cost, performance, lineage, grants, failures) → that skill (`darshan-singh-meel-snowflake`, `-databricks`, `-dbt`) supplies the queries and its notebook templates; the execution rules here still apply.
 
 ## 1. Setup — one prompt
 | Header | Question | Options |

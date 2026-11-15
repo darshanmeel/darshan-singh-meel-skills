@@ -1,0 +1,51 @@
+{
+ "id": "crm-stakeholders",
+ "type": "stakeholder-map",
+ "title": "CRM replacement: stakeholders by power and interest",
+ "key": "Dot = stakeholder at interest (x) and power (y), scored 1-5 · dot colour = stance (legend)",
+ "notice": "The CFO has high power and is a critic: cost questions decide the project, so we meet her first.",
+ "stakeholders": [
+  {
+   "label": "CFO",
+   "power": 5,
+   "interest": 4,
+   "stance": "critic"
+  },
+  {
+   "label": "Head of Sales",
+   "power": 4,
+   "interest": 5,
+   "stance": "supporter"
+  },
+  {
+   "label": "IT security",
+   "power": 4,
+   "interest": 2,
+   "stance": "neutral"
+  },
+  {
+   "label": "Sales reps",
+   "power": 2,
+   "interest": 5,
+   "stance": "supporter"
+  },
+  {
+   "label": "Works council",
+   "power": 3,
+   "interest": 3,
+   "stance": "critic"
+  },
+  {
+   "label": "Finance ops",
+   "power": 2,
+   "interest": 2,
+   "stance": "neutral"
+  },
+  {
+   "label": "CEO",
+   "power": 5,
+   "interest": 2,
+   "stance": "supporter"
+  }
+ ]
+}

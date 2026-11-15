@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: fct_order_lines
+    description: One row per order line (order_line_id). Late rows up to 3 days are merged.
+    config:
+      group: sales
+      access: protected
+      contract: {enforced: true}
+    columns:
+      - name: order_line_id
+        data_type: varchar
+        constraints: [{type: not_null}]
+        data_tests: [unique, not_null]
+      - name: order_id
+        data_type: varchar
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+      - name: line_no
+        data_type: number
+      - name: status
+        data_type: varchar
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [placed, shipped, returned]
+      - name: amount
+        data_type: number(18, 2)
+      - name: updated_at
+        data_type: timestamp_ntz
+
+unit_tests:
+  - name: fct_order_lines_keeps_latest_version
+    model: fct_order_lines
+    overrides:
+      macros: {is_incremental: false}
+    given:
+      - input: ref('stg_erp__order_lines')
+        rows:
+          - {order_line_id: 'a1', order_id: 'o1', line_no: 1, status: placed,  amount: 10.00, updated_at: '2025-01-01 08:00:00'}
+          - {order_line_id: 'a1', order_id: 'o1', line_no: 1, status: shipped, amount: 10.00, updated_at: '2025-01-02 08:00:00'}
+    expect:
+      rows:
+        - {order_line_id: 'a1', status: shipped}

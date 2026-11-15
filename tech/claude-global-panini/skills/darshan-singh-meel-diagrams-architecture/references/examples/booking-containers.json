@@ -1,0 +1,113 @@
+{
+ "id": "booking-containers",
+ "type": "c4-container",
+ "title": "Booking platform: containers",
+ "key": "Blue = container in scope · cylinder = database · pill = queue · grey = external · dashed frame = system boundary",
+ "notice": "booking-api is the only container that writes bookings; the worker reads the queue, so a slow PSP never blocks a search.",
+ "groups": [
+  {
+   "id": "platform",
+   "label": "Booking platform"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "guest",
+   "label": "Guest",
+   "kind": "person",
+   "desc": "Books stays"
+  },
+  {
+   "id": "web",
+   "label": "Web app",
+   "kind": "container",
+   "tech": "TypeScript, React",
+   "desc": "Search and checkout UI",
+   "group": "platform"
+  },
+  {
+   "id": "api",
+   "label": "booking-api",
+   "kind": "container",
+   "tech": "Python, FastAPI",
+   "desc": "Search, holds, bookings",
+   "group": "platform"
+  },
+  {
+   "id": "db",
+   "label": "bookings-db",
+   "kind": "database",
+   "tech": "PostgreSQL 16",
+   "desc": "Listings, holds, bookings",
+   "group": "platform"
+  },
+  {
+   "id": "q",
+   "label": "payment-jobs",
+   "kind": "queue",
+   "tech": "SQS",
+   "desc": "Charges to run",
+   "group": "platform"
+  },
+  {
+   "id": "worker",
+   "label": "payment-worker",
+   "kind": "container",
+   "tech": "Python",
+   "desc": "Runs charges, retries",
+   "group": "platform"
+  },
+  {
+   "id": "psp",
+   "label": "Payment provider",
+   "kind": "system",
+   "external": true,
+   "desc": "Card payments"
+  }
+ ],
+ "edges": [
+  {
+   "from": "guest",
+   "to": "web",
+   "label": "Uses",
+   "tech": "HTTPS"
+  },
+  {
+   "from": "web",
+   "to": "api",
+   "label": "Calls",
+   "tech": "JSON/HTTPS"
+  },
+  {
+   "from": "api",
+   "to": "db",
+   "label": "Reads, writes",
+   "tech": "SQL",
+   "from_side": "left"
+  },
+  {
+   "from": "api",
+   "to": "q",
+   "label": "Enqueues charge",
+   "tech": "SQS"
+  },
+  {
+   "from": "q",
+   "to": "worker",
+   "label": "Delivers job"
+  },
+  {
+   "from": "worker",
+   "to": "psp",
+   "label": "Charges card",
+   "tech": "REST",
+   "from_side": "right"
+  },
+  {
+   "from": "worker",
+   "to": "db",
+   "label": "Marks paid",
+   "tech": "SQL"
+  }
+ ]
+}

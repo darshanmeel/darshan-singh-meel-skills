@@ -1,0 +1,50 @@
+{
+ "id": "analytics-bmc",
+ "type": "business-model-canvas",
+ "title": "Business model canvas: managed analytics service for retailers",
+ "key": "Nine building blocks in canvas order: supply side left, value in the centre, customer side right, money at the bottom",
+ "notice": "Revenue comes from a per-store subscription while cost follows cloud compute, so margin depends on usage per store.",
+ "key_partners": [
+  "Cloud provider",
+  "POS vendors",
+  "Retail consultancies"
+ ],
+ "key_activities": [
+  "Run managed pipelines",
+  "Build retail data models",
+  "Customer onboarding"
+ ],
+ "key_resources": [
+  "Retail data model library",
+  "Data engineering team",
+  "Connector catalogue"
+ ],
+ "value_propositions": [
+  "Daily store KPIs without an in-house data team",
+  "Live in 4 weeks",
+  "Benchmarks against similar stores"
+ ],
+ "customer_relationships": [
+  "Dedicated success manager",
+  "Quarterly business review"
+ ],
+ "channels": [
+  "Direct sales",
+  "POS vendor marketplace",
+  "Webinars"
+ ],
+ "customer_segments": [
+  "Mid-size retail chains (20-300 stores)",
+  "Franchise groups"
+ ],
+ "cost_structure": [
+  "Cloud compute and storage (38% of cost)",
+  "Engineering salaries",
+  "Sales and partner fees"
+ ],
+ "revenue_streams": [
+  "Subscription per store per month",
+  "Onboarding fee",
+  "Premium benchmark add-on"
+ ]
+}

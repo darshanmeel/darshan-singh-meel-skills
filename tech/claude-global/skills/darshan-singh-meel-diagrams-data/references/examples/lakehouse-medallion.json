@@ -1,0 +1,99 @@
+{
+  "id": "lakehouse-medallion",
+  "type": "medallion",
+  "title": "Lakehouse layers: raw files to gold tables",
+  "key": "Column = layer with its rule · cylinder = table (dashed = view) · document = file drop · arrow = job that builds the next table",
+  "notice": "Silver is the first layer with one row per business key; anything reading bronze sees duplicates and late corrections.",
+  "layers": [
+    {
+      "id": "landing",
+      "label": "landing",
+      "sub": "files as delivered"
+    },
+    {
+      "id": "bronze",
+      "label": "bronze",
+      "sub": "raw, append-only"
+    },
+    {
+      "id": "silver",
+      "label": "silver",
+      "sub": "deduplicated, typed"
+    },
+    {
+      "id": "gold",
+      "label": "gold",
+      "sub": "business marts"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "f_orders",
+      "label": "orders_*.json",
+      "kind": "file",
+      "layer": "landing"
+    },
+    {
+      "id": "f_stock",
+      "label": "stock_*.csv",
+      "kind": "file",
+      "layer": "landing"
+    },
+    {
+      "id": "b_orders",
+      "label": "bronze.orders",
+      "kind": "table",
+      "layer": "bronze",
+      "depends_on": [
+        "f_orders"
+      ]
+    },
+    {
+      "id": "b_stock",
+      "label": "bronze.stock",
+      "kind": "table",
+      "layer": "bronze",
+      "depends_on": [
+        "f_stock"
+      ]
+    },
+    {
+      "id": "s_orders",
+      "label": "silver.orders",
+      "kind": "table",
+      "layer": "silver",
+      "sub": "merge on order_id",
+      "depends_on": [
+        "b_orders"
+      ]
+    },
+    {
+      "id": "s_stock",
+      "label": "silver.stock_daily",
+      "kind": "table",
+      "layer": "silver",
+      "depends_on": [
+        "b_stock"
+      ]
+    },
+    {
+      "id": "g_sales",
+      "label": "gold.sales_daily",
+      "kind": "table",
+      "layer": "gold",
+      "depends_on": [
+        "s_orders"
+      ]
+    },
+    {
+      "id": "g_cover",
+      "label": "gold.stock_cover",
+      "kind": "view",
+      "layer": "gold",
+      "depends_on": [
+        "s_orders",
+        "s_stock"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+ "id": "booking-integrations",
+ "type": "integration-map",
+ "style": "dbt",
+ "title": "Booking platform: integration map",
+ "key": "Pill colour = system kind · column = role · line style = how data moves (legend) · label = protocol and frequency",
+ "notice": "The nightly SFTP export to finance is the only file interface left; everything else is API or event.",
+ "groups": [
+  {
+   "id": "in",
+   "label": "sources"
+  },
+  {
+   "id": "core",
+   "label": "booking platform"
+  },
+  {
+   "id": "out",
+   "label": "consumers"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "channel",
+   "label": "Channel manager",
+   "kind": "external",
+   "group": "in"
+  },
+  {
+   "id": "psp",
+   "label": "Payment provider",
+   "kind": "external",
+   "group": "in"
+  },
+  {
+   "id": "api",
+   "label": "booking-api",
+   "kind": "system",
+   "group": "core"
+  },
+  {
+   "id": "bus",
+   "label": "event bus",
+   "kind": "hub",
+   "group": "core"
+  },
+  {
+   "id": "crm",
+   "label": "CRM",
+   "kind": "external",
+   "group": "out"
+  },
+  {
+   "id": "wh",
+   "label": "warehouse",
+   "kind": "store",
+   "group": "out"
+  },
+  {
+   "id": "fin",
+   "label": "Finance ERP",
+   "kind": "external",
+   "group": "out"
+  }
+ ],
+ "edges": [
+  {
+   "from": "channel",
+   "to": "api",
+   "label": "REST 5 min",
+   "via": "api"
+  },
+  {
+   "from": "psp",
+   "to": "api",
+   "label": "webhook",
+   "via": "event"
+  },
+  {
+   "from": "api",
+   "to": "bus",
+   "label": "booking.*",
+   "via": "event"
+  },
+  {
+   "from": "bus",
+   "to": "crm",
+   "label": "customer.*",
+   "via": "event"
+  },
+  {
+   "from": "bus",
+   "to": "wh",
+   "label": "all events",
+   "via": "event"
+  },
+  {
+   "from": "api",
+   "to": "fin",
+   "label": "SFTP 02:00",
+   "via": "file"
+  }
+ ]
+}

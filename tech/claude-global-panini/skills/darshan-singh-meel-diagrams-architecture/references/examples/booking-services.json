@@ -1,0 +1,107 @@
+{
+ "id": "booking-services",
+ "type": "service-map",
+ "style": "dbt",
+ "title": "Impact if pricing-svc changes its API",
+ "key": "Pill colour = service kind (legend) · column = tier · solid = sync call · dashed = async · faded = not affected",
+ "notice": "pricing-svc is called by search and checkout, so its contract change touches both public paths; the worker and database are untouched.",
+ "groups": [
+  {
+   "id": "edge",
+   "label": "edge"
+  },
+  {
+   "id": "core",
+   "label": "core services"
+  },
+  {
+   "id": "data",
+   "label": "data"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "bff",
+   "label": "web-bff",
+   "kind": "gateway",
+   "group": "edge"
+  },
+  {
+   "id": "search",
+   "label": "search-svc",
+   "kind": "service",
+   "group": "core"
+  },
+  {
+   "id": "checkout",
+   "label": "checkout-svc",
+   "kind": "service",
+   "group": "core"
+  },
+  {
+   "id": "pricing",
+   "label": "pricing-svc",
+   "kind": "service",
+   "group": "core"
+  },
+  {
+   "id": "notify",
+   "label": "notify-worker",
+   "kind": "worker",
+   "group": "core",
+   "dim": true
+  },
+  {
+   "id": "pg",
+   "label": "bookings-db",
+   "kind": "datastore",
+   "group": "data",
+   "dim": true
+  },
+  {
+   "id": "redis",
+   "label": "price-cache",
+   "kind": "cache",
+   "group": "data"
+  }
+ ],
+ "edges": [
+  {
+   "from": "bff",
+   "to": "search",
+   "call": "sync"
+  },
+  {
+   "from": "bff",
+   "to": "checkout",
+   "call": "sync"
+  },
+  {
+   "from": "search",
+   "to": "pricing",
+   "call": "sync"
+  },
+  {
+   "from": "checkout",
+   "to": "pricing",
+   "call": "sync"
+  },
+  {
+   "from": "pricing",
+   "to": "redis",
+   "call": "sync"
+  },
+  {
+   "from": "checkout",
+   "to": "pg",
+   "call": "sync",
+   "dim": true
+  },
+  {
+   "from": "checkout",
+   "to": "notify",
+   "call": "async",
+   "dim": true
+  }
+ ]
+}

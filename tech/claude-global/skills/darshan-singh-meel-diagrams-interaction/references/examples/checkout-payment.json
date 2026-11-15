@@ -1,0 +1,36 @@
+{
+  "id": "checkout-payment",
+  "type": "sequence",
+  "title": "Checkout: paying for an order with a card",
+  "key": "Solid + filled head = synchronous call · open head = asynchronous message · dashed = reply · white bar = active · frame = alt / loop",
+  "notice": "The order is confirmed only after the PSP webhook arrives; the browser polls status instead of waiting on the charge call.",
+  "autonumber": true,
+  "participants": [
+    {"id": "shopper", "label": "Shopper", "actor": true},
+    {"id": "web", "label": "web-shop", "sub": "Next.js"},
+    {"id": "api", "label": "checkout-api", "sub": "FastAPI"},
+    {"id": "psp", "label": "Payment provider", "sub": "REST + webhooks"},
+    {"id": "bus", "label": "orders topic", "sub": "Kafka", "shape": "cylinder"}
+  ],
+  "steps": [
+    {"from": "shopper", "to": "web", "label": "Pay 84.90 EUR"},
+    {"from": "web", "to": "api", "label": "POST /orders/{id}/pay"},
+    {"from": "api", "to": "psp", "label": "create payment intent"},
+    {"from": "psp", "to": "api", "label": "intent pi_3Kx, pending", "kind": "reply"},
+    {"from": "api", "to": "web", "label": "202 Accepted", "kind": "reply"},
+    {"note": "Idempotency key = order id, so a retried POST never charges twice.", "right_of": "api"},
+    {"frame": "alt", "label": "[3-D Secure required]", "steps": [
+      {"from": "web", "to": "shopper", "label": "show bank challenge"},
+      {"from": "shopper", "to": "web", "label": "approve in bank app", "kind": "reply"}
+    ], "else": [{"label": "[frictionless]", "steps": [
+      {"from": "web", "to": "web", "label": "skip challenge"}
+    ]}]},
+    {"from": "psp", "to": "api", "label": "webhook payment.succeeded", "kind": "async"},
+    {"from": "api", "to": "bus", "label": "OrderPaid", "kind": "async"},
+    {"frame": "loop", "label": "[every 2 s, max 30 s]", "steps": [
+      {"from": "web", "to": "api", "label": "GET /orders/{id}/status"},
+      {"from": "api", "to": "web", "label": "paid", "kind": "reply"}
+    ]},
+    {"from": "web", "to": "shopper", "label": "order confirmation", "kind": "reply"}
+  ]
+}

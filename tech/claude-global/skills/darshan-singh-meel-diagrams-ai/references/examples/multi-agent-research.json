@@ -1,0 +1,91 @@
+{
+  "id": "multi-agent-research",
+  "type": "multi-agent",
+  "style": "airflow",
+  "title": "Market-brief crew: last run, agent by agent",
+  "key": "Box = agent or tool step (role in the tag) · border colour = state of this run (legend) · frame = parallel research team",
+  "notice": "The pricing researcher hit a rate limit and is up for retry, so the brief writer has not started.",
+  "groups": [
+    {
+      "id": "research",
+      "label": "research team (runs in parallel)"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "supervisor",
+      "label": "supervisor",
+      "operator": "planner agent",
+      "state": "success"
+    },
+    {
+      "id": "news",
+      "label": "news_researcher",
+      "operator": "worker agent",
+      "state": "success",
+      "group": "research"
+    },
+    {
+      "id": "pricing",
+      "label": "pricing_researcher",
+      "operator": "worker agent",
+      "state": "up_for_retry",
+      "group": "research"
+    },
+    {
+      "id": "filings",
+      "label": "filings_researcher",
+      "operator": "worker agent",
+      "state": "success",
+      "group": "research"
+    },
+    {
+      "id": "writer",
+      "label": "brief_writer",
+      "operator": "writer agent",
+      "state": "none"
+    },
+    {
+      "id": "review",
+      "label": "editor_review",
+      "operator": "human approval",
+      "state": "none",
+      "kind": "human",
+      "shape": "box"
+    }
+  ],
+  "edges": [
+    {
+      "from": "supervisor",
+      "to": "news"
+    },
+    {
+      "from": "supervisor",
+      "to": "pricing"
+    },
+    {
+      "from": "supervisor",
+      "to": "filings"
+    },
+    {
+      "from": "news",
+      "to": "writer",
+      "kind": "handoff"
+    },
+    {
+      "from": "pricing",
+      "to": "writer",
+      "kind": "handoff"
+    },
+    {
+      "from": "filings",
+      "to": "writer",
+      "kind": "handoff"
+    },
+    {
+      "from": "writer",
+      "to": "review",
+      "kind": "approval"
+    }
+  ]
+}

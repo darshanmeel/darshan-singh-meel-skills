@@ -1,0 +1,24 @@
+{
+  "id": "nn-decoder-block",
+  "type": "nn-block",
+  "title": "Ticket classifier: decoder-only transformer, one block in detail",
+  "key": "Top to bottom = forward pass · frame = block repeated N times · grey arrow = residual connection · edge text = tensor shape",
+  "notice": "Each sub-layer sits inside a residual add, so the block keeps the [B, 512, 768] shape and twelve of them stack cleanly.",
+  "blocks": [{"id": "block", "label": "Decoder block", "repeat": 12}],
+  "layers": [
+    {"id": "tokens", "label": "Token ids", "kind": "input", "out": "[B, 512]"},
+    {"id": "embed", "label": "Token + position embedding", "kind": "embed", "out": "[B, 512, 768]"},
+    {"id": "ln1", "label": "LayerNorm", "kind": "norm", "group": "block"},
+    {"id": "attn", "label": "Causal self-attention", "sub": "12 heads", "kind": "attention", "group": "block"},
+    {"id": "add1", "label": "Add", "kind": "norm", "group": "block"},
+    {"id": "ln2", "label": "LayerNorm", "kind": "norm", "group": "block"},
+    {"id": "mlp", "label": "Feed-forward", "sub": "768 → 3072 → 768, GELU", "kind": "ffn", "group": "block"},
+    {"id": "add2", "label": "Add", "kind": "norm", "group": "block", "out": "[B, 512, 768]"},
+    {"id": "head", "label": "Classification head", "sub": "last token", "kind": "linear", "out": "[B, 24]"},
+    {"id": "probs", "label": "Softmax over 24 queues", "kind": "output"}
+  ],
+  "residuals": [
+    {"from": "embed", "to": "add1"},
+    {"from": "add1", "to": "add2"}
+  ]
+}

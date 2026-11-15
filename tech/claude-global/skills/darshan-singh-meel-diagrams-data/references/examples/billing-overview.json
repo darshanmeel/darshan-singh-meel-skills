@@ -1,0 +1,97 @@
+{
+  "id": "billing-overview",
+  "type": "dbt-lineage",
+  "title": "Billing dbt project: one box per layer",
+  "key": "Box = one folder layer (node count in the tag, resources by type below) · colour = its main resource type · arrow = refs between layers",
+  "notice": "Ten resources in five layers flow one way, left to right; open a layer's detail diagram to see its models.",
+  "nodes": [
+    {
+      "id": "src_accounts",
+      "label": "app.accounts",
+      "resource_type": "source",
+      "layer": "sources"
+    },
+    {
+      "id": "src_invoices",
+      "label": "billing.invoices",
+      "resource_type": "source",
+      "layer": "sources"
+    },
+    {
+      "id": "plan_prices",
+      "resource_type": "seed",
+      "layer": "sources"
+    },
+    {
+      "id": "stg_accounts",
+      "resource_type": "model",
+      "materialized": "view",
+      "tests": 3,
+      "layer": "staging",
+      "depends_on": [
+        "src_accounts"
+      ]
+    },
+    {
+      "id": "stg_invoices",
+      "resource_type": "model",
+      "materialized": "view",
+      "tests": 4,
+      "layer": "staging",
+      "depends_on": [
+        "src_invoices"
+      ]
+    },
+    {
+      "id": "accounts_snap",
+      "resource_type": "snapshot",
+      "layer": "staging",
+      "depends_on": [
+        "src_accounts"
+      ]
+    },
+    {
+      "id": "int_mrr_moves",
+      "resource_type": "model",
+      "materialized": "ephemeral",
+      "tests": 1,
+      "layer": "intermediate",
+      "depends_on": [
+        "stg_invoices",
+        "plan_prices"
+      ]
+    },
+    {
+      "id": "dim_accounts",
+      "resource_type": "model",
+      "materialized": "table",
+      "tests": 5,
+      "layer": "marts",
+      "depends_on": [
+        "stg_accounts",
+        "accounts_snap"
+      ]
+    },
+    {
+      "id": "fct_mrr",
+      "resource_type": "model",
+      "materialized": "incremental",
+      "tests": 6,
+      "layer": "marts",
+      "depends_on": [
+        "int_mrr_moves"
+      ]
+    },
+    {
+      "id": "mrr_board",
+      "label": "MRR board",
+      "resource_type": "exposure",
+      "layer": "exposures",
+      "depends_on": [
+        "fct_mrr",
+        "dim_accounts"
+      ]
+    }
+  ],
+  "view": "overview"
+}

@@ -1,6 +1,6 @@
 # Privileges, session, rights, external access, secrets, sharing
 
-- Role design (access roles → functional roles, future grants, service users): `darshan-singh-meel-data-platform` → `rbac.md`, `snowflake.md`.
+- Role design (access roles → functional roles, future grants, service users): `darshan-singh-meel-snowflake` → `practices.md`; `darshan-singh-meel-data-platform` → `rbac.md`.
 - All SQL here goes in a setup script the user runs.
 - Docs paths are under docs.snowflake.com/en/developer-guide/streamlit/.
 

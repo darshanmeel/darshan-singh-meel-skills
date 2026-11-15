@@ -1,0 +1,121 @@
+{
+ "id": "booking-network",
+ "type": "network-topology",
+ "title": "Booking platform: network topology in eu-west",
+ "key": "Grey dashed = account · blue frame = VPC · amber = public subnet · teal = private subnet · tag = element kind",
+ "notice": "Only the WAF and load balancer sit in a public subnet; the database is reached through a private endpoint and has no internet route.",
+ "groups": [
+  {
+   "id": "acct",
+   "label": "cloud account prod",
+   "kind": "cloud"
+  },
+  {
+   "id": "vpc",
+   "label": "vpc-booking · 10.20.0.0/16",
+   "kind": "network",
+   "parent": "acct"
+  },
+  {
+   "id": "pub",
+   "label": "public · 10.20.0.0/24",
+   "kind": "subnet_public",
+   "parent": "vpc",
+   "layout": "row"
+  },
+  {
+   "id": "app",
+   "label": "app · 10.20.1.0/24",
+   "kind": "subnet_private",
+   "parent": "vpc",
+   "layout": "row"
+  },
+  {
+   "id": "data",
+   "label": "data · 10.20.2.0/24",
+   "kind": "subnet_private",
+   "parent": "vpc",
+   "layout": "row"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "net",
+   "label": "Internet",
+   "kind": "internet"
+  },
+  {
+   "id": "waf",
+   "label": "WAF",
+   "sub": "OWASP rules",
+   "kind": "firewall",
+   "group": "pub"
+  },
+  {
+   "id": "alb",
+   "label": "App LB",
+   "sub": "HTTPS 443",
+   "kind": "lb",
+   "group": "pub"
+  },
+  {
+   "id": "api",
+   "label": "booking-api",
+   "sub": "ECS tasks",
+   "kind": "container",
+   "group": "app"
+  },
+  {
+   "id": "nat",
+   "label": "NAT gateway",
+   "sub": "egress only",
+   "kind": "gateway",
+   "group": "app"
+  },
+  {
+   "id": "pe",
+   "label": "db endpoint",
+   "sub": "port 5432 only",
+   "kind": "endpoint",
+   "group": "data"
+  },
+  {
+   "id": "pg",
+   "label": "bookings-db",
+   "sub": "no public IP",
+   "kind": "database",
+   "group": "data"
+  }
+ ],
+ "edges": [
+  {
+   "from": "net",
+   "to": "waf",
+   "label": "443"
+  },
+  {
+   "from": "waf",
+   "to": "alb"
+  },
+  {
+   "from": "alb",
+   "to": "api",
+   "label": "8080"
+  },
+  {
+   "from": "api",
+   "to": "pe",
+   "label": "5432"
+  },
+  {
+   "from": "pe",
+   "to": "pg"
+  },
+  {
+   "from": "api",
+   "to": "nat",
+   "label": "PSP calls",
+   "style": "dashed"
+  }
+ ]
+}

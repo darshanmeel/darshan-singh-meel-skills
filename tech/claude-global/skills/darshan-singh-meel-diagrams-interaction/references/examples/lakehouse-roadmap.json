@@ -1,0 +1,26 @@
+{
+  "id": "lakehouse-roadmap",
+  "type": "gantt",
+  "title": "Lakehouse migration roadmap, Q1-Q2 2026",
+  "key": "Bar = work package (colour = status, legend below) · black diamond = milestone · grey arrow = must finish first · red dashed line = today",
+  "notice": "Backfill sits on the critical path: every week it slips moves the SQL Server switch-off by a week.",
+  "start": "2026-01-05",
+  "end": "2026-06-26",
+  "today": "2026-02-18",
+  "markers": [{"date": "2026-03-31", "label": "budget review"}],
+  "sections": [
+    {"id": "found", "label": "Foundation"},
+    {"id": "move", "label": "Migration"},
+    {"id": "cut", "label": "Cut-over"}
+  ],
+  "tasks": [
+    {"id": "infra", "label": "S3 + Iceberg catalog", "section": "found", "start": "2026-01-05", "end": "2026-01-30", "status": "done"},
+    {"id": "ci", "label": "dbt CI on Trino", "section": "found", "start": "2026-01-19", "end": "2026-02-27", "status": "active"},
+    {"id": "ready", "label": "Platform ready", "section": "found", "after": ["infra", "ci"], "milestone": true},
+    {"id": "stg", "label": "Port staging models", "section": "move", "after": ["ready"], "days": 28, "status": "planned"},
+    {"id": "back", "label": "Backfill 6 years of orders", "section": "move", "after": ["stg"], "days": 21, "status": "crit"},
+    {"id": "bi", "label": "Repoint Power BI", "section": "move", "start": "2026-03-16", "end": "2026-04-24", "status": "risk"},
+    {"id": "par", "label": "Parallel run + reconcile", "section": "cut", "after": ["back"], "days": 21, "status": "crit"},
+    {"id": "off", "label": "SQL Server switched off", "section": "cut", "after": ["par"], "milestone": true}
+  ]
+}

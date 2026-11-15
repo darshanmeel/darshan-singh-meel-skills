@@ -1,0 +1,109 @@
+{
+  "id": "shop-er",
+  "type": "er",
+  "title": "Shop data model: sales and catalog tables",
+  "key": "Box = table (PK / FK columns) · crow's foot = many, bar = one, circle = optional · dashed = non-identifying · frame = area",
+  "notice": "order_items is the only table that joins sales to catalog, so every revenue-by-product query goes through it.",
+  "areas": [
+    {
+      "id": "sales",
+      "label": "sales"
+    },
+    {
+      "id": "catalog",
+      "label": "catalog"
+    }
+  ],
+  "entities": [
+    {
+      "id": "customers",
+      "area": "sales",
+      "columns": [
+        "customer_id bigint PK",
+        "email_hash char(64) UK",
+        "country char(2)"
+      ],
+      "more": 4
+    },
+    {
+      "id": "orders",
+      "area": "sales",
+      "columns": [
+        "order_id bigint PK",
+        "customer_id bigint FK",
+        "ordered_at timestamp",
+        "status varchar(16)"
+      ]
+    },
+    {
+      "id": "payments",
+      "area": "sales",
+      "columns": [
+        "payment_id bigint PK",
+        "order_id bigint FK",
+        "amount decimal(12,2)"
+      ]
+    },
+    {
+      "id": "order_items",
+      "area": "sales",
+      "columns": [
+        "order_id bigint PK,FK",
+        "line_no int PK",
+        "product_id bigint FK",
+        "qty int"
+      ]
+    },
+    {
+      "id": "categories",
+      "area": "catalog",
+      "columns": [
+        "category_id int PK",
+        "name varchar(80)"
+      ]
+    },
+    {
+      "id": "products",
+      "area": "catalog",
+      "columns": [
+        "product_id bigint PK",
+        "category_id int FK",
+        "sku varchar(32) UK"
+      ],
+      "more": 6
+    }
+  ],
+  "relations": [
+    {
+      "from": "customers",
+      "to": "orders",
+      "card": "1:0..N",
+      "label": "places"
+    },
+    {
+      "from": "orders",
+      "to": "order_items",
+      "card": "1:1..N",
+      "label": "contains"
+    },
+    {
+      "from": "orders",
+      "to": "payments",
+      "card": "1:0..N",
+      "label": "paid by",
+      "identifying": false
+    },
+    {
+      "from": "categories",
+      "to": "products",
+      "card": "1:0..N"
+    },
+    {
+      "from": "products",
+      "to": "order_items",
+      "card": "1:0..N",
+      "identifying": false,
+      "to_side": "bottom"
+    }
+  ]
+}

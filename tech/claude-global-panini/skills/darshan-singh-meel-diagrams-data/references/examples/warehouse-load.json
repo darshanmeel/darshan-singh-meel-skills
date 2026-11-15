@@ -1,0 +1,92 @@
+{
+  "id": "warehouse-load",
+  "type": "airflow-dag",
+  "title": "warehouse_load: the 06:00 run in progress",
+  "key": "Box = task (operator in the tag) · border colour = state of this run (legend) · frame = task group · bold box = collapsed group",
+  "notice": "load_events is on its second try; dbt_build waits for all three loads, so the marts asset updates only after it.",
+  "groups": [
+    {
+      "id": "extract",
+      "label": "extract"
+    },
+    {
+      "id": "quality",
+      "label": "quality checks"
+    }
+  ],
+  "collapse": [
+    "quality"
+  ],
+  "tasks": [
+    {
+      "id": "wait_files",
+      "operator": "S3KeySensor",
+      "state": "success"
+    },
+    {
+      "id": "load_orders",
+      "operator": "PythonOperator",
+      "state": "success",
+      "group": "extract",
+      "upstream": [
+        "wait_files"
+      ]
+    },
+    {
+      "id": "load_customers",
+      "operator": "PythonOperator",
+      "state": "success",
+      "group": "extract",
+      "upstream": [
+        "wait_files"
+      ]
+    },
+    {
+      "id": "load_events",
+      "operator": "PythonOperator",
+      "state": "up_for_retry",
+      "group": "extract",
+      "upstream": [
+        "wait_files"
+      ]
+    },
+    {
+      "id": "dbt_build",
+      "operator": "BashOperator",
+      "state": "scheduled",
+      "upstream": [
+        "load_orders",
+        "load_customers",
+        "load_events"
+      ],
+      "outlets": [
+        "warehouse.marts"
+      ]
+    },
+    {
+      "id": "row_counts",
+      "operator": "SQLCheckOperator",
+      "group": "quality",
+      "upstream": [
+        "dbt_build"
+      ]
+    },
+    {
+      "id": "freshness",
+      "operator": "SQLCheckOperator",
+      "group": "quality",
+      "upstream": [
+        "dbt_build"
+      ]
+    },
+    {
+      "id": "cleanup_tmp",
+      "operator": "PythonOperator",
+      "trigger_rule": "all_done",
+      "upstream": [
+        "row_counts",
+        "freshness"
+      ]
+    }
+  ]
+}

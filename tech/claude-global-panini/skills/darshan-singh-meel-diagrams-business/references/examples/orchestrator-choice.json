@@ -1,0 +1,68 @@
+{
+ "id": "orchestrator-choice",
+ "type": "decision-matrix",
+ "title": "Choosing an orchestrator for the data platform",
+ "key": "Row = criterion with its weight · cell = score 1-5 (green high, amber low) · last row = weighted score",
+ "notice": "Managed Airflow wins on team skills and ecosystem even though Dagster scores higher on local testing.",
+ "options": [
+  "Airflow (managed)",
+  "Dagster",
+  "Cloud-native jobs"
+ ],
+ "criteria": [
+  {
+   "label": "Operational effort",
+   "weight": 25,
+   "scores": [
+    4,
+    3,
+    5
+   ]
+  },
+  {
+   "label": "Team skills",
+   "weight": 20,
+   "scores": [
+    5,
+    2,
+    3
+   ]
+  },
+  {
+   "label": "Ecosystem and providers",
+   "weight": 20,
+   "scores": [
+    5,
+    4,
+    2
+   ]
+  },
+  {
+   "label": "Local testing",
+   "weight": 15,
+   "scores": [
+    3,
+    5,
+    2
+   ]
+  },
+  {
+   "label": "Cost per month",
+   "weight": 20,
+   "scores": [
+    {
+     "score": 3,
+     "note": "€1.8k"
+    },
+    {
+     "score": 3,
+     "note": "€1.6k"
+    },
+    {
+     "score": 5,
+     "note": "€0.4k"
+    }
+   ]
+  }
+ ]
+}

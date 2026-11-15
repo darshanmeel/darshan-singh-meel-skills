@@ -1,0 +1,27 @@
+{
+  "id": "rag-support",
+  "type": "rag-pipeline",
+  "title": "Support assistant: how help-centre articles reach an answer",
+  "key": "Document = source · cylinder = index · lav = model call · left frame runs on article change, right frame per question",
+  "notice": "Ingest and query use the same embedding model; changing it means re-indexing every article before the query side switches.",
+  "ingest": [
+    {"id": "load", "label": "Load articles", "sub": "help-centre export, hourly", "kind": "data"},
+    {"id": "chunk", "label": "Chunk", "sub": "800 tokens, 100 overlap"},
+    {"id": "embed", "label": "Embed chunks", "sub": "text-embed-v3, 1024 dims", "kind": "model"}
+  ],
+  "stores": [
+    {"id": "index", "label": "kb_chunks", "sub": "pgvector HNSW + BM25"}
+  ],
+  "query": [
+    {"id": "ask", "label": "Question", "sub": "support widget", "kind": "client"},
+    {"id": "qembed", "label": "Embed question", "kind": "model"},
+    {"id": "retrieve", "label": "Hybrid search", "sub": "top 40"},
+    {"id": "rerank", "label": "Rerank", "sub": "cross-encoder, keep 6", "kind": "model"},
+    {"id": "generate", "label": "Generate answer", "sub": "cites chunk ids", "kind": "model"},
+    {"id": "answer", "label": "Answer + sources", "kind": "output"}
+  ],
+  "edges": [
+    {"from": "embed", "to": "index", "label": "upsert"},
+    {"from": "index", "to": "retrieve", "label": "k-NN + keyword"}
+  ]
+}

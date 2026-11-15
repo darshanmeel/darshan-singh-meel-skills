@@ -1,0 +1,87 @@
+{
+  "id": "refund-dfd",
+  "type": "dfd",
+  "title": "Refund handling: level-1 data flow",
+  "key": "Square = external entity · rounded = process (number in the tag) · open box = data store (D-number) · arrow = named data flow",
+  "notice": "Only process 3.0 writes to D2 Refunds, so it is the single place to audit every refund paid out.",
+  "nodes": [
+    {
+      "id": "customer",
+      "label": "Customer",
+      "role": "external"
+    },
+    {
+      "id": "psp",
+      "label": "Payment provider",
+      "role": "external"
+    },
+    {
+      "id": "p1",
+      "label": "Receive refund request",
+      "role": "process",
+      "ref": "1.0"
+    },
+    {
+      "id": "p2",
+      "label": "Check eligibility",
+      "role": "process",
+      "ref": "2.0"
+    },
+    {
+      "id": "p3",
+      "label": "Issue refund",
+      "role": "process",
+      "ref": "3.0"
+    },
+    {
+      "id": "orders",
+      "label": "Orders",
+      "role": "store",
+      "ref": "D1"
+    },
+    {
+      "id": "refunds",
+      "label": "Refunds",
+      "role": "store",
+      "ref": "D2"
+    }
+  ],
+  "edges": [
+    {
+      "from": "customer",
+      "to": "p1",
+      "label": "refund request"
+    },
+    {
+      "from": "p1",
+      "to": "p2",
+      "label": "validated request",
+      "to_side": "left"
+    },
+    {
+      "from": "orders",
+      "to": "p2",
+      "label": "order and payment"
+    },
+    {
+      "from": "p2",
+      "to": "p3",
+      "label": "approved refund"
+    },
+    {
+      "from": "p2",
+      "to": "customer",
+      "label": "rejection notice"
+    },
+    {
+      "from": "p3",
+      "to": "psp",
+      "label": "refund instruction"
+    },
+    {
+      "from": "p3",
+      "to": "refunds",
+      "label": "refund record"
+    }
+  ]
+}

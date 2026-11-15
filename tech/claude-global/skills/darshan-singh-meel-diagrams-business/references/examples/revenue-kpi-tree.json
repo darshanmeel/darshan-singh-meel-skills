@@ -1,0 +1,89 @@
+{
+ "id": "revenue-kpi-tree",
+ "type": "kpi-tree",
+ "title": "Net new MRR: driver tree, October",
+ "key": "Box = metric (tag = value and target, sub = trend and status) · circle = how children combine · colour = status",
+ "notice": "New MRR is on track; churned MRR is off track and pulls net new MRR below target.",
+ "metrics": [
+  {
+   "id": "mrr",
+   "label": "Net new MRR",
+   "value": "€42k",
+   "target": "€60k",
+   "trend": "down",
+   "status": "off_track",
+   "op": "−"
+  },
+  {
+   "id": "gain",
+   "label": "Gained MRR",
+   "value": "€95k",
+   "target": "€98k",
+   "trend": "up",
+   "status": "at_risk",
+   "parent": "mrr",
+   "op": "+"
+  },
+  {
+   "id": "lost",
+   "label": "Churned MRR",
+   "value": "€53k",
+   "target": "€38k",
+   "trend": "up",
+   "status": "off_track",
+   "parent": "mrr",
+   "op": "×"
+  },
+  {
+   "id": "new",
+   "label": "New MRR",
+   "value": "€71k",
+   "target": "€70k",
+   "trend": "up",
+   "status": "on_track",
+   "parent": "gain",
+   "op": "×"
+  },
+  {
+   "id": "exp",
+   "label": "Expansion MRR",
+   "value": "€24k",
+   "target": "€28k",
+   "trend": "flat",
+   "status": "at_risk",
+   "parent": "gain"
+  },
+  {
+   "id": "deals",
+   "label": "New deals",
+   "value": "64",
+   "target": "60",
+   "status": "on_track",
+   "parent": "new"
+  },
+  {
+   "id": "acv",
+   "label": "Avg deal size",
+   "value": "€1.1k",
+   "target": "€1.2k",
+   "status": "at_risk",
+   "parent": "new"
+  },
+  {
+   "id": "accts",
+   "label": "MRR at risk",
+   "value": "€88k",
+   "target": "€60k",
+   "status": "off_track",
+   "parent": "lost"
+  },
+  {
+   "id": "rate",
+   "label": "Share of at-risk lost",
+   "value": "60%",
+   "target": "63%",
+   "status": "on_track",
+   "parent": "lost"
+  }
+ ]
+}

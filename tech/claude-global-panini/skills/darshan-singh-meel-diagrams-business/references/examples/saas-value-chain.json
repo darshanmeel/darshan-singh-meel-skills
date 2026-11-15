@@ -1,0 +1,68 @@
+{
+ "id": "saas-value-chain",
+ "type": "value-chain",
+ "title": "Value chain of a B2B analytics SaaS",
+ "key": "Wide box = support activity · column = primary activity, left to right · green = source of advantage",
+ "notice": "The advantage sits in Operations (managed pipelines) and Service (onboarding), not in sales.",
+ "support": [
+  {
+   "label": "Firm infrastructure",
+   "sub": "finance, legal, SOC 2 compliance"
+  },
+  {
+   "label": "People",
+   "sub": "hiring data engineers, on-call training"
+  },
+  {
+   "label": "Technology",
+   "sub": "pipeline engine, semantic layer, LLM assistant"
+  },
+  {
+   "label": "Procurement",
+   "sub": "cloud commits, data vendor contracts"
+  }
+ ],
+ "primary": [
+  {
+   "label": "Inbound",
+   "items": [
+    "Connector catalogue",
+    "Data contracts"
+   ]
+  },
+  {
+   "label": "Operations",
+   "items": [
+    "Managed pipelines",
+    "Quality checks"
+   ],
+   "tone": "green"
+  },
+  {
+   "label": "Outbound",
+   "items": [
+    "Dashboards",
+    "Reverse ETL"
+   ]
+  },
+  {
+   "label": "Marketing & sales",
+   "items": [
+    "Free tier",
+    "Partner resellers"
+   ]
+  },
+  {
+   "label": "Service",
+   "items": [
+    "Guided onboarding",
+    "Success manager"
+   ],
+   "tone": "green"
+  }
+ ],
+ "margin": {
+  "label": "Margin",
+  "sub": "68% gross"
+ }
+}

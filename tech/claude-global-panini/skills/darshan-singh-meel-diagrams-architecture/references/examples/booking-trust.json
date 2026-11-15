@@ -1,0 +1,92 @@
+{
+ "id": "booking-trust",
+ "type": "trust-boundaries",
+ "title": "Booking platform: trust zones and boundary crossings",
+ "direction": "LR",
+ "key": "Tinted frame = trust zone (legend) · T-number = flow crossing a boundary, thick line · hexagon = security control",
+ "notice": "T3 is the only flow into the restricted zone, and only booking-api holds its credentials.",
+ "groups": [
+  {
+   "id": "inet",
+   "label": "internet",
+   "kind": "untrusted"
+  },
+  {
+   "id": "edge",
+   "label": "edge",
+   "kind": "dmz"
+  },
+  {
+   "id": "int",
+   "label": "internal network",
+   "kind": "internal",
+   "layout": "column"
+  },
+  {
+   "id": "pci",
+   "label": "cardholder data",
+   "kind": "restricted",
+   "parent": "int"
+  },
+  {
+   "id": "psp",
+   "label": "payment provider",
+   "kind": "third_party"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "guest",
+   "label": "Guest",
+   "kind": "actor",
+   "group": "inet"
+  },
+  {
+   "id": "waf",
+   "label": "WAF",
+   "sub": "TLS 1.3",
+   "kind": "control",
+   "group": "edge"
+  },
+  {
+   "id": "api",
+   "label": "booking-api",
+   "kind": "process",
+   "group": "int"
+  },
+  {
+   "id": "tok",
+   "label": "token vault",
+   "kind": "store",
+   "group": "pci"
+  },
+  {
+   "id": "pay",
+   "label": "PSP API",
+   "kind": "external",
+   "group": "psp"
+  }
+ ],
+ "edges": [
+  {
+   "from": "guest",
+   "to": "waf",
+   "label": "HTTPS"
+  },
+  {
+   "from": "waf",
+   "to": "api",
+   "label": "mTLS"
+  },
+  {
+   "from": "api",
+   "to": "tok",
+   "label": "IAM role"
+  },
+  {
+   "from": "api",
+   "to": "pay",
+   "label": "OAuth 2"
+  }
+ ]
+}

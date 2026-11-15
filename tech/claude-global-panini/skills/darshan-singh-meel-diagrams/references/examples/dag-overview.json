@@ -1,0 +1,32 @@
+{
+  "id": "dag-overview",
+  "type": "boxes",
+  "style": "airflow",
+  "view": "overview",
+  "title": "Nightly data platform: DAGs and what triggers them",
+  "key": "Box = one DAG (task count, schedule, worst task state) · dashed purple = asset-triggered run · legend below",
+  "notice": "Nothing downstream of orders_nightly runs until its marts asset updates, so one failed load stops reporting.",
+  "groups": [
+    {"id": "ingest", "label": "orders_nightly", "tag": "DAG @daily"},
+    {"id": "finance", "label": "finance_reports", "tag": "DAG on asset"},
+    {"id": "ml", "label": "churn_features", "tag": "DAG on asset"}
+  ],
+  "nodes": [
+    {"id": "i1", "label": "load_orders", "state": "success", "group": "ingest"},
+    {"id": "i2", "label": "load_payments", "state": "failed", "group": "ingest"},
+    {"id": "i3", "label": "dbt_marts", "state": "upstream_failed", "group": "ingest"},
+    {"id": "i4", "label": "notify_on_call", "state": "success", "group": "ingest"},
+    {"id": "f1", "label": "build_ledger", "state": "none", "group": "finance"},
+    {"id": "f2", "label": "send_pdf", "state": "none", "group": "finance"},
+    {"id": "m1", "label": "features", "state": "none", "group": "ml"},
+    {"id": "m2", "label": "score", "state": "none", "group": "ml"},
+    {"id": "m3", "label": "publish", "state": "none", "group": "ml"}
+  ],
+  "edges": [
+    {"from": "i3", "to": "f1", "kind": "asset", "label": "marts.orders"},
+    {"from": "i3", "to": "m1", "kind": "asset", "label": "marts.orders"},
+    {"from": "f1", "to": "f2"},
+    {"from": "m1", "to": "m2"},
+    {"from": "m2", "to": "m3"}
+  ]
+}

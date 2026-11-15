@@ -1,0 +1,84 @@
+{
+  "id": "daily-sales-adf",
+  "type": "orchestration",
+  "style": "airflow",
+  "title": "pl_daily_sales: last night's run",
+  "key": "Box = activity (type in the tag) · border colour = run status (legend) · bold box = container activity with its inner counts · line colour = condition",
+  "notice": "The ForEach failed on one table, so transform and publish were skipped and only the on-failure alert ran.",
+  "triggers": [
+    {
+      "id": "tr_daily",
+      "label": "daily 02:00 UTC",
+      "type": "schedule",
+      "starts": [
+        "get_tables"
+      ]
+    }
+  ],
+  "containers": [
+    {
+      "id": "each_table",
+      "label": "each source table",
+      "type": "ForEach"
+    }
+  ],
+  "activities": [
+    {
+      "id": "get_tables",
+      "type": "Lookup",
+      "state": "succeeded"
+    },
+    {
+      "id": "copy_table",
+      "type": "Copy",
+      "state": "failed",
+      "group": "each_table"
+    },
+    {
+      "id": "log_rows",
+      "type": "StoredProcedure",
+      "state": "skipped",
+      "group": "each_table",
+      "depends_on": [
+        "copy_table"
+      ]
+    },
+    {
+      "id": "transform",
+      "type": "DatabricksNotebook",
+      "state": "skipped",
+      "depends_on": [
+        "each_table"
+      ]
+    },
+    {
+      "id": "publish",
+      "type": "ExecutePipeline",
+      "state": "skipped",
+      "depends_on": [
+        "transform"
+      ],
+      "calls": "pl_publish_marts"
+    },
+    {
+      "id": "alert_teams",
+      "type": "WebActivity",
+      "state": "succeeded",
+      "depends_on": [
+        {
+          "activity": "each_table",
+          "on": "failed"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "get_tables",
+      "to": "each_table"
+    }
+  ],
+  "collapse": [
+    "each_table"
+  ]
+}

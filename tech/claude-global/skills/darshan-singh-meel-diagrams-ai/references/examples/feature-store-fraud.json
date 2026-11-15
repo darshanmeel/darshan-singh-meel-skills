@@ -1,0 +1,106 @@
+{
+  "id": "feature-store-fraud",
+  "type": "feature-store",
+  "style": "dbt",
+  "title": "Fraud features: one definition, two paths to the model",
+  "key": "Pill colour = kind (legend) · top to bottom = data flow · left frame = training path, right frame = serving path",
+  "notice": "Training and serving read the same feature views, so card_velocity_1h is computed one way on both paths.",
+  "labels": {
+    "training": "Training (offline, point-in-time)",
+    "serving": "Serving (online, under 20 ms)"
+  },
+  "sources": [
+    {
+      "id": "txn",
+      "label": "card_transactions",
+      "sub": "Kafka topic"
+    },
+    {
+      "id": "acct",
+      "label": "accounts",
+      "sub": "Postgres CDC"
+    }
+  ],
+  "pipelines": [
+    {
+      "id": "velocity",
+      "label": "card_velocity_1h",
+      "sub": "streaming view"
+    },
+    {
+      "id": "profile",
+      "label": "account_profile",
+      "sub": "daily batch view"
+    }
+  ],
+  "offline": [
+    {
+      "id": "offline",
+      "label": "offline_store",
+      "sub": "Parquet, 2 years"
+    }
+  ],
+  "training": [
+    {
+      "id": "pit",
+      "label": "point_in_time_join"
+    },
+    {
+      "id": "trainjob",
+      "label": "train_fraud_model",
+      "kind": "model"
+    }
+  ],
+  "online": [
+    {
+      "id": "online",
+      "label": "online_store",
+      "sub": "Redis, latest values"
+    }
+  ],
+  "serving": [
+    {
+      "id": "score",
+      "label": "score_payment",
+      "kind": "model"
+    }
+  ],
+  "edges": [
+    {
+      "from": "txn",
+      "to": "velocity"
+    },
+    {
+      "from": "acct",
+      "to": "profile"
+    },
+    {
+      "from": "velocity",
+      "to": "offline"
+    },
+    {
+      "from": "profile",
+      "to": "offline"
+    },
+    {
+      "from": "velocity",
+      "to": "online"
+    },
+    {
+      "from": "profile",
+      "to": "online"
+    },
+    {
+      "from": "offline",
+      "to": "pit"
+    },
+    {
+      "from": "pit",
+      "to": "trainjob"
+    },
+    {
+      "from": "online",
+      "to": "score"
+    }
+  ]
+}

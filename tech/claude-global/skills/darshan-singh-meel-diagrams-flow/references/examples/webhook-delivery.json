@@ -1,0 +1,86 @@
+{
+  "id": "webhook-delivery",
+  "type": "retry-flow",
+  "style": "airflow",
+  "title": "Webhook delivery: retries, then dead letter (run of event evt_8812)",
+  "key": "Box = task (operator in the tag) · frame = task group · border colour = state of this run · dashed amber loop = bounded retry · red = failure path",
+  "notice": "post_partner timed out twice and is up_for_retry; a 4xx or the fifth failed try sends the event to webhook_dlq and pages partner ops.",
+  "groups": [
+    {
+      "id": "send",
+      "label": "deliver_webhook"
+    }
+  ],
+  "steps": [
+    {
+      "id": "take",
+      "label": "take_event",
+      "operator": "SQS receive",
+      "state": "success",
+      "group": "send"
+    },
+    {
+      "id": "sign",
+      "label": "sign_payload",
+      "operator": "HMAC-SHA256",
+      "state": "success",
+      "group": "send"
+    },
+    {
+      "id": "post",
+      "label": "post_partner",
+      "operator": "HTTP POST",
+      "state": "up_for_retry",
+      "group": "send",
+      "retry": {
+        "max": 5,
+        "delay": "exp 30s"
+      }
+    },
+    {
+      "id": "ack",
+      "label": "ack_event",
+      "operator": "SQS delete",
+      "group": "send"
+    },
+    {
+      "id": "dlq",
+      "label": "webhook_dlq",
+      "operator": "SQS DLQ",
+      "kind": "dlq"
+    },
+    {
+      "id": "page",
+      "label": "page_partner_ops",
+      "operator": "Slack",
+      "kind": "alert"
+    }
+  ],
+  "edges": [
+    {
+      "from": "take",
+      "to": "sign"
+    },
+    {
+      "from": "sign",
+      "to": "post"
+    },
+    {
+      "from": "post",
+      "to": "ack",
+      "label": "2xx"
+    },
+    {
+      "from": "post",
+      "to": "dlq",
+      "kind": "failure",
+      "label": "4xx or 5 tries"
+    },
+    {
+      "from": "dlq",
+      "to": "page",
+      "kind": "failure"
+    }
+  ],
+  "direction": "LR"
+}

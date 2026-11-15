@@ -1,0 +1,36 @@
+{
+  "id": "release-pipeline",
+  "type": "activity",
+  "title": "Release of billing-api: build, parallel checks, deploy",
+  "key": "Rounded = action · black bar = fork / join (all branches run, all must finish) · diamond = decision · [ ] = guard",
+  "notice": "The three checks run in parallel and the join waits for all of them; one red check stops the deploy.",
+  "direction": "TB",
+  "nodes": [
+    {"id": "i", "kind": "initial"},
+    {"id": "build", "label": "Build image", "sub": "docker buildx, tag = git sha"},
+    {"id": "fork", "kind": "fork"},
+    {"id": "unit", "label": "Unit tests", "sub": "pytest, 4 workers"},
+    {"id": "scan", "label": "Scan image", "sub": "CVE scan, fail on high"},
+    {"id": "contract", "label": "Contract tests", "sub": "against staging stubs"},
+    {"id": "join", "kind": "join"},
+    {"id": "ok", "kind": "decision"},
+    {"id": "deploy", "label": "Deploy to prod", "sub": "rolling, 25% steps"},
+    {"id": "stop", "label": "Mark release failed", "tone": "red"},
+    {"id": "f", "kind": "final"}
+  ],
+  "edges": [
+    {"from": "i", "to": "build"},
+    {"from": "build", "to": "fork"},
+    {"from": "fork", "to": "unit"},
+    {"from": "fork", "to": "scan"},
+    {"from": "fork", "to": "contract"},
+    {"from": "unit", "to": "join"},
+    {"from": "scan", "to": "join"},
+    {"from": "contract", "to": "join"},
+    {"from": "join", "to": "ok"},
+    {"from": "ok", "to": "deploy", "guard": "all green"},
+    {"from": "ok", "to": "stop", "guard": "else"},
+    {"from": "deploy", "to": "f"},
+    {"from": "stop", "to": "f"}
+  ]
+}

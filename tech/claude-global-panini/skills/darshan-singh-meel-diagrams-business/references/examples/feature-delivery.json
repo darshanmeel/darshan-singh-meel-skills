@@ -1,0 +1,46 @@
+{
+ "id": "feature-delivery",
+ "type": "value-stream",
+ "unit": "h",
+ "title": "Feature delivery value stream: ticket ready to production",
+ "key": "Box = stage (sub = team, tag = % complete and accurate) · ladder: upper = waiting, lower = processing, in hours",
+ "notice": "Waiting takes 116 of 141 hours, 72 of them for the weekly release window; hands-on work is 25 hours.",
+ "start": "Ticket ready",
+ "end": "Live in production",
+ "stages": [
+  {
+   "id": "dev",
+   "label": "Develop",
+   "sub": "squad",
+   "time": 16,
+   "wait": 8,
+   "ca": 90
+  },
+  {
+   "id": "rev",
+   "label": "Code review",
+   "sub": "peers",
+   "time": 2,
+   "wait": 20,
+   "ca": 80,
+   "tone": "amber"
+  },
+  {
+   "id": "qa",
+   "label": "QA & staging",
+   "sub": "QA",
+   "time": 6,
+   "wait": 16,
+   "ca": 95
+  },
+  {
+   "id": "rel",
+   "label": "Release",
+   "sub": "release manager",
+   "time": 1,
+   "wait": 72,
+   "ca": 99,
+   "tone": "amber"
+  }
+ ]
+}

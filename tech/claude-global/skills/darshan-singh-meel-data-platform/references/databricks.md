@@ -1,4 +1,8 @@
-# Databricks, PySpark, Delta, Unity Catalog
+# Databricks, Spark/PySpark, Delta
+
+Databricks platform work — cost and DBUs, compute, warehouse and query tuning, jobs and pipelines, Unity Catalog grants, audit logs, system tables, audit-type apps — → `darshan-singh-meel-databricks` (review: `darshan-singh-meel-databricks-review`). Build rules there: `performance.md` (PySpark, Delta, tuning), `governance.md` (Unity Catalog), `compute.md` (clusters), `jobs-pipelines.md` (notebooks and deploy).
+
+Kept here: the rules for Spark and Delta on any platform (EMR, Glue, Synapse, Databricks).
 
 ## PySpark
 - Built-in functions (`pyspark.sql.functions`) over Python UDFs; if unavoidable, pandas UDFs.
@@ -14,21 +18,5 @@
 - `OPTIMIZE` to fix small files. `VACUUM` with default retention — shorter breaks time travel and concurrent readers.
 - Schema changes deliberate (`mergeSchema` only when intended).
 
-## Unity Catalog & RBAC
-- Three-level names `catalog.schema.table`; no DBFS mounts or hardcoded workspace paths.
-- Catalog per environment (e.g. `dev`, `prod`) or per domain — follow the project.
-- Grants: `GRANT SELECT ON SCHEMA prod.sales TO \`analysts\``. Readers also need `USE CATALOG` and `USE SCHEMA`.
-- Jobs run as **service principals**, not personal accounts.
-- Cloud storage via storage credentials + external locations — no access keys in code.
-- Cluster policies to limit size/cost; row filters and column masks for sensitive data.
-- Secrets via secret scopes / `dbutils.secrets.get()`.
-
-## Compute & cost
-- Job compute for scheduled work; all-purpose clusters only for interactive use.
-- Auto-termination on interactive clusters; autoscaling with sane max.
-- Serverless or Photon where the project uses them.
-
-## Notebooks & deploy
-- No leftover `display()`, test cells, or hardcoded widget values in production.
-- Reusable logic in Python modules, not copy-pasted cells.
-- Deploy with Asset Bundles (`databricks bundle validate` / `deploy -t <env>`) or the project's CI — not by editing jobs in the UI.
+## Other cross-stack rules
+- Iceberg tables: `iceberg.md`. Access model: `rbac.md`. dbt on Databricks → `darshan-singh-meel-dbt`.

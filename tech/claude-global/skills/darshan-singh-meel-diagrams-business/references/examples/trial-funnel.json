@@ -1,0 +1,30 @@
+{
+ "id": "trial-funnel",
+ "type": "funnel",
+ "title": "Self-serve trial funnel, last 90 days",
+ "key": "Bar = stage, top to bottom, narrowing evenly (not to scale) · number = accounts · right = conversion from the previous stage and overall",
+ "notice": "After the trial starts, the biggest loss is connecting a source (31%): onboarding is the step to fix first.",
+ "stages": [
+  {
+   "label": "Visited pricing page",
+   "value": 48200
+  },
+  {
+   "label": "Started trial",
+   "sub": "sign-up form",
+   "value": 6100
+  },
+  {
+   "label": "Connected a source",
+   "value": 1890
+  },
+  {
+   "label": "Built a dashboard",
+   "value": 1320
+  },
+  {
+   "label": "Paid subscription",
+   "value": 520
+  }
+ ]
+}

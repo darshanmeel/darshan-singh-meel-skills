@@ -1,0 +1,154 @@
+{
+  "id": "order-lifecycle",
+  "type": "state-machine",
+  "title": "Order lifecycle in order-service",
+  "key": "Rounded box = state · frame = composite state · dot = initial · ringed dot = final · diamond = choice · label = event [guard] / action",
+  "notice": "Cancel is only possible during Fulfilment, before Shipped; an unpaid order expires after 30 minutes, a paid one without stock is refunded.",
+  "states": [
+    {
+      "id": "init",
+      "kind": "initial"
+    },
+    {
+      "id": "new",
+      "label": "Awaiting payment",
+      "entry": "start 30 min timer"
+    },
+    {
+      "id": "paidq",
+      "kind": "choice"
+    },
+    {
+      "id": "ful",
+      "label": "Fulfilment"
+    },
+    {
+      "id": "f0",
+      "kind": "initial",
+      "parent": "ful"
+    },
+    {
+      "id": "pick",
+      "label": "Picking",
+      "parent": "ful"
+    },
+    {
+      "id": "pack",
+      "label": "Packed",
+      "parent": "ful",
+      "entry": "print label"
+    },
+    {
+      "id": "ship",
+      "label": "Shipped",
+      "entry": "send tracking mail"
+    },
+    {
+      "id": "cancel",
+      "label": "Cancelled",
+      "tone": "red",
+      "entry": "release stock"
+    },
+    {
+      "id": "oos",
+      "label": "Refunded, out of stock",
+      "tone": "red",
+      "entry": "refund payment"
+    },
+    {
+      "id": "exp",
+      "label": "Expired",
+      "tone": "red",
+      "entry": "release reservation"
+    },
+    {
+      "id": "deliv",
+      "label": "Delivered",
+      "tone": "green"
+    },
+    {
+      "id": "end",
+      "kind": "final"
+    },
+    {
+      "id": "end_x",
+      "kind": "final"
+    },
+    {
+      "id": "end_c",
+      "kind": "final"
+    },
+    {
+      "id": "end_o",
+      "kind": "final"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "init",
+      "to": "new"
+    },
+    {
+      "from": "new",
+      "to": "paidq",
+      "event": "payment.settled"
+    },
+    {
+      "from": "paidq",
+      "to": "ful",
+      "guard": "in stock"
+    },
+    {
+      "from": "paidq",
+      "to": "oos",
+      "guard": "else"
+    },
+    {
+      "from": "new",
+      "to": "exp",
+      "event": "timeout 30m"
+    },
+    {
+      "from": "f0",
+      "to": "pick"
+    },
+    {
+      "from": "pick",
+      "to": "pack",
+      "event": "all items scanned"
+    },
+    {
+      "from": "ful",
+      "to": "cancel",
+      "event": "cancel",
+      "action": "refund",
+      "from_side": "right"
+    },
+    {
+      "from": "pack",
+      "to": "ship",
+      "event": "carrier.pickup"
+    },
+    {
+      "from": "ship",
+      "to": "deliv",
+      "event": "carrier.delivered"
+    },
+    {
+      "from": "deliv",
+      "to": "end"
+    },
+    {
+      "from": "cancel",
+      "to": "end_c"
+    },
+    {
+      "from": "exp",
+      "to": "end_x"
+    },
+    {
+      "from": "oos",
+      "to": "end_o"
+    }
+  ]
+}

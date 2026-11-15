@@ -1,0 +1,110 @@
+{
+ "id": "booking-deployment",
+ "type": "deployment",
+ "title": "Booking platform: production deployment",
+ "key": "Grey dashed = environment · tinted frame = cluster, namespace, node pool (legend) · box colour = element kind",
+ "notice": "The API and worker share one node pool; the database and queue run outside the cluster as managed services.",
+ "groups": [
+  {
+   "id": "prod",
+   "label": "production · eu-west",
+   "kind": "environment"
+  },
+  {
+   "id": "k8s",
+   "label": "k8s cluster prod-eu",
+   "kind": "cluster",
+   "parent": "prod"
+  },
+  {
+   "id": "ns",
+   "label": "namespace booking",
+   "kind": "namespace",
+   "parent": "k8s"
+  },
+  {
+   "id": "n1",
+   "label": "node pool general · 3 VMs",
+   "kind": "node",
+   "parent": "ns",
+   "layout": "row"
+  },
+  {
+   "id": "managed",
+   "label": "managed services",
+   "kind": "node",
+   "parent": "prod",
+   "layout": "row"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "dns",
+   "label": "DNS",
+   "sub": "book.example.com",
+   "kind": "dns"
+  },
+  {
+   "id": "lb",
+   "label": "Ingress LB",
+   "sub": "TLS ends here",
+   "kind": "lb",
+   "group": "prod"
+  },
+  {
+   "id": "api1",
+   "label": "booking-api",
+   "sub": "2 replicas",
+   "kind": "container",
+   "group": "n1"
+  },
+  {
+   "id": "wk",
+   "label": "payment-worker",
+   "sub": "1 replica, HPA",
+   "kind": "container",
+   "group": "n1"
+  },
+  {
+   "id": "pg",
+   "label": "bookings-db",
+   "sub": "PostgreSQL 16, HA",
+   "kind": "database",
+   "group": "managed"
+  },
+  {
+   "id": "sqs",
+   "label": "payment-jobs",
+   "sub": "SQS",
+   "kind": "queue",
+   "group": "managed"
+  }
+ ],
+ "edges": [
+  {
+   "from": "dns",
+   "to": "lb"
+  },
+  {
+   "from": "lb",
+   "to": "api1",
+   "label": "HTTP :8080"
+  },
+  {
+   "from": "api1",
+   "to": "pg",
+   "label": "5432"
+  },
+  {
+   "from": "api1",
+   "to": "sqs"
+  },
+  {
+   "from": "sqs",
+   "to": "wk",
+   "style": "dashed",
+   "from_side": "right",
+   "to_side": "bottom"
+  }
+ ]
+}

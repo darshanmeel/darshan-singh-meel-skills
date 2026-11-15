@@ -1,0 +1,71 @@
+{
+  "id": "ml-churn-lifecycle",
+  "type": "ml-lifecycle",
+  "title": "Churn model: from training data to monitored production and back",
+  "key": "Box = stage (tool in the sub line) · cylinder = store · hexagon = gate · dashed blue = feedback loop that retrains",
+  "notice": "Two loops retrain the model: a failed offline eval goes straight back to training, a drift alert rebuilds the training set.",
+  "groups": [
+    {
+      "id": "dev",
+      "label": "Experimentation (weekly)"
+    },
+    {
+      "id": "prod",
+      "label": "Production (always on)"
+    }
+  ],
+  "stages": [
+    {
+      "id": "prep",
+      "label": "Build training set",
+      "sub": "dbt, 24 months",
+      "group": "dev"
+    },
+    {
+      "id": "train",
+      "label": "Train",
+      "sub": "gradient boosting",
+      "kind": "model",
+      "group": "dev"
+    },
+    {
+      "id": "evaluate",
+      "label": "Offline eval",
+      "sub": "AUC, calibration",
+      "kind": "guard",
+      "group": "dev"
+    },
+    {
+      "id": "register",
+      "label": "Model registry",
+      "sub": "stage = production",
+      "kind": "store",
+      "group": "prod"
+    },
+    {
+      "id": "deploy",
+      "label": "Batch scoring",
+      "sub": "nightly, all customers",
+      "group": "prod"
+    },
+    {
+      "id": "monitor",
+      "label": "Monitor",
+      "sub": "drift, precision@k",
+      "kind": "monitor",
+      "group": "prod"
+    }
+  ],
+  "loops": [
+    {
+      "from": "monitor",
+      "to": "prep",
+      "label": "drift alert"
+    },
+    {
+      "from": "evaluate",
+      "to": "train",
+      "label": "AUC below 0.80"
+    }
+  ]
+}

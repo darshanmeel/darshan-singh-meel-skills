@@ -9,7 +9,7 @@ Only what differs when Snowflake hosts the app. Alongside:
 | Need | Skill |
 |---|---|
 | General Streamlit: layout, caching, state, forms, components | `darshan-singh-meel-streamlit` |
-| RBAC, warehouses, SQL, cost | `darshan-singh-meel-data-platform` (`snowflake.md`, `rbac.md`) |
+| RBAC, warehouses, SQL, cost | `darshan-singh-meel-snowflake` (`practices.md`, `warehouses.md`, `cost.md`) · `darshan-singh-meel-data-platform` (`rbac.md`) |
 | UI design | `darshan-singh-meel-frontend` |
 | Any query against data or metadata | `darshan-singh-meel-notebook` |
 

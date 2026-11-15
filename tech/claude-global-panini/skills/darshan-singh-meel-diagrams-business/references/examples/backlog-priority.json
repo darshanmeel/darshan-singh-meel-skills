@@ -1,0 +1,71 @@
+{
+ "id": "backlog-priority",
+ "type": "quadrant",
+ "title": "Data platform backlog: value against effort",
+ "key": "Dot = backlog item at its estimated effort (x) and business value (y) · quadrant name = what to do",
+ "notice": "Freshness alerts and the cost dashboard are quick wins; the lakehouse migration is a major project to plan.",
+ "x": {
+  "label": "Effort",
+  "low": "small",
+  "high": "large"
+ },
+ "y": {
+  "label": "Value",
+  "low": "low",
+  "high": "high"
+ },
+ "quadrants": {
+  "top_left": {
+   "label": "Quick wins",
+   "tone": "green"
+  },
+  "top_right": "Major projects",
+  "bottom_left": "Fill-ins",
+  "bottom_right": {
+   "label": "Avoid",
+   "tone": "amber"
+  }
+ },
+ "items": [
+  {
+   "label": "Freshness alerts",
+   "x": 0.15,
+   "y": 0.82
+  },
+  {
+   "label": "Cost dashboard",
+   "x": 0.3,
+   "y": 0.7
+  },
+  {
+   "label": "Lakehouse migration",
+   "x": 0.85,
+   "y": 0.88
+  },
+  {
+   "label": "Semantic layer",
+   "x": 0.62,
+   "y": 0.66
+  },
+  {
+   "label": "Rename schemas",
+   "x": 0.2,
+   "y": 0.25
+  },
+  {
+   "label": "Docs portal",
+   "x": 0.38,
+   "y": 0.4
+  },
+  {
+   "label": "Custom scheduler",
+   "x": 0.82,
+   "y": 0.2
+  },
+  {
+   "label": "PII tagging",
+   "x": 0.45,
+   "y": 0.78
+  }
+ ]
+}

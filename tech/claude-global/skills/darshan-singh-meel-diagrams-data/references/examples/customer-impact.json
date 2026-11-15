@@ -1,0 +1,143 @@
+{
+  "id": "customer-impact",
+  "type": "lineage",
+  "style": "dbt",
+  "impact": "crm_contacts",
+  "title": "Impact: what breaks if crm.contacts changes its schema",
+  "key": "Pill colour = kind (legend) · red pill and red arrows = changed source and every path it reaches · faded = not affected",
+  "notice": "The churn model and the CRM dashboard both depend on crm.contacts; billing and web reporting are safe.",
+  "groups": [
+    {
+      "id": "src",
+      "label": "sources"
+    },
+    {
+      "id": "stg",
+      "label": "staging"
+    },
+    {
+      "id": "marts",
+      "label": "marts"
+    },
+    {
+      "id": "use",
+      "label": "consumers"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "crm_contacts",
+      "label": "crm.contacts",
+      "kind": "source",
+      "group": "src"
+    },
+    {
+      "id": "erp_invoices",
+      "label": "erp.invoices",
+      "kind": "source",
+      "group": "src"
+    },
+    {
+      "id": "web_events",
+      "label": "web.events",
+      "kind": "file",
+      "group": "src"
+    },
+    {
+      "id": "stg_contacts",
+      "label": "stg_contacts",
+      "kind": "view",
+      "group": "stg"
+    },
+    {
+      "id": "stg_invoices",
+      "label": "stg_invoices",
+      "kind": "view",
+      "group": "stg"
+    },
+    {
+      "id": "stg_sessions",
+      "label": "stg_sessions",
+      "kind": "view",
+      "group": "stg"
+    },
+    {
+      "id": "dim_customers",
+      "label": "dim_customers",
+      "kind": "table",
+      "group": "marts"
+    },
+    {
+      "id": "fct_revenue",
+      "label": "fct_revenue",
+      "kind": "table",
+      "group": "marts"
+    },
+    {
+      "id": "fct_sessions",
+      "label": "fct_sessions",
+      "kind": "table",
+      "group": "marts"
+    },
+    {
+      "id": "churn",
+      "label": "churn_model",
+      "kind": "ml_model",
+      "group": "use"
+    },
+    {
+      "id": "crm_dash",
+      "label": "CRM dashboard",
+      "kind": "report",
+      "group": "use"
+    },
+    {
+      "id": "web_dash",
+      "label": "Web traffic report",
+      "kind": "report",
+      "group": "use"
+    }
+  ],
+  "edges": [
+    {
+      "from": "crm_contacts",
+      "to": "stg_contacts"
+    },
+    {
+      "from": "erp_invoices",
+      "to": "stg_invoices"
+    },
+    {
+      "from": "web_events",
+      "to": "stg_sessions"
+    },
+    {
+      "from": "stg_contacts",
+      "to": "dim_customers"
+    },
+    {
+      "from": "stg_invoices",
+      "to": "fct_revenue"
+    },
+    {
+      "from": "stg_sessions",
+      "to": "fct_sessions"
+    },
+    {
+      "from": "dim_customers",
+      "to": "churn"
+    },
+    {
+      "from": "dim_customers",
+      "to": "crm_dash"
+    },
+    {
+      "from": "fct_revenue",
+      "to": "crm_dash"
+    },
+    {
+      "from": "fct_sessions",
+      "to": "web_dash"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+ "id": "data-org",
+ "type": "org-chart",
+ "title": "Data & AI department: reporting lines, Q3 2026",
+ "key": "Box = role or team (sub = size or reporting line) · colour = function (legend) · dashed = vacant role",
+ "notice": "Platform engineering has no lead yet, so its three teams report straight to the Head of Data.",
+ "kinds": {
+  "lead": {
+   "tone": "ink",
+   "label": "leadership"
+  },
+  "eng": {
+   "tone": "blue",
+   "label": "engineering"
+  },
+  "ana": {
+   "tone": "teal",
+   "label": "analytics"
+  },
+  "ml": {
+   "tone": "lav",
+   "label": "ML & AI"
+  }
+ },
+ "units": [
+  {
+   "id": "hod",
+   "label": "Head of Data & AI",
+   "sub": "reports to the CTO",
+   "kind": "lead"
+  },
+  {
+   "id": "pe",
+   "label": "Platform engineering lead",
+   "kind": "eng",
+   "vacant": true,
+   "parent": "hod"
+  },
+  {
+   "id": "an",
+   "label": "Analytics lead",
+   "sub": "11 people",
+   "kind": "ana",
+   "parent": "hod"
+  },
+  {
+   "id": "ml",
+   "label": "ML lead",
+   "sub": "8 people",
+   "kind": "ml",
+   "parent": "hod"
+  },
+  {
+   "id": "ing",
+   "label": "Ingestion team",
+   "sub": "5 engineers",
+   "kind": "eng",
+   "parent": "pe"
+  },
+  {
+   "id": "wh",
+   "label": "Warehouse team",
+   "sub": "4 engineers",
+   "kind": "eng",
+   "parent": "pe"
+  },
+  {
+   "id": "rel",
+   "label": "Reliability team",
+   "sub": "3 engineers",
+   "kind": "eng",
+   "parent": "pe"
+  },
+  {
+   "id": "bi",
+   "label": "BI & reporting",
+   "sub": "6 analysts",
+   "kind": "ana",
+   "parent": "an"
+  },
+  {
+   "id": "exp",
+   "label": "Experimentation",
+   "sub": "3 analysts",
+   "kind": "ana",
+   "parent": "an"
+  },
+  {
+   "id": "rec",
+   "label": "Recommendations",
+   "sub": "4 ML engineers",
+   "kind": "ml",
+   "parent": "ml"
+  },
+  {
+   "id": "llm",
+   "label": "LLM applications",
+   "sub": "3 ML engineers",
+   "kind": "ml",
+   "parent": "ml"
+  }
+ ]
+}

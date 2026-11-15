@@ -1,0 +1,80 @@
+{
+ "id": "booking-context",
+ "type": "c4-context",
+ "title": "Booking platform: system context",
+ "key": "Stick figure = person · dark box = system in scope · grey box = external system · arrow = who calls whom [protocol]",
+ "notice": "Payments and email are the only external systems in the booking path; the CRM receives data but never calls back.",
+ "nodes": [
+  {
+   "id": "guest",
+   "label": "Guest",
+   "kind": "person",
+   "desc": "Books and pays for stays"
+  },
+  {
+   "id": "host",
+   "label": "Host",
+   "kind": "person",
+   "desc": "Publishes rooms, prices, calendars"
+  },
+  {
+   "id": "booking",
+   "label": "Booking platform",
+   "kind": "system",
+   "desc": "Search, booking, payment, host tools"
+  },
+  {
+   "id": "psp",
+   "label": "Payment provider",
+   "kind": "system",
+   "external": true,
+   "desc": "Card payments and refunds"
+  },
+  {
+   "id": "mail",
+   "label": "Email service",
+   "kind": "system",
+   "external": true,
+   "desc": "Transactional email"
+  },
+  {
+   "id": "crm",
+   "label": "CRM",
+   "kind": "system",
+   "external": true,
+   "desc": "Sales and support records"
+  }
+ ],
+ "edges": [
+  {
+   "from": "guest",
+   "to": "booking",
+   "label": "Searches and books",
+   "tech": "HTTPS"
+  },
+  {
+   "from": "host",
+   "to": "booking",
+   "label": "Manages listings",
+   "tech": "HTTPS"
+  },
+  {
+   "from": "booking",
+   "to": "psp",
+   "label": "Charges cards",
+   "tech": "REST"
+  },
+  {
+   "from": "booking",
+   "to": "mail",
+   "label": "Sends confirmations",
+   "tech": "SMTP"
+  },
+  {
+   "from": "booking",
+   "to": "crm",
+   "label": "Syncs customers",
+   "tech": "REST"
+  }
+ ]
+}

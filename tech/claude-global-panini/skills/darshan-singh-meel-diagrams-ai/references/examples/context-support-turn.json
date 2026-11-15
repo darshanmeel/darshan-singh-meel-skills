@@ -1,0 +1,25 @@
+{
+  "id": "context-support-turn",
+  "type": "context-assembly",
+  "title": "Support assistant: what fills the context window for one turn",
+  "key": "Bar = context window in prompt order, top first · height = token share · colour = segment kind (legend) · dashed = reserved",
+  "notice": "Retrieved chunks take the largest share; history is cut to the last 6 turns so the 2,000-token answer always fits.",
+  "limit": 16000,
+  "sources": [
+    {"id": "policy", "label": "Prompt repo", "sub": "versioned, v14"},
+    {"id": "registry", "label": "Tool registry", "kind": "tool"},
+    {"id": "profile", "label": "Customer profile", "kind": "store"},
+    {"id": "search", "label": "Hybrid search", "sub": "top 6 after rerank", "kind": "store"},
+    {"id": "chat", "label": "Session store", "kind": "store"},
+    {"id": "widget", "label": "Support widget", "kind": "client"}
+  ],
+  "segments": [
+    {"id": "sys", "label": "System prompt", "sub": "role, tone, refusal policy", "tokens": 900, "kind": "system", "source": "policy"},
+    {"id": "tools", "label": "Tool schemas", "sub": "4 tools", "tokens": 1100, "kind": "tools", "source": "registry"},
+    {"id": "mem", "label": "Customer facts", "sub": "plan, open tickets", "tokens": 400, "kind": "memory", "source": "profile"},
+    {"id": "docs", "label": "Retrieved chunks", "sub": "6 chunks with ids", "tokens": 4800, "kind": "retrieved", "source": "search"},
+    {"id": "hist", "label": "Conversation history", "sub": "last 6 turns", "tokens": 2600, "kind": "history", "source": "chat", "via": "trim to 6 turns"},
+    {"id": "msg", "label": "User message", "tokens": 200, "kind": "user", "source": "widget"},
+    {"id": "out", "label": "Answer budget", "sub": "max_tokens", "tokens": 2000, "kind": "reserved"}
+  ]
+}

@@ -7,7 +7,7 @@ description: Thorough code review for correctness, security, performance, design
 
 Check everything thoroughly; report only what matters. The goal is code that is correct, secure, fast enough, well designed, as small as possible, and free of AI slop. Global rules in CLAUDE.md apply.
 
-**Data work:** for SQL, dbt, Snowflake, Databricks/PySpark, Python pipelines, Airflow, Azure Data Factory, Terraform, cloud storage, or RBAC, also follow the `darshan-singh-meel-data-platform` skill (only the reference files for the tools in the diff) and check the change against it in section 10 (if in the diff).
+**Data work:** for SQL, dbt, Snowflake, Databricks/PySpark, Python pipelines, Airflow, Azure Data Factory, Terraform, cloud storage, or RBAC, also follow the `darshan-singh-meel-data-platform` skill (only the reference files for the tools in the diff) and check the change against it in section 10 (if in the diff). Snowflake, Databricks or dbt in the diff → also the rules of `darshan-singh-meel-snowflake`, `darshan-singh-meel-databricks` or `darshan-singh-meel-dbt`; reviewing an answer, notebook or audit app those skills made → their `-review` partner.
 
 ## How to review
 0. **Size the review, then one setup prompt:**

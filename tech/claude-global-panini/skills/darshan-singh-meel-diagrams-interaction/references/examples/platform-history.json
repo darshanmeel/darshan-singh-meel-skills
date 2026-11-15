@@ -1,0 +1,30 @@
+{
+  "id": "platform-history",
+  "type": "timeline",
+  "title": "Analytics platform: from nightly SQL jobs to a lakehouse",
+  "key": "Dark pill = period · box = what changed then · red = incident that forced a change · green = capability now in use · band = era",
+  "notice": "Both rewrites followed an incident: the 2022 outage led to dbt, the 2024 cost spike led to the lakehouse move.",
+  "sections": [
+    {"id": "legacy", "label": "Era 1 - warehouse jobs"},
+    {"id": "dbt", "label": "Era 2 - dbt on the warehouse"},
+    {"id": "lake", "label": "Era 3 - lakehouse"}
+  ],
+  "periods": [
+    {"label": "2021", "section": "legacy", "events": [
+      {"label": "Stored procedures on SQL Server", "sub": "cron at 02:00"},
+      {"label": "First Power BI reports"}]},
+    {"label": "2022", "section": "legacy", "events": [
+      {"label": "Month-end outage", "sub": "9 h late, no lineage", "tone": "red"}]},
+    {"label": "2023", "section": "dbt", "events": [
+      {"label": "dbt Core + Airflow", "sub": "212 models, tests on keys"},
+      {"label": "Data contracts for orders", "tone": "green"}]},
+    {"label": "2024", "section": "dbt", "events": [
+      {"label": "Warehouse cost +60%", "sub": "full refreshes", "tone": "red"},
+      {"label": "Incremental models"}]},
+    {"label": "2025", "section": "lake", "events": [
+      {"label": "Iceberg tables on S3", "sub": "Athena + Trino"}]},
+    {"label": "2026", "section": "lake", "events": [
+      {"label": "Self-serve semantic layer", "tone": "green"},
+      {"label": "Retire SQL Server", "sub": "planned Q3"}]}
+  ]
+}
