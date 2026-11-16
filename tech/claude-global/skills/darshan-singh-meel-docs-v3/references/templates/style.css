@@ -225,3 +225,11 @@ section[id], .subt, h3[id] { scroll-margin-top:12px; }
 .callout.warn { border-color:var(--amber-ink); background:var(--amber); color:var(--amber-ink); }
 .callout.note { border-color:var(--blue); background:var(--soft); color:var(--ink); font-weight:500; }
 .callout code { font-weight:500; }
+
+/* key functions or tests, open under a file map; Main flows: end-to-end map, files path of a linear flow */
+.keyfn { margin:6px 0 8px; } .keyfn ul { margin:4px 0 0; padding-left:18px; } .keyfn li { margin:2px 0; }
+.keyfn .lbl2, .e2emap .lbl2, .fpath .lbl2 { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); }
+.tf { margin:0 0 10px; } .tf h3 code { font-size:14px; }
+.e2emap { margin:8px 0 14px; } .e2emap ol { margin:6px 0 0; padding-left:20px; } .e2emap li { margin:0 0 8px; }
+.e2e { display:flex; flex-wrap:wrap; align-items:center; gap:4px 0; margin-top:3px; } .e2e .fc { display:inline-block; }
+.e2e .far { flex:0 0 24px; font-size:15px; transform:none; height:auto; } .fpath { margin:4px 0 10px; }

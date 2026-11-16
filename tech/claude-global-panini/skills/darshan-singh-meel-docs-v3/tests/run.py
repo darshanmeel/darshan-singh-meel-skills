@@ -1090,16 +1090,36 @@ check("story: journey with id, outcome badge, highlighted cause cell, message, w
       'class="story block" id="ex-3.1c"' in p and '<td class="hl">x</td>' in p and '<div class="msg block">Refused</div>' in p
       and "<b>Why it matters:</b> nothing wrong is stored" in p and 'class="story warn"' in p, out)
 check("story: free block, outside the Main flows recipe (no recipe ERROR)", "recipe" not in out, out)
-check("code files: entries always a table; purpose box, small map, details on click",
+check("code files: entries always a table; purpose box, lineage per file, details on click",
       "<h3>Entry points</h3>" in p and "<th>Starts at</th>" in p and '<div class="file subt" id="f-src-a-py">' in p
-      and '<div class="purpose"><b>Main purpose</b>' in p and '<div class="fmap">' in p and 'entry point</span>' in p
-      and '<span class="fc data">sales.<wbr>orders</span>' in p and '<summary>Show call details (1)</summary>' in p
-      and "THIS FILE &middot; 1 FUNCTION<" in p and 'class="fc chain"' in p and "<b>Notice:</b> sends no SQL itself" in p
-      and "<b>Tested by:</b>" in p and "<th>Called from</th>" in p, out)
+      and '<div class="purpose"><b>Main purpose</b>' in p and 'data-id="f-src-a-py" data-type="lineage"' in p
+      and "sales.orders" in p and '<summary>Show call details (1)</summary>' in p
+      and "<b>Notice:</b> sends no SQL itself" in p and "<b>Tested by:</b>" in p and "<th>Called from</th>" in p, out)
+check("test file: lineage like a code file", 'data-id="t-tests-test-a-py" data-type="lineage"' in p, out)
 check("tests: test map svg and table from testfile blocks, folded topics per test file",
-      '<div class="tmap"><svg' in p and "<th>What it proves</th>" in p and '<div class="tf subt" id="t-tests-test-a-py"><details class="fold">' in p
-      and "&middot; 3 tests &middot; 1 topic" in p and "<th>Test</th>" in p and "<b>Topics:</b> Run" in p
+      '<div class="tmap"><svg' in p and "<th>What it proves</th>" in p and '<div class="tf subt" id="t-tests-test-a-py"><h3>' in p
+      and "3 tests &middot; 1 topic" in p and "<summary>Show all tests (3)</summary>" in p and "<th>Test</th>" in p and "<b>Topics:</b> Run" in p
       and "<th>Tests</th>" in p and "Runs the job on one row." in p and "not a repo file" not in out, out)
+fns = [[f"`f{i}`", f"src/a.py:{i}", "does", "`b.py`, sales.orders" if i == 0 else "—", "—" if i == 0 else "`f0`"] for i in range(4)]
+filb2 = {"type": "file", "path": "src/b.py", "purpose": "Helpers.", "called_by": ["src/a.py"], "calls": [],
+         "functions": [["`g`", "src/b.py:1", "helps", "—", "`f0`"]]}
+spec = tech({"Main flows": [{"type": "h3", "text": "one → x"}, ipo() | {"steps": [{"do": "s", "out": "1 row", "why": "w", "where": "src/a.py:1"},
+             {"do": "t", "out": "2 rows", "why": "w", "where": "src/b.py:1"}], "examples": trace([item("t", at=["1", "2"]), item("u", case="edge", at=["1", "2"])])},
+             {"type": "h3", "text": "two → y"}, ipo()],
+             "Code files": [dict(filb, functions=fns, key=[["`f0`", "runs it"], ["`f1`", "helps"]]), filb2]})
+out, rc = run(RP, spec)
+p = page(RP)
+check("main flows: 2+ flows -> end-to-end map; linear flow -> files path with step links",
+      rc == 0 and "END-TO-END FLOWS &middot; 2" in p and '<a href="#h-3-1">one &#8594; x</a>' in p
+      and "FILES IT PASSES" in p and '<a href="#st-3.1.1">step 1</a>' in p and '<a href="#st-3.1.2">step 2</a>' in p, out)
+check("code files: key functions open; 2+ files -> Airflow call graph (group per file, function links, data)",
+      "KEY FUNCTIONS" in p and "runs it" in p and "<h3>How the files call each other</h3>" in p
+      and 'data-id="code-files"' in p and "src/b.py" in p, out)
+spec = tech({"Code files": [dict(filb, functions=fns), dict(filb2, key=[["`nope`", "x"], ["a", "b", "c"]])]})
+err, warn = build.check(spec, "technical", sorted(spec["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
+check("key: >3 functions and no key -> WARN; key name not a row -> WARN; bad key row -> ERROR",
+      any("add `key`" in w for w in warn) and any("not rows of its functions" in w for w in warn)
+      and any("key = [[name, what it does]" in e for e in err), (err, warn))
 spec = tech({"Code files": [dict(filb, calls=["data", "b.py"], functions=[])], "Tests": [dict(tfb, checks=["logic"], tests=[])]})
 out, rc = run(RP, spec)
 check("file/testfile: module names (not repo files) -> WARN; missing functions / tests tables -> WARN",

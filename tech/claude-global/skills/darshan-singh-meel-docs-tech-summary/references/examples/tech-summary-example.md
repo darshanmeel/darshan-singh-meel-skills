@@ -85,6 +85,10 @@ Key: Grey fill = data store · dashed border = external system · pill = person
 
 Three flows cover what a new engineer meets first: creating a shipment, tracking it, and signing in.
 
+1. Create a shipment and its label: web → `api/routes/shipments.py` → `api/services/shipments.py` → `api/services/labels.py` → 201, presigned URL valid 15 min
+2. Track parcel status: worker → `worker/schedules.py` → `worker/carriers/client.py` → `worker/tasks/poll.py` → `worker/tasks/notify.py` → one email per status change
+3. Staff sign-in: Shop staff → `api/auth/routes.py` → `api/auth/oidc.py` → HttpOnly cookie, role from `groups` claim
+
 ### Create a shipment and its label
 
 The label must exist before staff leave the form: the carrier pickup scan needs it.

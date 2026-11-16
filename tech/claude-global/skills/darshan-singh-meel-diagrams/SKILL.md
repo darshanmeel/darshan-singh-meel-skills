@@ -58,6 +58,7 @@ Any node-edge type takes `"style"`. The author picks what fits the content; noth
 ## Style rules
 - Palette and fonts of the docs pages (`references/style.md`), CSS variables with a dark set; no other colours, no gradients, shadows, icons or logos.
 - Every diagram: unique `id`, `title` that states what it shows, one-line `key` (what shapes, colours and lines mean), one-line `notice` (the one thing to see).
+- **Brevity:** load `darshan-singh-meel-brevity` alongside (the family skills inherit it): the title states the point, the `notice` is the lede, labels in plain words; no box or arrow text the reader does not need.
 - Colour carries meaning only and is named in the key or legend; the label text says it too (state, kind).
 - Labels: real names, ≤ 36 characters on arrows; long text goes in `sub` inside the box.
 - Canvas ≤ 1000px wide; the frame scrolls sideways on phones.

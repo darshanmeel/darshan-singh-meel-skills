@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | 1 | At a glance ★ | `facts`, `scope` | what · stack · runs on · schedule · in → out · owner; Does / Doesn't / Limitations | scope 1–5 each |
 | 2 | Components ★ | `flow`, `components` | runtime parts, real names; one box each (same label) | 8 components, 10 boxes |
-| 3 | Main flows ★ | `seq` | flows a new engineer meets first; step table; example where it helps | 4 flows, 7 steps, 6 participants |
+| 3 | Main flows ★ | `seq` | flows a new engineer meets first; step table; example where it helps; 2+ flows → build adds end-to-end map first (start → files → result) | 4 flows, 7 steps, 6 participants |
 | 4 | Data model | `er` | core entities, keys only, cardinality | 12 entities, 5 keys each |
 | 5 | Integrations | `integrations` | external systems · direction · protocol · data · auth names | 10 |
 | 6 | Tech stack ★ | `stack` | layer · tech · version as pinned · pinning file | 15 |

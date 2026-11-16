@@ -7,7 +7,7 @@ description: Architecture review of a repo from its knowledge graph - the curren
 Current → problems → keep/move/later → target → workflows → impact → migration, one page: `generated-docs/architecture.html` (spec `generated-docs/_spec/architecture.json`).
 - **When:** only on request ("architecture review", "is there a better way", "redesign", "target architecture") or when the user accepts the one-line offer the docs skills make after a Technical doc. Never unprompted.
 - **Every word carries a fact or an insight.** Lists and diagrams; no prose tables (tables only for keep/move/later, Impact, traces and docs-v2 row blocks).
-- **Input → Process → Output** with the output of each step: target Main flows (4) are strips with a `why`; workflows (5) trace one case current vs proposed.
+- **Input → Process → Output** with the output of each step: target Main flows (4) are strips with a `why`, opened by an end-to-end map (2+ workflows: input → steps → output, now vs target); workflows (5) trace one case current vs proposed.
 - **Every claim is evidence or a labelled estimate:** `path:line`, a `facts.json` fact, or `estimate` + assumption.
 - Global CLAUDE.md rules apply (local files only, relative paths, never open secret files, never read data rows, author voice: the page reads as the architect's own, open points as facts, no chat).
 - **Writing:** `darshan-singh-meel-brevity` (lede first, detail in layers): load it alongside. The page opens with `lede`: one sentence with the verdict and the one change that matters most (the first of `top`); `summary` then says why.

@@ -416,6 +416,91 @@
     ]
    }
   ],
+  "Code files": [
+   {
+    "type": "file",
+    "path": "src/tabkit/cli.py",
+    "purpose": "The `tabkit` command: reads the arguments, runs parse, convert or validate, prints the result and sets the exit code.",
+    "called_by": [],
+    "calls": [
+     "src/tabkit/registry.py",
+     "src/tabkit/validate.py"
+    ],
+    "data": [
+     "stdout",
+     "exit code"
+    ],
+    "chains": [
+     "main → validate_cmd → check"
+    ],
+    "tested_by": [
+     "tests/test_cli.py"
+    ],
+    "key": [
+     [
+      "`main`",
+      "dispatches the subcommand, maps errors to exit 2"
+     ],
+     [
+      "`validate_cmd`",
+      "prints issues, exit 1 when any"
+     ]
+    ],
+    "functions": [
+     [
+      "`main`",
+      "src/tabkit/cli.py:20",
+      "dispatches the subcommand",
+      "—",
+      "entry point"
+     ],
+     [
+      "`parse_cmd`",
+      "src/tabkit/cli.py:34",
+      "prints records as JSON",
+      "`registry.py`, `stdout`",
+      "`main`"
+     ],
+     [
+      "`convert_cmd`",
+      "src/tabkit/cli.py:44",
+      "writes another format",
+      "`registry.py`",
+      "`main`"
+     ],
+     [
+      "`validate_cmd`",
+      "src/tabkit/cli.py:50",
+      "prints issues, sets exit code",
+      "`validate.py`, `exit code`",
+      "`main`"
+     ]
+    ]
+   },
+   {
+    "type": "file",
+    "path": "src/tabkit/registry.py",
+    "purpose": "Maps a file extension to its parser.",
+    "called_by": [
+     "src/tabkit/cli.py"
+    ],
+    "calls": [
+     "src/tabkit/parsers/csv.py"
+    ],
+    "tested_by": [
+     "tests/test_csv.py"
+    ],
+    "functions": [
+     [
+      "`parser_for`",
+      "src/tabkit/registry.py:12-20",
+      "picks the parser by extension",
+      "`parsers/csv.py`",
+      "`cli.py`"
+     ]
+    ]
+   }
+  ],
   "Configuration": [
    {
     "type": "config",
@@ -453,19 +538,80 @@
   ],
   "Tests": [
    {
-    "type": "tests",
-    "rows": [
+    "type": "testfile",
+    "path": "tests/test_cli.py",
+    "checks": [
+     "src/tabkit/cli.py"
+    ],
+    "run_by": [],
+    "uses": [
+     "tests/data/users.csv"
+    ],
+    "proves": "commands and exit codes",
+    "purpose": "Runs each command in-process and checks the output and exit code.",
+    "count": 4,
+    "topics": [
      [
-      "`tests/test_csv.py`",
-      "CSV load and dump"
+      "Commands",
+      "parse and validate print the right thing"
      ],
      [
-      "`tests/test_cli.py`",
-      "commands, exit codes"
+      "Exit codes",
+      "0 ok, 1 issues, 2 bad input"
+     ]
+    ],
+    "key": [
+     [
+      "`test_validate_exit_1`",
+      "a record missing a field → exit 1"
      ],
      [
-      "`tests/test_validate.py`",
-      "required fields, types"
+      "`test_unknown_ext`",
+      "`.xml` → exit 2, formats listed"
+     ]
+    ],
+    "tests": [
+     [
+      "`test_parse_json`",
+      "tests/test_cli.py:6",
+      "users.csv → JSON list on stdout"
+     ],
+     [
+      "`test_validate_ok`",
+      "tests/test_cli.py:14",
+      "valid file → exit 0"
+     ],
+     [
+      "`test_validate_exit_1`",
+      "tests/test_cli.py:20",
+      "missing `age` → exit 1"
+     ],
+     [
+      "`test_unknown_ext`",
+      "tests/test_cli.py:28",
+      "users.xml → exit 2"
+     ]
+    ]
+   },
+   {
+    "type": "testfile",
+    "path": "tests/test_csv.py",
+    "checks": [
+     "src/tabkit/parsers/csv.py",
+     "src/tabkit/registry.py"
+    ],
+    "proves": "CSV load and dump",
+    "topics": [
+     [
+      "Load",
+      "header row becomes the keys"
+     ]
+    ],
+    "tests": [
+     [
+      "`test_load`",
+      "tests/test_csv.py:8",
+      "2 rows → 2 records"
      ]
     ]
    }

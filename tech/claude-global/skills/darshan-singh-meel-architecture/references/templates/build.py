@@ -83,7 +83,11 @@ CSS = """.verdict{display:inline-block;font:600 13px/1.4 "IBM Plex Mono",Consola
 .mig li{margin:6px 0} .qw{color:var(--green);border-color:var(--green)}
 .map .lane span{max-width:88px;white-space:normal;overflow-wrap:anywhere;line-height:1.3}
 .dec{font:600 11px/1.4 "IBM Plex Mono",Consolas,monospace;text-transform:uppercase} .dec.move{color:var(--amber-ink)} .dec.keep{color:var(--green)}
-.dec.later{color:var(--muted)}"""
+.dec.later{color:var(--muted)}
+.e2e{padding-left:20px} .e2e li{margin:0 0 10px} .e2e .ln{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin-top:3px}
+.e2e .ln b{font:600 10px "IBM Plex Mono",Consolas,monospace;letter-spacing:.06em;color:var(--muted);width:64px}
+.e2e .fc{padding:2px 7px;border:1px solid var(--ink);border-radius:5px;font:12px "IBM Plex Mono",Consolas,monospace;background:var(--card)}
+.e2e .fc.end{background:var(--soft);border-color:var(--line)} .e2e .far{width:22px;text-align:center;color:var(--muted)}"""
 
 # Used when docs-v2 is not installed: same tokens as docs-v2 style.css, light and dark.
 BASIC_CSS = """:root{--ground:#F6F6F3;--card:#FFF;--line:#D9DBDF;--ink:#17191D;--muted:#5B6068;--soft:#EEEFEC;--amber:#FCEBC8;
@@ -104,6 +108,21 @@ def basic_esc(text, wbr=False):
     t = re.sub(r"`([^`]+)`", r"<code>\1</code>", html.escape(str(text)))
     t = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", t)
     return t.replace("[synthetic]", '<span class="chip syn">synthetic</span>')
+
+
+def e2e_map(wfs, esc):
+    """2+ workflows: one row per flow, now and target, each input -> its steps (file on hover) -> output."""
+    if len(wfs) < 2:
+        return ""
+    def step(x):  # what the step does; its file on hover
+        tip = f' title="{html.escape(str(x["where"]))}"' if x.get("where") else ""
+        return f'<span class="fc"{tip}>{esc(x["do"])}</span>'
+    end = lambda v: f'<span class="fc end">{esc(v if isinstance(v, str) else " · ".join(f"{a} {b}" for a, b in v))}</span>'
+    line = lambda lab, f: (f'<div class="ln"><b>{lab}</b>' + '<span class="far">&rarr;</span>'.join(
+        [end(f["input"])] + [step(x) for x in f.get("steps") or []] + [end(f["output"])]) + "</div>")
+    rows = "".join(f'<li><a href="#mf-{k}">{esc(w["title"])}</a>{line("NOW", w["current"])}{line("TARGET", w["proposed"])}</li>'
+                   for k, w in enumerate(wfs, 1))
+    return f'<h3>End-to-end flows</h3><ol class="e2e">{rows}</ol><p class="key">Per flow: input → steps → output, now vs target. Hover a step for its file.</p>'
 
 
 def text_diagram(flow):
@@ -994,6 +1013,7 @@ def render(spec, R, used, stamp, head, accuracy):
         s4 += R["blocks"]([{"type": "components", "rows": pr["components"]}], 4, 0, "Architecture")
     if pr.get("stays"):
         s4 += f'<p class="key"><b>Stays:</b> {" &middot; ".join(esc(x) for x in pr["stays"])}</p>'
+    s4 += e2e_map(spec.get("workflows", []), esc)
     for k, wf in enumerate(spec.get("workflows", []), 1):
         b = dict(wf["proposed"], examples=[])
         try:

@@ -1261,44 +1261,171 @@ def chips(names, cls=""):
     return "".join(f'<span class="fc {cls}">{esc(x, True)}</span>' for x in names)
 
 
+def side(lab, xs, cls=""):
+    return f'<div class="fcol"><span class="lbl2">{lab}</span>{chips(xs, cls)}</div>' if xs else ""
+
+
+def fmap(left, mid, right):
+    """A file's map: who calls it (left) -> this file (middle) -> what it calls and touches (right)."""
+    return (f'<div class="fmap">{left}<div class="far">&rarr;</div><div class="fcol mid">{mid}</div>'
+            + (f'<div class="far">&rarr;</div><div class="fright">{right}</div>' if right else "") + "</div>")
+
+
+def key_list(lab, rows):
+    """2-3 key functions or tests, open under the map: name - what it does."""
+    items = "".join(f"<li>{esc(r[0], True)} &mdash; {esc(r[1])}</li>" for r in rows or [] if isinstance(r, list) and len(r) == 2)
+    return f'<div class="keyfn"><span class="lbl2">{lab}</span><ul>{items}</ul></div>' if items else ""
+
+
+GKINDS = {"caller": {"tone": "soft", "label": "calls it"}, "self": {"tone": "teal", "label": "this file"},
+          "fn": {"tone": "blue", "label": "function"}, "callee": {"tone": "ink", "label": "calls"},
+          "store": {"tone": "amber", "label": "data"}}  # own names: engine kinds such as file, function, data clash
+
+
+def lineage_html(gid, groups, nodes, edges, kinds=GKINDS, style="dbt"):
+    """A lineage (dbt style) or call graph (airflow style) drawn by the diagram engine, framed like every engine diagram (data-geo for check.py);
+    "" when the engine is missing or the picture fails (the caller falls back)."""
+    core = engine()
+    if core is None:
+        return ""
+    sp = {"id": gid, "type": "lineage" if style == "dbt" else "boxes", "style": style, "max_w": 150, "groups": groups,
+          "nodes": nodes, "edges": edges, "title": gid, "key": "colour = role", "notice": "who calls whom"}
+    r = core.build(dict(sp, kinds=kinds) if kinds else sp, chrome=False)
+    bad = [e for e in r["errors"] if not e.startswith("LAYOUT")]
+    if bad or not r.get("svg"):
+        NOTES.append(f"{gid}: engine picture failed, simpler view used: {(bad or ['no svg'])[0]}")
+        return ""
+    geo = html.escape(json.dumps(r.get("geometry"), separators=(",", ":")), quote=True)
+    return f'<div class="dgv" data-id="{gid}" data-type="lineage" data-geo="{geo}">{r["svg"]}</div>'
+
+
+def file_graph(b, test=False):
+    """One file as a lineage: callers -> this file -> its key functions (or tests) -> files it calls and data. A
+    function links to a file its Calls cell names; files no function names hang off the file itself."""
+    ids = {}
+    nid = lambda x: ids.setdefault(x, f"n{len(ids)}")
+    fn = lambda r: str(r[0]).strip("`")
+    rows = b.get("tests" if test else "functions") or []
+    keys = {str(k[0]).strip("`") for k in b.get("key") or [] if isinstance(k, list) and k}
+    shown = [r for r in rows if r and fn(r) in keys] or rows[:6]
+    callers = (b.get("run_by" if test else "called_by") or []) or ["test runner" if test else "entry point"]
+    outs = [(x, "callee") for x in b.get("checks" if test else "calls") or []] + [(x, "store") for x in b.get("uses" if test else "data") or []]
+    me = nid(":self")
+    nodes = ([{"id": nid("in:" + x), "label": x, "kind": "caller", "group": "in"} for x in callers]
+             + [{"id": me, "label": b["path"], "kind": "self", "group": "me"}]
+             + [{"id": nid("fn:" + fn(r)), "label": fn(r), "kind": "fn", "group": "fn"} for r in shown]
+             + [{"id": nid("out:" + x), "label": x, "kind": k, "group": "out"} for x, k in outs])
+    edges = [{"from": ids["in:" + x], "to": me} for x in callers] + [{"from": me, "to": ids["fn:" + fn(r)]} for r in shown]
+    for x, _ in outs:
+        base = x.rsplit("/", 1)[-1]
+        by = [r for r in shown if not test and len(r) > 3 and base in str(r[3])]
+        edges += [{"from": ids["fn:" + fn(r)], "to": ids["out:" + x]} for r in by] or [{"from": me, "to": ids["out:" + x]}]
+    groups = [{"id": "in", "label": "run by" if test else "called by"}, {"id": "me", "label": "this file"}]
+    groups += [{"id": "fn", "label": "key tests" if test else "functions"}] if shown else []
+    groups += [{"id": "out", "label": "checks" if test else "calls"}] if outs else []
+    return lineage_html(("t-" if test else "f-") + slug(b["path"]), groups, nodes, edges)
+
+
+def quoted(cell):
+    """Names in backticks in a table cell: `main`, `b.py` -> ["main", "b.py"]."""
+    return re.findall(r"`([^`]+)`", str(cell))
+
+
+def files_graph(fbs):
+    """Code files top level, Airflow style: one group per file, its functions inside, an arrow from each caller
+    function (Called from) to the function it calls, and to the data its Calls cell names. Falls back to a
+    file-to-file lineage when the picture fails."""
+    nodes, edges, where = [], [], {}  # where: function name -> node ids (a name may live in several files)
+    for i, b in enumerate(fbs):
+        for j, r in enumerate(b.get("functions") or []):
+            nid = f"g{i}f{j}"
+            nodes.append({"id": nid, "label": str(r[0]).strip("`"), "group": f"g{i}", "free": True,
+                          "operator": short_where(r[1]) if len(r) > 1 and r[1] else ""})
+            where.setdefault(str(r[0]).strip("`"), []).append((nid, b))
+        if not b.get("functions"):
+            nodes.append({"id": f"g{i}f", "label": b["path"].rsplit("/", 1)[-1], "group": f"g{i}"})
+    data = {}
+    for i, b in enumerate(fbs):
+        for j, r in enumerate(b.get("functions") or []):
+            me = f"g{i}f{j}"
+            for c in quoted(r[4]) if len(r) > 4 else []:  # Called from: a function name
+                src = [n for n, cb in where.get(c, []) if cb["path"] in (b.get("called_by") or []) or cb is b] or [n for n, _ in where.get(c, [])]
+                edges += [{"from": n, "to": me} for n in src[:1]]
+            for k, o in enumerate(fbs):  # Calls: another file -> its functions called from this one, else its first
+                base = o["path"].rsplit("/", 1)[-1]
+                if o is b or base not in quoted(r[3] if len(r) > 3 else ""):
+                    continue
+                fs = o.get("functions") or []
+                hit = [m for m, x in enumerate(fs) if len(x) > 4 and (str(r[0]).strip("`") in quoted(x[4]) or b["path"].rsplit("/", 1)[-1] in quoted(x[4]))]
+                edges += [{"from": me, "to": f"g{k}f{m}" if fs else f"g{k}f"} for m in (hit or [0])]
+            for d in b.get("data") or []:
+                if d in str(r[3] if len(r) > 3 else ""):
+                    data.setdefault(d, f"d{len(data)}")
+                    edges.append({"from": me, "to": data[d]})
+    edges = [dict(t) for t in dict.fromkeys(tuple(sorted(e.items())) for e in edges)]
+    nodes += [{"id": v, "label": k, "shape": "cylinder", "tone": "amber"} for k, v in data.items()]
+    groups = [{"id": f"g{i}", "label": b["path"]} for i, b in enumerate(fbs)]
+    svg = ""
+    if edges:
+        svg = lineage_html("code-files", groups, nodes, edges, None, "airflow")
+    if not svg:  # file to file
+        ids, nodes, edges = {}, [], []
+        for b in fbs:
+            for x in [b["path"]] + list(b.get("calls") or []):
+                if x not in ids:
+                    ids[x] = f"n{len(ids)}"
+                    nodes.append({"id": ids[x], "label": x, "kind": "self" if x in {f["path"] for f in fbs} else "callee"})
+            edges += [{"from": ids[b["path"]], "to": ids[x]} for x in b.get("calls") or []]
+        kinds = {"self": {"tone": "teal", "label": "code file"}, "callee": {"tone": "ink", "label": "other file"}}
+        svg = lineage_html("code-files", [], nodes, edges, kinds) if edges else ""
+    return f'<h3>How the files call each other</h3>{svg}' if svg else ""
+
+
 def file_block(b, kind):
     """One code file: path, a 2-3 line "Main purpose" box, a small map (called by -> this file -> calls and data
-    objects), then its details (call chains, tables) behind one click. A menu sub-item of its section."""
+    objects), its 2-3 key functions, then its details (call chains, tables) behind one click. A menu sub-item of its section."""
     a = "f-" + slug(b["path"])
     sub(a, b["path"], True)
-    side = lambda lab, xs, cls="": (f'<div class="fcol"><span class="lbl2">{lab}</span>{chips(xs, cls)}</div>' if xs else "")
     left = side("CALLED BY", b.get("called_by") or []) or '<div class="fcol"><span class="lbl2">CALLED BY</span><span class="fc none">entry point</span></div>'
     right = side("CALLS", b.get("calls") or []) + side("DATA", b.get("data") or [], "data")
     fns = b.get("functions") or []
     count = f'<span class="lbl2">THIS FILE &middot; {len(fns)} FUNCTION{"S" if len(fns) != 1 else ""}</span>' if fns else ""
     chain = "".join(f'<span class="fc chain">{esc(c, True)}</span>' for c in b.get("chains") or [])
-    fmap = (f'<div class="fmap">{left}<div class="far">&rarr;</div><div class="fcol mid">{count}<span class="fc me">{esc(b["path"], True)}</span>{chain}</div>'
-            + (f'<div class="far">&rarr;</div><div class="fright">{right}</div>' if right else "") + "</div>")
     key = ('<p class="key">Left: files that call it · middle: this file and its longest call chains · right: files it calls and data it touches.</p>')
     notes = (f'<p class="lead"><b>Notice:</b> {esc(b["notice"])}</p>' if b.get("notice") else "") +             (f'<p class="lead"><b>Tested by:</b> {", ".join(esc("`" + x + "`", True) for x in b["tested_by"])}</p>' if b.get("tested_by") else "")
     inner = (table(FUNC_COLS, fns) if fns else "") + "".join(block(x, kind) for x in b.get("blocks") or [])
     label = b.get("summary") or (f"Show call details ({len(fns)})" if fns else "Show the details")
     more = f'<details class="fold"><summary>{esc(label)}</summary>{inner}</details>' if inner else ""
     return (f'<div class="file subt" id="{a}"><h3><code>{esc(b["path"], True)}</code></h3>'
-            f'<div class="purpose"><b>Main purpose</b>{esc(b.get("purpose", ""))}</div>{fmap}{key}{notes}{more}</div>')
+            f'<div class="purpose"><b>Main purpose</b>{esc(b.get("purpose", ""))}</div>'
+            f'{file_graph(b) or fmap(left, count + f"""<span class="fc me">{esc(b["path"], True)}</span>""" + chain, right) + key}'
+            f'{key_list("KEY FUNCTIONS", b.get("key"))}{notes}{more}</div>')
 
 
 def testfile(b):
-    """One test file folded: summary = path, test count, what it proves; inside one row per topic (what each proves)."""
+    """One test file, shaped like a code file: path, what it proves, purpose, a map (run by -> this file -> code it
+    checks and fixtures it uses), its 2-3 key tests; topics and the per-test table behind one click."""
     a = "t-" + slug(b["path"])
     sub(a, b["path"], True)
     topics, cases = b.get("topics") or [], b.get("tests") or []
     k = b.get("count") or len(cases)
-    n = f' &middot; {k} tests' if k and k != len(topics) else ""
-    head = (f'<code>{esc(b["path"], True)}</code>{n} &middot; {len(topics)} topic{"s" if len(topics) != 1 else ""}'
-            + (f' &mdash; {esc(b["proves"])}' if b.get("proves") else ""))
-    body = (f'<div class="purpose"><b>Main purpose</b>{esc(b["purpose"])}</div>' if b.get("purpose") else "")
+    n = f'{k} tests &middot; ' if k and k != len(topics) else ""
+    head = (f'<p class="lead">{n}{len(topics)} topic{"s" if len(topics) != 1 else ""}'
+            + (f' &mdash; {esc(b["proves"])}' if b.get("proves") else "") + "</p>")
+    purpose = f'<div class="purpose"><b>Main purpose</b>{esc(b["purpose"])}</div>' if b.get("purpose") else ""
+    left = side("RUN BY", b.get("run_by") or []) or '<div class="fcol"><span class="lbl2">RUN BY</span><span class="fc none">test runner</span></div>'
+    right = side("CHECKS", b.get("checks") or []) + side("USES", b.get("uses") or [], "data")
+    mid = (f'<span class="lbl2">THIS FILE &middot; {k} TEST{"S" if k != 1 else ""}</span>' if k else "") + f'<span class="fc me">{esc(b["path"], True)}</span>'
+    key = '<p class="key">Left: what runs it · middle: this test file · right: code it checks and fixtures or data it uses.</p>'
+    body = ""
     if cases:
-        body += (f'<p class="lead"><b>Topics:</b> {" &middot; ".join(esc(x[0]) for x in topics)}</p>' if topics else "") + table(TEST_COLS, cases)
+        body = (f'<p class="lead"><b>Topics:</b> {" &middot; ".join(esc(x[0]) for x in topics)}</p>' if topics else "") + table(TEST_COLS, cases)
     elif topics:
-        body += table(["Topic", "What it proves"], topics)
+        body = table(["Topic", "What it proves"], topics)
+    more = f'<details class="fold"><summary>Show all tests ({k or len(topics)})</summary>{body}</details>' if body else ""
     src = f'<p class="src">{esc(b["source"], True)}</p>' if b.get("source") else ""
-    return f'<div class="tf subt" id="{a}"><details class="fold"><summary>{head}</summary>{body}{src}</details></div>'
+    return (f'<div class="tf subt" id="{a}"><h3><code>{esc(b["path"], True)}</code></h3>{head}{purpose}{file_graph(b, True) or fmap(left, mid, right) + key}'
+            f'{key_list("KEY TESTS", b.get("key"))}{more}{src}</div>')
 
 
 def tests_map(tfs):
@@ -1353,21 +1480,79 @@ def flows_first(blocks):
     return out
 
 
+def flow_groups(blocks):
+    """Main flows per h3: (h3 block, its ipo, whether it has its own diagram)."""
+    out = []
+    for b in blocks:
+        if b["type"] == "h3":
+            out.append([b, None, False])
+        elif out and b["type"] == "ipo" and out[-1][1] is None:
+            out[-1][1] = b
+        elif out and b["type"] in ("flow", "diagram") and not b.get("parent"):
+            out[-1][2] = True
+    return out
+
+
+def step_files(ipo_b):
+    """[(path, first step, last step)]: the file each step's `where` cites, consecutive steps in one file merged."""
+    out = []
+    for k, s in enumerate((ipo_b or {}).get("steps") or [], 1):
+        m = PATH_RE.search(str(s.get("where") or "")) if isinstance(s, dict) else None
+        if m and out and out[-1][0] == m[1] and out[-1][2] == k - 1:
+            out[-1][2] = k
+        elif m:
+            out.append([m[1], k, k])
+    return out
+
+
+def flows_map(groups):
+    """Main flows with 2+ h3s: one row per end-to-end flow (its h3, linked): input -> the files it passes -> output."""
+    end = lambda v: f'<span class="fc data">{kv(v, True)}</span>'
+    arrow = '<span class="far">&rarr;</span>'
+    rows = "".join(
+        f'<li><a href="#h-{POS["sec"]}-{POS["h3"] + i}">{esc(h["text"])}</a><div class="e2e">'
+        + arrow.join([end(ib["input"])] + [f'<span class="fc" title="{html.escape(f)}">{esc(f.rsplit("/", 1)[-1], True)}</span>'
+                                           for f, _, _ in step_files(ib)] + [end(ib["output"])]) + "</div></li>"
+        for i, (h, ib, _) in enumerate(groups, 1) if ib)
+    return (f'<div class="e2emap"><span class="lbl2">END-TO-END FLOWS &middot; {len(groups)}</span><ol>{rows}</ol>'
+            f'<p class="key">Per flow: input → files → output.</p></div>')
+
+
+def files_path(ipo_b):
+    """A linear Main flow (no diagram of its own): the files it passes, each with the strip steps it runs."""
+    fs = step_files(ipo_b)
+    if not fs:
+        return ""
+    here = f'{POS["sec"]}.{POS["h3"]}'
+    rng = lambda a, z: f'<a href="#st-{here}.{a}">step {a}</a>' if a == z else f'<a href="#st-{here}.{a}">steps {a}-{z}</a>'
+    return ('<div class="fpath"><span class="lbl2">FILES IT PASSES</span><div class="e2e">'
+            + '<span class="far">&rarr;</span>'.join(f'<span class="fc" title="{html.escape(f)}">{esc(f.rsplit("/", 1)[-1], True)} '
+                                                    f'&middot; {rng(a, z)}</span>' for f, a, z in fs) + "</div></div>")
+
+
 def section_html(blocks, kind, name):
-    """A section's blocks: Main flows diagrams first; a steps table after a diagram folds behind "Show the steps (N)";
+    """A section's blocks: Main flows: the end-to-end map (2+ flows), diagrams first, a files path under each linear
+    flow's h3; a steps table after a diagram folds behind "Show the steps (N)";
     with testfile blocks, the test map (and, without a tests table, a table from them) before the first one."""
-    bs = flows_first(blocks) if (kind, name) == ("technical", "Main flows") else blocks
+    main = (kind, name) == ("technical", "Main flows")
+    bs = flows_first(blocks) if main else blocks
     tfs = [b for b in bs if b["type"] == "testfile"]
-    out, seen_flow, drew = "", False, False
+    groups = flow_groups(bs) if main else []
+    linear = {id(h): ib for h, ib, dia in groups if not dia}
+    out, seen_flow, drew = flows_map(groups) if len(groups) > 1 else "", False, False
+    fbs = [b for b in bs if b["type"] == "file"]
+    top = len(fbs) > 1 and not any(b["type"] in ("flow", "diagram") for b in bs)
     for b in bs:
         t = b["type"]
+        if top and t == "file":
+            out, top = out + files_graph(fbs), False
         if tfs and not drew and t in ("tests", "testfile"):
             out += tests_map(tfs) + ("" if t == "tests" else tests_table(tfs))
             drew = True
         if t == "steps" and seen_flow:
             b = dict(b, _fold=True)
         seen_flow = seen_flow or t in ("flow", "diagram")
-        out += block(b, kind)
+        out += block(b, kind) + (files_path(linear[id(b)]) if id(b) in linear else "")
     return out
 
 
@@ -2098,6 +2283,7 @@ def new_block_check(n, b, err, warn):
             warn.append(f"{n}: file `{b.get('path')}`: add `functions` (one row per function: {', '.join(FUNC_COLS)}), from the graph")
         else:
             err += [f"{n}: file `{b.get('path')}` functions row has {len(r)} cells, want {len(FUNC_COLS)}: {r}" for r in fns if len(r) != len(FUNC_COLS)]
+        key_check(n, b, fns, "functions", err, warn)
         bad = [x.get("type") for x in b.get("blocks") or [] if x.get("type") not in INNER and x.get("type") not in TYPED]
         if bad:
             err.append(f"{n}: file `{b.get('path')}` blocks {bad} not allowed inside a file block (use {sorted(INNER)} or a typed table)")
@@ -2112,6 +2298,25 @@ def new_block_check(n, b, err, warn):
             warn.append(f"{n}: testfile `{b.get('path')}`: add `tests` (one row per test: {', '.join(TEST_COLS)})")
         else:
             err += [f"{n}: testfile `{b.get('path')}` tests row has {len(r)} cells, want {len(TEST_COLS)}: {r}" for r in cases if len(r) != len(TEST_COLS)]
+        key_check(n, b, cases, "tests", err, warn)
+
+
+def key_check(n, b, rows, what, err, warn):
+    """`key` = the 2-3 functions or tests a reader needs first, [[name, what it does]], each a row of `functions`/`tests`."""
+    key, p = b.get("key"), b.get("path")
+    if not key:
+        if len(rows or []) > 3:
+            warn.append(f"{n}: `{p}` has {len(rows)} {what}: add `key` (the 2-3 that matter most: [[name, what it does]])")
+        return
+    bad = [r for r in key if not isinstance(r, list) or len(r) != 2]
+    if bad:
+        err.append(f"{n}: `{p}` key = [[name, what it does], ...], got {bad[:2]}")
+    if len(key) > 3:
+        warn.append(f"{n}: `{p}` key has {len(key)} rows: keep the 2-3 that matter most, the rest is in the table")
+    names = {str(r[0]).strip("`") for r in rows or [] if r}
+    off = [str(r[0]) for r in key if isinstance(r, list) and r and names and str(r[0]).strip("`") not in names]
+    if off:
+        warn.append(f"{n}: `{p}` key names {off} are not rows of its {what} table")
 
 
 def file_names(spec, names, files, warn):
@@ -2121,7 +2326,7 @@ def file_names(spec, names, files, warn):
     found = lambda x: any(x == p or p.endswith("/" + x) or fnmatch.fnmatch(p, x) or fnmatch.fnmatch(p, "*/" + x) for p in files)
     for n in names:
         for b in flat(spec["sections"][n]):
-            keys = ("called_by", "calls") if b["type"] == "file" else ("checks",) if b["type"] == "testfile" else ()
+            keys = ("called_by", "calls") if b["type"] == "file" else ("checks", "run_by", "uses") if b["type"] == "testfile" else ()
             miss = [x for k in keys for x in b.get(k) or [] if not found(x)]
             if miss:
                 warn.append(f"{n}: `{b.get('path')}`: {', '.join(miss[:6])} not a repo file: name files (path, file name or glob), not modules")
@@ -3064,7 +3269,7 @@ def main(spec_path, out_path, dia_dir=None):
     src = (f'<p class="src">Known issues from review <code>{esc(spec["review"])}</code></p>' if spec.get("review") else
            '<p class="src">Severity follows the fixed rubric; Confirmed only where a test or the code proves it</p>'
            if issue_items(spec) else "")
-    body, menu, rules = "", "", []
+    body, menu, rules, n0 = "", "", [], len(NOTES)
     for i, n in enumerate(names):
         POS.update(kind=kind, slot=slot(kind, n), sec=i + 1, h3=0, ex=0, said=set(), subs=[])
         body += (f'<section id="s{i}"><h2>{esc(title(i, n))}</h2>{src if n == LAST else ""}'
@@ -3074,6 +3279,8 @@ def main(spec_path, out_path, dia_dir=None):
             menu += f'<div class="sub" data-for="s{i}">' + "".join(f'<a href="#{a}"{" class=p" if p else ""}>{esc(t, True)}</a>' for a, t, p in POS["subs"]) + "</div>"
             rules.append(f'body:has(#s{i}:target, #s{i} :target) .side .sub[data-for="s{i}"] {{ display:block; }}')
         rules.append(f'body:has(#s{i}:target, #s{i} :target) .side a[href="#s{i}"] {{ background:var(--soft); font-weight:600; }}')
+    for x in NOTES[n0:]:  # drawn while rendering: a lineage that fell back to a chip map
+        print("note:", x)
     nav = (f'<nav class="side" aria-label="Sections"><div class="t">{esc(spec["title"])}</div><a href="#top" class="all">Whole page</a>{menu}</nav>')
     menu_css = "@media (min-width:1024px) { " + " ".join(rules) + " }"
     css = (Path(__file__).parent / "style.css").read_text(encoding="utf-8")

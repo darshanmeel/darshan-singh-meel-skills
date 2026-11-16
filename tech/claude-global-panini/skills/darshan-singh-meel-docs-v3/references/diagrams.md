@@ -13,6 +13,7 @@ Load `darshan-singh-meel-diagrams` and the family skill of the type before you w
 | Main flows branch `flow` (one actor) | **stays** | The build checks `step: k` against the strip and checks that every `branch` step is drawn. |
 | Overview L0 `flow` (How it works) | **stays** | The build checks it for 3-7 boxes, people in row 1 and business words. |
 | Screen map, command map, Code files file map, sub-flows (`parent`) | **stay** | The build checks code and entry boxes against the plan's `boxes` and entry points. |
+| Code files and Tests per-file map | **drawn by the build with the engine** → `lineage` dbt style per `file` / `testfile`; `boxes` airflow style for all files (a group per file, functions inside, data) | Built from the blocks' fields, nothing to write. Chip map when the engine is missing. |
 | `journey`, `story`, example cards, test map | **stay** | They are examples with data, not diagrams of structure. |
 | Architecture L2 `flow` | **replaced** → `c4-container` · `layered-architecture` · `deployment` | Standard C4 notation, with technology on every container and a system boundary. |
 | Data model `er` | **replaced** → `er` (crow's foot, subject areas) · `star-schema` | Uses UML/IE cardinality, PK/FK/UK and areas as frames. The old `er` block still builds. |

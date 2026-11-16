@@ -190,7 +190,7 @@ def main():
     ok = (code == 0 and "0 WARN" in out and "Verdict: evolve" in out and "- C1 Incremental marts — cost:" in out and marker
           and page.count('class="pb"') == 10 and "Diagram D" in page and 'id="ex-5.1b"' in page and 'id="st-4.1.1"' in page
           and 'id="st-5.1p.1"' not in page and "quick win" in page and "file scan (no graph)" in page and "Keep, move, later" in page
-          and "<b>Alternatives:</b> Snowflake Tasks" in page and "Main flow 4.2" in page and "Accuracy: not reviewed" in out
+          and "<b>Alternatives:</b> Snowflake Tasks" in page and "Main flow 4.2" in page and '<h3>End-to-end flows</h3><ol class="e2e">' in page and '<a href="#mf-2">' in page and "Accuracy: not reviewed" in out
           and "2 move, 2 keep, 1 later" in out and "<h3>Operations</h3>" in page and 'title="infra/snowflake/warehouses.tf:5-9">warehouses.<wbr>tf:5-9' in page
           and 'id="M3"' in page and "Alternatives: Fivetran or Airbyte" in page and "<b>Size:</b>" in page and "Until: a dashboard" in page
           and "now measured &middot; effect by design" in page and "<h3>Tests</h3>" in page and "3 edits → 1 per rule change (measured)" in out

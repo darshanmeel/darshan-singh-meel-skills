@@ -81,6 +81,9 @@ th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
 .chip{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.04em;padding:0 6px;border-radius:4px;border:1px solid;white-space:nowrap}
 .chip.ok{color:var(--green);border-color:var(--green)} .chip.nv{color:var(--amber-ink);border-color:var(--amber-ink);background:var(--amber)}
 .chip.dr{color:var(--blue);border-color:var(--blue)} .chip.od{color:var(--lav-ink);border-color:var(--lav-ink);background:var(--lav)}
+.e2e{padding-left:20px} .e2e li{margin:0 0 8px} .e2e div{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin-top:3px}
+.fc{padding:2px 7px;border:1px solid var(--ink);border-radius:5px;font:12px "IBM Plex Mono",Consolas,monospace;background:var(--card)}
+.fc.end{background:var(--soft);border-color:var(--line)} .far{width:22px;text-align:center;color:var(--muted)}
 .badge{font-size:10px;font-weight:600;color:var(--teal-ink)} .alt{color:var(--red);font-size:13px}
 .io{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:8px 0} .io b{display:block;font:600 11px/1.8 "IBM Plex Mono",Consolas,monospace;color:var(--muted)}
 .dg{overflow-x:auto;margin:10px 0 0} .dg svg{display:block;max-width:100%;height:auto} .key{font-size:12px;color:var(--muted);margin:4px 0 0}
@@ -641,7 +644,7 @@ def block(b, warn, where):
         for i, s in enumerate(b["steps"], 1):
             out = esc(s["out"]) + (f'<br><span class="alt">If not: {esc(s["alt"])}</span>' if s.get("alt") else "")
             body.append([str(i), esc(s["do"]), out, code(s.get("where"))])
-        return (f"<h3>{esc(b['title'])}</h3>" + (f'<p class="why">{esc(b["why"])}</p>' if b.get("why") else "")
+        return (f'<h3 id="{fid(b)}">{esc(b["title"])}</h3>' + (f'<p class="why">{esc(b["why"])}</p>' if b.get("why") else "")
                 + svg_seq(b, warn, where) + key_line({"key": b.get("key") or SEQ_KEY}) + table(["#", "Step", "Output", "Where"], body)
                 + (io(b["example"]) if b.get("example") else ""))
     if t == "example":
@@ -671,6 +674,33 @@ def stamp(spec):
     return " &middot; ".join(esc(b) for b in bits)
 
 
+def fid(b):
+    return "f-" + re.sub(r"[^a-z0-9]+", "-", plain(b["title"]).lower()).strip("-")
+
+
+def e2e(sec):
+    """Main flows with 2+ flows: one row each, input -> the files its steps cite -> output; [(title, [chain])]."""
+    seqs = [b for _, b in blocks_of(sec) if b.get("type") == "seq"]
+    if len(seqs) < 2:
+        return []
+    out = []
+    for b in seqs:
+        st, label = b.get("steps") or [], {p["id"]: p["label"] for p in b.get("participants") or []}
+        files = list(dict.fromkeys(str(x["where"]).split(":")[0] for x in st if x.get("where")))  # full paths: same names differ
+        out.append((b, [label.get(st[0]["from"], st[0]["from"])] + files + [st[-1]["out"]] if st else files))
+    return out
+
+
+def e2e_html(sec):
+    rows = e2e(sec)
+    end = lambda x: f'<span class="fc end">{esc(x)}</span>'
+    short = lambda x, c: "/".join(x.split("/")[-2 if [y.rsplit("/", 1)[-1] for y in c].count(x.rsplit("/", 1)[-1]) > 1 else -1:])
+    mid = lambda x, c: f'<span class="fc" title="{html.escape(x)}">{esc(short(x, c))}</span>'  # parent folder when names repeat
+    chain = lambda c: '<span class="far">&rarr;</span>'.join([end(c[0])] + [mid(x, c) for x in c[1:-1]] + [end(c[-1])])
+    return ('<ol class="e2e">' + "".join(f'<li><a href="#{fid(b)}">{esc(b["title"])}</a><div>{chain(c)}</div></li>' for b, c in rows)
+            + '</ol><p class="key">Per flow: start → files → result.</p>') if rows else ""
+
+
 def render(spec, warn):
     secs = spec["sections"]
     toc = "".join(f'<a href="#s{i}">{i} {html.escape(s)}</a>' for i, s in enumerate(SECTIONS, 1))
@@ -688,6 +718,7 @@ def render(spec, warn):
         else:
             if sec.get("lead"):
                 out.append(f'<p class="lead">{esc(sec["lead"])}</p>')
+            out.append(e2e_html(sec) if name == "Main flows" else "")
             last = None
             for sub, b in blocks_of(sec):
                 if sub and sub is not last:
@@ -806,6 +837,8 @@ def render_md(spec):
             continue
         if sec.get("lead"):
             out += [mdx(sec["lead"]), ""]
+        if name == "Main flows" and e2e(sec):
+            out += [f"{k}. {mdx(plain(b['title']))}: " + " → ".join(mdx(x) for x in c[:1] + [f"`{y}`" for y in c[1:-1]] + c[-1:]) for k, (b, c) in enumerate(e2e(sec), 1)] + [""]
         last = None
         for sub, b in blocks_of(sec):
             if sub and sub is not last:

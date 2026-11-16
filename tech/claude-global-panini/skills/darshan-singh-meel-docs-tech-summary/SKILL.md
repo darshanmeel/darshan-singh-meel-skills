@@ -42,7 +42,7 @@ Pre-check (silent): graph (`./<repo>-knowledge-graph/` or `./.knowledge-graph`)?
 ## Content
 - Components: runtime parts (services · jobs · stores · UIs); one box each, same label; `where` = folder/module. Plumbing → unnamed or "Where to look next".
 - Rules (opt.): ≤5 behaviour-changing rules, each `path:line`, `rules` block under At a glance / Main flows.
-- Main flows: sequence diagrams, ≤7 steps; each step `out` + `path:line`; `alt` = failure branch in code; `why` = why it exists / what breaks without it. Plumbing (parse, dispatch) → merged into the data-producing step.
+- Main flows: sequence diagrams, ≤7 steps; each step `out` + `path:line`; `alt` = failure branch in code; `why` = why it exists / what breaks without it. Plumbing (parse, dispatch) → merged into the data-producing step. 2+ flows → build opens with end-to-end map: per flow start → files from `where` → result, linked.
 - Data model: keys only (`PK` · `FK` · `UK`) + `more: n`; ER lines = keys, never flow. No tables → one line.
 - Tech stack: versions as pinned (`stack.py`); unpinned → "not pinned"; never guessed.
 - Deploy · security · access: envs · deploy per env · rollback · health check · roles · secret **names** (values `<redacted>`) · where personal data lives. Unknown → "Not defined yet — owner to decide" + Top risks row `Owner to decide`.

@@ -48,7 +48,7 @@ Silent pre-check: graph present (`./<repo>-knowledge-graph/` or `./.knowledge-gr
 ## Content rules
 - **Components:** runtime parts (services, jobs, stores, UIs), one box each in the Components diagram with the same label; `where` is a folder or module. Plumbing and helpers go unnamed or in "Where to look next".
 - **Rules (optional):** up to 5 business or technical rules that change behaviour, each with `path:line`, as a `rules` block under At a glance or Main flows.
-- **Main flows:** sequence diagrams, ≤7 steps, each step with its output (`out`) and `path:line`; `alt` for the failure branch the code has; `why` states why the flow exists or what breaks without it. Merge plumbing (parse, dispatch) into the step that produces data.
+- **Main flows:** sequence diagrams, ≤7 steps, each step with its output (`out`) and `path:line`; `alt` for the failure branch the code has; `why` states why the flow exists or what breaks without it. Merge plumbing (parse, dispatch) into the step that produces data. With 2+ flows the build opens the section with an end-to-end map: per flow, start → files its steps cite → result, linked to the flow.
 - **Data model:** entities with keys only (`PK`, `FK`, `UK`) plus `more: n` for the rest; ER lines are keys, never flow. No tables → one line.
 - **Other diagram types** the builder has no block for (state machine, C4, deployment, lineage, Gantt, …): build with `darshan-singh-meel-diagrams` + family (`--page generated-docs/diagrams/<id>.html`, `--mermaid` for `--md`, 0 `LAYOUT`) and link it from a `pointers` row; the builder's `flow`, `seq`, `er` stay as they are.
 - **Tech stack:** versions exactly as pinned (`stack.py`); unpinned → "not pinned". Never a guessed version.

@@ -79,7 +79,8 @@ AskUserQuestion(questions=[
   - `required` but the source lacks it → keep it with "Not defined yet - owner to decide".
 - **Overview:** What it is and why (What · Why · Key idea · Result) · How it works (one L0 flow, 3-7 boxes) · Who uses it · Example (journey + 2-6 cards) · Value and cost · Schedule · Design and operational risks (≤3) · Words used.
 - **Technical:** Overview · Architecture · interface sections from the plan · Main flows · Code files (optional) · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
-  - Main flows: an `ipo` strip with traced examples per plan h3, plus a diagram only when the plan says `diagram: true`.
+  - Main flows: an `ipo` strip with traced examples per plan h3, plus a diagram only when the plan says `diagram: true`. The build adds an end-to-end map (2+ flows: input → files → output) and, under a linear flow, the files it passes with their steps.
+  - Code files and Tests: the build draws each `file` / `testfile` as a dbt-style lineage (called by → file → functions or key tests → calls, data) and, for 2+ files, one Airflow-style graph (a group per file, its functions, data). `key`: the 2-3 functions or tests that matter most, shown open.
   - Coverage: every plan item by exact name in visible text.
   - Rules: `references/rules.md`.
 - **User guide:** How it reaches you · Screens · What answers what · How to … · When data is fresh · History and deletions · Errors and messages · Problems and fixes · Who to contact. No internals.
