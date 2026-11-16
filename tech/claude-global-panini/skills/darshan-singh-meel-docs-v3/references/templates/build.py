@@ -3075,7 +3075,7 @@ def main(spec_path, out_path, dia_dir=None):
             rules.append(f'body:has(#s{i}:target, #s{i} :target) .side .sub[data-for="s{i}"] {{ display:block; }}')
         rules.append(f'body:has(#s{i}:target, #s{i} :target) .side a[href="#s{i}"] {{ background:var(--soft); font-weight:600; }}')
     nav = (f'<nav class="side" aria-label="Sections"><div class="t">{esc(spec["title"])}</div><a href="#top" class="all">Whole page</a>{menu}</nav>')
-    menu_css = "@media (min-width:1360px) { " + " ".join(rules) + " }"
+    menu_css = "@media (min-width:1024px) { " + " ".join(rules) + " }"
     css = (Path(__file__).parent / "style.css").read_text(encoding="utf-8")
     sub = f'<p class="sub1">{esc(spec["subtitle"])}</p>' if spec.get("subtitle") else ""
     lede = "".join(f'<p class="{c}">{esc(spec[k])}</p>' for k, c in (("lede", "l1"), ("why", "why")) if spec.get(k))

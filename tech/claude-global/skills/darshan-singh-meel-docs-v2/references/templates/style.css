@@ -163,7 +163,7 @@ input.more, .more-l { display:none; } .tt td[data-h="Why / impact"] { min-width:
 .side { display:none; }
 details.fold { margin:6px 0 14px; } details.fold > summary { font-family:inherit; font-size:14px; font-weight:600; color:var(--blue); }
 section[id], .subt, h3[id] { scroll-margin-top:12px; }
-@media (min-width:1360px) {
+@media (min-width:1024px) {
   body.withnav main { margin-left:250px; } body.withnav .toc { display:none; }
   .side { display:block; position:fixed; top:0; left:0; bottom:0; width:232px; overflow-y:auto; padding:20px 10px 24px 14px; border-right:1px solid var(--line); background:var(--card); font-size:13px; }
   .side a { display:block; color:var(--ink); text-decoration:none; padding:3px 6px; border-radius:4px; overflow-wrap:anywhere; } .side a:hover { background:var(--soft); }

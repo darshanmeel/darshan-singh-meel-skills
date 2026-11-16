@@ -226,7 +226,7 @@ Every diagram title is unique in the doc (ERROR otherwise). A flow with arrows: 
 **Example ids:** added by the build only — never in the spec, never in `tag`. Every example (card, table row, ipo trace) is numbered `<section>.<h3 index><letter>` (5.1a, 5.1b; `4a` before any h3) and shown on it ("EXAMPLE 5.1a" on a card, `5.1a` in a trace; anchor `#ex-5.1a`), so text can say "see Example 5.1b". Each card: EXPECT, IN, OUT; each trace: EXPECT, In, the value after each step, Out. **Step ids** `<section>.<h3>.<step>` (5.1.3, anchor `#st-5.1.3`) on every strip step: "see step 5.1.3" links to it; one the doc does not have → ERROR.
 
 **Page and reading order (done by the build, every document type):**
-- A fixed left menu (screens ≥1360 px) lists the sections; nothing clicked shows the whole page, a menu item shows only that section (CSS `:target`, no script; "Whole page" goes back). Sub-items (each h3, `file` and `testfile` block) stay hidden until their section is open; a file or test-file item shows only that block. Narrower screens and print: the contents line and the whole page.
+- A fixed left menu (screens ≥1024 px) lists the sections; nothing clicked shows the whole page, a menu item shows only that section (CSS `:target`, no script; "Whole page" goes back). Sub-items (each h3, `file` and `testfile` block) stay hidden until their section is open; a file or test-file item shows only that block. Narrower screens and print: the contents line and the whole page.
 - Diagram first: in Main flows an h3 with a flow shows the diagram, then the ipo strip folded ("Show the steps (N)"), then the traces; in any section a `steps` table after a flow is folded the same way.
 
 **Layout (done by the build — never in the spec):**

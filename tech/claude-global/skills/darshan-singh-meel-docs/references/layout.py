@@ -21,7 +21,7 @@ import sys
 CSS = """<style>
 /* left menu: wide screens only; nothing clicked = the whole page, a menu click = that section only */
 .side { display:none; }
-@media (min-width:1180px) {
+@media (min-width:1024px) {
   body.withnav main { margin-left:250px; }
   .side { display:block; position:fixed; top:0; left:0; bottom:0; width:230px; overflow-y:auto; padding:24px 10px 24px 16px;
           border-right:1px solid var(--line); background:var(--card); font-size:13px; }

@@ -1076,7 +1076,7 @@ check("menu: fixed side menu lists every section; sections carry the anchor id; 
 check("menu: sub-items for h3s, file and test-file blocks (paths in mono)",
       'href="#f-src-a-py" class=p>' in p and 'href="#t-tests-test-a-py" class=p>' in p and '<a href="#h-3-1">' in p, out)
 check("css: a menu click shows one section (:target), only on wide screens",
-      "main > section:not(:target):not(:has(:target))" in (T / "style.css").read_text(encoding="utf-8") and "@media (min-width:1360px)" in p, "")
+      "main > section:not(:target):not(:has(:target))" in (T / "style.css").read_text(encoding="utf-8") and "@media (min-width:1024px)" in p, "")
 check("fold: a steps table after a diagram folds behind 'Show the steps (N)'",
       '<details class="fold"><summary>Show the steps (1)</summary>' in p, out)
 check("story: journey with id, outcome badge, highlighted cause cell, message, why line",
