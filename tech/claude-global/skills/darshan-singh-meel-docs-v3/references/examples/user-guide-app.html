@@ -1,0 +1,227 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="generator" content="darshan-singh-meel-docs-v3 f8a9a282c0"><title>Expense app &#8212; user guide</title><style>:root { --ground:#F6F6F3; --card:#FFFFFF; --line:#D9DBDF; --ink:#17191D; --muted:#5B6068; --soft:#EEEFEC;
+        --teal:#DDF0EE; --teal-ink:#1C5C57; --amber:#FCEBC8; --amber-ink:#8A5A00; --green:#1E6B43; --blue:#1F5FA8;
+        --lav:#E7E2F5; --lav-ink:#6B4FA8; --red:#A12D2D; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--ground); color:var(--ink); font:15px/1.55 "IBM Plex Sans","Segoe UI",Arial,sans-serif; }
+main { max-width:1104px; margin:0 auto; padding:32px 16px 56px; overflow-wrap:break-word; }
+h1 { font-size:28px; font-weight:600; margin:4px 0 12px; } h2 { font-size:20px; font-weight:600; margin:0 0 10px; }
+h3 { font-size:16px; font-weight:600; margin:16px 0 6px; }
+section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px 24px; margin:18px 0; }
+ul { margin:6px 0; padding-left:22px; } li { margin:3px 0; }
+code, pre, .mono, .key, .cap, th, .eyebrow, .tag, .chip, .src, .m, summary { font-family:"IBM Plex Mono",Consolas,monospace; }
+code { font-size:13px; background:var(--soft); border:1px solid var(--line); border-radius:4px; padding:0 4px; }
+.eyebrow { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.toc { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:14px; margin:6px 0 0; } .toc a { color:var(--blue); }
+.key, .cap { font-size:12px; color:var(--muted); margin:8px 0 0; } .cap { color:var(--ink); }
+table { width:100%; border-collapse:collapse; margin:10px 0; font-size:14px; }
+th, td { text-align:left; vertical-align:top; padding:7px 10px; border:1px solid var(--line); }
+th { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); background:var(--soft); }
+.sub1 { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; color:var(--muted); margin:0 0 8px; }
+.lead { margin:4px 0 8px; } .src { font-size:11.5px; color:var(--muted); margin:6px 0 0; overflow-wrap:anywhere; }
+.chip { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.04em; padding:0 5px; border-radius:4px; border:1px solid; white-space:nowrap; vertical-align:1px; }
+.chip.ok { color:var(--red); border-color:var(--red); } .chip.nv { color:var(--amber-ink); border-color:var(--amber-ink); background:var(--amber); }
+.chip.syn { color:var(--lav-ink); border-color:var(--lav-ink); background:var(--lav); } .chip.fx { color:var(--green); border-color:var(--green); }
+.scroll { overflow-x:auto; } td.m { font-size:12px; overflow-wrap:break-word; } td code { overflow-wrap:break-word; } .nw { white-space:nowrap; }
+.steps td:first-child { width:38px; text-align:center; }
+.steps .n { display:inline-block; width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff; font:600 11px/20px "IBM Plex Mono",Consolas,monospace; text-align:center; }
+.issues tr.sev td { background:var(--soft); font-weight:600; }
+.terms { columns:2; column-gap:32px; font-size:14px; }
+details { margin:8px 0; } summary { cursor:pointer; font-size:13px; color:var(--muted); }
+
+/* opening tabs (CSS only) */
+.tabs { border:1px solid var(--line); border-radius:8px; background:var(--card); margin:14px 0; }
+.tabs input { position:absolute; opacity:0; }
+.tabs .bar { display:flex; border-bottom:1px solid var(--line); }
+.tabs label { padding:9px 16px; cursor:pointer; font-size:14px; color:var(--muted); border-right:1px solid var(--line); }
+.tabs .panel { display:none; padding:12px 20px; }
+#t1:checked ~ .bar label[for=t1], #t2:checked ~ .bar label[for=t2], #t3:checked ~ .bar label[for=t3], #t4:checked ~ .bar label[for=t4] { color:var(--ink); font-weight:600; box-shadow:inset 0 -2px 0 var(--ink); }
+#t1:checked ~ .p1, #t2:checked ~ .p2, #t3:checked ~ .p3, #t4:checked ~ .p4 { display:block; }
+.tabs input:focus-visible ~ .bar { outline:2px solid var(--blue); }
+
+/* diagrams */
+.map-wrap { overflow-x:auto; margin-top:10px; }
+.dgv { overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%; margin-top:10px; } .dgv svg { display:block; margin:0 auto; max-width:none; }
+.map { position:relative; margin:0 auto; font-size:13px; line-height:1.35; }
+.map svg { position:absolute; left:0; top:0; overflow:visible; }
+.map .b { position:absolute; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+          padding:6px 10px; background:var(--card); border:1px solid var(--ink); border-radius:8px; overflow-wrap:anywhere; }
+.map .b .t { font-weight:600; } .map .b .s { font-size:12px; color:var(--muted); }
+.map .b .tag { font-size:10px; letter-spacing:.08em; color:var(--muted); }
+.map .b.rich { justify-content:flex-start; align-items:stretch; text-align:left; }
+.map .b ul { margin:4px 0; padding-left:16px; font-size:12px; } .map .b li { margin:1px 0; }
+.map .b .run { font-size:11.5px; color:var(--muted); }
+.map .b .io { display:grid; grid-template-columns:34px 1fr; gap:2px 6px; font-size:11.5px; border-top:1px dashed rgba(23,25,29,.25); padding-top:5px; margin-top:4px; text-align:left; }
+.io .l { font-family:"IBM Plex Mono",Consolas,monospace; font-size:10px; font-weight:600; border-radius:3px; text-align:center; height:16px; line-height:16px; }
+.io .l.in { border:1px solid var(--blue); color:var(--blue); background:var(--card); } .io .l.out { background:var(--green); color:#fff; }
+.map .b .see { margin-top:auto; font-family:"IBM Plex Mono",Consolas,monospace; font-size:11px; color:var(--lav-ink); font-weight:600; text-decoration:none; }
+.map .b[data-tip] { cursor:help; }
+.map .b[data-tip]:hover::after, .map .b[data-tip]:focus::after { content:attr(data-tip); position:absolute; left:0; top:100%; margin-top:6px; width:240px; z-index:10;
+  background:var(--ink); color:#fff; font:11.5px/1.4 "IBM Plex Mono",Consolas,monospace; padding:4px 8px; border-radius:4px; text-align:left; }
+.map .grp { position:absolute; border:1px dashed var(--lav-ink); border-radius:10px; background:rgba(231,226,245,.3); }
+.map .grp span { position:absolute; left:10px; top:6px; font:11px/15px "IBM Plex Mono",Consolas,monospace; color:var(--lav-ink); overflow-wrap:anywhere; }
+.map .grp.fan { border-style:solid; background:rgba(231,226,245,.18); }
+.map .b.person { border-radius:999px; } .map .b.entry { border-width:2px; }
+.map .b.code { background:var(--teal); border-color:var(--teal-ink); border-radius:4px; } .map .b.code .t { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; }
+.map .b.data { background:var(--soft); border-color:#B9BCC2; } .map .b.shape { background:var(--amber); border-color:var(--amber-ink); }
+.map .b.decision { background:var(--lav); border-color:var(--lav-ink); border-radius:24px; }
+.map .b.fail { border:1px dashed var(--red); } .map .b.confirm { border:1px dashed var(--muted); }
+.map .lane { position:absolute; left:0; background:var(--soft); border-top:2px solid var(--card); }
+.map .lane span { position:absolute; left:10px; top:8px; font-family:"IBM Plex Mono",Consolas,monospace; font-size:11px; letter-spacing:.08em; color:var(--muted); }
+.map .lbl { position:absolute; height:16px; font:11px/16px "IBM Plex Mono",Consolas,monospace; color:var(--muted); background:var(--card); padding:0 4px; white-space:nowrap; }
+.map .lbl code { font-size:inherit; padding:0; border:0; background:none; }
+.map .num { position:absolute; transform:translate(-50%,-50%); width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff; font:600 11px/20px "IBM Plex Mono",Consolas,monospace; text-align:center; }
+.map polyline.flow { animation:flow 1.1s linear infinite; } @keyframes flow { to { stroke-dashoffset:-18; } }
+.map .ent { position:absolute; background:var(--card); border:1px solid var(--ink); border-radius:6px; overflow:hidden; }
+.map .ent .eh { padding:5px 10px; background:var(--soft); border-bottom:1px solid var(--ink); text-align:left; }
+.map .ent .eh b { display:block; font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; overflow-wrap:anywhere; } .map .ent .eh small { display:block; font-size:11px; line-height:15px; color:var(--muted); overflow-wrap:anywhere; }
+.map .ent .eh .sch { float:right; margin-left:8px; font-family:"IBM Plex Mono",Consolas,monospace; font-size:10px; letter-spacing:.08em; color:var(--muted); }
+.map .ent table { margin:0; font-size:12px; table-layout:fixed; } .map .ent td { border:0; border-bottom:1px solid var(--line); padding:0 10px; vertical-align:middle; font-family:"IBM Plex Mono",Consolas,monospace; overflow-wrap:anywhere; }
+.map .ent td:last-child { text-align:right; white-space:nowrap; } .map .ent .fkn { display:block; font-size:11px; line-height:15px; color:var(--blue); }
+.kpk { background:var(--ink); color:#fff; font-size:9.5px; font-weight:600; padding:0 4px; border-radius:3px; }
+.kfk { border:1px solid var(--blue); color:var(--blue); font-size:9.5px; font-weight:600; padding:0 4px; border-radius:3px; }
+
+/* payloads, journeys, example cards */
+.payloads { display:grid; grid-template-columns:1fr; gap:12px; margin-top:10px; }
+.payload { border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.payload .h { display:flex; justify-content:space-between; gap:8px; padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); font-family:"IBM Plex Mono",Consolas,monospace; font-size:11.5px; }
+.payload .h .in { color:var(--blue); font-weight:600; } .payload .h .out { color:var(--green); font-weight:600; }
+.payload pre { margin:0; padding:10px 12px; font-size:12.5px; line-height:1.5; overflow-x:auto; }
+.res { margin:0; font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; } .res td, .res th { border:0; border-bottom:1px solid var(--line); white-space:nowrap; }
+.tk { color:var(--teal-ink); } .ts { color:var(--amber-ink); } .tn { color:var(--blue); } .tb { color:var(--lav-ink); font-weight:600; } .tc { color:var(--muted); font-style:italic; }
+.journey { display:flex; align-items:stretch; gap:0; margin-top:10px; overflow-x:auto; }
+.journey .stage { flex:1 1 0; min-width:240px; overflow-wrap:anywhere; border:1px solid var(--line); border-radius:8px; background:var(--card); }
+.journey .stage.changed { border-color:var(--amber-ink); }
+.journey .stage .h { padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); } .journey .stage.changed .h { background:var(--amber); }
+.journey .stage .h b { display:block; font-size:13px; } .journey .stage .h small { display:block; font-size:11.5px; line-height:1.35; color:var(--muted); }
+.journey table { margin:0; font-size:12px; } .journey td { border:0; border-bottom:1px solid var(--line); padding:4px 8px; overflow-wrap:anywhere; font-family:"IBM Plex Mono",Consolas,monospace; }
+.journey .stage.pad { visibility:hidden; } .jnext { font:600 11px/1 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); margin:10px 0 2px 4px; }
+.journey td:first-child { color:var(--ink); font-family:inherit; font-size:12px; } .journey td small { display:block; color:var(--muted); font-size:10.5px; font-family:"IBM Plex Mono",Consolas,monospace; }
+.journey .arrow { flex:0 0 28px; display:flex; align-items:center; justify-content:center; color:var(--ink); }
+.journey .what { margin:0; padding:6px 10px; font-size:12px; color:var(--muted); }
+.chg { background:var(--amber); } .old { color:var(--muted); text-decoration:line-through; margin-right:4px; } .new { color:var(--green); font-weight:600; } .calc { color:var(--lav-ink); }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:10px; align-items:start; }
+.card { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.card.typical { border-top:3px solid var(--green); } .card.edge { border-top:3px solid var(--amber-ink); } .card.rejected, .card.failure { border-top:3px solid var(--red); }
+.card .h { padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); } .card .h b { display:block; font-size:13px; }
+.card .tag { font-size:10px; font-weight:600; letter-spacing:.06em; }
+.card .lbl2 { font-family:"IBM Plex Mono",Consolas,monospace; font-size:10px; font-weight:600; letter-spacing:.06em; color:var(--muted); padding:6px 10px 0; }
+.card table { margin:2px 0 0; font-size:12px; } .card td { border:0; border-bottom:1px solid var(--line); padding:3px 10px; font-family:"IBM Plex Mono",Consolas,monospace; }
+.card td { overflow-wrap:anywhere; } .card td .k { display:block; color:var(--muted); font-size:11px; }
+.card .res-t { margin:2px 0 0; padding:0 10px 6px; font-size:12.5px; overflow-wrap:anywhere; } .card .src { padding:0 10px 10px; margin-top:auto; }
+.card.typical .tag { color:var(--green); } .card.edge .tag { color:var(--amber-ink); } .card.rejected .tag, .card.failure .tag { color:var(--red); }
+.card .exn { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--ink); margin-right:8px; }
+/* Business rules with more than 3 examples: one table, same colours as the cards */
+.extab td { font-size:12.5px; } .extab td:nth-child(4), .extab td:nth-child(5) { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; }
+.extab td.exn { width:56px; white-space:nowrap; font:600 12px "IBM Plex Mono",Consolas,monospace; }
+.extab tr.typical td.exn { box-shadow:inset 3px 0 var(--green); } .extab tr.edge td.exn { box-shadow:inset 3px 0 var(--amber-ink); }
+.extab tr.rejected td.exn, .extab tr.failure td.exn { box-shadow:inset 3px 0 var(--red); }
+.extab .tag { display:block; font-size:10px; font-weight:600; letter-spacing:.06em; } .extab b { display:block; }
+.extab tr.typical .tag { color:var(--green); } .extab tr.edge .tag { color:var(--amber-ink); } .extab tr.rejected .tag, .extab tr.failure .tag { color:var(--red); }
+.extab .kv .k { color:var(--muted); font-size:11px; }
+
+/* Main flows ipo: Input > steps > Output strip (wraps; a column on narrow screens), then the example traces */
+.ipo { list-style:none; display:flex; flex-wrap:wrap; gap:10px 22px; margin:10px 0; padding:0; counter-reset:none; }
+.ipo li { position:relative; flex:1 1 140px; min-width:0; display:flex; flex-direction:column; gap:2px; margin:0; padding:7px 10px; border:1px solid var(--ink); border-radius:6px; background:var(--card); font-size:13px; overflow-wrap:anywhere; }
+.ipo li + li::before { content:"\25B8"; position:absolute; left:-17px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:13px; }
+.ipo li.io-in, .ipo li.io-out { background:var(--soft); border-color:#B9BCC2; } .ipo li.io-out { border-color:var(--green); }
+.ipo .n { display:inline-block; width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff; font:600 11px/20px "IBM Plex Mono",Consolas,monospace; text-align:center; }
+.ipo b { font-weight:600; line-height:1.35; } .ipo .o { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; color:var(--teal-ink); }
+.ipo li:not(.io-in):not(.io-out) .o::before { content:"\2192  "; color:var(--muted); }
+.ipo .lbl2, .trace .lbl2 { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); }
+.ipo .src { margin:0; } .ipo .br { font-size:12px; color:var(--red); } .trace td.nr { background:var(--soft); color:var(--muted); } .ipo .kv .k, .trace .kv .k { color:var(--muted); font-size:11px; margin-right:4px; }
+.trace td { font:12px/1.4 "IBM Plex Mono",Consolas,monospace; overflow-wrap:break-word; padding:5px 8px; }
+.trace td.exn { font-family:inherit; min-width:150px; } .trace .id { display:block; font:600 11px "IBM Plex Mono",Consolas,monospace; }
+.trace .tag { display:block; font-size:10px; font-weight:600; letter-spacing:.06em; } .trace b { display:block; font-size:12.5px; } .trace .exp { display:block; font-size:12px; margin-top:2px; }
+.trace tr.typical td.exn { box-shadow:inset 3px 0 var(--green); } .trace tr.edge td.exn { box-shadow:inset 3px 0 var(--amber-ink); }
+.trace tr.rejected td.exn, .trace tr.failure td.exn { box-shadow:inset 3px 0 var(--red); }
+.trace tr.typical .tag { color:var(--green); } .trace tr.edge .tag { color:var(--amber-ink); } .trace tr.rejected .tag, .trace tr.failure .tag { color:var(--red); }
+.rows .k { font-family:"IBM Plex Mono",Consolas,monospace; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+.ipo .why { font-size:12px; line-height:1.4; color:var(--muted); } .allrows { margin:10px 0 -4px; }
+.tasks tr.grp td { background:var(--soft); font-weight:600; } .tasks .n { display:inline-block; width:18px; height:18px; border-radius:50%; background:var(--ink); color:#fff; font:600 10px/18px "IBM Plex Mono",Consolas,monospace; text-align:center; margin-right:4px; }
+input.more, .more-l { display:none; } .tt td[data-h="Why / impact"] { min-width:200px; } .more-l { cursor:pointer; font:12px "IBM Plex Mono",Consolas,monospace; color:var(--blue); margin:4px 0 8px; }
+@media (max-width:720px) { .ipo { flex-direction:column; gap:16px; } .ipo li { flex:none; } .ipo li + li::before { content:"\25BE"; left:50%; top:-15px; transform:translateX(-50%); }
+  .trace, .trace tbody, .trace tr, .trace td { display:block; width:100%; } .trace tr:first-child { display:none; } .trace tr { margin:0 0 10px; border:1px solid var(--line); }
+  .trace td { border:0; border-bottom:1px solid var(--line); } .trace td.eq, .trace td.nr, .legend { display:none; }
+  .trace td:not(.exn)::before { content:attr(data-h); display:block; font:600 10px/1.6 "IBM Plex Mono",Consolas,monospace; color:var(--muted); }
+  .ipo { gap:12px; } .ipo li { padding:5px 8px; font-size:12.5px; } .ipo li + li::before { top:-12px; }
+  .more-l { display:block; } input.more:not(:checked) ~ .scroll tr.more, input.more:not(:checked) ~ details { display:none; } input.more:checked ~ .more-l { display:none; }
+  /* tables: each row a labelled block, nothing cut */
+  table.tt, .tt tbody, .tt tr, .tt td { display:block; width:100%; } .tt tr:first-child { display:none; } .tt tr { margin:0 0 8px; border:1px solid var(--line); border-radius:4px; }
+  .tt td { border:0; border-bottom:1px solid var(--line); padding:5px 8px; } .tt td:empty { display:none; }
+  .tt td:not(:first-child)::before { content:attr(data-h); display:block; font:600 10px/1.6 "IBM Plex Mono",Consolas,monospace; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+  .tt td:first-child { font-weight:600; } .tasks tr.grp { border:0; margin:12px 0 4px; } .tasks tr.grp td { background:none; padding:0; }
+  .tasks td:first-child { font-weight:400; } .issues tr.sev { border:0; } .issues tr.sev td { background:none; padding:0; } }
+
+@media (prefers-reduced-motion: reduce) { .map polyline.flow { animation:none; } }
+@media (max-width:720px) { section { padding:16px; } .terms { columns:1; } .journey { flex-direction:column; } .journey .arrow { transform:rotate(90deg); } .journey .pad { display:none; } }
+@media print { body { background:#fff; } main { padding:0; max-width:none; } section { border:0; padding:0; break-inside:avoid-page; }
+  .tabs .bar { display:none; } .tabs .panel { display:block; } .tabs .panel::before { content:attr(data-title); display:block; font-weight:600; margin-top:6px; }
+  .map polyline.flow { animation:none; } .map .b[data-tip]::after { display:none; } .toc { display:none; } }
+
+/* left menu (wide screens): nothing clicked = the whole page; a menu item = that section only; sub-items show once their section is open */
+.side { display:none; }
+details.fold { margin:6px 0 14px; } details.fold > summary { font-family:inherit; font-size:14px; font-weight:600; color:var(--blue); }
+section[id], .subt, h3[id] { scroll-margin-top:12px; }
+@media (min-width:1360px) {
+  body.withnav main { margin-left:250px; } body.withnav .toc { display:none; }
+  .side { display:block; position:fixed; top:0; left:0; bottom:0; width:232px; overflow-y:auto; padding:20px 10px 24px 14px; border-right:1px solid var(--line); background:var(--card); font-size:13px; }
+  .side a { display:block; color:var(--ink); text-decoration:none; padding:3px 6px; border-radius:4px; overflow-wrap:anywhere; } .side a:hover { background:var(--soft); }
+  .side .t { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 6px 6px; }
+  .side a.all { color:var(--blue); margin-bottom:6px; }
+  .side .sub { display:none; margin:0 0 6px; } .side .sub a { padding-left:16px; font-size:12px; color:var(--muted); } .side .sub a.p { font-family:"IBM Plex Mono",Consolas,monospace; font-size:11.5px; }
+  body:has(main section:target, main section :target) main > section:not(:target):not(:has(:target)),
+  body:has(main section:target, main section :target) main > :not(section):not(h1):not(.eyebrow) { display:none; }
+  main section:has(> .subt:target) > :not(h2):not(.subt:target) { display:none; }
+  .subt:target > details.fold::details-content { content-visibility:visible; block-size:auto; }
+}
+
+/* examples as journeys: headline, 2-3 stages left to right, the cause cell highlighted, why it matters */
+.story { margin:12px 0 16px; border:1px solid var(--line); border-left:4px solid var(--green); border-radius:8px; background:var(--card); padding:10px 12px 8px; }
+.story.warn { border-left-color:var(--amber-ink); } .story.block { border-left-color:var(--red); }
+.story .hd { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:8px; } .story .hd b { font-size:14.5px; }
+.story .exn { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; }
+.story .oc { font:600 10.5px "IBM Plex Mono",Consolas,monospace; letter-spacing:.05em; text-transform:uppercase; color:var(--green); white-space:nowrap; }
+.story.warn .oc { color:var(--amber-ink); } .story.block .oc { color:var(--red); }
+.story .js { display:flex; align-items:stretch; }
+.story .st { flex:1 1 0; min-width:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.story .st .h { padding:5px 9px; background:var(--soft); border-bottom:1px solid var(--line); }
+.story .st .h b { display:block; font-size:12.5px; } .story .st .h small { display:block; font-size:11px; color:var(--muted); }
+.story .ar { flex:0 0 26px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:17px; }
+.story .tw { overflow-x:auto; }
+.story table { margin:0; border:0; font-size:11.5px; }
+.story th, .story td { border:0; border-bottom:1px solid var(--line); padding:3px 8px; font-family:"IBM Plex Mono",Consolas,monospace; overflow-wrap:anywhere; }
+.story th { color:var(--muted); font-weight:600; font-size:11px; text-transform:none; letter-spacing:0; background:none; }
+.story td.kv { color:var(--muted); font-size:11px; width:1%; white-space:nowrap; }
+.story td.hl { background:var(--amber); color:var(--amber-ink); font-weight:600; }
+.story .msg { margin:8px; border-radius:6px; padding:7px 9px; font-size:12.5px; line-height:1.45; background:#E4F2E9; color:var(--green); }
+.story .msg.warn { background:var(--amber); color:var(--amber-ink); } .story .msg.block { background:#F6DCDC; color:var(--red); }
+.story .why { margin:8px 0 0; font-size:13px; } .story .why b { color:var(--muted); font-weight:600; } .story .why .src { display:inline; }
+
+/* code files: main purpose, small map (called by -> file -> calls, data), details on click */
+.purpose { margin:6px 0 10px; padding:9px 12px; border-left:4px solid var(--teal-ink); background:var(--teal); border-radius:6px; line-height:1.5; }
+.purpose b { display:block; font:600 11px "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--teal-ink); }
+.file { margin:0 0 10px; } .file h3 code { font-size:14px; }
+.fmap { display:flex; align-items:center; gap:0; margin:8px 0; }
+.fcol { flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:4px; } .fcol.mid { flex:0 1 220px; } .fright { flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:8px; }
+.fcol .lbl2 { font:600 10px/1.4 "IBM Plex Mono",Consolas,monospace; letter-spacing:.06em; color:var(--muted); }
+.fc { display:block; padding:4px 8px; border:1px solid var(--ink); border-radius:5px; font:12px/1.35 "IBM Plex Mono",Consolas,monospace; overflow-wrap:anywhere; background:var(--card); }
+.fc.me { background:var(--teal); border-color:var(--teal-ink); border-width:2px; font-weight:600; text-align:center; padding:10px 8px; }
+.fc.data { background:var(--soft); border-color:#B9BCC2; } .fc.chain { border-style:dotted; font-size:11.5px; } .fc.none { border-style:dashed; color:var(--muted); }
+.far { flex:0 0 30px; text-align:center; color:var(--muted); font-size:18px; }
+
+/* tests: test file -> the code it checks */
+.tmap { margin:10px 0; } .tmap svg { display:block; width:100%; max-width:760px; height:auto; font:12px "IBM Plex Mono",Consolas,monospace; }
+.tmap rect.tb { fill:var(--card); stroke:var(--ink); } .tmap rect.cb { fill:var(--teal); stroke:var(--teal-ink); }
+.tmap text { fill:var(--ink); } .tmap path.ln { fill:none; stroke:var(--muted); stroke-opacity:.6; }
+.tf summary code { font-size:12.5px; }
+
+@media (max-width:720px) { .story .js, .fmap { flex-direction:column; align-items:stretch; } .story .ar, .far { transform:rotate(90deg); height:24px; flex:none; } .fcol.mid { flex:none; } }
+@media print { .side { display:none !important; } body.withnav main { margin-left:0; } main > section, section > :not(input) { display:revert !important; } }
+
+/* callouts: what the reader must not miss (block = never do, warn = take care, note = good to know) */
+.callout { margin:12px 0; padding:11px 16px; border:1px solid var(--red); border-radius:8px; background:#FCEBEC; color:var(--red); font-weight:600; line-height:1.5; }
+.callout.warn { border-color:var(--amber-ink); background:var(--amber); color:var(--amber-ink); }
+.callout.note { border-color:var(--blue); background:var(--soft); color:var(--ink); font-weight:500; }
+.callout code { font-weight:500; }
+
+@media (min-width:1360px) { body:has(#s0:target, #s0 :target) .side a[href="#s0"] { background:var(--soft); font-weight:600; } body:has(#s1:target, #s1 :target) .side a[href="#s1"] { background:var(--soft); font-weight:600; } body:has(#s2:target, #s2 :target) .side a[href="#s2"] { background:var(--soft); font-weight:600; } body:has(#s3:target, #s3 :target) .side a[href="#s3"] { background:var(--soft); font-weight:600; } body:has(#s4:target, #s4 :target) .side a[href="#s4"] { background:var(--soft); font-weight:600; } body:has(#s5:target, #s5 :target) .side a[href="#s5"] { background:var(--soft); font-weight:600; } body:has(#s6:target, #s6 :target) .side a[href="#s6"] { background:var(--soft); font-weight:600; } body:has(#s7:target, #s7 :target) .side a[href="#s7"] { background:var(--soft); font-weight:600; } }</style></head><body class="withnav"><nav class="side" aria-label="Sections"><div class="t">Expense app &#8212; user guide</div><a href="#top" class="all">Whole page</a><a href="#s0">1 How it reaches you</a><a href="#s1">2 Screens</a><a href="#s2">3 How to submit an expense</a><a href="#s3">4 How to approve team expenses</a><a href="#s4">5 Errors and messages</a><a href="#s5">6 Problems and fixes</a><a href="#s6">7 Who to contact</a><a href="#s7">8 Known issues, assumptions, and decisions needed</a></nav><main id="top"><div class="eyebrow">user guide</div><h1>Expense app &#8212; user guide</h1><p class="sub1">web app &#183; on demand &#183; your expense entries &#8594; approved claims</p><div class="tabs"><input type="radio" name="tabs" id="t1" aria-label="Does" checked><input type="radio" name="tabs" id="t2" aria-label="Doesn't"><input type="radio" name="tabs" id="t3" aria-label="Limitations"><input type="radio" name="tabs" id="t4" aria-label="Top issues"><div class="bar"><label for="t1">Does</label><label for="t2">Doesn't</label><label for="t3">Limitations</label><label for="t4">Top issues</label></div><div class="panel p1" data-title="Does"><ul><li>Submit an expense with a receipt</li><li>Track approval status</li><li>Approve team expenses (managers)</li></ul></div><div class="panel p2" data-title="Doesn't"><ul><li>Pay expenses &#8212; finance does</li><li>Change approved expenses</li></ul></div><div class="panel p3" data-title="Limitations"><ul><li>Receipts up to 10 MB, PDF or image</li></ul></div><div class="panel p4" data-title="Top issues"><ol><li>Totals over 10,000 may round wrongly <span class="chip nv">Not verified</span></li></ol></div></div><nav class="toc"><a href="#s0">1 How it reaches you</a><a href="#s1">2 Screens</a><a href="#s2">3 How to submit an expense</a><a href="#s3">4 How to approve team expenses</a><a href="#s4">5 Errors and messages</a><a href="#s5">6 Problems and fixes</a><a href="#s6">7 Who to contact</a><a href="#s7">8 Known issues, assumptions, and decisions needed</a></nav><section id="s0"><h2>1 How it reaches you</h2><h3 id="d-A">Diagram A &middot; sign-in, 2 steps</h3><div class="map-wrap"><div class="map" style="width:692px;height:102px"><svg width="692" height="102" aria-hidden="true"><defs><marker id="m1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#17191D"/></marker><marker id="m1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A12D2D"/></marker><marker id="m1one" viewBox="0 0 12 12" refX="1" refY="6" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M4,1 L4,11 M8,1 L8,11" stroke="#17191D" stroke-width="1.4"/></marker><marker id="m1many" viewBox="0 0 12 12" refX="11" refY="6" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M1,6 L11,1 M1,6 L11,11 M1,6 L11,6 M3,1 L3,11" stroke="#17191D" stroke-width="1.4" fill="none"/></marker></defs><polyline points="200,51 268,51" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m1h)"/><polyline points="448,51 492,51" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m1h)"/></svg><div class="b person" style="left:20px;top:20px;width:180px;height:62px"><span class="t">You</span></div><div class="b " style="left:268px;top:20px;width:180px;height:62px"><span class="t">Company sign-in</span><span class="s">same login as email</span></div><div class="b entry" style="left:492px;top:20px;width:180px;height:62px"><span class="t">Expense app</span><span class="s">opens on Home</span></div><span class="num" data-e="1" style="left:228px;top:51px">1</span><span class="lbl" data-e="1" style="left:210px;top:6px;height:32px">open<br>link</span><span class="num" data-e="2" style="left:464px;top:51px">2</span></div></div><ul><li>Browser only; no install.</li><li>Managers see an extra <b>Approvals</b> tab.</li></ul></section><section id="s1"><h2>2 Screens</h2><h3 id="d-B">Diagram B &middot; expense app area</h3><div class="map-wrap"><div class="map" style="width:740px;height:214px"><svg width="740" height="214" aria-hidden="true"><defs><marker id="m2h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#17191D"/></marker><marker id="m2r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A12D2D"/></marker><marker id="m2one" viewBox="0 0 12 12" refX="1" refY="6" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M4,1 L4,11 M8,1 L8,11" stroke="#17191D" stroke-width="1.4"/></marker><marker id="m2many" viewBox="0 0 12 12" refX="11" refY="6" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M1,6 L11,1 M1,6 L11,11 M1,6 L11,6 M3,1 L3,11" stroke="#17191D" stroke-width="1.4" fill="none"/></marker></defs><polyline points="200,54 268,54" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m2h)"/><polyline points="448,54 540,54" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m2h)"/><polyline points="110,88 110,163 268,163" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m2h)"/></svg><div class="b entry" style="left:20px;top:20px;width:180px;height:68px"><span class="t">Home</span><span class="s">my expenses</span></div><div class="b " style="left:268px;top:20px;width:180px;height:68px"><span class="t">New expense</span><span class="s">form + receipt</span><a class="see" href="#d-C">&#9656; Diagram C</a></div><div class="b " style="left:540px;top:20px;width:180px;height:68px"><span class="t">Expense detail</span><span class="s">status, history</span></div><div class="b " style="left:268px;top:132px;width:180px;height:62px"><span class="t">Approvals</span><span class="s">managers only</span></div><span class="lbl" data-e="1" style="left:216px;top:19px;height:32px">+<br>New</span><span class="lbl" data-e="2" style="left:466px;top:35px;height:16px">Submit</span><span class="lbl" data-e="3" style="left:137px;top:144px;height:16px">Approvals tab</span></div></div><h3 id="d-C">Diagram C &middot; inside New expense</h3><p class="key">Sub-flow of <b>New expense</b> in <a href="#d-B">Diagram B</a></p><div class="map-wrap"><div class="map" style="width:916px;height:238px"><svg width="916" height="238" aria-hidden="true"><defs><marker id="m3h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#17191D"/></marker><marker id="m3r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A12D2D"/></marker><marker id="m3one" viewBox="0 0 12 12" refX="1" refY="6" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M4,1 L4,11 M8,1 L8,11" stroke="#17191D" stroke-width="1.4"/></marker><marker id="m3many" viewBox="0 0 12 12" refX="11" refY="6" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M1,6 L11,1 M1,6 L11,11 M1,6 L11,6 M3,1 L3,11" stroke="#17191D" stroke-width="1.4" fill="none"/></marker></defs><polyline points="200,66 244,66" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m3h)"/><polyline points="424,66 468,66" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m3h)"/><polyline points="648,66 716,66" fill="none" stroke="#17191D" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#m3h)"/><polyline points="558,112 558,156" fill="none" stroke="#A12D2D" stroke-width="1.5" stroke-linejoin="round" class="flow" stroke-dasharray="5 4" marker-end="url(#m3r)"/></svg><div class="b  rich" style="left:20px;top:20px;width:180px;height:92px"><span class="tag">STEP 1</span><span class="t">Fill form</span><div class="io"><span class="l in">IN</span><span>amount, date, category</span></div></div><div class="b  rich" style="left:244px;top:20px;width:180px;height:92px"><span class="tag">STEP 2</span><span class="t">Attach receipt</span><div class="io"><span class="l in">IN</span><span>PDF or image &#8804;10 MB</span></div></div><div class="b decision" style="left:468px;top:20px;width:180px;height:92px"><span class="t">Valid?</span></div><div class="b  rich" style="left:716px;top:20px;width:180px;height:92px"><span class="tag">STEP 3</span><span class="t">Submitted</span><div class="io"><span class="l out">OUT</span><span>status Pending</span></div></div><div class="b fail" style="left:468px;top:156px;width:180px;height:62px"><span class="t">Error shown</span><span class="s">field highlighted</span></div><span class="num" data-e="1" style="left:216px;top:66px">1</span><span class="num" data-e="2" style="left:440px;top:66px">2</span><span class="num" data-e="3" style="left:676px;top:66px">3</span><span class="lbl" data-e="3" style="left:661px;top:37px;height:16px">yes</span><span class="num" data-e="4" style="left:558px;top:128px">4</span><span class="lbl" data-e="4" style="left:572px;top:120px;height:16px">no</span></div></div><ul class="rows"><li><b>+ New</b> &middot; <span class="k">What it does</span> Opens New expense</li><li><b>Status chip</b> &middot; <span class="k">What it does</span> Pending &#183; Approved &#183; Rejected</li></ul></section><section id="s2"><h2>3 How to submit an expense</h2><div class="scroll"><table class="tt steps"><tr><th>#</th><th>Step</th><th>You see</th></tr><tr><td data-h="#"><span class="n">1</span></td><td data-h="Step">Click <b>+ New</b></td><td data-h="You see">empty form</td></tr><tr><td data-h="#"><span class="n">2</span></td><td data-h="Step">Fill amount, date, category</td><td data-h="You see">fields turn green</td></tr><tr><td data-h="#"><span class="n">3</span></td><td data-h="Step">Attach receipt, click <b>Submit</b></td><td data-h="You see">Expense detail, status Pending</td></tr></table></div><div class="cards"><div class="card typical" id="ex-3a"><div class="h"><span class="exn">EXAMPLE 3a</span><span class="tag">TYPICAL</span><b>Taxi receipt</b></div><div class="lbl2">EXPECT</div><p class="res-t">A complete expense goes to the manager as Pending</p><div class="lbl2">IN</div><table><tr><td><span class="k">amount</span><span class="nw">32.50</span></td></tr><tr><td><span class="k">category</span>Travel</td></tr></table><div class="lbl2">OUT</div><p class="res-t">Status Pending</p><p class="src">tests/<wbr>e2e/<wbr>submit.<wbr>spec.<wbr>ts:<span class="nw">12-40</span></p></div><div class="card rejected" id="ex-3b"><div class="h"><span class="exn">EXAMPLE 3b</span><span class="tag">REJECTED</span><b>Receipt too large</b></div><div class="lbl2">EXPECT</div><p class="res-t">A receipt over the size limit is refused before saving</p><div class="lbl2">IN</div><table><tr><td><span class="k">receipt</span>14 MB PDF</td></tr></table><div class="lbl2">OUT</div><p class="res-t">&quot;File too large (max 10 MB)&quot;</p><p class="src">tests/<wbr>e2e/<wbr>submit.<wbr>spec.<wbr>ts:<span class="nw">60-75</span></p></div></div></section><section id="s3"><h2>4 How to approve team expenses</h2><div class="scroll"><table class="tt steps"><tr><th>#</th><th>Step</th><th>You see</th></tr><tr><td data-h="#"><span class="n">1</span></td><td data-h="Step">Open <b>Approvals</b></td><td data-h="You see">team expenses, oldest first</td></tr><tr><td data-h="#"><span class="n">2</span></td><td data-h="Step">Click <b>Approve</b> or <b>Reject</b></td><td data-h="You see">status changes; employee gets an e-<wbr>mail</td></tr></table></div><div class="cards"><div class="card typical" id="ex-4a"><div class="h"><span class="exn">EXAMPLE 4a</span><span class="tag">TYPICAL</span> <span class="chip syn">synthetic</span><b>Approve</b></div><div class="lbl2">EXPECT</div><p class="res-t">The manager&#x27;s approval changes the status to Approved</p><div class="lbl2">IN</div><p class="res-t">Pending expense, <span class="nw">32.50</span></p><div class="lbl2">OUT</div><p class="res-t">Approved</p></div><div class="card edge" id="ex-4b"><div class="h"><span class="exn">EXAMPLE 4b</span><span class="tag">EDGE</span><b>Own expense</b></div><div class="lbl2">EXPECT</div><p class="res-t">Managers cannot approve their own expenses</p><div class="lbl2">IN</div><p class="res-t">manager&#x27;s own expense</p><div class="lbl2">OUT</div><p class="res-t">Approve button hidden</p><p class="src">src/<wbr>approvals/<wbr>rules.<wbr>ts:22</p></div></div></section><section id="s4"><h2>5 Errors and messages</h2><ul class="rows"><li><b>File too large (max 10 MB)</b> &middot; <span class="k">Means</span> receipt over limit &middot; <span class="k">Do</span> compress or photograph it</li><li><b>Date in the future</b> &middot; <span class="k">Means</span> date after today &middot; <span class="k">Do</span> fix the date</li></ul></section><section id="s5"><h2>6 Problems and fixes</h2><ul class="rows"><li><b>Approvals tab missing</b> &middot; <span class="k">What to do</span> you&#x27;re not a manager &#8212; ask your admin</li></ul></section><section id="s6"><h2>7 Who to contact</h2><ul><li>App support: not named yet &#8212; owner to decide.</li></ul></section><section id="s7"><h2>8 Known issues, assumptions, and decisions needed</h2><p class="src">Severity follows the fixed rubric; Confirmed only where a test or the code proves it</p><div class="scroll"><table class="tt issues"><tr><th>#</th><th>If you see</th><th>Do this</th><th>Status</th></tr><tr><td data-h="#">1</td><td data-h="If you see">a total over 10,000 off by a cent</td><td data-h="Do this">known issue &#8212; enter the exact receipt total in the note</td><td data-h="Status"><span class="chip nv">Not verified</span></td></tr></table></div></section></main></body></html>

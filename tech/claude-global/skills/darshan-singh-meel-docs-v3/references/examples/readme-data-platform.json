@@ -1,0 +1,534 @@
+{
+ "type": "custom",
+ "title": "Billing analytics platform",
+ "subtitle": "dbt + Airflow · nightly 02:00 UTC · app and billing databases → MRR board",
+ "tabs": {
+  "does": [
+   "Loads accounts and invoices every night",
+   "Builds monthly recurring revenue (MRR) per account in `fct_mrr`",
+   "Keeps account history in `accounts_snap`",
+   "Feeds the MRR board"
+  ],
+  "doesnt": [
+   "Doesn't bill customers: the billing system owns invoices",
+   "Doesn't forecast revenue"
+  ],
+  "limitations": [
+   "MRR is final at 06:00 UTC; earlier reads show the previous day"
+  ]
+ },
+ "sections": {
+  "Lineage": [
+   {
+    "type": "text",
+    "text": "Ten dbt resources in five layers, one way left to right; the overview first, then the layer that feeds the board."
+   },
+   {
+    "type": "diagram",
+    "id": "A",
+    "title": "Billing dbt project: one box per layer",
+    "key": "Box = one folder layer (node count in the tag) · colour = its main resource type · arrow = refs between layers",
+    "notice": "MRR numbers pass through the intermediate layer, one ephemeral model; account fields go from staging straight to marts.",
+    "spec": {
+     "type": "dbt-lineage",
+     "view": "overview",
+     "nodes": [
+      {
+       "id": "src_accounts",
+       "label": "app.accounts",
+       "resource_type": "source",
+       "layer": "sources"
+      },
+      {
+       "id": "src_invoices",
+       "label": "billing.invoices",
+       "resource_type": "source",
+       "layer": "sources"
+      },
+      {
+       "id": "plan_prices",
+       "resource_type": "seed",
+       "layer": "sources"
+      },
+      {
+       "id": "stg_accounts",
+       "resource_type": "model",
+       "materialized": "view",
+       "tests": 3,
+       "layer": "staging",
+       "depends_on": [
+        "src_accounts"
+       ]
+      },
+      {
+       "id": "stg_invoices",
+       "resource_type": "model",
+       "materialized": "view",
+       "tests": 4,
+       "layer": "staging",
+       "depends_on": [
+        "src_invoices"
+       ]
+      },
+      {
+       "id": "accounts_snap",
+       "resource_type": "snapshot",
+       "layer": "staging",
+       "depends_on": [
+        "src_accounts"
+       ]
+      },
+      {
+       "id": "int_mrr_moves",
+       "resource_type": "model",
+       "materialized": "ephemeral",
+       "tests": 1,
+       "layer": "intermediate",
+       "depends_on": [
+        "stg_invoices",
+        "plan_prices"
+       ]
+      },
+      {
+       "id": "dim_accounts",
+       "resource_type": "model",
+       "materialized": "table",
+       "tests": 5,
+       "layer": "marts",
+       "depends_on": [
+        "stg_accounts",
+        "accounts_snap"
+       ]
+      },
+      {
+       "id": "fct_mrr",
+       "resource_type": "model",
+       "materialized": "incremental",
+       "tests": 6,
+       "layer": "marts",
+       "depends_on": [
+        "int_mrr_moves"
+       ]
+      },
+      {
+       "id": "mrr_board",
+       "label": "MRR board",
+       "resource_type": "exposure",
+       "layer": "exposures",
+       "depends_on": [
+        "fct_mrr",
+        "dim_accounts"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "diagram",
+    "id": "B",
+    "title": "Marts layer and what feeds it",
+    "key": "Pill colour = resource type (legend) · tag = type and materialization · sub = data tests · faded = other layers",
+    "notice": "fct_mrr has one parent, int_mrr_moves, so a late invoices load delays every MRR number on the board.",
+    "spec": {
+     "type": "dbt-lineage",
+     "nodes": [
+      {
+       "id": "stg_accounts",
+       "resource_type": "model",
+       "materialized": "view",
+       "tests": 3,
+       "layer": "staging",
+       "dim": true
+      },
+      {
+       "id": "stg_invoices",
+       "resource_type": "model",
+       "materialized": "view",
+       "tests": 4,
+       "layer": "staging",
+       "dim": true
+      },
+      {
+       "id": "accounts_snap",
+       "resource_type": "snapshot",
+       "layer": "staging",
+       "dim": true
+      },
+      {
+       "id": "int_mrr_moves",
+       "resource_type": "model",
+       "materialized": "ephemeral",
+       "tests": 1,
+       "layer": "intermediate",
+       "depends_on": [
+        "stg_invoices"
+       ],
+       "dim": true
+      },
+      {
+       "id": "dim_accounts",
+       "resource_type": "model",
+       "materialized": "table",
+       "tests": 5,
+       "layer": "marts",
+       "depends_on": [
+        "stg_accounts",
+        "accounts_snap"
+       ]
+      },
+      {
+       "id": "fct_mrr",
+       "resource_type": "model",
+       "materialized": "incremental",
+       "tests": 6,
+       "layer": "marts",
+       "depends_on": [
+        "int_mrr_moves"
+       ]
+      },
+      {
+       "id": "mrr_board",
+       "label": "MRR board",
+       "resource_type": "exposure",
+       "layer": "exposures",
+       "depends_on": [
+        "fct_mrr",
+        "dim_accounts"
+       ],
+       "dim": true
+      }
+     ]
+    }
+   }
+  ],
+  "Orchestration": [
+   {
+    "type": "text",
+    "text": "Three DAGs hand over through assets, so dbt_build starts only when both loads have landed."
+   },
+   {
+    "type": "diagram",
+    "id": "C",
+    "title": "Billing DAGs: schedules and asset triggers",
+    "key": "Box = DAG (schedule in the tag) · dashed purple = asset-triggered · dashed blue = TriggerDagRun",
+    "notice": "dbt_build waits for both ingest DAGs; finance_export runs only when dbt_build triggers it.",
+    "spec": {
+     "type": "airflow-overview",
+     "dags": [
+      {
+       "id": "ingest_accounts",
+       "schedule": "0 2 * * *",
+       "tasks": 4,
+       "outlets": [
+        "raw.accounts"
+       ]
+      },
+      {
+       "id": "ingest_invoices",
+       "schedule": "0 2 * * *",
+       "tasks": 5,
+       "outlets": [
+        "raw.invoices"
+       ]
+      },
+      {
+       "id": "dbt_build",
+       "schedule": [
+        "raw.accounts",
+        "raw.invoices"
+       ],
+       "tasks": 7,
+       "outlets": [
+        "marts.billing"
+       ]
+      },
+      {
+       "id": "finance_export",
+       "schedule": null,
+       "tasks": 3
+      }
+     ],
+     "links": [
+      {
+       "from": "dbt_build",
+       "to": "finance_export",
+       "kind": "trigger",
+       "label": "TriggerDagRunOperator"
+      }
+     ]
+    }
+   },
+   {
+    "type": "diagram",
+    "id": "D",
+    "title": "dbt_build: tasks and task groups",
+    "key": "Box = task (operator in the tag) · frame = task group · bold box = collapsed group",
+    "notice": "Marts build only after every staging test passes; the snapshot runs beside staging, not after it.",
+    "spec": {
+     "type": "airflow-dag",
+     "groups": [
+      {
+       "id": "staging",
+       "label": "staging"
+      },
+      {
+       "id": "marts",
+       "label": "marts"
+      }
+     ],
+     "collapse": [
+      "marts"
+     ],
+     "tasks": [
+      {
+       "id": "dbt_deps",
+       "operator": "BashOperator"
+      },
+      {
+       "id": "run_staging",
+       "operator": "BashOperator",
+       "group": "staging",
+       "upstream": [
+        "dbt_deps"
+       ]
+      },
+      {
+       "id": "test_staging",
+       "operator": "BashOperator",
+       "group": "staging",
+       "upstream": [
+        "run_staging"
+       ]
+      },
+      {
+       "id": "snapshot_accounts",
+       "operator": "BashOperator",
+       "upstream": [
+        "dbt_deps"
+       ]
+      },
+      {
+       "id": "run_marts",
+       "operator": "BashOperator",
+       "group": "marts",
+       "upstream": [
+        "test_staging",
+        "snapshot_accounts"
+       ]
+      },
+      {
+       "id": "test_marts",
+       "operator": "BashOperator",
+       "group": "marts",
+       "upstream": [
+        "run_marts"
+       ]
+      },
+      {
+       "id": "trigger_export",
+       "operator": "TriggerDagRunOperator",
+       "upstream": [
+        "test_marts"
+       ],
+       "outlets": [
+        "marts.billing"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "What breaks if billing.invoices changes": [
+   {
+    "type": "text",
+    "text": "A column change in `billing.invoices` reaches the board through one chain; accounts stay safe."
+   },
+   {
+    "type": "diagram",
+    "id": "E",
+    "title": "Impact of a change to billing.invoices",
+    "key": "Pill colour = kind (legend) · red = changed source and every path it reaches · faded = not affected",
+    "notice": "Only the MRR chain breaks; dim_accounts keeps working, so the board shows accounts but no MRR.",
+    "spec": {
+     "type": "lineage",
+     "style": "dbt",
+     "impact": "src_invoices",
+     "groups": [
+      {
+       "id": "src",
+       "label": "sources"
+      },
+      {
+       "id": "stg",
+       "label": "staging"
+      },
+      {
+       "id": "marts",
+       "label": "marts"
+      },
+      {
+       "id": "use",
+       "label": "consumers"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "src_accounts",
+       "label": "app.accounts",
+       "kind": "source",
+       "group": "src"
+      },
+      {
+       "id": "src_invoices",
+       "label": "billing.invoices",
+       "kind": "source",
+       "group": "src"
+      },
+      {
+       "id": "stg_accounts",
+       "label": "stg_accounts",
+       "kind": "view",
+       "group": "stg"
+      },
+      {
+       "id": "stg_invoices",
+       "label": "stg_invoices",
+       "kind": "view",
+       "group": "stg"
+      },
+      {
+       "id": "dim_accounts",
+       "label": "dim_accounts",
+       "kind": "table",
+       "group": "marts"
+      },
+      {
+       "id": "fct_mrr",
+       "label": "fct_mrr",
+       "kind": "table",
+       "group": "marts"
+      },
+      {
+       "id": "board",
+       "label": "MRR board",
+       "kind": "report",
+       "group": "use"
+      }
+     ],
+     "edges": [
+      {
+       "from": "src_accounts",
+       "to": "stg_accounts"
+      },
+      {
+       "from": "src_invoices",
+       "to": "stg_invoices"
+      },
+      {
+       "from": "stg_accounts",
+       "to": "dim_accounts"
+      },
+      {
+       "from": "stg_invoices",
+       "to": "fct_mrr"
+      },
+      {
+       "from": "dim_accounts",
+       "to": "board"
+      },
+      {
+       "from": "fct_mrr",
+       "to": "board"
+      }
+     ]
+    }
+   }
+  ],
+  "Invoice states": [
+   {
+    "type": "text",
+    "text": "`stg_invoices` keeps only paid and refunded invoices; drafts never reach MRR."
+   },
+   {
+    "type": "diagram",
+    "id": "F",
+    "title": "Invoice status as stg_invoices reads it",
+    "key": "Rounded box = status · arrow = event / action · black dot = start · ringed dot = end",
+    "notice": "A refund moves a paid invoice to refunded, and int_mrr_moves books it as a negative move in the same month.",
+    "spec": {
+     "type": "state-machine",
+     "states": [
+      {
+       "id": "init",
+       "kind": "initial"
+      },
+      {
+       "id": "draft",
+       "label": "draft"
+      },
+      {
+       "id": "open",
+       "label": "open"
+      },
+      {
+       "id": "paid",
+       "label": "paid"
+      },
+      {
+       "id": "refunded",
+       "label": "refunded"
+      },
+      {
+       "id": "void",
+       "label": "void",
+       "tone": "red"
+      },
+      {
+       "id": "end",
+       "kind": "final"
+      },
+      {
+       "id": "end_r",
+       "kind": "final"
+      }
+     ],
+     "transitions": [
+      {
+       "from": "init",
+       "to": "draft"
+      },
+      {
+       "from": "draft",
+       "to": "open",
+       "event": "issue"
+      },
+      {
+       "from": "open",
+       "to": "paid",
+       "event": "payment"
+      },
+      {
+       "from": "open",
+       "to": "void",
+       "event": "cancel"
+      },
+      {
+       "from": "paid",
+       "to": "refunded",
+       "event": "refund",
+       "action": "negative move"
+      },
+      {
+       "from": "void",
+       "to": "end"
+      },
+      {
+       "from": "refunded",
+       "to": "end_r"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

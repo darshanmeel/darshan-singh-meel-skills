@@ -1,0 +1,1154 @@
+{
+ "type": "technical",
+ "app_types": [
+  "pipeline"
+ ],
+ "title": "Orders pipeline",
+ "subtitle": "Spark on a job scheduler · daily · order events → sales views",
+ "tabs": {
+  "does": [
+   "Reads order events from the landing table once a day",
+   "Keeps the newest version of each order (`order_id` + `status`)",
+   "Splits orders into lines, discounts and shipments",
+   "Publishes 4 read-only views in `export.sales`",
+   "E-mails the team when a task fails"
+  ],
+  "doesnt": [
+   "Doesn't receive events — a separate feed fills `landing.order_events`",
+   "Doesn't calculate totals — views copy tables one to one",
+   "Doesn't grant read access — platform team"
+  ],
+  "limitations": [
+   "Daily at 05:00, not real-time",
+   "Each task stops after 1 hour",
+   "No automatic retry"
+  ],
+  "top_issues": [
+   {
+    "text": "Two shipments with the same `shipment_no` — one is lost",
+    "status": "Confirmed (code)"
+   },
+   {
+    "text": "Removed lines may stay in the views",
+    "status": "Not verified"
+   },
+   {
+    "text": "Library version differs between tests and production",
+    "status": "Confirmed (code)"
+   }
+  ]
+ },
+ "sections": {
+  "Overview": [
+   {
+    "type": "text",
+    "text": "Order events → landing table → 5 tasks → clean tables → 4 export views, once a day. All names and values in this example are illustrative."
+   },
+   {
+    "type": "flow",
+    "numbered": true,
+    "nodes": [
+     {
+      "id": "src",
+      "label": "Order system",
+      "sub": "outside this repo",
+      "kind": "confirm",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "land",
+      "label": "landing.order_events",
+      "tag": "DATA",
+      "kind": "data",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "job",
+      "label": "orders_daily",
+      "tag": "ENTRY",
+      "sub": "5 tasks · 05:00",
+      "kind": "entry",
+      "col": 2,
+      "row": 0
+     },
+     {
+      "id": "clean",
+      "label": "clean.*",
+      "tag": "DATA",
+      "sub": "4 tables · newest version",
+      "kind": "data",
+      "col": 2,
+      "row": 1
+     },
+     {
+      "id": "views",
+      "label": "export.sales",
+      "tag": "DATA",
+      "sub": "4 views",
+      "kind": "data",
+      "col": 1,
+      "row": 1
+     },
+     {
+      "id": "users",
+      "label": "Analysts and reports",
+      "kind": "person",
+      "col": 0,
+      "row": 1
+     },
+     {
+      "id": "mail",
+      "label": "Team mailbox",
+      "kind": "person",
+      "col": 3,
+      "row": 0
+     }
+    ],
+    "edges": [
+     {
+      "from": "src",
+      "to": "land",
+      "label": "events",
+      "dashed": true
+     },
+     {
+      "from": "land",
+      "to": "job",
+      "label": "new rows"
+     },
+     {
+      "from": "job",
+      "to": "clean",
+      "label": "merge",
+      "dashed": true
+     },
+     {
+      "from": "clean",
+      "to": "views",
+      "label": "views"
+     },
+     {
+      "from": "views",
+      "to": "users",
+      "label": "read",
+      "dashed": true
+     },
+     {
+      "from": "job",
+      "to": "mail",
+      "label": "on failure",
+      "fail": true
+     }
+    ],
+    "key": "grey = data · 2px = entry · pill = people · dashed grey = outside repo · dashed arrow = data moves · red = failure",
+    "notice": "the pipeline only reshapes data; it neither receives events nor serves reports.",
+    "id": "A",
+    "title": "daily run, 6 steps"
+   }
+  ],
+  "Architecture": [
+   {
+    "type": "diagram",
+    "id": "B",
+    "title": "Orders pipeline containers",
+    "key": "Blue = container in this repo · cylinder = table store · grey = outside the repo · dashed frame = system boundary",
+    "notice": "Only the daily job writes `clean.*`; analysts reach the data through the `export.sales` views, never the tables.",
+    "source": "ci.yml:8-40 · job.template.json:1-60 · src/run_task.py:12-60",
+    "spec": {
+     "type": "c4-container",
+     "groups": [
+      {
+       "id": "repo",
+       "label": "Orders pipeline"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "feed",
+       "label": "Order system",
+       "kind": "system",
+       "external": true,
+       "desc": "Fills landing.order_events"
+      },
+      {
+       "id": "land",
+       "label": "landing.order_events",
+       "kind": "database",
+       "external": true,
+       "desc": "Raw order events",
+       "tech": "table"
+      },
+      {
+       "id": "ci",
+       "label": "ci.yml",
+       "kind": "container",
+       "tech": "CI",
+       "desc": "test, package, deploy",
+       "group": "repo"
+      },
+      {
+       "id": "job",
+       "label": "orders_daily",
+       "kind": "container",
+       "tech": "Spark job, 5 tasks",
+       "desc": "run_task.py --task",
+       "group": "repo"
+      },
+      {
+       "id": "lib",
+       "label": "merge library",
+       "kind": "system",
+       "external": true,
+       "desc": "pinned 2.3.0"
+      },
+      {
+       "id": "clean",
+       "label": "clean.* tables",
+       "kind": "database",
+       "tech": "4 tables",
+       "desc": "Newest version per key",
+       "group": "repo"
+      },
+      {
+       "id": "views",
+       "label": "export.sales",
+       "kind": "database",
+       "tech": "4 views",
+       "desc": "views.sql",
+       "group": "repo"
+      },
+      {
+       "id": "users",
+       "label": "Analysts and reports",
+       "kind": "person",
+       "desc": "Read the views"
+      }
+     ],
+     "edges": [
+      {
+       "from": "feed",
+       "to": "land",
+       "label": "Writes events"
+      },
+      {
+       "from": "ci",
+       "to": "job",
+       "label": "Deploys",
+       "tech": "job.template.json"
+      },
+      {
+       "from": "land",
+       "to": "job",
+       "label": "Reads new rows"
+      },
+      {
+       "from": "job",
+       "to": "lib",
+       "label": "merge()"
+      },
+      {
+       "from": "job",
+       "to": "clean",
+       "label": "Merges"
+      },
+      {
+       "from": "clean",
+       "to": "views",
+       "label": "Read by"
+      },
+      {
+       "from": "users",
+       "to": "views",
+       "label": "Query",
+       "tech": "SQL"
+      }
+     ]
+    }
+   },
+   {
+    "type": "components",
+    "rows": [
+     [
+      "`run_task.py`",
+      "Reads `--task`, builds the job, runs it",
+      "`src/run_task.py:12-60`"
+     ],
+     [
+      "`LoadOrders`",
+      "Newest version per order + status",
+      "`src/jobs/load_orders.py`"
+     ],
+     [
+      "`ExplodeLines`",
+      "One row per order line",
+      "`src/jobs/explode_lines.py`"
+     ],
+     [
+      "`explode_child()`",
+      "Shared: one row per child item",
+      "`src/common/explode.py`"
+     ],
+     [
+      "`views.sql`",
+      "4 views, one per table",
+      "`sql/views.sql:1-80`"
+     ]
+    ]
+   }
+  ],
+  "Job DAG and schedule": [
+   {
+    "type": "diagram",
+    "id": "C",
+    "title": "orders_daily tasks and their order",
+    "key": "Box = task (what runs it in the tag) · frame = same pattern per child table · pill = trigger · red line = on failure",
+    "notice": "explode_discounts and explode_shipments run in parallel after explode_lines; create_views waits for all four tables.",
+    "source": "job.template.json:1-60 · src/run_task.py:12-60",
+    "spec": {
+     "type": "orchestration",
+     "style": "airflow",
+     "triggers": [
+      {
+       "id": "tr",
+       "label": "prod 05:00",
+       "type": "schedule",
+       "starts": [
+        "load_orders"
+       ]
+      }
+     ],
+     "containers": [
+      {
+       "id": "child",
+       "label": "each child of order_lines",
+       "type": "pattern"
+      }
+     ],
+     "activities": [
+      {
+       "id": "load_orders",
+       "type": "run_task.py"
+      },
+      {
+       "id": "explode_lines",
+       "type": "run_task.py",
+       "depends_on": [
+        "load_orders"
+       ]
+      },
+      {
+       "id": "explode_discounts",
+       "type": "run_task.py",
+       "group": "child",
+       "depends_on": [
+        "explode_lines"
+       ]
+      },
+      {
+       "id": "explode_shipments",
+       "type": "run_task.py",
+       "group": "child",
+       "depends_on": [
+        "explode_lines"
+       ]
+      },
+      {
+       "id": "create_views",
+       "type": "views.sql",
+       "depends_on": [
+        "explode_discounts",
+        "explode_shipments"
+       ]
+      },
+      {
+       "id": "mail",
+       "label": "e-mail team",
+       "type": "on failure",
+       "depends_on": [
+        {
+         "activity": "create_views",
+         "on": "failed"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "type": "flow",
+    "id": "D",
+    "title": "inside explode_lines",
+    "parent": [
+     "C",
+     "explode_lines"
+    ],
+    "nodes": [
+     {
+      "id": "r",
+      "label": "Read new orders",
+      "tag": "STEP 1",
+      "in": "clean.orders",
+      "out": "3 orders",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "e",
+      "label": "explode_outer(lines)",
+      "tag": "STEP 2",
+      "kind": "code",
+      "bullets": [
+       "no lines → 1 row, line fields NULL"
+      ],
+      "in": "3 orders",
+      "out": "5 rows",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "k",
+      "label": "Key present?",
+      "kind": "decision",
+      "sub": "order_id, line_no",
+      "col": 2,
+      "row": 0
+     },
+     {
+      "id": "m",
+      "label": "merge()",
+      "tag": "STEP 3",
+      "kind": "code",
+      "in": "5 rows",
+      "out": "5 upserted",
+      "col": 3,
+      "row": 0
+     },
+     {
+      "id": "x",
+      "label": "Task fails",
+      "kind": "fail",
+      "sub": "e-mail sent",
+      "col": 2,
+      "row": 1
+     }
+    ],
+    "edges": [
+     {
+      "from": "r",
+      "to": "e"
+     },
+     {
+      "from": "e",
+      "to": "k"
+     },
+     {
+      "from": "k",
+      "to": "m",
+      "label": "yes"
+     },
+     {
+      "from": "k",
+      "to": "x",
+      "label": "no",
+      "fail": true
+     }
+    ],
+    "key": "lavender = decision · red = failure branch",
+    "notice": "tasks 3 and 4 follow the same steps on their own child column.",
+    "source": "src/jobs/explode_lines.py:18-64 · src/common/explode.py:20-58"
+   },
+   {
+    "type": "schedule",
+    "rows": [
+     [
+      "dev",
+      "`0 0 6 * * ?` (06:00)",
+      "1 h timeout per task"
+     ],
+     [
+      "test",
+      "`0 30 5 * * ?` (05:30)",
+      "1 h timeout per task"
+     ],
+     [
+      "prod",
+      "`0 0 5 * * ?` (05:00)",
+      "1 h timeout per task"
+     ]
+    ],
+    "source": "ci.yml:8-13 · job.template.json:410-420"
+   }
+  ],
+  "Main flows": [
+   {
+    "type": "h3",
+    "text": "Load: order events → orders, newest version wins"
+   },
+   {
+    "type": "ipo",
+    "input": "`landing.order_events`: nested JSON events",
+    "steps": [
+     {
+      "do": "Read rows newer than last run",
+      "out": "rows with `event_time` after the last run",
+      "where": "src/jobs/load_orders.py:30",
+      "why": "a missed run is caught up next time, never skipped"
+     },
+     {
+      "do": "Flatten payload, rename and cast",
+      "out": "1 flat row per event",
+      "where": "src/jobs/load_orders.py:38"
+     },
+     {
+      "do": "Merge on `order_id` + `status`, newest wins",
+      "out": "`clean.orders` row",
+      "where": "src/jobs/load_orders.py:45-52",
+      "why": "replayed events would otherwise double paid orders"
+     }
+    ],
+    "output": "`clean.orders`: one row per order + status",
+    "examples": [
+     {
+      "case": "typical",
+      "title": "First event",
+      "expect": "New order + status is inserted",
+      "in": [
+       [
+        "order_id",
+        "O-1001"
+       ],
+       [
+        "status",
+        "PAID"
+       ],
+       [
+        "ts",
+        "2026-03-02 09:14"
+       ],
+       [
+        "amount",
+        "\"49.90\""
+       ]
+      ],
+      "at": [
+       "1 new event",
+       [
+        [
+         "event_time",
+         "2026-03-02 09:14"
+        ],
+        [
+         "amount",
+         "49.90"
+        ]
+       ],
+       "+1 row: O-1001 PAID"
+      ],
+      "out": "`clean.orders` +1 row",
+      "source": "tests/test_load_orders.py:40-62"
+     },
+     {
+      "case": "edge",
+      "title": "Older event arrives late",
+      "expect": "Older event never overwrites a newer one",
+      "in": [
+       [
+        "order_id + status",
+        "same as above"
+       ],
+       [
+        "ts",
+        "2026-03-01 08:00 (older)"
+       ]
+      ],
+      "at": [
+       "1 new event",
+       "1 flat row",
+       "0 rows changed: stored 09:14 is newer"
+      ],
+      "out": "Row unchanged",
+      "source": "tests/test_load_orders.py:65-90"
+     },
+     {
+      "case": "failure",
+      "title": "Missing order_id",
+      "expect": "Event without its key stops the task",
+      "in": [
+       [
+        "order_id",
+        "NULL"
+       ]
+      ],
+      "at": [
+       "1 new event",
+       "1 flat row, no key",
+       "MERGE fails: `order_id` NULL"
+      ],
+      "out": "Task fails; e-mail sent",
+      "source": "derived from src/common/explode.py:44"
+     }
+    ]
+   },
+   {
+    "type": "h3",
+    "text": "Explode: orders → one row per order line"
+   },
+   {
+    "type": "ipo",
+    "input": "`clean.orders` with a `lines` array",
+    "steps": [
+     {
+      "do": "Read the merged orders",
+      "out": "`clean.orders` rows with `lines`",
+      "where": "src/jobs/explode_lines.py:14",
+      "why": "explode runs after the merge, so lines come from the newest order version"
+     },
+     {
+      "do": "One row per array item",
+      "out": "`clean.order_lines` rows",
+      "where": "src/common/explode.py:20-58",
+      "why": "line-level reports need one row per item"
+     }
+    ],
+    "output": "`clean.order_lines`: one row per order line",
+    "examples": [
+     {
+      "case": "typical",
+      "title": "Order with 2 lines",
+      "expect": "One row per order line",
+      "in": "O-1001, lines 1 and 2",
+      "at": [
+       "1 order, 2 items",
+       "2 rows"
+      ],
+      "out": "2 rows",
+      "source": "tests/test_explode_lines.py:30-48"
+     },
+     {
+      "case": "edge",
+      "title": "Order with no lines",
+      "expect": "An order without lines is kept",
+      "in": "O-1002, lines = []",
+      "at": [
+       "1 order, 0 items",
+       "1 row"
+      ],
+      "out": "1 row, line fields NULL",
+      "source": "tests/test_explode_lines.py:50-66"
+     }
+    ]
+   },
+   {
+    "type": "io",
+    "label": "SQL",
+    "title": "check one order after task 2",
+    "lang": "sql",
+    "input": "SELECT order_id, line_no, sku, qty\nFROM clean.order_lines\nWHERE order_id = 'O-1001'\nORDER BY line_no;",
+    "result_title": "2 rows",
+    "result": {
+     "cols": [
+      "order_id",
+      "line_no",
+      "sku",
+      "qty"
+     ],
+     "rows": [
+      [
+       "O-1001",
+       1,
+       "SKU-7",
+       2
+      ],
+      [
+       "O-1001",
+       2,
+       "SKU-9",
+       1
+      ]
+     ],
+     "synthetic": [
+      1
+     ]
+    },
+    "source": "row 1 from tests/test_explode_lines.py:30-48 · row 2 synthetic"
+   }
+  ],
+  "Data model": [
+   {
+    "type": "diagram",
+    "id": "E",
+    "title": "ER: orders",
+    "key": "Box = table (PK / FK columns) · crow's foot = many, bar = one · dashed = logical key, not enforced",
+    "notice": "Every child table repeats the order key `order_id` + `status`, so a new status version adds rows in all three.",
+    "source": "keys from knowledge graph data/model.json (logical, inferred from merge keys)",
+    "spec": {
+     "type": "er",
+     "entities": [
+      {
+       "id": "orders",
+       "sub": "CLEAN · one row per order + status",
+       "columns": [
+        "order_id PK",
+        "status PK",
+        "event_time",
+        "amount"
+       ]
+      },
+      {
+       "id": "order_lines",
+       "sub": "CLEAN · one row per line",
+       "columns": [
+        "order_id PK,FK",
+        "status PK,FK",
+        "line_no PK",
+        "sku"
+       ]
+      },
+      {
+       "id": "line_discounts",
+       "sub": "CLEAN · one row per discount",
+       "columns": [
+        "order_id PK,FK",
+        "line_no PK,FK",
+        "code PK"
+       ]
+      }
+     ],
+     "relations": [
+      {
+       "from": "orders",
+       "to": "order_lines",
+       "card": "1:0..N",
+       "label": "has lines",
+       "identifying": false
+      },
+      {
+       "from": "order_lines",
+       "to": "line_discounts",
+       "card": "1:0..N",
+       "label": "has discounts",
+       "identifying": false
+      }
+     ]
+    }
+   },
+   {
+    "type": "views",
+    "rows": [
+     [
+      "`export.sales.orders`",
+      "clean.orders",
+      "1:1"
+     ],
+     [
+      "`export.sales.order_lines`",
+      "clean.order_lines",
+      "1:1"
+     ],
+     [
+      "`export.sales.line_discounts`",
+      "clean.line_discounts",
+      "1:1"
+     ],
+     [
+      "`export.sales.shipments`",
+      "clean.shipments",
+      "1:1"
+     ]
+    ],
+    "source": "sql/views.sql:1-80"
+   }
+  ],
+  "Business rules": [
+   {
+    "type": "rules",
+    "rows": [
+     [
+      "Newest event wins, also inside one batch",
+      "O-1001 PAID 09:14 + 10:00 → 1 row, from 10:00",
+      "two versions in one batch would both survive a plain insert",
+      "`src/jobs/load_orders.py:44`"
+     ],
+     [
+      "Empty child list keeps parent",
+      "see step 4.2.2",
+      "an order without lines still counts in order totals",
+      ""
+     ],
+     [
+      "Amount cast to decimal, no rounding",
+      "see step 4.1.2",
+      "finance totals must match the source to the cent",
+      ""
+     ]
+    ],
+    "source": "tests/test_load_orders.py:92-118"
+   }
+  ],
+  "Configuration": [
+   {
+    "type": "config",
+    "rows": [
+     [
+      "`--task`",
+      "none",
+      "job.template.json",
+      "Which job runs"
+     ],
+     [
+      "`ENV`",
+      "dev",
+      "ci.yml",
+      "Picks catalog names"
+     ],
+     [
+      "`LOOKBACK_DAYS`",
+      "2",
+      "src/config.py:5",
+      "Re-reads late events"
+     ]
+    ]
+   }
+  ],
+  "Security and access": [
+   {
+    "type": "access",
+    "rows": [
+     [
+      "Job service account",
+      "write clean.*, create views",
+      "Granted by platform team — not in repo"
+     ],
+     [
+      "Analysts",
+      "read export.sales",
+      "Not granted in repo yet — data owner to decide"
+     ]
+    ]
+   },
+   {
+    "type": "bullets",
+    "items": [
+     "Secrets: names only — `ORDERS_DB_TOKEN` (value `<redacted>`)."
+    ]
+   }
+  ],
+  "Deploy and environments": [
+   {
+    "type": "diagram",
+    "id": "F",
+    "title": "Where the orders pipeline runs",
+    "key": "Grey dashed = environment · blue = compute (CI runner, scheduled job) · green cylinder = catalog · arrow = deploys or writes",
+    "notice": "One CI file deploys the same job to three catalogs; only the schedule and `ENV` differ, and prod needs a release tag.",
+    "source": "ci.yml:8-40 · job.template.json:410-420",
+    "spec": {
+     "type": "deployment",
+     "direction": "TB",
+     "groups": [
+      {
+       "id": "dev",
+       "label": "dev",
+       "kind": "environment"
+      },
+      {
+       "id": "test",
+       "label": "test",
+       "kind": "environment"
+      },
+      {
+       "id": "prod",
+       "label": "prod",
+       "kind": "environment"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "ci",
+       "label": "ci.yml",
+       "sub": "deploy-dev, deploy-test, deploy-prod",
+       "kind": "compute"
+      },
+      {
+       "id": "jd",
+       "label": "orders_daily",
+       "sub": "06:00 · ENV=dev · on merge",
+       "kind": "compute",
+       "group": "dev"
+      },
+      {
+       "id": "jt",
+       "label": "orders_daily",
+       "sub": "05:30 · ENV=test · on merge",
+       "kind": "compute",
+       "group": "test"
+      },
+      {
+       "id": "jp",
+       "label": "orders_daily",
+       "sub": "05:00 · ENV=prod · on tag",
+       "kind": "compute",
+       "group": "prod"
+      },
+      {
+       "id": "cd",
+       "label": "dev catalog",
+       "sub": "clean.*, export.sales",
+       "kind": "storage",
+       "group": "dev"
+      },
+      {
+       "id": "ct",
+       "label": "test catalog",
+       "sub": "clean.*, export.sales",
+       "kind": "storage",
+       "group": "test"
+      },
+      {
+       "id": "cp",
+       "label": "prod catalog",
+       "sub": "clean.*, export.sales",
+       "kind": "storage",
+       "group": "prod"
+      }
+     ],
+     "edges": [
+      {
+       "from": "ci",
+       "to": "jd"
+      },
+      {
+       "from": "ci",
+       "to": "jt"
+      },
+      {
+       "from": "ci",
+       "to": "jp"
+      },
+      {
+       "from": "jd",
+       "to": "cd",
+       "label": "writes"
+      },
+      {
+       "from": "jt",
+       "to": "ct",
+       "label": "writes"
+      },
+      {
+       "from": "jp",
+       "to": "cp",
+       "label": "writes"
+      }
+     ]
+    }
+   },
+   {
+    "type": "steps",
+    "rows": [
+     [
+      "Test",
+      "`pytest tests/`",
+      "CI, every push"
+     ],
+     [
+      "Package",
+      "CI job `package`",
+      "CI, every push"
+     ],
+     [
+      "Deploy",
+      "CI job `deploy-<env>` renders job.template.json",
+      "CI, on merge (dev) or release tag (prod)"
+     ],
+     [
+      "Roll back",
+      "Re-run `deploy-<env>` on the previous tag",
+      "CI, by hand"
+     ]
+    ]
+   },
+   {
+    "type": "io",
+    "label": "Command",
+    "title": "run one task by hand",
+    "lang": "shell",
+    "input": "$ python src/run_task.py --task load_orders --env dev",
+    "result_title": "output",
+    "result": "load_orders: read 120 events · merged 118 rows · 0 failed",
+    "source": "derived from src/run_task.py:40-58 [synthetic]"
+   },
+   {
+    "type": "environments",
+    "rows": [
+     [
+      "dev",
+      "dev catalog (`ENV=dev`)",
+      "CI job `deploy-dev`"
+     ],
+     [
+      "test",
+      "test catalog (`ENV=test`)",
+      "CI job `deploy-test`"
+     ],
+     [
+      "prod",
+      "prod catalog (`ENV=prod`)",
+      "CI job `deploy-prod`, on a release tag"
+     ]
+    ],
+    "source": "ci.yml:8-40"
+   }
+  ],
+  "Operations": [
+   {
+    "type": "io",
+    "label": "SQL",
+    "title": "health check",
+    "lang": "sql",
+    "input": "SELECT MAX(event_time) AS latest_event\nFROM clean.orders;",
+    "result_title": "1 row",
+    "result": {
+     "cols": [
+      "latest_event"
+     ],
+     "rows": [
+      [
+       "2026-03-03 23:58"
+      ]
+     ],
+     "synthetic": [
+      0
+     ]
+    }
+   },
+   {
+    "type": "symptoms",
+    "rows": [
+     [
+      "Views a day old",
+      "A task failed",
+      "Check e-mail; rerun the task"
+     ],
+     [
+      "Task fails on key",
+      "Event without `order_id`",
+      "Report to source owner"
+     ]
+    ]
+   },
+   {
+    "type": "tasks",
+    "rows": [
+     [
+      "Rerun and backfill",
+      "`python src/run_task.py --task <task> --env prod`",
+      "after fixing the cause; the tasks after it follow",
+      ""
+     ],
+     [
+      "",
+      "raise `LOOKBACK_DAYS` for one run, then set it back",
+      "late events older than `LOOKBACK_DAYS`",
+      ""
+     ]
+    ],
+    "source": "src/run_task.py:40-58 · src/config.py:5"
+   }
+  ],
+  "Performance and limits": [
+   {
+    "type": "bullets",
+    "items": [
+     "Reads only rows newer than the last run, plus `LOOKBACK_DAYS`.",
+     "1 hour timeout per task; whole job 24 hours."
+    ]
+   }
+  ],
+  "Tests": [
+   {
+    "type": "tests",
+    "rows": [
+     [
+      "`tests/test_load_orders.py`",
+      "newest wins, late events"
+     ],
+     [
+      "`tests/test_explode_lines.py`",
+      "lines, empty lines"
+     ]
+    ]
+   }
+  ],
+  "Key decisions": [
+   {
+    "type": "choices",
+    "rows": [
+     [
+      "Merge by `order_id` + `status`",
+      "Consumers need one row per status"
+     ],
+     [
+      "Views copy tables 1:1",
+      "Consumers never read raw JSON"
+     ]
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "sev": "Must",
+      "kind": "data_loss",
+      "issue": "Two shipments with the same `shipment_no` — one is lost",
+      "where": "src/jobs/explode_shipments.py:41",
+      "impact": "missing shipments",
+      "status": "Confirmed (code)",
+      "fix": "add `carrier` to the merge key"
+     },
+     {
+      "sev": "Should",
+      "kind": "config",
+      "issue": "Test and prod library versions differ",
+      "where": "requirements.txt:3 · ci.yml:22",
+      "impact": "tests don't prove prod",
+      "status": "Confirmed (code)",
+      "fix": "pin 2.3.0 everywhere"
+     },
+     {
+      "sev": "Must",
+      "kind": "wrong_result",
+      "issue": "Removed lines may stay in views",
+      "where": "src/common/explode.py:20-58",
+      "impact": "counts too high",
+      "status": "Not verified",
+      "fix": "confirm library delete behaviour"
+     }
+    ]
+   },
+   {
+    "type": "assumptions",
+    "rows": [
+     [
+      "Schedule time zone is set outside the repo",
+      "Start times may be UTC"
+     ]
+    ]
+   },
+   {
+    "type": "decisions",
+    "rows": [
+     [
+      "Should removed lines disappear?",
+      "delete / keep",
+      "delete, after confirming library",
+      "views overstate lines"
+     ]
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,937 @@
+{
+ "type": "technical",
+ "app_types": [
+  "ui",
+  "api"
+ ],
+ "title": "Tasks app",
+ "subtitle": "React + FastAPI + Postgres · on request · browser → tasks table",
+ "tabs": {
+  "does": [
+   "Signs users in with e-mail and password (JWT in an http-only cookie)",
+   "Lists, adds, changes and deletes tasks per project",
+   "Shows a dashboard with open and done counts"
+  ],
+  "doesnt": [
+   "Doesn't send e-mails or reminders",
+   "Doesn't share projects between users"
+  ],
+  "limitations": [
+   "One user per project",
+   "No offline mode"
+  ],
+  "top_issues": [
+   {
+    "text": "Any signed-in user can delete another user's task by id",
+    "status": "Confirmed (test)"
+   },
+   {
+    "text": "Login has no rate limit",
+    "status": "Confirmed (code)"
+   }
+  ]
+ },
+ "sections": {
+  "Overview": [
+   {
+    "type": "text",
+    "text": "A browser app for personal task lists: the UI calls a JSON API that stores projects and tasks in Postgres."
+   },
+   {
+    "type": "flow",
+    "id": "A",
+    "title": "browser area",
+    "nodes": [
+     {
+      "id": "u",
+      "label": "User",
+      "col": 0,
+      "row": 0,
+      "kind": "person"
+     },
+     {
+      "id": "ui",
+      "label": "React UI",
+      "col": 1,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "api",
+      "label": "FastAPI app",
+      "col": 2,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "db",
+      "label": "Postgres",
+      "col": 3,
+      "row": 0,
+      "kind": "data"
+     }
+    ],
+    "edges": [
+     {
+      "from": "u",
+      "to": "ui"
+     },
+     {
+      "from": "ui",
+      "to": "api",
+      "label": "JSON"
+     },
+     {
+      "from": "api",
+      "to": "db",
+      "dashed": true
+     }
+    ],
+    "numbered": false
+   }
+  ],
+  "Architecture": [
+   {
+    "type": "diagram",
+    "id": "B",
+    "title": "Tasks app containers",
+    "key": "Blue = container in this repo · cylinder = database · dashed frame = system boundary",
+    "notice": "The browser never reaches Postgres: every read and write goes through the API, which checks the JWT cookie first.",
+    "source": "backend/app/main.py · frontend/src/api.ts",
+    "spec": {
+     "type": "c4-container",
+     "groups": [
+      {
+       "id": "app",
+       "label": "Tasks app"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "user",
+       "label": "Signed-in user",
+       "kind": "person",
+       "desc": "Manages own tasks"
+      },
+      {
+       "id": "ui",
+       "label": "React UI",
+       "kind": "container",
+       "tech": "TypeScript, React",
+       "desc": "frontend/src/App.tsx",
+       "group": "app"
+      },
+      {
+       "id": "api",
+       "label": "API",
+       "kind": "container",
+       "tech": "Python, FastAPI",
+       "desc": "backend/app/main.py",
+       "group": "app"
+      },
+      {
+       "id": "db",
+       "label": "Postgres",
+       "kind": "database",
+       "tech": "PostgreSQL",
+       "desc": "tasks, projects, users",
+       "group": "app"
+      }
+     ],
+     "edges": [
+      {
+       "from": "user",
+       "to": "ui",
+       "label": "Uses",
+       "tech": "HTTPS"
+      },
+      {
+       "from": "ui",
+       "to": "api",
+       "label": "Calls",
+       "tech": "JSON/HTTPS"
+      },
+      {
+       "from": "api",
+       "to": "db",
+       "label": "Reads, writes",
+       "tech": "SQL"
+      }
+     ]
+    }
+   },
+   {
+    "type": "components",
+    "rows": [
+     [
+      "React UI",
+      "screens, forms, session restore",
+      "`frontend/src/App.tsx`"
+     ],
+     [
+      "API client",
+      "fetch wrapper, sends the cookie",
+      "`frontend/src/api.ts`"
+     ],
+     [
+      "API",
+      "routes, validation, JWT check",
+      "`backend/app/main.py`"
+     ],
+     [
+      "Auth",
+      "hash passwords, issue and check tokens",
+      "`backend/app/auth.py`"
+     ]
+    ]
+   }
+  ],
+  "Screens and navigation": [
+   {
+    "type": "flow",
+    "id": "C",
+    "title": "screens area",
+    "nodes": [
+     {
+      "id": "login",
+      "label": "Login",
+      "col": 0,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "dash",
+      "label": "Dashboard",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "projects",
+      "label": "Projects",
+      "col": 2,
+      "row": 0
+     },
+     {
+      "id": "detail",
+      "label": "Project detail",
+      "col": 3,
+      "row": 0
+     }
+    ],
+    "edges": [
+     {
+      "from": "login",
+      "to": "dash",
+      "label": "signed in"
+     },
+     {
+      "from": "dash",
+      "to": "projects"
+     },
+     {
+      "from": "projects",
+      "to": "detail",
+      "label": "open"
+     }
+    ],
+    "numbered": false
+   },
+   {
+    "type": "elements",
+    "rows": [
+     [
+      "Login form",
+      "e-mail + password; wrong pair shows one generic message"
+     ],
+     [
+      "Dashboard counts",
+      "open and done tasks of all projects"
+     ],
+     [
+      "Task row",
+      "title, status select, delete button"
+     ]
+    ]
+   }
+  ],
+  "Endpoints": [
+   {
+    "type": "diagram",
+    "id": "D",
+    "title": "One request through the API tiers",
+    "key": "Band = tier · number = hop order · label = what is passed on",
+    "notice": "get_current_user runs before every route handler, so a request without a valid cookie never reaches Postgres.",
+    "source": "backend/app/routes/tasks.py:10-88",
+    "spec": {
+     "type": "request-path",
+     "groups": [
+      {
+       "id": "client",
+       "label": "client"
+      },
+      {
+       "id": "app",
+       "label": "application"
+      },
+      {
+       "id": "data",
+       "label": "data"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "req",
+       "label": "Browser request",
+       "kind": "client",
+       "group": "client"
+      },
+      {
+       "id": "dep",
+       "label": "get_current_user",
+       "kind": "app",
+       "group": "app"
+      },
+      {
+       "id": "route",
+       "label": "route handler",
+       "kind": "app",
+       "group": "app"
+      },
+      {
+       "id": "db",
+       "label": "Postgres",
+       "kind": "store",
+       "group": "data"
+      }
+     ],
+     "edges": [
+      {
+       "from": "req",
+       "to": "dep",
+       "label": "JWT cookie"
+      },
+      {
+       "from": "dep",
+       "to": "route",
+       "label": "user"
+      },
+      {
+       "from": "route",
+       "to": "db",
+       "label": "SQL"
+      }
+     ]
+    }
+   },
+   {
+    "type": "endpoints",
+    "rows": [
+     [
+      "`POST /auth/login`",
+      "check password, set the token cookie",
+      "`{\"email\": \"a@example.com\", \"password\": \"…\"}` → 200"
+     ],
+     [
+      "`GET /projects`",
+      "the user's projects",
+      "→ `[{\"id\": 1, \"name\": \"Home\"}]`"
+     ],
+     [
+      "`POST /projects/{id}/tasks`",
+      "add a task",
+      "`{\"title\": \"Buy milk\"}` → 201"
+     ],
+     [
+      "`PATCH /tasks/{id}`",
+      "change status",
+      "`{\"status\": \"done\"}` → 200"
+     ],
+     [
+      "`DELETE /tasks/{id}`",
+      "delete a task",
+      "→ 204"
+     ]
+    ],
+    "source": "backend/app/routes/tasks.py:10-88"
+   }
+  ],
+  "Main flows": [
+   {
+    "type": "h3",
+    "text": "Sign in: login form → token cookie"
+   },
+   {
+    "type": "ipo",
+    "input": "Login form: e-mail + password",
+    "steps": [
+     {
+      "do": "Submit e-mail and password",
+      "out": "`POST /auth/login`",
+      "where": "frontend/src/api.ts:12"
+     },
+     {
+      "do": "Look up the user, check the hash",
+      "out": "`users` row",
+      "branch": "401, same text for unknown e-mail",
+      "where": "backend/app/auth.py:22",
+      "why": "one message for both cases: an attacker cannot tell which e-mails exist"
+     },
+     {
+      "do": "Issue a JWT in an http-only cookie",
+      "out": "`Set-Cookie: token`",
+      "where": "backend/app/auth.py:31",
+      "why": "http-only: page scripts cannot read the token"
+     },
+     {
+      "do": "Load the dashboard",
+      "out": "Dashboard at `/`, counts from `GET /stats`",
+      "where": "frontend/src/App.tsx:18"
+     }
+    ],
+    "output": "Dashboard, `token` cookie set",
+    "examples": [
+     {
+      "case": "typical",
+      "title": "Right password",
+      "expect": "Cookie set, dashboard opens",
+      "in": [
+       [
+        "email",
+        "a@example.com"
+       ],
+       [
+        "password",
+        "right"
+       ]
+      ],
+      "at": [
+       "`POST /auth/login`",
+       "user 1, hash matches",
+       "`token` cookie, 8 h",
+       "Dashboard"
+      ],
+      "out": [
+       [
+        "status",
+        "200"
+       ],
+       [
+        "cookie",
+        "token set"
+       ]
+      ],
+      "source": "backend/tests/test_auth.py:12"
+     },
+     {
+      "case": "rejected",
+      "title": "Wrong password",
+      "expect": "Same message as an unknown e-mail",
+      "in": [
+       [
+        "email",
+        "a@example.com"
+       ],
+       [
+        "password",
+        "wrong"
+       ]
+      ],
+      "at": [
+       "`POST /auth/login`",
+       "401",
+       null,
+       "Login"
+      ],
+      "out": [
+       [
+        "status",
+        "401"
+       ],
+       [
+        "detail",
+        "Invalid e-mail or password"
+       ]
+      ],
+      "source": "backend/tests/test_auth.py:30"
+     }
+    ]
+   },
+   {
+    "type": "h3",
+    "text": "Add a task: task form → tasks row"
+   },
+   {
+    "type": "ipo",
+    "input": "Project detail: task title",
+    "steps": [
+     {
+      "do": "Type a title, press Add",
+      "out": "`POST /projects/{id}/tasks`",
+      "where": "frontend/src/api.ts:30"
+     },
+     {
+      "do": "Check the project belongs to the user",
+      "out": "`projects` row",
+      "branch": "404, nothing stored",
+      "where": "backend/app/main.py:41",
+      "why": "without it any signed-in user could write to another user's project"
+     },
+     {
+      "do": "Insert the task as open",
+      "out": "`tasks` row, status open",
+      "where": "backend/app/main.py:47",
+      "why": "every new task starts open, so the dashboard counts it at once"
+     }
+    ],
+    "output": "`tasks` row, or 404",
+    "examples": [
+     {
+      "case": "typical",
+      "title": "Own project",
+      "expect": "Task stored as open",
+      "in": [
+       [
+        "project",
+        "1 (own)"
+       ],
+       [
+        "title",
+        "Buy milk"
+       ]
+      ],
+      "at": [
+       "`POST /projects/1/tasks`",
+       "project 1, owner 1",
+       "id 7, open"
+      ],
+      "out": [
+       [
+        "status",
+        "201"
+       ],
+       [
+        "task",
+        "id 7, open"
+       ]
+      ],
+      "source": "backend/tests/test_tasks.py:15"
+     },
+     {
+      "case": "rejected",
+      "title": "Other user's project",
+      "expect": "404, nothing stored",
+      "in": [
+       [
+        "project",
+        "2 (other user)"
+       ],
+       [
+        "title",
+        "x"
+       ]
+      ],
+      "at": [
+       "`POST /projects/2/tasks`",
+       "404",
+       null
+      ],
+      "out": [
+       [
+        "status",
+        "404"
+       ]
+      ],
+      "source": "backend/tests/test_tasks.py:41"
+     }
+    ]
+   },
+   {
+    "type": "flow",
+    "id": "E",
+    "nodes": [
+     {
+      "id": "form",
+      "label": "Task form",
+      "col": 0,
+      "row": 0,
+      "kind": "entry"
+     },
+     {
+      "id": "route",
+      "label": "create_task",
+      "col": 1,
+      "row": 0,
+      "kind": "code"
+     },
+     {
+      "id": "own",
+      "label": "owner check",
+      "col": 2,
+      "row": 0,
+      "kind": "decision"
+     },
+     {
+      "id": "db",
+      "label": "tasks",
+      "col": 3,
+      "row": 0,
+      "kind": "data"
+     },
+     {
+      "id": "nf",
+      "label": "404",
+      "col": 2,
+      "row": 1,
+      "kind": "fail"
+     }
+    ],
+    "edges": [
+     {
+      "from": "form",
+      "to": "route",
+      "step": 1
+     },
+     {
+      "from": "route",
+      "to": "own",
+      "step": 2
+     },
+     {
+      "from": "own",
+      "to": "db",
+      "label": "owner",
+      "step": 3
+     },
+     {
+      "from": "own",
+      "to": "nf",
+      "label": "other user",
+      "fail": true
+     }
+    ]
+   }
+  ],
+  "Data model": [
+   {
+    "type": "er",
+    "id": "F",
+    "title": "ER: tasks",
+    "entities": [
+     {
+      "id": "u",
+      "name": "users",
+      "grain": "one row per user",
+      "cols": [
+       [
+        "id",
+        "PK"
+       ],
+       [
+        "email",
+        ""
+       ],
+       [
+        "password_hash",
+        ""
+       ]
+      ]
+     },
+     {
+      "id": "p",
+      "name": "projects",
+      "grain": "one row per project",
+      "cols": [
+       [
+        "id",
+        "PK"
+       ],
+       [
+        "owner_id",
+        "FK"
+       ],
+       [
+        "name",
+        ""
+       ]
+      ]
+     },
+     {
+      "id": "t",
+      "name": "tasks",
+      "grain": "one row per task",
+      "cols": [
+       [
+        "id",
+        "PK"
+       ],
+       [
+        "project_id",
+        "FK"
+       ],
+       [
+        "title",
+        ""
+       ],
+       [
+        "status",
+        ""
+       ]
+      ]
+     }
+    ],
+    "rels": [
+     {
+      "from": "u",
+      "from_col": "id",
+      "to": "p",
+      "to_col": "owner_id",
+      "label": "1:N",
+      "logical": false
+     },
+     {
+      "from": "p",
+      "from_col": "id",
+      "to": "t",
+      "to_col": "project_id",
+      "label": "1:N",
+      "logical": false
+     }
+    ],
+    "source": "backend/app/models.py:8-40"
+   }
+  ],
+  "Business rules": [
+   {
+    "type": "rules",
+    "rows": [
+     [
+      "Same message for any login failure",
+      "see step 5.1.2",
+      "",
+      ""
+     ],
+     [
+      "Task status: only open and done",
+      "`done` → 200; `later` → 422, task unchanged",
+      "the board has two columns: any other status would hide the task",
+      "`backend/app/schemas.py:14`"
+     ]
+    ],
+    "source": "backend/tests/test_tasks.py:60-72"
+   }
+  ],
+  "Configuration": [
+   {
+    "type": "config",
+    "rows": [
+     [
+      "`DATABASE_URL`",
+      "none / set per environment",
+      "`backend/app/settings.py:5`",
+      "Postgres connection (value never in the repo)"
+     ],
+     [
+      "`TOKEN_MINUTES`",
+      "60 / 60",
+      "`backend/app/settings.py:7`",
+      "token lifetime"
+     ]
+    ]
+   }
+  ],
+  "Security and access": [
+   {
+    "type": "access",
+    "rows": [
+     [
+      "Signed-in user",
+      "own projects and tasks",
+      "JWT cookie, checked per request"
+     ],
+     [
+      "Anyone",
+      "`POST /auth/login`, `POST /auth/register`",
+      "no token"
+     ]
+    ]
+   },
+   {
+    "type": "diagram",
+    "id": "G",
+    "title": "Tasks app trust zones",
+    "key": "Tinted frame = trust zone (legend) · T-number = flow crossing a boundary, thick line",
+    "notice": "T1 is the only way in: the API checks the cookie before any route runs, and only the API holds the database login.",
+    "spec": {
+     "type": "trust-boundaries",
+     "direction": "LR",
+     "groups": [
+      {
+       "id": "inet",
+       "label": "internet",
+       "kind": "untrusted"
+      },
+      {
+       "id": "int",
+       "label": "backend",
+       "kind": "internal"
+      },
+      {
+       "id": "data",
+       "label": "database",
+       "kind": "restricted"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "browser",
+       "label": "Browser",
+       "sub": "React UI",
+       "kind": "actor",
+       "group": "inet"
+      },
+      {
+       "id": "api",
+       "label": "API",
+       "sub": "JWT check",
+       "kind": "process",
+       "group": "int"
+      },
+      {
+       "id": "db",
+       "label": "Postgres",
+       "kind": "store",
+       "group": "data"
+      }
+     ],
+     "edges": [
+      {
+       "from": "browser",
+       "to": "api",
+       "label": "HTTPS + cookie"
+      },
+      {
+       "from": "api",
+       "to": "db",
+       "label": "DB login"
+      }
+     ]
+    }
+   }
+  ],
+  "Deploy and environments": [
+   {
+    "type": "steps",
+    "rows": [
+     [
+      "Test",
+      "`pytest backend/tests` · `npm test`",
+      "CI, every push"
+     ],
+     [
+      "Build images",
+      "`docker build` for backend and frontend (one Dockerfile each)",
+      "CI, on merge"
+     ],
+     [
+      "Run locally",
+      "`docker compose up`",
+      "developer machine"
+     ]
+    ]
+   },
+   {
+    "type": "environments",
+    "rows": [
+     [
+      "local",
+      "docker compose",
+      "by hand"
+     ],
+     [
+      "prod",
+      "container host",
+      "CI image push, then restart"
+     ]
+    ]
+   }
+  ],
+  "Operations": [
+   {
+    "type": "symptoms",
+    "rows": [
+     [
+      "Everyone signed out at once",
+      "secret key changed",
+      "set the old key back, or let users sign in again"
+     ],
+     [
+      "Dashboard counts 0",
+      "API not reachable",
+      "check the API container log"
+     ]
+    ]
+   },
+   {
+    "type": "tasks",
+    "rows": [
+     [
+      "How to run the stack locally",
+      "Deploy and environments: Run locally; UI on port 5173",
+      "local development",
+      ""
+     ]
+    ]
+   }
+  ],
+  "Tests": [
+   {
+    "type": "tests",
+    "rows": [
+     [
+      "`backend/tests/test_auth.py`",
+      "login, wrong password, token expiry"
+     ],
+     [
+      "`backend/tests/test_tasks.py`",
+      "add, change status, delete, owner check"
+     ]
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "sev": "Must",
+      "kind": "security",
+      "issue": "`DELETE /tasks/{id}` does not check the owner",
+      "where": "backend/app/routes/tasks.py:80",
+      "impact": "a user can delete other users' tasks",
+      "status": "Confirmed (test)",
+      "fix": "load the task through the user's projects",
+      "test": "`backend/tests/test_tasks.py`"
+     },
+     {
+      "sev": "Must",
+      "kind": "security",
+      "issue": "Login has no rate limit",
+      "where": "backend/app/routes/auth.py:15",
+      "impact": "password guessing",
+      "status": "Confirmed (code)",
+      "fix": "limit attempts per e-mail and IP"
+     },
+     {
+      "sev": "Other",
+      "kind": "style",
+      "issue": "Two date formats in the UI",
+      "where": "frontend/src/App.tsx:40",
+      "impact": "looks inconsistent",
+      "status": "Not verified",
+      "fix": "one formatter"
+     }
+    ]
+   }
+  ]
+ }
+}
