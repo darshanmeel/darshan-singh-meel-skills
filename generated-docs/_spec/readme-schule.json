@@ -1,0 +1,306 @@
+{
+ "type": "overview",
+ "app_types": [],
+ "title": "School skills for Hessen",
+ "subtitle": "Markdown skills + check script · on request · topic and level → HTML material",
+ "lede": "Teachers get print-ready lessons, worksheets with solutions and tests for Hessen schools and German courses, each solved and checked by a reviewer skill.",
+ "why": "Material follows the Hessen curriculum and exam formats, and every German line has the closest natural English sentence under it.",
+ "tabs": {
+  "does": [
+   "Writes lesson plans, worksheets with solutions, tests with marking schemes, explanations and animations",
+   "Covers Grundschule and Gymnasium subjects, DaF A1–C1, Mathe-Känguru and Einstellungstest practice",
+   "Pairs each subject skill with a reviewer that solves every task",
+   "Checks the HTML with a standard-library script"
+  ],
+  "doesnt": [
+   "Doesn't copy textbook or exam tasks: it writes originals in the same style",
+   "Doesn't use real student data",
+   "Doesn't cover other federal states' curricula"
+  ],
+  "limitations": [
+   "Curriculum facts are only as current as the official pages named in sources.md"
+  ],
+  "top_issues": []
+ },
+ "sections": {
+  "What it is and why": [
+   {
+    "type": "labels",
+    "items": [
+     [
+      "What",
+      "27 Claude Code skills for teaching material: a shared base, subject skills and their reviewers."
+     ],
+     [
+      "Why",
+      "Material that matches the Hessen framework, the level and the exam format, without checking each rule by hand."
+     ],
+     [
+      "Key idea",
+      "The base skill holds the framework, templates and review rubric; each subject skill adds only its subject."
+     ],
+     [
+      "Result",
+      "Self-contained HTML in A4 print layout, with English lines that can be switched off."
+     ]
+    ]
+   }
+  ],
+  "How it works": [
+   {
+    "type": "flow",
+    "id": "A",
+    "title": "one request, 4 steps",
+    "nodes": [
+     {
+      "id": "a",
+      "label": "Teacher",
+      "sub": "topic, level",
+      "kind": "person",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "b",
+      "label": "Subject skill",
+      "sub": "with the base",
+      "kind": "entry",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "c",
+      "label": "Material",
+      "sub": "HTML, A4",
+      "kind": "data",
+      "col": 2,
+      "row": 0
+     },
+     {
+      "id": "d",
+      "label": "Reviewer skill",
+      "sub": "solves every task",
+      "kind": "step",
+      "col": 3,
+      "row": 0
+     },
+     {
+      "id": "e",
+      "label": "Review report",
+      "sub": "reviews/",
+      "kind": "data",
+      "col": 4,
+      "row": 0
+     }
+    ],
+    "edges": [
+     {
+      "from": "a",
+      "to": "b",
+      "label": "asks"
+     },
+     {
+      "from": "b",
+      "to": "c",
+      "label": "writes"
+     },
+     {
+      "from": "c",
+      "to": "d",
+      "label": "checked by"
+     },
+     {
+      "from": "d",
+      "to": "e",
+      "label": "verdict"
+     }
+    ],
+    "key": "pill = people",
+    "notice": "the reviewer runs on request, after the material exists."
+   }
+  ],
+  "Who uses it": [
+   {
+    "type": "people",
+    "rows": [
+     [
+      "Teachers",
+      "Lessons, worksheets, tests and explanations for their class"
+     ],
+     [
+      "German course teachers",
+      "DaF and DaZ material A1–C1, Goethe, telc and DTB formats"
+     ],
+     [
+      "Applicants",
+      "Einstellungstest practice sheets and timed mock tests"
+     ]
+    ]
+   }
+  ],
+  "Example": [
+   {
+    "type": "text",
+    "text": "One DaF worksheet for workplace German at level A2, taken from the shipped example."
+   },
+   {
+    "type": "journey",
+    "id": "B",
+    "title": "one worksheet, 3 stages",
+    "stages": [
+     {
+      "title": "Teacher asks",
+      "sub": "DaF A2 Beruf",
+      "rows": [
+       [
+        "topic",
+        "calling in sick"
+       ],
+       [
+        "level",
+        "A2"
+       ],
+       [
+        "track",
+        "Beruf"
+       ]
+      ],
+      "what": "The DaF skill loads with the base."
+     },
+     {
+      "title": "Material",
+      "sub": "two HTML files",
+      "changed": true,
+      "rows": [
+       [
+        "worksheet",
+        "arbeitsblatt.html"
+       ],
+       [
+        "solution",
+        "loesung.html"
+       ],
+       [
+        "lines",
+        "German + English"
+       ]
+      ],
+      "what": "Tasks, then the solution."
+     },
+     {
+      "title": "Check",
+      "sub": "check_material.py",
+      "rows": [
+       [
+        "files",
+        "2"
+       ],
+       [
+        "errors",
+        "0"
+       ],
+       [
+        "warnings",
+        "0"
+       ]
+      ],
+      "what": "Ready to print."
+     }
+    ],
+    "source": "from schule/claude-schule/skills/darshan-singh-meel-daf/references/examples/a2-beruf-krankmeldung/arbeitsblatt.html"
+   },
+   {
+    "type": "examples",
+    "items": [
+     {
+      "case": "typical",
+      "title": "Worksheet with solution",
+      "expect": "Every task has a solution in a separate file",
+      "in": "DaF A2 Beruf, calling in sick",
+      "out": "arbeitsblatt.html and loesung.html",
+      "source": "schule/claude-schule/skills/darshan-singh-meel-daf/references/examples/a2-beruf-krankmeldung/loesung.html"
+     },
+     {
+      "case": "edge",
+      "title": "Task above the level",
+      "expect": "The reviewer lists each structure above the level with its line",
+      "in": "a B1 grammar task on an A2 sheet",
+      "out": "a finding naming the structure and line",
+      "source": "schule/claude-schule/skills/darshan-singh-meel-daf-review/SKILL.md:19"
+     }
+    ]
+   }
+  ],
+  "Value and cost": [
+   {
+    "type": "labels",
+    "items": [
+     [
+      "Value",
+      "Curriculum-fit material and an independent check of every task."
+     ],
+     [
+      "Cost",
+      "Python 3 for the check script; standard library only."
+     ]
+    ]
+   }
+  ],
+  "Design and operational risks": [
+   {
+    "type": "bullets",
+    "items": [
+     "A curriculum change on the official pages needs an update of sources.md and the affected skill.",
+     "A change in the full version and not its sūtra twin fails check_repo."
+    ]
+   }
+  ],
+  "Words used": [
+   {
+    "type": "terms",
+    "items": [
+     [
+      "KC / KCGO",
+      "Hessen Kerncurriculum for Sek I and for the Oberstufe"
+     ],
+     [
+      "AFB",
+      "Anforderungsbereich: the level of thinking a task asks for"
+     ],
+     [
+      "DaF / DaZ",
+      "German as a foreign or second language"
+     ],
+     [
+      "Erwartungshorizont",
+      "the expected answers and points of a test"
+     ]
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "issue": "26 skill descriptions are longer than the 1024-character API limit",
+      "impact": "tools that enforce the limit may cut trigger phrases",
+      "status": "Confirmed (code)",
+      "sev": "Other",
+      "kind": "docs",
+      "where": "schule/claude-schule/skills/darshan-singh-meel-daf/SKILL.md:3"
+     }
+    ]
+   },
+   {
+    "type": "assumptions",
+    "rows": [
+     [
+      "Material is printed on A4",
+      "Other paper sizes may break the layout"
+     ]
+    ]
+   }
+  ]
+ }
+}

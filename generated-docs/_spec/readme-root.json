@@ -1,0 +1,317 @@
+{
+ "type": "overview",
+ "app_types": [],
+ "title": "Claude Code skills and global rules",
+ "subtitle": "Markdown skills + Python checks · copied on install · repo → home .claude folder",
+ "lede": "One copy step gives Claude Code our global rules, 38 tech skills and 27 school skills; build scripts and reviewer skills check what they produce.",
+ "why": "Every session then follows the same rules for replies, data, secrets and output, and each skill that produces material has a reviewer partner.",
+ "tabs": {
+  "does": [
+   "Sets global rules: replies, questions, local-only output, secrets, read-only queries",
+   "Routes each task to one skill: code, review, docs, diagrams, data platforms, school",
+   "Checks its own output with build scripts, layout checks and reviewer skills",
+   "Logs which skill ran and a self-check after the work"
+  ],
+  "doesnt": [
+   "Doesn't publish anything: all output stays in the current project",
+   "Doesn't run warehouse writes: data queries go through read-only notebook cells",
+   "Doesn't install itself: the copy step is run by hand"
+  ],
+  "limitations": [
+   "7 sūtra-style twins are still byte copies of the full version",
+   "Old zip snapshots in tech/ and schule/ lag the folders"
+  ],
+  "top_issues": []
+ },
+ "sections": {
+  "What it is and why": [
+   {
+    "type": "labels",
+    "items": [
+     [
+      "What",
+      "Global rules, skills and hooks for Claude Code, in a full version and a compressed sūtra version."
+     ],
+     [
+      "Why",
+      "The same rules and process in every session, instead of repeating them in each chat."
+     ],
+     [
+      "Key idea",
+      "One skill, one job; a shared base skill holds rules several skills need, and a reviewer skill checks what a skill produces."
+     ],
+     [
+      "Result",
+      "Docs, reviews, briefs, diagrams and school material with the same structure every run, checked before they are handed over."
+     ]
+    ]
+   }
+  ],
+  "How it works": [
+   {
+    "type": "flow",
+    "id": "A",
+    "title": "install and use, 4 steps",
+    "nodes": [
+     {
+      "id": "a",
+      "label": "This repo",
+      "sub": "full or sūtra",
+      "kind": "data",
+      "col": 0,
+      "row": 0
+     },
+     {
+      "id": "b",
+      "label": "Copy step",
+      "sub": "cp -r",
+      "kind": "entry",
+      "col": 1,
+      "row": 0
+     },
+     {
+      "id": "c",
+      "label": "Home .claude",
+      "sub": "rules, skills, hooks",
+      "kind": "data",
+      "col": 2,
+      "row": 0
+     },
+     {
+      "id": "d",
+      "label": "Claude Code",
+      "sub": "picks a skill",
+      "kind": "step",
+      "col": 3,
+      "row": 0
+     },
+     {
+      "id": "e",
+      "label": "Engineer or teacher",
+      "kind": "person",
+      "col": 3,
+      "row": 1
+     }
+    ],
+    "edges": [
+     {
+      "from": "a",
+      "to": "b",
+      "label": "files"
+     },
+     {
+      "from": "b",
+      "to": "c",
+      "label": "overwrites"
+     },
+     {
+      "from": "c",
+      "to": "d",
+      "label": "loads"
+     },
+     {
+      "from": "d",
+      "to": "e",
+      "label": "checked output",
+      "dashed": true
+     }
+    ],
+    "key": "pill = people · dashed = handed over",
+    "notice": "nothing runs until the copy step; a restart picks up the new files."
+   }
+  ],
+  "Who uses it": [
+   {
+    "type": "people",
+    "rows": [
+     [
+      "Engineers",
+      "Code, reviews, docs, diagrams, Snowflake, Databricks and dbt answers"
+     ],
+     [
+      "Teachers",
+      "Hessen school material and German course material with reviews"
+     ],
+     [
+      "Skill authors",
+      "The repo rules and check_repo before each commit"
+     ]
+    ]
+   }
+  ],
+  "Example": [
+   {
+    "type": "text",
+    "text": "One code review, from request to report, taken from the review-v2 example."
+   },
+   {
+    "type": "journey",
+    "id": "B",
+    "title": "one review, 3 stages",
+    "stages": [
+     {
+      "title": "Engineer asks",
+      "sub": "review v2",
+      "rows": [
+       [
+        "scope",
+        "5 changed files"
+       ],
+       [
+        "goal",
+        "revenue mart + export"
+       ],
+       [
+        "skill",
+        "review-v2"
+       ]
+      ],
+      "what": "The review skill loads."
+     },
+     {
+      "title": "Review runs",
+      "sub": "checks",
+      "changed": true,
+      "rows": [
+       [
+        "tests",
+        "6 passed"
+       ],
+       [
+        "ruff",
+        "clean"
+       ],
+       [
+        "finding",
+        "Must: revenue per item"
+       ]
+      ],
+      "what": "Each file gets Must and Should findings."
+     },
+     {
+      "title": "Report",
+      "sub": "reviews/",
+      "rows": [
+       [
+        "verdict",
+        "Request changes"
+       ],
+       [
+        "format",
+        "one HTML page"
+       ],
+       [
+        "files",
+        "per-file detail"
+       ]
+      ],
+      "what": "Verdict and deciding finding first."
+     }
+    ],
+    "source": "from tech/claude-global/skills/darshan-singh-meel-review-v2/references/examples/review-v2-example.json:1-20"
+   },
+   {
+    "type": "examples",
+    "items": [
+     {
+      "case": "typical",
+      "title": "Review with a defect",
+      "expect": "The verdict names the finding that decides it",
+      "in": "a mart that joins order items",
+      "out": "Request changes: revenue overstated",
+      "source": "tech/claude-global/skills/darshan-singh-meel-review-v2/references/examples/review-v2-example.json:4-5"
+     },
+     {
+      "case": "edge",
+      "title": "Malformed issues block in a doc spec",
+      "expect": "The docs build stops with a clear error",
+      "in": "an issues block without items",
+      "out": "ERROR naming the block",
+      "source": "tech/claude-global/skills/darshan-singh-meel-docs-v3/tests/run.py"
+     }
+    ]
+   }
+  ],
+  "Value and cost": [
+   {
+    "type": "labels",
+    "items": [
+     [
+      "Value",
+      "Repeatable, checked output and the same rules in every session."
+     ],
+     [
+      "Cost",
+      "Python 3 for the checks; Playwright only for docs layout checks."
+     ]
+    ]
+   }
+  ],
+  "Design and operational risks": [
+   {
+    "type": "bullets",
+    "items": [
+     "The copy step overwrites files of the same name in the home .claude folder; back up first.",
+     "A change in one version and not its twin fails check_repo."
+    ]
+   }
+  ],
+  "Words used": [
+   {
+    "type": "terms",
+    "items": [
+     [
+      "Skill",
+      "a folder with SKILL.md that Claude Code loads for one job"
+     ],
+     [
+      "Base skill",
+      "shared rules loaded alongside other skills"
+     ],
+     [
+      "Sūtra version",
+      "the same rules in compressed form"
+     ],
+     [
+      "Twin",
+      "the full and sūtra copies of one skill"
+     ]
+    ]
+   }
+  ],
+  "Known issues, assumptions, and decisions needed": [
+   {
+    "type": "issues",
+    "items": [
+     {
+      "issue": "7 sūtra twins are byte copies of the full version",
+      "impact": "the sūtra version is not compressed for those skills",
+      "status": "Confirmed (code)",
+      "sev": "Other",
+      "kind": "docs",
+      "where": "tech/claude-global-panini/skills/darshan-singh-meel-brevity/SKILL.md"
+     },
+     {
+      "issue": "Zip snapshots are older than the folders",
+      "impact": "a download of a zip gets old skills",
+      "status": "Confirmed (code)",
+      "sev": "Other",
+      "kind": "docs",
+      "where": "tech/claude-global.zip"
+     }
+    ]
+   },
+   {
+    "type": "decisions",
+    "rows": [
+     [
+      "Keep or remove the zip snapshots?",
+      "remove · rebuild on each release",
+      "Remove; the folders are the source",
+      "Zips keep going stale"
+     ]
+    ]
+   }
+  ]
+ }
+}

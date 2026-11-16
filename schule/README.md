@@ -1,6 +1,8 @@
 # School skills (Hessen)
 
-Skills for teaching material at Grundschule and Gymnasium in Hessen. Material is German with the closest natural English sentence under every line.
+Teachers get print-ready lessons, worksheets with solutions and tests for Hessen schools and German courses, each solved and checked by a reviewer skill.
+
+Material follows the Hessen curriculum and exam formats, and every German line has the closest natural English sentence under it. Overview with diagrams: `README.html`.
 
 ## Install
 ```bash
@@ -12,7 +14,6 @@ Restart Claude Code. Needs Python 3 for `scripts/check_material.py` (standard li
 | Skill | Job |
 |---|---|
 | `schule` | Shared base, loaded with every school skill: Hessen framework (KC, KCGO, grading, written-work rules), operators and AFB, German + English line rule, output folder, HTML templates (Stundenentwurf, Arbeitsblatt + Lösung, Test + Erwartungshorizont, Erklärung, Animation), setup questions, review rubric, check script |
-
 | `schule-mathe` | Mathematik, Grundschule + Gymnasium (Sek I, Oberstufe GK/LK) |
 | `schule-deutsch` | Deutsch, Grundschule + Gymnasium; material German, English help lines for instructions only |
 | `schule-biologie`, `schule-chemie`, `schule-physik` | Gymnasium Sek I + Oberstufe; experiments with safety notes |

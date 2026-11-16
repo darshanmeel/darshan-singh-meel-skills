@@ -1,6 +1,10 @@
 # Claude Code global setup
 
-Global rules, skills and hooks for Claude Code, in two equivalent versions:
+One copy step gives Claude Code our global rules, 38 tech skills and 27 school skills; build scripts and reviewer skills check what they produce.
+
+Every session then follows the same rules for replies, data, secrets and output, and each skill that produces material has a reviewer partner. Overview with diagrams: `README.html`.
+
+Two equivalent versions:
 
 | Folder | Version |
 |---|---|
@@ -13,9 +17,10 @@ Global rules, skills and hooks for Claude Code, in two equivalent versions:
 ## Install (pick one version)
 ```bash
 cp -r tech/claude-global/. ~/.claude/     # or tech/claude-global-panini/.
+cp -r schule/claude-schule/skills/. ~/.claude/skills/   # school skills, optional
 python ~/.claude/hooks/install-skill-log.py   # once; python3 on macOS/Linux
 ```
-Restart Claude Code. Existing files with the same names in `~/.claude/` are overwritten.
+Restart Claude Code. Files with the same names in `~/.claude/` are overwritten: back up first.
 
 ## What's inside
 - **`CLAUDE.md`** — global rules: push back, reply style, questions, local-only output, data handling and secrets, read-only querying, network, code style, skill routing, knowledge graph, model choice.
