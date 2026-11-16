@@ -224,3 +224,5 @@ Omit empty sections. If there are no findings, output the verdict, checks run, a
 - **Git-ignored by default:** git-ignore per CLAUDE.md. Commit reports only if the user asks; then remove the `/reviews/` line and say so. Already-tracked reports → tell the user once: `git rm -r --cached reviews/` stops tracking them (don't run it unasked).
 - Same content as the terminal: verdict, checks run, findings grouped by severity, each tagged by area.
 - Style per the `darshan-singh-meel-docs` skill (`references/html-style.md`): light, flat, printable, self-contained; works without JavaScript.
+- A diagram only where it explains a finding (impact path, call chain, before/after), ≤1 per finding: build it with `darshan-singh-meel-diagrams` + family (0 `LAYOUT`) and embed the `--fragment` (`references/embedding.md` "Reviews").
+- Diagrams in the reviewed change (specs, pages with SVG or Mermaid, docs): check them with `darshan-singh-meel-diagrams-review` rules (`review_diagrams.py`, re-derive from the source); its Must/Should become findings here (`[Correctness]` for a box, arrow or state the source lacks; `[Obvious]` for layout).

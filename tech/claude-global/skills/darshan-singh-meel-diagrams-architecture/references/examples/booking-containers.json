@@ -69,13 +69,13 @@
   {
    "from": "guest",
    "to": "web",
-   "label": "Uses",
+   "label": "Searches and books stays",
    "tech": "HTTPS"
   },
   {
    "from": "web",
    "to": "api",
-   "label": "Calls",
+   "label": "Posts bookings",
    "tech": "JSON/HTTPS"
   },
   {
@@ -94,7 +94,8 @@
   {
    "from": "q",
    "to": "worker",
-   "label": "Delivers job"
+   "label": "Delivers job",
+   "tech": "SQS"
   },
   {
    "from": "worker",

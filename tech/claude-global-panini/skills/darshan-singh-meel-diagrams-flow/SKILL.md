@@ -33,10 +33,10 @@ Per type in `references/`: `flowchart.md` (flowchart, retry-flow, approval-workf
 | Type | Styles | When |
 |---|---|---|
 | `flowchart`, `retry-flow`, `approval-workflow` | `plain` (default), `airflow` | `airflow` when the picture is one run: task `state` colours, `operator` as tag (what the step calls), groups as task groups, `collapse`. |
-| same | `dbt` | the picture is a dependency or impact chain, not a decision flow: which step waits on which, what a failed step blocks (`dim` the unaffected steps). Pills by `kind`, left to right. |
+| same | `dbt` | the picture is a dependency or impact chain, not a decision flow: which step waits on which, what a failed step blocks (`dim` the unaffected steps). Pills coloured by `cat`, the author's category (check, build, deploy, service, agent ...). |
 | `swimlane`, `decision-tree`, `state-machine`, `activity` | `plain` only | fixed notation (BPMN, UML); a style is a validation error. |
 
-Airflow-style example: `references/examples/webhook-delivery.json` (one delivery run: task group, `post_partner` up_for_retry, failure path to the DLQ). The author picks the style that fits; none is forced.
+Examples: airflow style `references/examples/webhook-delivery.json` (one delivery run: task group, `post_partner` up_for_retry, failure path to the DLQ); dbt style `references/examples/release-impact.json` (what a failed contract test blocks). The author picks the style that fits; none is forced.
 
 ## Process
 1. Pick the type from the table; read its reference file.
@@ -60,7 +60,8 @@ Airflow-style example: `references/examples/webhook-delivery.json` (one delivery
 - State machine: one level of composite states; deeper → own diagram.
 
 ## Common mistakes
-- A decision with one exit, or exits without labels → checker error; label every branch.
+- A decision with one exit, or exits without labels → error; label every branch.
+- Two `start` nodes, or a step that leads nowhere in a diagram with ends → error; one process, one start, every path to an end.
 - A process with roles drawn as a flowchart with role names in the boxes → use `swimlane`.
 - Sequence flows across pools, message flows inside one pool → BPMN error; the validator says which.
 - States named as actions ("Send mail") → states are conditions ("Awaiting payment"); actions go on transitions or `entry`.

@@ -34,9 +34,10 @@ Layout falls back on its own when a picture is too wide: left to right, then gro
 - `layer` = folder; `layers: [{id, label}]` fixes the order, else it follows sources, seeds, snapshots, staging, intermediate, marts, semantic, metrics, exposures, then the rest in order of appearance.
 - `label` defaults to the id; sources read `source_name.table`.
 - Pill tag = resource type and materialization; sub = "n tests".
-- `view: "overview"` → one rounded box per layer, tag "folder · n nodes", one count per resource type below, colour of the main type.
+- `view: "overview"` → one rounded box per layer, tag "folder · n nodes" ("source · n nodes" for a layer of one non-model type), one count per resource type below, colour of the main type. Key: "Box = layer (folder or resource type) · colour = main resource type · counts per type below".
 - Pills wrap at 128px (`max_w`) so five layers fit side by side.
-- From a project: `python scripts/dbt_manifest.py target/manifest.json -o spec.json [--id x] [--select "+fct_x"] [--view overview] [--layers staging,intermediate,marts]`. It reads names, types, folders, refs and test counts only; write `title`, `key` and `notice` before the build (an empty notice stops it).
+- Top-down (too wide, or `direction: "TB"`): every arrow gets its own end on the target, so each source → target pair stays traceable; layers are rows, so the key says "row" or "frame", not "column".
+- From a project: `python scripts/dbt_manifest.py target/manifest.json -o spec.json [--id x] [--select "+fct_x"] [--view overview] [--layers staging,intermediate,marts]`. It reads models, seeds, snapshots, sources, exposures, semantic models (`sm_` ids), metrics (`metric_`) and saved queries (`sq_`): names, types, folders, refs and test counts only, and writes the key for the view; write `title`, `key` and `notice` before the build (an empty notice stops it).
 
 ## `medallion`
 ```json

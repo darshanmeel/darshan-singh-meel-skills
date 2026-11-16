@@ -22,8 +22,8 @@ All default to the base `airflow` style (task box, type as tag, state as border 
  "dags": [{"id": "dbt_build", "schedule": ["raw.crm", "raw.erp"], "tasks": 14, "state": "queued", "outlets": ["marts.core"]}],
  "links": [{"from": "dbt_build", "to": "finance_export", "kind": "trigger", "label": "TriggerDagRunOperator"}]}
 ```
-- `schedule`: a cron or preset string (`"@daily"`, `"0 2 * * *"`), `null` (manual / external trigger), a list of assets (all must update) or `{"any": [...]}` (any one).
-- Asset arrows are inferred: a DAG whose `outlets` hold an asset → every DAG scheduled on it, labelled with the asset name(s). An asset nobody produces becomes an "asset · external" box.
+- `schedule`: a cron or preset string (`"@daily"`, `"0 2 * * *"`), `null` (manual / external trigger), a list of assets (all must update) or `{"any": [...]}` (any one). Mixed conditions such as `a | (b & c)` have no field: list every asset in `any` and write the expression in `sub` (`"sub": "a | (b & c)"`).
+- Asset arrows are inferred: a DAG whose `outlets` hold an asset → every DAG scheduled on it, labelled with the asset name(s). An asset nobody produces becomes an "asset · external" box. Asset, trigger and sensor arrows from one DAG leave on different sides.
 - `show_assets: true` draws each asset as its own box between producer and consumers.
 - `state` = last DAG run state (`queued`, `running`, `success`, `failed`).
 - `links` kinds: `trigger` (TriggerDagRunOperator, dashed blue), `sensor` (ExternalTaskSensor, dotted grey), `asset`.

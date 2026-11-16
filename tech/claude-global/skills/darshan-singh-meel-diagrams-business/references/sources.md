@@ -16,4 +16,4 @@ Conventions without an official standards page; the layouts follow the common fo
 - Value stream ladder (process time, wait time, % complete and accurate, flow efficiency): check: https://www.lean.org/lexicon-terms/value-stream-mapping/
 - Fishbone / Ishikawa cause-and-effect and SIPOC: check: https://asq.org/quality-resources/fishbone and https://asq.org/quality-resources/sipoc
 - Power / interest grid quadrant names (Manage closely, Keep satisfied, Keep informed, Monitor): Mendelow's matrix, common project-management usage; check: https://www.pmi.org/learning/library
-- Colours are this skill's mapping onto the docs palette; none of these sources defines colours.
+- Colours are this skill's mapping onto the docs palette; none of these sources defines colours. Team-type colours and the line styles for interaction modes are this skill's mapping, not the Team Topologies shape kit (which draws modes as overlapping shapes): check: https://teamtopologies.com/key-concepts

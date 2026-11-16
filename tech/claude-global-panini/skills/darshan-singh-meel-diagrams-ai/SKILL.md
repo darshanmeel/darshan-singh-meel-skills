@@ -29,7 +29,7 @@ Pick the type by the question the reader has. One question per diagram.
 
 ## Graph styles (any node-edge type here)
 The author picks; nothing forces a style.
-- **airflow** - executable runs with state: `multi-agent` runs, `eval-pipeline` runs (metrics map to success / failed), training pipelines in `ml-lifecycle`. Set `state` (and `operator` as the role) per node; family kinds give way to state colours.
+- **airflow** - executable runs with state: `multi-agent` runs, `eval-pipeline` runs (metrics map to success / failed), training pipelines in `ml-lifecycle`. Set `state` (and `operator` as the role) per node; family kinds give way to state colours, except `human`, which keeps its stick figure.
 - **dbt** - lineage: `feature-store` (sources to feature views to stores to models), the RAG ingest side, model dependency maps. Kinds become filled pills.
 - **plain** (default) - loops, topologies and stacks: `agent-loop`, `model-serving`, `nn-block`.
 - `context-assembly` draws its own bar and takes no style.
@@ -43,7 +43,7 @@ The author picks; nothing forces a style.
 
 ## Notation (this family's own conventions)
 No standard body defines AI diagrams; these rules keep ours consistent. Shapes and colours come from `kind`, are listed in the legend and named in the key.
-- `data` document shape, green · `model` lav (LLM, embedder, reranker, judge) · `store` / `cache` cylinder · `tool` teal · `guard` hexagon, amber · `human` stick figure · `router` diamond · `gateway` dark box · `monitor` dashed.
+- `data` document shape, green · `model` lav (LLM, embedder, reranker, judge) · `store` / `cache` cylinder · `tool` teal · `guard` hexagon, amber (guardrail) · `gate` diamond, amber (release / promotion gate) · `human` stick figure · `router` diamond · `gateway` dark box · `monitor` dashed.
 - Edge kinds: `feedback` dashed blue (retraining loop) · `fallback` dashed amber · `approval` dashed amber (waits for a human) · `return` dashed grey · `handoff` thick · `telemetry` dotted · `residual` grey (skip connection).
 - Red only for failure or a missed gate; green only for success or a met gate.
 - Offline and online paths always in separate frames (`rag-pipeline`, `feature-store`): the split is the point.

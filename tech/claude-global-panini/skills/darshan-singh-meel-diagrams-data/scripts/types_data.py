@@ -47,7 +47,8 @@ FLOW_EDGES = {"outlet": {"style": "dashed", "tone": "lav", "label": "updates ass
               "sensor": {"style": "dotted", "tone": "muted", "label": "waits for (sensor)"},
               "lookup": {"style": "dotted", "tone": "muted", "label": "schema lookup"},
               "snapshot": {"style": "dashed", "label": "initial snapshot"}}
-DBT_LAYERS = ("sources", "seeds", "snapshots", "staging", "intermediate", "marts", "semantic", "metrics", "exposures")
+DBT_LAYERS = ("sources", "seeds", "snapshots", "staging", "intermediate", "marts", "semantic", "metrics", "saved_queries",
+              "exposures")
 CARD = {"1": "only-one", "0..1": "zero-one", "0..N": "zero-many", "1..N": "one-many"}
 MM_LEFT = {"0..1": "|o", "1": "||", "0..N": "}o", "1..N": "}|"}
 MM_RIGHT = {"0..1": "o|", "1": "||", "0..N": "o{", "1..N": "|{"}
@@ -223,7 +224,6 @@ def validate_er(spec):
 
 
 def svg_er(spec, core):
-    c = core.canvas(spec)
     ents = spec["entities"]
     L = {e["id"]: _ent_layout(e, spec.get("max_w", 260)) for e in ents}
     areas = {a["id"]: a["label"] for a in spec.get("areas") or []}
@@ -232,21 +232,43 @@ def svg_er(spec, core):
              for e in ents]
     lab = max([core.text_width(str(e["label"]), 11, True) + 10 for e in edges if e.get("label")] + [0])
     gap = max(96, lab + 64)
-    d = spec.get("direction")
-    lay = core.layout_layered(items, edges, d or "LR", areas, gap=gap, group_layout=spec.get("area_layout", "auto"))
-    if lay["width"] > core.MAX_W and not d:
-        d = "TB"
-        lay = core.layout_layered(items, edges, d, areas, gap=gap, cross_gap=40, group_layout=spec.get("area_layout", "auto"))
-    if lay["width"] > core.MAX_W:
-        raise core.LayoutError(f"canvas would be {int(lay['width'])}px wide (max {core.MAX_W}): split by area into one "
-                               "diagram each, list key columns only (more: n), or set direction TB")
-    for g, r in lay["groups"].items():
-        core.container(c, g, areas[g], *r, members=[e["id"] for e in ents if e.get("area") == g], label_w=lay.get("label_w"))
-    for e in ents:
-        _ent_draw(c, e, *lay["pos"][e["id"]][:2], L[e["id"]])
-    core.route(c, edges, d or "LR", spread=True)  # crow's feet need their own port each, never one shared trunk
-    body, geo = core.finish(c)
-    return body, geo, [ER_CSS]
+    # left to right, then top-down, then top-down with one area per row; a field the author set is kept
+    tries = [(d, al) for d in ([spec["direction"]] if spec.get("direction") else ["LR", "TB"])
+             for al in ([spec["area_layout"]] if spec.get("area_layout") else ["auto"] + (["columns"] if d == "TB" and areas else []))]
+    widths = []
+
+    def make(d, al, fan=False):
+        lay = core.layout_layered(items, edges, d, areas, gap=gap, cross_gap=40 if d == "TB" else None, group_layout=al)
+        if lay["width"] > core.MAX_W:
+            widths.append(int(lay["width"]))
+            raise core.LayoutError("too wide")
+        c = core.canvas(spec)
+        for g, r in lay["groups"].items():
+            core.container(c, g, areas[g], *r, members=[e["id"] for e in ents if e.get("area") == g], label_w=lay.get("label_w"))
+        for e in ents:
+            _ent_draw(c, e, *lay["pos"][e["id"]][:2], L[e["id"]])
+        ee = [dict(x) for x in edges]
+        if fan:  # a table with 3+ relations sends the ones to tables beside it out of its sides, so each line has room for its label
+            P = lay["pos"]
+            for x in ee:
+                if sum(1 for y in ee if x["from"] in (y["from"], y["to"])) >= 3 and not x.get("from_side"):
+                    a, b = P[x["from"]], P[x["to"]]
+                    m = b[0] + b[2] / 2 if d == "TB" else b[1] + b[3] / 2
+                    lo, hi = (a[0], a[0] + a[2]) if d == "TB" else (a[1], a[1] + a[3])
+                    if m < lo or m > hi:
+                        x["from_side"] = ("left" if m < lo else "right") if d == "TB" else ("top" if m < lo else "bottom")
+        core.route(c, ee, d, spread=True)  # crow's feet need their own port each, never one shared trunk
+        body, geo = core.finish(c)
+        geo["direction"] = d
+        return body, geo, [ER_CSS]
+    try:
+        return _pick([[(lambda d=d, al=al, f=f: make(d, al, f), None) for f in (False, True)] for d, al in tries])
+    except core.LayoutError:
+        fixes = ["split by area into one diagram each (a header-only er of all tables as the overview)",
+                 "list key columns only (more: n)"]
+        if not spec.get("direction"):
+            fixes.append("set direction TB")
+        raise core.LayoutError(f"canvas would be {min(widths)}px wide (max {core.MAX_W}): " + ", ".join(fixes)) from None
 
 
 def _mm_type(t):
@@ -263,9 +285,9 @@ def _mm_entity(e):
     return name, out + (["  }"] if out else [])
 
 
-def _mm_er(spec, ents, rels):
+def _mm_er(spec, ents, rels, direction=None):
     out = core.mermaid_head(spec, "erDiagram")
-    if spec.get("direction") == "TB":
+    if direction == "TB":
         out.append("  direction TB")
     names = {}
     for e in ents:
@@ -281,7 +303,7 @@ def _mm_er(spec, ents, rels):
 
 
 def mermaid_er(spec):
-    return _mm_er(spec, spec["entities"], spec.get("relations") or [])
+    return _mm_er(spec, spec["entities"], spec.get("relations") or [], _drawn_direction(svg_er, spec))
 
 
 # ---------- star / snowflake schema ----------
@@ -311,7 +333,7 @@ def validate_star(spec):
 
 def svg_star(spec, core):
     c = core.canvas(spec)
-    mw = spec.get("max_w", 240)
+    mw = spec.get("max_w", 200)
     fact = dict(spec["fact"], tone=spec["fact"].get("tone") or "blue")
     dims = [dict(d, tone=d.get("tone") or ("soft" if d.get("parent") else "teal")) for d in spec["dimensions"]]
     D = {d["id"]: d for d in dims}
@@ -347,8 +369,9 @@ def svg_star(spec, core):
     xr = xf + fw + gap_to_fact(col["right"])
     W = (xr + cw["right"] if col["right"] else xf + fw) + core.MARGIN
     if W > core.MAX_W:
-        raise core.LayoutError(f"canvas would be {int(W)}px wide (max {core.MAX_W}): list key columns only (more: n), "
-                               "shorten column types, or put all dimensions on one side")
+        raise core.LayoutError(f"canvas would be {int(W)}px wide (max {core.MAX_W}): shorter via labels (the join key "
+                               f"name only), max_w below {mw} (long names wrap), list key columns only (more: n), "
+                               "or put all dimensions on one side")
     H = max(height(col["left"]), height(col["right"]), L[fact["id"]]["h"])
     pos = {fact["id"]: (xf, core.MARGIN + (H - L[fact["id"]]["h"]) / 2)}
     for s_, x0 in (("left", xl), ("right", xr)):
@@ -477,21 +500,78 @@ def _spec(spec, style, **dflt):
     return s
 
 
-def _part_kinds(edges, tb):
+def _part_kinds(edges, tb, alt=0):
     """Edges of different kinds leaving (or reaching) one box get their own side, so a dashed asset trigger never
-    shares a trunk line with a solid dependency: the less common kind leaves at the bottom and arrives at the top."""
+    shares a trunk line with a solid dependency: the less common kind leaves at the bottom and arrives at the top.
+    alt 1: the opposite side; alt 2, 3: the more common kind moves instead (the layout picks the cleanest)."""
     for end, side in (("from", "right" if tb else "bottom"), ("to", "left" if tb else "top")):
+        if alt % 2:
+            side = {"right": "left", "left": "right", "bottom": "top", "top": "bottom"}[side]
         by = {}
         for x in edges:
             by.setdefault(x[end], []).append(x)
         for lst in by.values():
             ks = [x.get("kind") or "" for x in lst]
             if len(set(ks)) > 1:
-                main = max(sorted(set(ks)), key=lambda k: (ks.count(k), k in ("", "on_succeeded")))
+                rank = lambda k: (ks.count(k), k in ("", "on_succeeded"))  # noqa: E731
+                main = sorted(sorted(set(ks)), key=rank, reverse=True)[1 if alt >= 2 else 0]
                 for x in lst:
                     if (x.get("kind") or "") != main and not x.get(end + "_side"):
                         x[end + "_side"] = side
+                        x["_parted"] = True
     return edges
+
+
+def _clashes(geo, styled):
+    """Pairs of arrows that touch one box, look different (kind, style, tone) and still run along one line: the
+    reader would take one meaning for the other."""
+    look = [(e.get("kind"), e.get("style") or "solid", e.get("tone")) for e in styled]
+    ge = geo.get("edges") or []
+    return [f"{ge[i]['from']} -> {ge[i]['to']}" for i in range(len(ge)) for j in range(i + 1, len(ge))
+            if {ge[i]["from"], ge[i]["to"]} & {ge[j]["from"], ge[j]["to"]} and look[i] != look[j]
+            and core.checker._shared(ge[i], ge[j])]
+
+
+def crossings(geo):
+    """Number of points where two arrows cross at a right angle (not at a shared end)."""
+    segs = [(k, p, q) for k, e in enumerate(geo.get("edges") or []) for p, q in zip(e["points"], e["points"][1:])]
+    n = 0
+    for i, (k, p, q) in enumerate(segs):
+        for m, r, t in segs[i + 1:]:
+            if m == k:
+                continue
+            h, v = ((p, q), (r, t)) if abs(p[1] - q[1]) < .5 else ((r, t), (p, q))
+            if abs(h[0][1] - h[1][1]) > .5 or abs(v[0][0] - v[1][0]) > .5:
+                continue
+            x, y = v[0][0], h[0][1]
+            if min(h[0][0], h[1][0]) + 1 < x < max(h[0][0], h[1][0]) - 1 and                     min(v[0][1], v[1][1]) + 1 < y < max(v[0][1], v[1][1]) - 1:
+                n += 1
+    return n
+
+
+def _pick(groups):
+    """groups: lists of (thunk -> (body, geo[, css]), styled edges or None), one list per layout try in order. The
+    first try with a result free of LAYOUT problems and clashes wins (its variant with the fewest crossings); else
+    the result with the fewest problems. LayoutError only when every build raised one."""
+    best, first = None, None
+    for builds in groups:
+        clean = []
+        for make, styled in builds:
+            try:
+                out = make()
+            except core.LayoutError as ex:
+                first = first or ex
+                break  # too wide: the side variants of this try are no narrower
+            bad = 100 * len(_clashes(out[1], styled) if styled is not None else []) + len(core.checker.check(out[1])[0])
+            if not bad:
+                clean.append((crossings(out[1]), len(clean), out))
+            elif best is None or bad < best[0]:
+                best = (bad, out)
+        if clean:
+            return min(clean, key=lambda x: x[:2])[2]
+    if best is None:
+        raise first
+    return best[1]  # the build reports its LAYOUT lines
 
 
 def _validate_graph(m, spec, kinds=None, styles=_STYLE_OK):
@@ -509,8 +589,21 @@ def _validate_graph(m, spec, kinds=None, styles=_STYLE_OK):
     return err
 
 
-def _graph_type(mapper, kinds_ok=None, styles=_STYLE_OK, pre=None):
-    """svg / mermaid / validate for a type that maps its spec onto the base graph()."""
+def _dir(out, d):
+    out[1].setdefault("direction", d or "LR")
+    return out
+
+
+def _drawn_direction(svg, spec):
+    """The direction the SVG layout ended up with (a too-wide picture falls back to TB), so Mermaid matches it."""
+    try:
+        return svg(spec, core)[1].get("direction")
+    except core.LayoutError:
+        return None
+
+
+def _graph_type(mapper, kinds_ok=None, styles=_STYLE_OK, pre=None, spread_tb=False, svg_fn=None):
+    """svg / mermaid / validate for a type that maps its spec onto the base graph(); svg_fn replaces the svg."""
     def svg(spec, core):
         s, n, e, g, k, st = mapper(spec)
         tries = [s]  # fallbacks the author did not rule out: groups as bands, then top-down
@@ -518,19 +611,25 @@ def _graph_type(mapper, kinds_ok=None, styles=_STYLE_OK, pre=None):
             tries.append(dict(s, group_layout="bands"))
         if not spec.get("direction") and s.get("direction") != "TB":  # LR first, so sides are set for LR
             tries = [dict(t, direction="LR") for t in tries] + [dict(t, direction="TB") for t in tries]
-        first = None
+        groups = []
         for t in tries:
-            tb = t.get("direction") == "TB"
-            ee = _part_kinds([dict(x, from_side=None) if tb and x.get("_side") else dict(x) for x in e], tb)
-            try:
-                return core.graph(t, n, ee, g, kinds=k, states=st)
-            except core.LayoutError as ex:
-                first = first or ex
-        raise first
+            tb, builds = t.get("direction") == "TB", []
+            for alt in range(4):
+                ee = _part_kinds([dict(x, from_side=None) if tb and x.get("_side") else dict(x) for x in e], tb, alt)
+                fan = spread_tb and tb  # top-down fan-in: each arrow its own slot on the target's top edge
+                builds.append((lambda t=t, ee=ee, fan=fan: _dir(core.graph(t, n, ee, g, kinds=k, states=st, spread=fan),
+                                                                t.get("direction")),
+                               core.style_graph(t, n, ee, g, k, st)["edges"]))
+                if not any(x.get("_parted") for x in ee):
+                    break  # no edge was moved to a side: the variants are the same picture
+            groups.append(builds)
+        return _pick(groups)
+    svg = svg_fn or svg
 
     def mermaid(spec):
         s, n, e, g, k, st = mapper(spec)
-        return core.mermaid_graph(s, n, e, g, kinds=k, states=st)
+        d = _drawn_direction(svg, spec)
+        return core.mermaid_graph(dict(s, direction=d) if d else s, n, e, g, kinds=k, states=st)
 
     def validate(spec):
         err = pre(spec) if pre else []
@@ -566,6 +665,8 @@ def map_lineage(spec, raw=False):
     edges, groups = _edges(spec, nodes), [dict(g) for g in spec.get("groups") or []]
     if not raw:
         nodes, edges, groups = _focus(spec, nodes, edges, groups)
+    if s["style"] == "airflow" and nodes and all(n.get("state") for n in nodes):
+        return s, nodes, edges, groups, {}, None  # the state colours every box: a kind swatch would show empty
     return s, nodes, edges, groups, _kinds(s, dict(core.DBT_KINDS, **LIN_KINDS)), None
 
 
@@ -592,6 +693,8 @@ def map_dbt(spec, raw=False):
                 if n.get("group") == g["id"]:
                     cnt[n["kind"]] = cnt.get(n["kind"], 0) + 1
             g.setdefault("shape", "rounded")
+            if len(cnt) == 1 and "model" not in cnt:  # sources, seeds, exposures: a resource type, not a folder
+                g.setdefault("tag", core.DBT_KINDS.get(next(iter(cnt)), {}).get("label", next(iter(cnt))))
             g.setdefault("sub", "\n".join(_plural(v, core.DBT_KINDS.get(k, {}).get("label", k))
                                           for k, v in sorted(cnt.items(), key=lambda kv: -kv[1])))
     return s, nodes, edges, groups, dict(core.DBT_KINDS), None
@@ -729,14 +832,71 @@ def _graph_spread(spec, nodes, edges, groups, kinds, states, direction):
                       gap=84 if tall else None)
 
 
+def _dfd_grid(core, s, nodes, edges, kinds):
+    """Level-1 grid: processes in one middle row in spec order, externals above and stores below, each under or over
+    the process it exchanges most flows with, so a process and its store face each other and the two flows of a pair
+    run side by side on their own ports."""
+    st = core.style_graph(s, nodes, edges, [], kinds, None)
+    c = core.canvas(s)
+    sized = {n["id"]: (n, w, h) for n, w, h in core._sized(s, st["nodes"])}
+    role = {x["id"]: x.get("role") for x in nodes}
+    procs = [x["id"] for x in nodes if role[x["id"]] == "process"]
+    lab = max([core.text_width(str(e["label"]), 11, True) + 10 for e in edges if e.get("label")] + [40])
+    pitch = max(sized[p][1] for p in procs) + lab + 48
+    cx = {p: i * pitch for i, p in enumerate(procs)}
+    rows = {0: [], 2: []}
+    for x in nodes:
+        if role[x["id"]] != "process":
+            ends = [o for e in edges for a, o in ((e["from"], e["to"]), (e["to"], e["from"])) if a == x["id"] and o in cx]
+            home = max(procs, key=lambda p: (ends.count(p), -procs.index(p)))  # the process it trades most flows with
+            rows[0 if role[x["id"]] == "external" else 2].append((cx[home], x["id"]))
+    for r, lst in rows.items():
+        lst.sort()
+        if lst:
+            for (_, i), v in zip(lst, core._pav([d for d, _ in lst], [sized[i][1] for _, i in lst], lab + 24, -1e9, 1e9)):
+                cx[i] = v
+    rh = {r: max([sized[i][2] for i in ids] or [0]) for r, ids in
+          ((0, [i for _, i in rows[0]]), (1, procs), (2, [i for _, i in rows[2]]))}
+    band = {0: 0, 1: 0}  # flows crossing the gap below row 0 and below row 1: each needs room for its name
+    for e in edges:
+        rs = {role.get(e["from"]), role.get(e["to"])}
+        if "external" in rs:
+            band[0] += 1
+        elif "store" in rs:
+            band[1] += 1
+    y, ry = core.MARGIN, {}
+    for r in (0, 1, 2):
+        if rh[r]:
+            ry[r] = y
+            y += rh[r] + max(96, 40 + 26 * band.get(r, 0))
+    x0 = core.MARGIN + lab / 2 - min(cx[i] - sized[i][1] / 2 for i in cx)  # room for a flow name beside the outer line
+    if max(cx[i] + sized[i][1] / 2 for i in cx) + x0 + core.MARGIN > core.MAX_W:
+        raise core.LayoutError("grid too wide")
+    for i, (n, w, h) in sized.items():
+        r = 1 if role[i] == "process" else 0 if role[i] == "external" else 2
+        core.node(c, n, x0 + cx[i] - w / 2, ry[r] + (rh[r] - h) / 2, w, h)
+    face = {"external": ("bottom", "top"), "store": ("top", "bottom")}  # (its side, the process's side)
+    for e in st["edges"]:  # rows face each other: no flow enters a store through its open ends
+        for me, other in (("from", "to"), ("to", "from")):
+            if role.get(e[me]) in face and role.get(e[other]) == "process":
+                e.setdefault(me + "_side", face[role[e[me]]][0])
+                e.setdefault(other + "_side", face[role[e[me]]][1])
+    core.route(c, st["edges"], "TB", spread=True)
+    core.legend(c, st["legend"])
+    return core.finish(c)
+
+
 def svg_dfd(spec, core):
     s, n, e, g, k, st = map_dfd(spec)
-    try:
-        body, geo = _graph_spread(s, n, e, g, k, st, spec.get("direction") or "LR")
-    except core.LayoutError:
-        if spec.get("direction"):
-            raise
-        body, geo = _graph_spread(s, n, e, g, k, st, "TB")
+    tries = [spec["direction"]] if spec.get("direction") else ["LR", "grid", "TB"]
+    builds = []
+    for d in tries:
+        if d == "grid":
+            if not g and sum(1 for x in n if x.get("role") == "process") > 1:
+                builds.append([(lambda: _dfd_grid(core, s, n, e, k), None)])
+        else:
+            builds.append([(lambda d=d: _graph_spread(s, n, e, g, k, st, d), None)])
+    body, geo = _pick(builds)[:2]
     stores = {x["id"] for x in n if x.get("role") == "store"}
     css, r = [], 3  # store = two parallel lines: dash the rect stroke so only top and bottom show
     arc = math.pi * r / 2
@@ -884,15 +1044,16 @@ TYPES = {
            "doc": "entity-relationship (crow's foot): tables with PK/FK columns, cardinality, subject areas"},
     "star-schema": {"svg": svg_star, "mermaid": mermaid_star, "validate": validate_star,
                     "doc": "star / snowflake schema: fact in the middle, dimensions left and right, outriggers"},
-    "lineage": dict(_graph_type(map_lineage, set(core.DBT_KINDS) | set(LIN_KINDS)),
+    "lineage": dict(_graph_type(map_lineage, set(core.DBT_KINDS) | set(LIN_KINDS), spread_tb=True),
                     doc="generic lineage / dependency DAG by kind; select, impact; style dbt (default), plain, airflow"),
-    "dbt-lineage": dict(_graph_type(map_dbt, set(core.DBT_KINDS), pre=lambda s: _need(s, "nodes", "dbt resources")),
+    "dbt-lineage": dict(_graph_type(map_dbt, set(core.DBT_KINDS), pre=lambda s: _need(s, "nodes", "dbt resources"),
+                                    spread_tb=True),
                         doc="dbt lineage graph: resource types, layers as columns, tests, overview per layer"),
-    "airflow-dag": dict(_graph_type(map_airflow, styles=("airflow", "plain"), pre=pre_airflow),
+    "airflow-dag": dict(_graph_type(map_airflow, styles=("airflow", "plain"), pre=pre_airflow, spread_tb=True),
                         doc="Airflow Graph view: tasks, operators, states, task groups, collapse, asset outlets"),
     "airflow-overview": dict(_graph_type(map_dags, styles=("airflow", "plain"), pre=pre_dags),
                              doc="multi-DAG overview: schedules, asset-triggered DAGs, TriggerDagRun, sensors"),
-    "dfd": dict(_graph_type(map_dfd, set(DFD_KINDS), styles=("plain",), pre=pre_dfd), svg=svg_dfd,
+    "dfd": dict(_graph_type(map_dfd, set(DFD_KINDS), styles=("plain",), pre=pre_dfd, svg_fn=svg_dfd),
                 doc="data flow diagram: external entities, numbered processes, data stores, named flows"),
     "medallion": dict(_graph_type(map_medallion, set(core.DBT_KINDS) | set(LIN_KINDS), styles=("plain", "dbt"),
                                   pre=pre_medallion),

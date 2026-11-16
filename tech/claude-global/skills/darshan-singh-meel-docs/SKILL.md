@@ -107,6 +107,7 @@ Start with one big-picture diagram (≤ ~7 boxes, readable in ~10 seconds), then
 | Lineage, big DAGs | Auto-laid-out graph (pre-rendered SVG) |
 | Numbers | Simple bars |
 
+- **Engine first:** a type listed in `darshan-singh-meel-diagrams` ("Pick the type") → build it with that skill + its family skill (spec → `diagram.py`, 0 `LAYOUT`), embed the `--fragment` (HTML) or the Mermaid text (Markdown, Confluence). Lineage, dependencies, DAGs: dbt or airflow style, whichever fits. Hand-drawn (`references/html-style.md`) only for what it has no type for.
 - One idea per diagram; a one-line key and a one-line "Notice:" caption each.
 - Real names in Technical; business words in Overview and User guide.
 - Put example values on diagrams where they help (arrow labels, IN/OUT chips, data-journey tables).

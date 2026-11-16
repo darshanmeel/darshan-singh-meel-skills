@@ -24,12 +24,12 @@
 ## `service-blueprint` - what runs behind each user step
 | Field | Rule |
 |---|---|
-| `items` | `{id, lane, col, label, sub?, fail?, tone?, shape?}` |
+| `items` | `{id, lane, col, label, sub?, fail?, tone?, shape?}`; evidence and customer items may stand without an arrow |
 | `lane` | `evidence` (what the customer sees or keeps; document shape), `customer`, `frontstage` (people and screens the customer meets), `backstage` (staff work the customer does not see), `support` (systems, other teams) |
 | `col` | step number 0, 1, 2 … - one column per customer action; items of one step share its column |
 | `fail` | `true` = fail point: red, thick border, tag "fail point" |
 | `edges` | `{from, to, label?}`: what triggers what; base edge fields work |
-| `max_w` | box width, default 170; 150 fits five steps |
+| `max_w` | box width, default 170; 150 fits four steps, five steps need 120 |
 
 - All five lanes are always drawn, with the line of interaction (customer / frontstage), line of visibility (frontstage / backstage) and line of internal interaction (backstage / support); each line's name sits in the header of the lane above it.
 - Arrows between lanes leave sideways and enter from above or below, so none runs along a line.

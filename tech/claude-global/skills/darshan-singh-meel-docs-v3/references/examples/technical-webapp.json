@@ -142,13 +142,13 @@
       {
        "from": "user",
        "to": "ui",
-       "label": "Uses",
+       "label": "Manages tasks",
        "tech": "HTTPS"
       },
       {
        "from": "ui",
        "to": "api",
-       "label": "Calls",
+       "label": "Edits tasks",
        "tech": "JSON/HTTPS"
       },
       {

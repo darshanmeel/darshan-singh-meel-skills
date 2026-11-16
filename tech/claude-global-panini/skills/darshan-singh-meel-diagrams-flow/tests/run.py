@@ -113,6 +113,8 @@ def flowchart_rules():
     assert any("end has no outgoing" in e for e in errs(s)), errs(s)
     s = flow()
     s["nodes"][1]["kind"] = "decision"
+    assert any("needs a label" in e for e in errs(s)), errs(s)
+    s["edges"][1]["label"] = "yes"
     assert any("decision with fewer than 2 exits" in e for e in errs(s)), errs(s)
 
 
@@ -308,6 +310,118 @@ def reference_snippets_build_clean():
             assert not r["errors"], (f.name, spec["id"], r["errors"])
             n += 1
     assert n >= 4, n
+
+
+def _segs(pts):
+    return [(a, b) for a, b in zip(pts, pts[1:])]
+
+
+def _collinear(e, f, tol=8):
+    """Length of the longest stretch two orthogonal polylines share on one line."""
+    best = 0
+    for (a, b) in _segs(e):
+        for (p, q) in _segs(f):
+            for k in (0, 1):  # k = the fixed coordinate (0: vertical segment)
+                if a[k] == b[k] and p[k] == q[k] and abs(a[k] - p[k]) < 1:
+                    lo = max(min(a[1 - k], b[1 - k]), min(p[1 - k], q[1 - k]))
+                    hi = min(max(a[1 - k], b[1 - k]), max(p[1 - k], q[1 - k]))
+                    best = max(best, hi - lo)
+    return best > tol
+
+
+LLM_RETRY = {"id": "llm", "type": "retry-flow", "title": "T", "key": "k", "notice": "n",
+             "steps": [{"id": "in", "label": "Question received", "kind": "start"},
+                       {"id": "ctx", "label": "Build prompt", "sub": "top 5 KB chunks"},
+                       {"id": "llm", "label": "Call primary model", "sub": "large model",
+                        "retry": {"max": 3, "delay": "exp 2s"}, "timeout": "20s"},
+                       {"id": "val", "label": "Validate JSON answer", "kind": "decision"},
+                       {"id": "ok", "label": "Answer sent", "kind": "end"},
+                       {"id": "fb", "label": "Call fallback model", "kind": "fallback", "sub": "small model"},
+                       {"id": "hand", "label": "Hand to human agent", "kind": "alert"}],
+             "edges": [{"from": "in", "to": "ctx"}, {"from": "ctx", "to": "llm"}, {"from": "llm", "to": "val"},
+                       {"from": "val", "to": "ok", "label": "valid"},
+                       {"from": "val", "to": "llm", "label": "invalid, re-ask once", "kind": "retry"},
+                       {"from": "llm", "to": "fb", "kind": "fallback", "label": "3 tries failed"},
+                       {"from": "fb", "to": "hand", "kind": "failure", "label": "error or invalid"},
+                       {"from": "fb", "to": "ok", "label": "valid"}]}
+
+
+@test
+def edges_of_different_kinds_never_share_a_line():
+    for spec in [LLM_RETRY] + [load(n) for n in examples()]:
+        r = d.build(spec)
+        assert not r["errors"], (spec["id"], r["errors"])
+        raw = spec.get("edges") or spec.get("transitions") or spec.get("flows") or []
+        kind = {(e["from"], e["to"]): e.get("kind") or e.get("outcome") or e.get("type") for e in raw}
+        ge = [e for e in r["geometry"]["edges"] if e["from"] != e["to"]]
+        for i, e in enumerate(ge):
+            for f in ge[i + 1:]:
+                if kind.get((e["from"], e["to"])) != kind.get((f["from"], f["to"])):
+                    assert not _collinear(e["points"], f["points"]), (spec["id"], e["from"], e["to"], f["from"], f["to"])
+
+
+@test
+def retry_loop_room_and_mermaid_follow_the_drawn_direction():
+    r = d.build(LLM_RETRY)  # too wide in LR: drawn TB, loop label inside the canvas
+    assert not r["errors"] and r["geometry"]["direction"] == "TB", r["errors"]
+    assert "flowchart TB" in r["mermaid"], r["mermaid"][:200]
+
+
+@test
+def flow_checks_one_start_labelled_exits_no_dead_end():
+    s = flow()
+    s["nodes"].append({"id": "a2", "label": "Second start", "kind": "start"})
+    s["edges"].append({"from": "a2", "to": "b"})
+    assert any("more than one 'start'" in e for e in errs(s)), errs(s)
+    s = flow()
+    s["nodes"].insert(2, {"id": "x", "label": "Stuck"})
+    s["edges"].append({"from": "b", "to": "x"})
+    assert any("x: dead end" in e for e in errs(s)), errs(s)
+    s = load("expense-approval")
+    s["edges"] = [dict(e, label=None) if e["from"] == "amt" else e for e in s["edges"]]
+    assert any("amt -> " in e and "needs a label" in e for e in errs(s)), errs(s)
+    s = load("expense-approval")  # outcomes count as labels; a review without exits is a dead end
+    assert not errs(s), errs(s)
+    s["edges"] = [e for e in s["edges"] if e["from"] != "skip"]
+    assert any("skip: dead end" in e or "step skip" in e for e in errs(s)), errs(s)
+
+
+@test
+def dbt_style_colours_by_the_authors_category():
+    r = d.build(load("release-impact"))
+    assert not r["errors"], r["errors"]
+    for cat in ("check", "build", "deploy", "release"):
+        assert f">{cat}<" in r["svg"], cat
+    s = flow(style="dbt")
+    s["nodes"][1].update(cat="deploy", tag="k8s apply")
+    r = d.build(s)
+    assert not r["errors"] and ">k8s apply<" in r["svg"] and ">deploy<" in r["svg"], r["errors"]
+    s = flow()
+    s["nodes"][1]["cat"] = "deploy"
+    assert any("cat" in e for e in errs(s)), errs(s)
+
+
+@test
+def swimlane_reply_moves_forward():
+    s = lane(pools=[{"id": "p1", "label": "Shop"}, {"id": "p2", "label": "Supplier"}],
+             lanes=[{"id": "a", "label": "Sales", "pool": "p1"}, {"id": "b", "label": "Ops", "pool": "p1"},
+                    {"id": "v", "label": "Supplier", "pool": "p2"}])
+    s["nodes"].insert(2, {"id": "vq", "label": "Quote price", "lane": "v"})
+    s["flows"] = [f for f in s["flows"] if f["from"] != "t1"] + [
+        {"from": "t1", "to": "vq", "type": "message", "label": "request"},
+        {"from": "vq", "to": "g", "type": "message", "label": "quote"}]
+    r = d.build(s)
+    assert not r["errors"], r["errors"]
+    g = d.registry()["swimlane"]["svg"].__globals__
+    col = g["_sw_cols"](s, g["_sw_edges"](s))
+    assert col["vq"] == col["t1"] and col["g"] > col["t1"], col
+    for f in s["flows"]:
+        if (f.get("type") or "sequence") == "sequence":
+            assert col[f["to"]] > col[f["from"]], (f, col)
+    assert r["svg"].count(">Supplier<") == 1, "one-lane pool named like its lane shows one header"
+    assert '["Supplier"]' in r["mermaid"], r["mermaid"]
+    s["flows"].append({"from": "s", "to": "vq", "type": "message"})
+    assert any("start event only catches" in e for e in errs(s)), errs(s)
 
 
 print(f"{len(FAILS)} failed" if FAILS else "all passed")

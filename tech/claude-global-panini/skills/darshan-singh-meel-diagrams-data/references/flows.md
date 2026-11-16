@@ -14,6 +14,8 @@ All three map onto the base node-edge graph (`groups`, `edges`, `direction`, `ma
 - Rules the build enforces: every flow has a `label` (the data it carries); every flow starts or ends at a process (no store → store, external → store, external → external).
 - Plain style only; no legend (the key explains the four symbols). Each flow keeps its own arrowhead.
 - Level 0 (context): one process for the whole system, externals around it. Level 1: the main processes and stores. Level 2: one diagram per level-1 process, numbered 2.1, 2.2, ...
+- Layout: left to right; too wide or a `LAYOUT` line → a grid (processes in one middle row in spec order, externals above, each store under the process it trades most flows with, both flows of a process↔store pair side by side); then top-down. `direction` fixes one.
+- Level 1 over 8 nodes, or a store with 4+ flows: the flow names run out of room between parallel lines → one level-2 diagram per process.
 - Two flows competing for one side: set `to_side` / `from_side` on one of them.
 
 ## `cdc-streaming`
@@ -24,7 +26,7 @@ All three map onto the base node-edge graph (`groups`, `edges`, `direction`, `ma
 ```
 - `role`: `db` (green cylinder), `connector` (hexagon), `topic` (teal pill, mono name), `processor` (blue), `sink` (purple cylinder), `registry` (dashed grey), `dlq` (red pill), `app` (amber).
 - Topics: `partitions` and `retention` become the tag ("12 partitions · keep 7d").
-- Edge kinds: `failure` (red, dead-letter path), `lookup` (dotted, schema registry), `snapshot` (dashed, initial load), `async`.
+- Edge kinds: `failure` (red, dead-letter path), `lookup` (dotted, schema registry), `snapshot` (dashed, initial load), `async`. Kinds leaving one box take different sides, so a lookup never runs along a data line.
 - Six or more steps run top-down; a cluster frame across the flow (`groups`) makes lines cross - prefer the topic tag over a frame.
 - Style `plain` (default) or `dbt`.
 

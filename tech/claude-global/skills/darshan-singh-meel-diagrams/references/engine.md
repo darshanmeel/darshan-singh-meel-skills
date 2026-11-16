@@ -36,6 +36,7 @@ TYPES = {"c4-context": {"svg": svg, "mermaid": mermaid, "validate": validate,
 - Type names are global: prefix nothing, but never reuse a name another family or the base owns (`boxes`, `layers`, `grid`); a clash is skipped and reported in `registry: …` warnings. A module that fails to import is reported, the others still load.
 - Errors: raise `core.LayoutError("what is wrong: the fix")` when a spec cannot be laid out; `build` turns it into `layout: …`. Any other exception becomes `layout crashed: …` - a bug in the module.
 - Common fields (`id`, `type`, `title`, `key`, `notice`) are validated by `build`; `validate` covers only the type's own fields.
+- A `validate` string starting with `WARN ` is a soft finding: `build` reports it as `WARN <id> | <text>` in `warnings`, not as an error (e.g. a dead end in a flow).
 - Extra CSS: `core.add_css(c, "#S .x{fill:var(--dg-red-bg)}")` (`#S` = this diagram's scope) or return it as the third tuple item. Use the `--dg-*` variables only (`references/style.md`).
 
 ## Node-edge types: reuse `graph`
@@ -64,7 +65,7 @@ def mermaid(spec):           # module-level `core` from `import diagram as core`
 | `node(c, n, x, y, w, h, clear=None)` | draws node `n`: `id, label, sub, tag, shape, tone, solid, dashed, strong, dim, mono, align ("left"), tip, href, cls, decision, free`; `clear` = how far arrows stay away (default `CLEAR` 10; e.g. 4 for dense Gantt rows) |
 | `obstacle(c, x, y, w, h, margin=None)` | keeps routed arrows `margin` (default `CLEAR`) away from a rectangle that is not a node: a label column, a note, an outside label |
 | `container(c, id, label, x, y, w, h, members=(), kind="group", tone=None, header_w=0, label_w=None)` | `kind`: `group` (dashed frame, label wrapped to `label_w` or `w`), `boundary` (grey dashed), `lane` / `band` (soft stripe, label in a left header of `header_w`) |
-| `route(c, edges, direction="LR", spread=None)` | orthogonal routing around every drawn node; edges `from, to, label, style, head, tail, tone, kind, dim, from_side, to_side, own_port`. Arrows that all leave or all reach one side share a port (trunk); `spread=True` gives every arrow its own port, `own_port: true` on an edge splits that side only. Ports spread on box, rounded, note, cylinder, document, pill and hexagon (on the outline). Channels on a frame border are avoided, near one cost a little |
+| `route(c, edges, direction="LR", spread=None)` | orthogonal routing around every drawn node; edges `from, to, label, style, head, tail, tone, kind, dim, from_side, to_side, own_port`. Arrows that all leave or all reach one side share a port (trunk) per line look (`kind`, `style`, `tone`, `dim`), so a dashed asset arrow never runs on a solid one; `spread=True` gives every arrow its own port, `own_port: true` on an edge splits that side only. Ports spread on box, rounded, note, cylinder, document, pill and hexagon (on the outline). Channels on a frame border are avoided, near one cost a little |
 | `arrow(c, pts, e)` | an edge along fixed points (sequence messages, timelines); label placed in `finish` |
 | `text(c, x, y, s, cls, anchor, size, mono, bold, check=True)` | free one-line text, registered for overlap checks |
 | `line(c, pts, cls)` / `rect(c, x, y, w, h, cls, rx)` | free axes, lifelines, bars (not checked) |
@@ -75,19 +76,22 @@ def mermaid(spec):           # module-level `core` from `import diagram as core`
 
 Layouts return rectangles `(x, y, w, h)`; draw with `node` / `container`, then `route`:
 `layout_layered(items, edges, direction, groups, gap, cross_gap, group_layout)` (returns `label_w` for `container` in TB) · `ranks(ids, edges, fixed, lower, pull)` · `layout_grid(sizes, cols, gap, start, uniform)` · `layout_lanes(lanes, items, edges, header_w, gap, row_gap)` · `layout_tree(items, direction, gap, start)` · `layout_radial(center, items, gap, child_gap)` · `layout_matrix(row_heads, col_heads, cell_w, cell_h, head_w, head_h, start, gap)` · `time_axis(start, end, x0, x1)` → `(to_x, ticks)`.
-Mermaid helpers: `mermaid_head(spec, kind)`, `mermaid_flowchart(spec, nodes, edges, direction, groups)`, `mm_text(s)`, `mm_id(s)`.
+Mermaid helpers: `mermaid_head(spec, kind)`, `mermaid_flowchart(spec, nodes, edges, direction, groups)`, `mm_text(s)` (a list gives one line per item, joined with `<br/>`), `mm_id(s)`.
 Constants: `MAX_W` 1000, `MARGIN`, `SHAPES`, `TONES`, `HEADS`, `STYLES`, `EDGE_TONES`, `GRAPH_STYLES`, `LIGHT`, `DARK`.
 
 ## Geometry record (what `check.py` reads)
 ```
-{"id", "type", "width", "height", "connected": bool,           # connected false: no unconnected-node warning
+{"id", "type", "style", "direction", "width", "height", "connected": bool,  # connected false: no unconnected-node warning
  "nodes": [{"id", "x", "y", "w", "h", "shape", "text", "decision", "free",
             "inner": [x, y, w, h], "lines": [{"text", "x", "y", "w", "h"}]}],
  "containers": [{"id", "x", "y", "w", "h", "kind", "text", "members": [ids], "header_w"}],
- "edges": [{"from", "to", "points": [[x, y], ...], "label": index into labels or None}],
+ "edges": [{"from", "to", "points": [[x, y], ...], "label": index into labels or None, "look": [kind, style, tone, dim]}],
  "labels": [{"text", "x", "y", "w", "h", "edge": index or None, "kind": "edge|container|text|legend"}]}
 ```
 `node`, `container`, `text`, `arrow`, `route`, `legend` fill it; a type that draws raw SVG with `add` must register what it wants checked itself.
 
 ## Checks (`check.py`, run by every build)
-canvas over 1000px · outside canvas · boxes overlap · member outside its group · box inside or across a foreign group · groups overlap · arrow through a box (also its own) · two unrelated arrows on one line · label on a box, on a foreign line, on another label, across a group border · text overflows its box · decision with fewer than 2 exits · warning: unconnected node.
+canvas over 1000px · outside canvas · boxes overlap · member outside its group · box inside or across a foreign group · groups overlap · arrow through a box (also its own) · two arrows on one line (unrelated, or sharing an end but not the look) · label on a box, on a foreign line, on another label, across a group border · text overflows its box · decision with fewer than 2 exits · warning: unconnected node.
+`build` adds `dag_check(spec, geo)`: cycle in a DAG type or dbt style, edge against the dbt layer order (errors), cycle in airflow style on another type (warning); and `WARN direction fell back to TB` for dbt / airflow styles drawn top-down without a set direction while the key or Notice says column or left to right. `dag_check(spec)` without geo works on the spec alone (edges, `depends_on`, `upstream`; group order as layer order), for a review when the build fails.
+
+`check.route_issues(geo)` → `[(issue, text)]`, advisory only (never a LAYOUT line): arrows of different looks within 5px of each other, unrelated arrows within 5px, crossings, an arrow through a group or boundary frame that holds neither end. A same-look trunk is fine. Families use it to rank layout variants; `python scripts/check.py --routes x.json` prints `ROUTE` lines for a reviewer.

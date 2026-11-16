@@ -152,6 +152,7 @@ Any question about the repo: "what does X do end to end", "how does the upload w
 3. **Answer:**
    - On screen: short bullets + a small diagram or call chain (`ui/upload.py:42 run_upload() → data.save_rows() → CALL SP_UPLOAD`), with IN → OUT and `path:line` per step.
    - HTML: `<graph folder>/answers/<question-slug>.html`, in the docs skill's style and components. Give the path. No graph → on screen only.
+   - Diagram beyond a call chain (flow, sequence, lineage, ER, impact): build it with `darshan-singh-meel-diagrams` + family (0 `LAYOUT`); on screen the Mermaid text, in HTML the `--fragment`; dbt or airflow style for dependency and impact graphs, whichever fits.
    - Say which sources were used. Not found → "not found in repo".
 4. **Graph was out of date:** after answering, the graph question or the staleness note, as `update.py --dry-run` `say` decides (section 5). Never block the answer on it.
 

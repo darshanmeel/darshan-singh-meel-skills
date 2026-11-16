@@ -14,6 +14,9 @@
 - A figure never carries a fact that the text or the code does not also carry.
 - Screenshots: only for UI steps; crop, no personal data, no account ids.
 
+## Engine first
+- A type listed in `darshan-singh-meel-diagrams` ("Pick the type"): write its spec and build it with that skill + its family skill: `diagram.py blog/_code/<slug>/<name>.json -o blog/<slug>-<name>.svg --mermaid blog/_code/<slug>/<name>.mmd`, 0 `LAYOUT`. Markdown → the Mermaid text (or the SVG where the type has no Mermaid form); HTML → the SVG file, which the script inlines. The hand-written SVG rules below are for anything else.
+
 ## Mermaid or SVG
 | Use | When |
 |---|---|

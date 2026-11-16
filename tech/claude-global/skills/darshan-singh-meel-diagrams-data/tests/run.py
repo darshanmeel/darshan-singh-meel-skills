@@ -39,6 +39,10 @@ def errs(spec):
     return d.build(spec)["errors"]
 
 
+def spec(type_, **kw):
+    return dict({"id": "t", "type": type_, "title": "T", "key": "k", "notice": "n"}, **kw)
+
+
 # ---------- registry and examples ----------
 @test
 def family_registers_without_clash():
@@ -121,6 +125,37 @@ def star_outrigger_sits_under_parent():
     p, o = n["dim_product"], n["dim_category"]
     assert abs(p["x"] + p["w"] / 2 - (o["x"] + o["w"] / 2)) < 30 and o["y"] > p["y"] + p["h"], (p, o)
     assert n["dim_date"]["x"] < n["fct_sales"]["x"] < n["dim_store"]["x"]
+
+
+@test
+def er_seven_tables_in_three_areas_fit_top_down():
+    cols = ["id bigint PK", "parent_id bigint FK", "amount decimal(12,2)", "created_on date"]
+    ents = [{"id": x, "area": a, "columns": cols} for x, a in (("accounts", "c"), ("contracts", "c"), ("invoices", "b"),
+            ("invoice_lines", "b"), ("credit_notes", "b"), ("payments", "p"), ("payment_allocations", "p"))]
+    rel = [("accounts", "contracts", "signs"), ("contracts", "invoices", "billed by"), ("invoices", "invoice_lines", "contains"),
+           ("invoices", "credit_notes", "corrected by"), ("accounts", "payments", "pays"),
+           ("payments", "payment_allocations", "split into"), ("invoices", "payment_allocations", "settled by")]
+    s = spec("er", areas=[{"id": "c", "label": "contracts"}, {"id": "b", "label": "billing"}, {"id": "p", "label": "collections"}],
+             entities=ents, relations=[{"from": a, "to": b, "label": lb} for a, b, lb in rel])
+    r = d.build(s)
+    assert not r["errors"] and "direction TB" in r["mermaid"], r["errors"]
+    s["direction"], s["max_w"] = "LR", 400
+    j = " ".join(errs(s))
+    assert "max 1000" in j and "set direction TB" not in j, j
+
+
+@test
+def ordinary_star_fits_by_default():
+    s = spec("star-schema", fact={"id": "fct_invoice_lines", "sub": "1 row per invoice line", "columns": [
+        "invoice_line_key bigint PK", "account_key int FK", "product_key int FK", "issue_date_key int FK",
+        "due_date_key int FK", "net_amount decimal(12,2)"]}, dimensions=[
+        {"id": "dim_account", "via": "account_key", "sub": "SCD type 2",
+         "columns": ["account_key int PK", "account_id bigint", "segment varchar(16)"]},
+        {"id": "dim_product", "via": "product_key", "columns": ["product_key int PK", "sku varchar(32)", "family_key int FK"]},
+        {"id": "dim_date", "via": "issue / due date", "columns": ["date_key int PK", "calendar_date date", "fiscal_quarter char(6)"]},
+        {"id": "dim_product_family", "parent": "dim_product", "columns": ["family_key int PK", "family_name varchar(40)"]}])
+    assert not errs(s), errs(s)
+    assert any("via labels" in e for e in errs(dict(s, max_w=400)))
 
 
 @test
@@ -256,6 +291,60 @@ def mixed_edge_kinds_get_their_own_side():
     assert es[0].get("from_side") is None and es[1]["from_side"] == "bottom", es
 
 
+@test
+def different_kinds_never_share_a_line():
+    cdc = spec("cdc-streaming", nodes=[
+        {"id": "pg", "label": "app.accounts (Postgres)", "role": "db"}, {"id": "dbz", "label": "Debezium connector", "role": "connector"},
+        {"id": "reg", "label": "Schema Registry", "role": "registry"}, {"id": "t", "label": "app.accounts", "role": "topic"},
+        {"id": "enrich", "label": "enrich_accounts (Flink)", "role": "processor"}, {"id": "dlq", "label": "accounts.dlq", "role": "dlq"},
+        {"id": "lake", "label": "bronze.accounts", "role": "sink"}, {"id": "crm", "label": "CRM sync service", "role": "app"}],
+        edges=[{"from": "pg", "to": "dbz", "label": "WAL"}, {"from": "dbz", "to": "reg", "kind": "lookup"}, {"from": "dbz", "to": "t"},
+               {"from": "t", "to": "enrich"}, {"from": "t", "to": "lake"}, {"from": "enrich", "to": "crm"},
+               {"from": "enrich", "to": "dlq", "kind": "failure"}])
+    dags = spec("airflow-overview", dags=[
+        {"id": "ingest_app_db", "schedule": "0 1 * * *", "outlets": ["raw.app"]},
+        {"id": "ingest_stripe", "schedule": "@hourly", "outlets": ["raw.stripe"]},
+        {"id": "dbt_daily", "schedule": ["raw.app", "raw.stripe"], "outlets": ["marts.subs"]},
+        {"id": "churn_retrain", "schedule": "0 4 * * *"}, {"id": "board_export", "schedule": {"any": ["marts.subs", "vendor.fx"]}},
+        {"id": "churn_scoring", "schedule": None}],
+        links=[{"from": "dbt_daily", "to": "churn_retrain", "kind": "sensor", "label": "ExternalTaskSensor"},
+               {"from": "churn_retrain", "to": "churn_scoring", "kind": "trigger"}])
+    for s in (cdc, dags):
+        r = d.build(s)
+        assert not r["errors"], (s["type"], r["errors"])
+        ge = r["geometry"]["edges"]
+        dflt = "asset" if s["type"] == "airflow-overview" else None  # inferred DAG-to-DAG arrows are asset triggers
+        kind = {(x["from"], x["to"]): x.get("kind") for x in s.get("edges") or s.get("links") or []}
+        for i, a in enumerate(ge):
+            for b in ge[i + 1:]:
+                ka, kb = (kind.get((x["from"], x["to"]), dflt) for x in (a, b))
+                if {a["from"], a["to"]} & {b["from"], b["to"]} and ka != kb:
+                    assert not check._shared(a, b), (s["type"], a["from"], a["to"], b["from"], b["to"])
+
+
+@test
+def top_down_lineage_gives_every_arrow_its_own_end():
+    nodes = [{"id": f"s{i}", "label": f"source_system_table_{i}", "kind": "source"} for i in range(4)]
+    nodes += [{"id": "m", "label": "fct_everything", "kind": "table", "depends_on": [f"s{i}" for i in range(4)]}]
+    r = d.build(spec("lineage", nodes=nodes, direction="TB"))
+    ends = [tuple(e["points"][-1]) for e in r["geometry"]["edges"] if e["to"] == "m"]
+    assert not r["errors"] and len(set(ends)) == 4, (r["errors"], ends)
+
+
+@test
+def airflow_style_lineage_shows_states_not_empty_kinds():
+    nodes = [{"id": "a", "kind": "job", "state": "success"}, {"id": "b", "kind": "job", "state": "failed", "depends_on": ["a"]}]
+    kinds = td.map_lineage(spec("lineage", style="airflow", nodes=nodes))[4]
+    assert kinds == {}, kinds
+
+
+@test
+def mermaid_direction_follows_the_drawing():
+    nodes = [{"id": f"t{i}", "label": f"transform_step_number_{i}", "kind": "table"} for i in range(9)]
+    s = spec("lineage", nodes=nodes, edges=[{"from": f"t{i}", "to": f"t{i + 1}"} for i in range(8)])
+    assert "flowchart TB" in d.build(s)["mermaid"]
+
+
 # ---------- DFD, medallion, streaming, mesh ----------
 @test
 def dfd_rules():
@@ -265,6 +354,27 @@ def dfd_rules():
     j = " ".join(errs(s))
     assert "starts or ends at a process" in j and "name the data" in j, j
     assert "style" in " ".join(errs(dict(load("refund-dfd"), style="dbt")))
+
+
+@test
+def dense_level1_dfd_draws_as_a_grid():
+    n = [{"id": "c", "label": "Customer", "role": "external"}, {"id": "k", "label": "Carrier", "role": "external"},
+         {"id": "p1", "label": "Register return", "role": "process", "ref": "1.0"},
+         {"id": "p2", "label": "Inspect goods", "role": "process", "ref": "2.0"},
+         {"id": "p3", "label": "Issue refund", "role": "process", "ref": "3.0"},
+         {"id": "o", "label": "Orders", "role": "store", "ref": "D1"}, {"id": "r", "label": "Returns", "role": "store", "ref": "D2"}]
+    e = [{"from": "c", "to": "p1", "label": "return request"}, {"from": "p1", "to": "c", "label": "return label"},
+         {"from": "o", "to": "p1", "label": "order lines"}, {"from": "p1", "to": "r", "label": "return record"},
+         {"from": "k", "to": "p2", "label": "parcel scan"}, {"from": "r", "to": "p2", "label": "expected items"},
+         {"from": "p2", "to": "r", "label": "inspection result"}, {"from": "r", "to": "p3", "label": "approved return"},
+         {"from": "o", "to": "p3", "label": "payment reference"}, {"from": "p3", "to": "psp", "label": "refund instruction"}]
+    n.append({"id": "psp", "label": "Payment provider", "role": "external"})
+    s = spec("dfd", nodes=n, edges=e)
+    g = {x["id"]: x for x in d.registry()["dfd"]["svg"](s, d)[1]["nodes"]}
+    assert g["p1"]["y"] == g["p2"]["y"] == g["p3"]["y"] and g["c"]["y"] < g["p1"]["y"] < g["r"]["y"], g
+    assert abs((g["r"]["x"] + g["r"]["w"] / 2) - (g["p2"]["x"] + g["p2"]["w"] / 2)) < 1, "a store sits under its main process"
+    r = d.build(s)
+    assert r["geometry"]["width"] <= d.MAX_W and len(r["errors"]) <= 3, r["errors"]
 
 
 @test
@@ -336,6 +446,24 @@ def manifest_converts_to_a_buildable_spec():
     assert any("notice" in e for e in errs(s)), "an empty notice must stop the build"
     s["notice"] = "fct_mrr feeds the board."
     assert not errs(s), errs(s)
+
+
+@test
+def manifest_keeps_semantic_layer_and_overview_key():
+    m = copy.deepcopy(MANIFEST)
+    m["semantic_models"] = {"semantic_model.billing.mrr": {"resource_type": "semantic_model", "name": "fct_mrr",
+                                                           "depends_on": {"nodes": ["model.billing.fct_mrr"]}}}
+    m["metrics"] = {"metric.billing.mrr": {"resource_type": "metric", "name": "mrr", "label": "MRR",
+                                           "depends_on": {"nodes": ["semantic_model.billing.mrr"]}}}
+    s = dbt_manifest.to_spec(m, "b")
+    n = {x["id"]: x for x in s["nodes"]}
+    assert n["sm_fct_mrr"]["layer"] == "semantic" and n["metric_mrr"]["depends_on"] == ["sm_fct_mrr"], n
+    assert "fct_mrr" in n and n["sm_fct_mrr"]["label"] == "fct_mrr"
+    ov = dict(dbt_manifest.to_spec(copy.deepcopy(MANIFEST), "b", view="overview"), notice="n")
+    assert "counts per type" in ov["key"] and "tests" not in ov["key"]
+    groups = td.map_dbt(ov)[3]
+    tags = {g["id"]: g.get("tag") for g in groups}
+    assert tags["sources"] == "source" and tags["exposures"] == "exposure" and not tags.get("staging"), tags
 
 
 def write():

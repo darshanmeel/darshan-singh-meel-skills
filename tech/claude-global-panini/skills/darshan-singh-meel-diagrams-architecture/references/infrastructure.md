@@ -35,7 +35,7 @@ Where things run and what may talk across which border. Frames nest (`parent`); 
 ## `trust-boundaries`
 - Frame kinds: `untrusted` (red) · `dmz` (amber) · `internal` (blue) · `restricted` (green: cardholder, health or personal data) · `third_party` (grey dashed).
 - Box kinds: `actor`, `process`, `store`, `external`, `control` (hexagon: WAF, gateway, vault).
-- Every arrow whose ends sit in different frames is numbered T1, T2, … in spec order and drawn thick; put the control in its label ("T2 mTLS"). Label ≤ 33 characters, the number takes the rest. `number_crossings: false` turns numbering off.
+- Every arrow whose ends sit in different frames is numbered T1, T2, … in spec order and drawn thick; put the control in its label ("T2 mTLS"). Label ≤ 33 characters, the number takes the rest. In LR each gap between columns widens to the labels crossing it, so keep labels short (≤ 20 characters) or use TB when the canvas gets too wide. `number_crossings: false` turns numbering off.
 - List the crossings with their control, owner and threat in a table under the diagram; the picture shows where they are.
 
 ## Layout notes

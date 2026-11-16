@@ -61,7 +61,7 @@ Examples: `nightly-run-gantt` (airflow), `dbt-run-timing` (dbt), `model-release-
 
 ## Sizing limits
 - Canvas ≤ 1000px. Sequence ≤ 6 participants and message labels ≤ 36 characters (longer → a note). Timeline LR up to 6-7 periods, then it turns top-down automatically; ≤ 14 periods.
-- Gantt ≤ ~20 rows; label column ≤ 260px. Journey 2-6 stages. Blueprint ≤ 5 steps at `max_w` 150. RACI ≤ 8 roles. Handoff ≤ 5 time slots (4 in dbt style: pills are wider).
+- Gantt ≤ ~20 rows; label column ≤ 260px. Journey 2-6 stages. Blueprint ≤ 4 steps at `max_w` 150; 5 steps need `max_w` 120. RACI ≤ 8 roles. Handoff ≤ 5 time slots (4 in dbt style: pills are wider).
 - The engine names the fix when something does not fit: fewer participants, shorter labels, split.
 
 ## Common mistakes

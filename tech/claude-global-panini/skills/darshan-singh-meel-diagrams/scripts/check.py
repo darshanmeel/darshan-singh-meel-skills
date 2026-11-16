@@ -1,10 +1,11 @@
 """Layout checker for a diagram geometry record (written by diagram.py --geometry, or built from a spec).
-Usage: python check.py geometry.json|spec.json [...]
+Usage: python check.py [--routes] geometry.json|spec.json [...]
 Prints `LAYOUT <id> | <problem> | <text>` per problem and `WARN <id> | ...` per warning; exit 1 on any problem.
 Problems: canvas over 1000px, boxes overlapping, a box across a group border, arrow through a box, two arrows on one
-line, label on a box / foreign line / another label / group border, text outside its box, decision with fewer than
-2 exits.
-Warning: node with no arrow (skipped when geometry "connected" is false or the node is "free")."""
+line (a shared trunk only when both lines look the same), label on a box / foreign line / another label / group
+border, text outside its box, decision with fewer than 2 exits.
+Warning: node with no arrow (skipped when geometry "connected" is false or the node is "free").
+--routes also prints `ROUTE <id> | <issue> | <text>` from route_issues (advisory, no effect on the exit code)."""
 import json
 import sys
 from pathlib import Path
@@ -103,9 +104,10 @@ def check(geo):
                 elif seg_hits_rect(p, q, _shrink(n, 0.5)):
                     P.append(("arrow through box", f"{name} / {n['text'] or n['id']}"))
         for f in edges[k + 1:]:
-            if {e.get("from"), e.get("to")} & {f.get("from"), f.get("to")}:
-                continue
-            if _shared(e, f):
+            ends = {e.get("from"), e.get("to")} & {f.get("from"), f.get("to")}
+            if ends and e.get("look") == f.get("look"):
+                continue  # a shared trunk is fine only when both lines look the same (kind, style, tone, dim)
+            if _shared(e, f, 12 if ends else 8):  # different looks from one corner (diamond) share only the stub
                 P.append(("two arrows share a line", f"{name} / {f.get('from')} -> {f.get('to')}"))
     for i, lb in enumerate(labels):
         r = (lb["x"] + 1, lb["y"] + 1, lb["w"] - 2, lb["h"] - 2)
@@ -153,12 +155,73 @@ def collinear_overlap(a, b, min_len=8):
     return False
 
 
-def _shared(e, f):
-    return any(collinear_overlap(a, b) for a in _segs(e) for b in _segs(f))
+def _shared(e, f, min_len=8):
+    return any(collinear_overlap(a, b, min_len) for a in _segs(e) for b in _segs(f))
+
+
+def _near(a, b, min_len=8, tol=5):
+    """True when axis-parallel segments a and b run on (nearly) one line, within tol px, for more than min_len px."""
+    (p, q), (r, t) = a, b
+    for i in (0, 1):  # i = the axis both segments keep constant
+        if abs(p[i] - q[i]) < .5 and abs(r[i] - t[i]) < .5 and abs(p[i] - r[i]) < tol:
+            j = 1 - i
+            return min(max(p[j], q[j]), max(r[j], t[j])) - max(min(p[j], q[j]), min(r[j], t[j])) > min_len
+    return False
+
+
+def _trim(pts, a, b):
+    """Polyline pts with a px cut from the start and b px from the end."""
+    def cut(p, n):
+        while n > 0 and len(p) > 1:
+            (x0, y0), (x1, y1) = p[0], p[1]
+            d = abs(x1 - x0) + abs(y1 - y0)
+            if d > n:
+                return [(x0 + (x1 - x0) * n / d, y0 + (y1 - y0) * n / d)] + list(p[1:])
+            p, n = p[1:], n - d
+        return list(p)
+    return cut(cut(list(pts), a)[::-1], b)[::-1]
+
+
+def route_issues(geo):
+    """Advisory routing issues check() does not count (a same-look trunk stays fine):
+    arrows of different looks running within 5px of each other beyond 14px from a shared box, unrelated arrows
+    within 5px, arrows crossing, and arrows through a group or boundary frame that holds neither end.
+    Families use it to pick the cleanest layout variant; reviewers read it. -> [(issue, text)]"""
+    edges, conts, out = geo.get("edges", []), geo.get("containers", []), []
+    for k, e in enumerate(edges):
+        for f in edges[k + 1:]:
+            ends = {e.get("from"), e.get("to")} & {f.get("from"), f.get("to")}
+            if ends and e.get("look") == f.get("look"):
+                continue
+            sf, st = e.get("from") == f.get("from"), e.get("to") == f.get("to")
+            a, b = _trim(e["points"], 14 * sf, 14 * st), _trim(f["points"], 14 * sf, 14 * st)
+            if any(_near(s, t, 24 if ends else 8) for s in zip(a, a[1:]) for t in zip(b, b[1:])):
+                out.append(("arrows run on one line", f"{e.get('from')} -> {e.get('to')} / {f.get('from')} -> {f.get('to')}"))
+            hit = False
+            for p, q in _segs(e):
+                for r, s in _segs(f):
+                    h, v = ((p, q), (r, s)) if abs(p[1] - q[1]) < .5 else ((r, s), (p, q))
+                    if hit or abs(h[0][1] - h[1][1]) > .5 or abs(v[0][0] - v[1][0]) > .5:
+                        continue
+                    x, y = v[0][0], h[0][1]
+                    hit = (min(h[0][0], h[1][0]) + 3 < x < max(h[0][0], h[1][0]) - 3
+                           and min(v[0][1], v[1][1]) + 3 < y < max(v[0][1], v[1][1]) - 3)
+            if hit:
+                out.append(("arrows cross", f"{e.get('from')} -> {e.get('to')} / {f.get('from')} -> {f.get('to')}"))
+    for e in edges:
+        for g in conts:
+            if g.get("kind") not in ("group", "boundary") or {e.get("from"), e.get("to")} & set(g.get("members", [])):
+                continue
+            r = (g["x"] + 2, g["y"] + 2, g["w"] - 4, g["h"] - 4)
+            if any(seg_hits_rect(p, q, r) for p, q in _segs(e)):
+                out.append(("arrow through foreign frame", f"{e.get('from')} -> {e.get('to')} / {g.get('text') or g['id']}"))
+    return out
 
 
 def main(paths):
     sys.stdout.reconfigure(encoding="utf-8")
+    routes = "--routes" in paths
+    paths = [p for p in paths if p != "--routes"]
     bad = 0
     for p in paths:
         d = json.loads(Path(p).read_text(encoding="utf-8"))
@@ -173,6 +236,9 @@ def main(paths):
             lines = [x if x.startswith(("LAYOUT", "WARN")) else f"ERROR {d.get('id', '?')} | {x}"
                      for x in r["errors"] + r["warnings"]]
             probs = [x for x in lines if not x.startswith("WARN")]
+            d = r["geometry"] or {}
+        if routes and d.get("edges") is not None:
+            lines += [f"ROUTE {d.get('id', '?')} | {a} | {b}" for a, b in route_issues(d)]
         for x in lines:
             print(x)
         bad += len(probs)

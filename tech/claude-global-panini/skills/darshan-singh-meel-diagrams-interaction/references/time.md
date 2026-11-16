@@ -21,7 +21,7 @@
 | Field | Rule |
 |---|---|
 | `start`, `end` | the window: ISO dates (`2026-01-05`) or times of day (`02:00`, `02:00:30`); every task must fit |
-| `tasks` | `{id, label, section?, start? / after?, end? / days? / minutes? / milestone?}` plus `status`, `kind` or `state` by style, `queued`, `note`, `strong` |
+| `tasks` | `{id, label, section?, start? / after?, end? / days? / minutes? / milestone?}` plus `status`, `kind` or `state` by style, `queued`, `note`, `strong`; the longest label sets the label column (≤ 260px, about 34 monospace characters) |
 | `sections` | optional `{id, label}`: phases (roadmap), task groups (Airflow) or threads (dbt) |
 | `today` | a date or time; red dashed line labelled "today" |
 | `markers` | `[{date, label}]`: lilac dotted lines (freeze, SLA, budget review) |
@@ -29,14 +29,15 @@
 | `arrows` | `false` hides dependency arrows (`after` still sets the start) |
 | `legend` | `false` hides the legend |
 
-- **Start:** `start`, or `after: [ids]` = starts when the latest of them ends (finish-to-start, drawn as an arrow into the bar's left end; into a milestone's top).
+- **Start:** `start`, or `after: [ids]` = starts when the latest of them ends (finish-to-start, drawn as an arrow into the bar's left end; into a milestone's top). With both, `start` may not be before the latest of them ends (a spec error).
 - **Length:** `end` (dates: inclusive; times: the instant it stopped), `days` (dates), `minutes` (times, decimals allowed), or `milestone: true` (zero length, black diamond).
 - **Look by style:**
   - `plain` - `status`: `done` green, `active` teal ("in progress"), `planned` dashed, `crit` red ("critical path"), `risk` amber. Spec `kinds` adds or overrides statuses.
-  - `airflow` - `state` from the Airflow task-instance states (base `AIRFLOW_STATES`); `queued: "02:14"` draws the wait for a worker slot as a dashed grey bar before the run; the note defaults to "state · duration".
+  - `airflow` - `state` from the Airflow task-instance states (base `AIRFLOW_STATES`); `queued: "02:14"` draws the wait for a worker slot as a dashed grey bar before the run; the note defaults to "state · duration" (`45s`, `18m`, `1h 14m`).
+  - Retries: one row per try (`payments_extract (try 1)`); earlier tries `up_for_retry`, the last try its final state.
   - `dbt` - `kind` from the base `DBT_KINDS` (model, seed, snapshot, test, …), solid bars; sections are threads; the note defaults to the duration.
 - `note` = short text next to the bar; it moves to the other side or gets a background when a marker line runs under it.
-- Mermaid: `gantt`, `dateFormat YYYY-MM-DD` or `HH:mm:ss`, `section`, tags `done` / `active` / `crit` / `milestone`, `after a b`, markers as `vert` (dates only). Mermaid draws its own today line on the viewing date.
+- Mermaid: `gantt`, `dateFormat YYYY-MM-DD` or `HH:mm:ss`, `section`, tags `done` / `active` / `crit` / `milestone` (airflow: `success` → done, `running` → active, `failed` → crit; queued time stays SVG only), `after a b` (a later explicit start keeps the time and a `%%` comment), markers as `vert`. Mermaid draws its own today line on the viewing date.
 
 ```json
 {"id": "q1-plan", "type": "gantt", "title": "Q1 plan", "key": "bar = work · diamond = milestone",

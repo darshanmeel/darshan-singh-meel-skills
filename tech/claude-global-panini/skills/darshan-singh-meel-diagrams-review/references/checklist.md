@@ -21,7 +21,7 @@ Each finding needs evidence: `path:line` in the source, the spec field, a script
 ## 3. Notation per type (facts from the family references; else `references/sources.md`)
 | Type | Check |
 |---|---|
-| `sequence` (UML) | sync = solid line, filled head; async = open head; reply = dashed. Activation bars only where a call is open. Frames `alt/opt/loop/par/break/critical` with a `[guard]`; ≤ 2 nesting levels |
+| `sequence` (UML) | sync = solid line, filled head; async = open head; reply = dashed. Activation bars only where a call is open. Frames `alt/opt/loop/par/break/critical` with a `[guard]`; ≤ 2 nesting levels; `alt` has ≥ 2 operands, else `opt` (may happen) or `break` (ends the rest) (script); an activation bar does not end inside one operand while another path goes on |
 | `state-machine` (UML) | one top-level initial; states are conditions, not actions; transitions `event [guard] / action`; choice with ≥ 2 guarded exits (`else`); no outgoing from a final |
 | `activity` (UML) | fork 1 in / ≥ 2 out, join ≥ 2 in / 1 out; every decision exit guarded |
 | `swimlane` (BPMN-lite) | start thin circle, end thick circle; sequence flow solid inside one pool only; message flow dashed with open circle, between pools only; gateway marks X / + / O match the logic (parallel really runs both) |
@@ -29,7 +29,7 @@ Each finding needs evidence: `path:line` in the source, the spec field, a script
 | `deployment`, `network-topology` | nodes nest as in the infra code (account / VPC or VNet / subnet); no vendor logos; ports and protocols on the edges that cross a boundary |
 | `er`, `star-schema` | crow's foot ends match the FKs and nullability (`0..1` nullable FK, `1` NOT NULL); parent on the one side; identifying solid, non-identifying dashed; fact grain stated in the fact header |
 | `lineage`, `dbt-lineage`, `medallion` | acyclic (script); columns follow the layer order sources → staging → intermediate → marts → exposures, no edge backwards (script); `tests` counts from the manifest; overview counts add up to the detail diagrams |
-| `airflow-dag`, `airflow-overview`, `orchestration` | acyclic (script); task ids and operators as in the DAG file; `state` values are Airflow task instance states and the legend shows them (script: legend); `trigger_rule` other than `all_success` written in the box; asset or trigger edges match `outlets` / `schedule=[Asset]` / `TriggerDagRunOperator` |
+| `airflow-dag`, `airflow-overview`, `orchestration` | acyclic (script); task ids and operators as in the DAG file; `state` values are Airflow task instance states and the legend shows them (script: legend); `trigger_rule` other than `all_success` written in the box; each state agrees with its upstream states and trigger rule - with `all_success` a failed upstream gives `upstream_failed`, a skipped one `skipped` (script); the Notice names the same states as the boxes; asset or trigger edges match `outlets` / `schedule=[Asset]` / `TriggerDagRunOperator` |
 | `gantt` | every bar inside `start`-`end`; `after` respected - no bar starts before its dependency ends (script); milestone = zero length; today line only on a dated plan; queued before start (airflow look) |
 | `timeline` | periods in time order; equal spacing stated in the key (not to scale) |
 | `quadrant`, `stakeholder-map` | both axes named with low and high ends (script); quadrant names match the axes (top right = high x, high y); dot positions defensible from the source |
@@ -47,8 +47,8 @@ Each finding needs evidence: `path:line` in the source, the spec field, a script
 - Notice is one concrete observation the reader should take away, visible in the picture; not a restated title (script).
 
 ## 6. Layout and look (PNG, light and dark)
-- 0 `LAYOUT` lines (script): no overlap, no arrow through a box, no label on a foreign line, no text outside its box, canvas ≤ 1000px.
-- Looking: follow every arrow end to end. Arrows merged into one trunk so the reader cannot tell which source feeds which target → Should `own_port: true` or `spread`. Long detours, arrows hugging a frame border, labels far from their line → Should.
+- 0 `LAYOUT` lines (script; a page SVG is re-checked from its `data-geo` record or its spec): no overlap, no arrow through a box, no label on a foreign line, no text outside its box, canvas ≤ 1000px.
+- Looking: follow every arrow end to end. Sequence: message labels readable where they cross another lifeline; participant heads aligned at the top. Arrows merged into one trunk so the reader cannot tell which source feeds which target → Should `own_port: true` or `spread`. Long detours, arrows hugging a frame border, labels far from their line → Should.
 - Words wrap whole; identifiers break after `/ . _ - :` only.
 - Dark PNG: every label readable, frames visible, no box that vanishes into the background.
 
@@ -59,7 +59,7 @@ Each finding needs evidence: `path:line` in the source, the spec field, a script
 
 ## 8. Embedding
 - Every diagram on one page has its own `id` (script: duplicate id) - shared ids break CSS scope and arrow markers.
-- HTML: the `<figure>` scroll frame (`overflow-x:auto`) so the diagram scrolls sideways on phones (script); static only - no script, no external fonts or images (script).
+- HTML: the scroll frame (`overflow-x:auto` on the `<figure>` frame, or the `.dgv` class in docs v3) with key and Notice text under it so the diagram scrolls sideways on phones (script); static only - no script, no external fonts or images (script).
 - Markdown and Confluence: Mermaid block with key and Notice as text under it (script); types with no Mermaid form embed the SVG file, and the file exists (script).
 - Paths relative to the repo root (script: machine path).
 - A review or review-v2 report: at most one diagram per finding, only where it explains the issue.
@@ -67,4 +67,6 @@ Each finding needs evidence: `path:line` in the source, the spec field, a script
 ## 9. Mermaid parity (when the diagrams go to Markdown or Confluence)
 - Every node of the SVG appears in the Mermaid text (script, for flowchart, state and ER output); groups and edge labels match.
 - Mermaid starts with the frontmatter title and carries `%% Key` and `%% Notice` (script).
+- Every `classDef` with a pale fill sets `color:` to a dark ink; without it a dark Mermaid theme writes light text on the pale fill (script SHOULD).
+- Sequence frame labels go out without their own brackets (`alt bad signature`), as on the Mermaid sequence page; the renderer likely adds `[ ]` itself - check: https://mermaid.js.org/syntax/sequenceDiagram.html.
 - Types with no Mermaid form (`*` in the base table) are not hand-written in Mermaid.

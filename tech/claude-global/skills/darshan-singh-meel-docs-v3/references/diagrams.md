@@ -37,7 +37,7 @@ Load `darshan-singh-meel-diagrams` and the family skill of the type before you w
 | Job DAG and schedule | dbt → `dbt-lineage` `view: "overview"` (one pill per layer), then one detail per layer · Airflow (dag nodes) → `airflow-overview`, then one `airflow-dag` per DAG · other schedulers (ADF, Databricks Workflows, cron jobs) → `orchestration` style airflow |
 | Endpoints | `c4-component` (routes → handlers → stores) · one request through the tiers → `request-path` |
 | Events and messages | `event-driven` · `cdc-streaming` |
-| Main flows | ipo always; plan `diagram: true` → `flow` (one actor) · `sequence` (3+ parties exchange messages) · `state-machine` (a record moves through statuses) · `retry-flow` (retries, dead letters) · `agent-loop` (an agent run) |
+| Main flows | ipo always; plan `diagram: true` → `flow` (one actor) · `sequence` (3+ parties exchange messages) · `state-machine` (a record moves through statuses) · `retry-flow` (retries, dead letters) · `agent-loop` (an agent run). A file-scan plan has `diagram: false` everywhere and no Main flows entry: Main flows diagrams need the graph |
 | Data model | `er` per plan ER area (title `ER: <area>`) · `star-schema` for a mart |
 | Business rules | `state-machine` (status lifecycle) · `decision-tree` (nested rule branches), optional |
 | Security and access | `trust-boundaries`, optional |
@@ -57,6 +57,7 @@ The engine's three graph styles fit any node-edge type in any section and any re
 | `plain` (default) | anything else | rounded boxes, groups as frames |
 
 - A job chain fits both. Use `dbt` when the reader asks what is downstream. Use `airflow` when the reader asks what runs, in what order, and what failed.
+- `dbt` on calls (service-map, call graph): every edge must point the way impact flows. Draw a call provider → consumer (label "used by"), or keep caller → callee and list the groups callers first. Calls mixed with data edges in one dbt picture give a back-link ERROR.
 - Never force a style: a C4 diagram, ER or sequence has its own notation.
 
 ## The `diagram` block
@@ -73,6 +74,7 @@ The engine's three graph styles fit any node-edge type in any section and any re
   - Main flows: leave the title out. The build writes `<h3>, <type>`, e.g. `POST /orders → 201, sequence`.
   - Data model: an `er` or `star-schema` diagram is titled `ER: <area>` and counts for the plan's ER areas, in order.
 - **`key` and `notice`:** required, one line each. The key is shown once per section.
+  - The key names only colours and shapes the picture draws, in the engine legend's words. C4: the in-scope system is dark, external systems grey, containers blue.
 - **Where it goes:**
   - In place of any `flow`, `er` or `journey` in a recipe.
   - Up to 3 more in any section. More → WARN, except in Main flows.

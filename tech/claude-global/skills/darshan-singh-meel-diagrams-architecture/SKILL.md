@@ -34,22 +34,22 @@ Types for "what is the system made of, where does it run, what talks to what". T
 ## Graph style
 | Type | Styles | Why |
 |---|---|---|
-| `integration-map`, `event-driven`, `service-map` | `plain`, `dbt` | dependency graphs: dbt look gives layer columns, solid pills by kind, overview and `dim` impact views |
+| `integration-map`, `event-driven`, `service-map` | `plain`, `dbt`, `airflow` | dependency graphs: dbt look gives layer columns, solid pills by kind, overview and `dim` impact views; airflow look when the boxes are jobs with run state |
 | `c4-*` | `plain` | C4 has its own notation |
 | `request-path` | `plain` | one numbered route, not a dependency graph |
 | `deployment`, `network-topology`, `trust-boundaries`, `layered-architecture` | own layout | nested frames or bands; the graph styles need flat columns |
-- `airflow` fits none of these: nothing here has a task run state. Service health uses `state: healthy | degraded | down`. CI/CD or deploy pipelines are flow or data family diagrams in airflow style.
+- Pick the look that fits the content: usually `plain` or `dbt`; `airflow` when the exchanges are scheduled jobs with run state (nightly batch, SFTP pulls). Service health uses `state: healthy | degraded | down`. CI/CD or deploy pipelines are flow or data family diagrams.
 - Example in dbt style: `references/examples/booking-services.json` (impact view) and `booking-integrations.json`.
 
 ## Process
 1. Pick the type above; read its reference file.
 2. Write the spec with real names, technology and ports from the code or infra files (Terraform, Helm, compose, config); never invent a component.
-3. Build: `python ../darshan-singh-meel-diagrams/scripts/diagram.py spec.json -o x.svg --mermaid x.mmd --png x.png` (or `build(spec)`); fix every error and `LAYOUT` line.
-4. Look at the PNG, light and `--dark`; read every label; check the picture answers the title.
+3. Build: `python ../darshan-singh-meel-diagrams/scripts/diagram.py spec.json -o x.svg --mermaid x.mmd --png x.png` (or `build(spec)`); fix every error and `LAYOUT` line. The engine already tries default ranks and moves one or two arrows to another side to remove defects.
+4. Look at the PNG, light and `--dark`; read every label; check the picture answers the title. 0 `LAYOUT` lines is not enough: look for arrows that cross, merge, run along a frame border or pass through a zone that holds neither end (`route_issues(geometry)` in `scripts/types_architecture.py` lists them); in network and trust diagrams the path of a line is a fact.
 5. Embed as the base `references/embedding.md` says (inline SVG in HTML, Mermaid in Markdown).
 
 ## Notation rules
-- C4: every element has a type tag, a one-line description, and technology for containers and components; every line is one direction with a specific label ("Charges card [REST]", never "Uses"); the key says what colours and shapes mean.
+- C4: every element has a type tag, a one-line description, and technology for containers and components; every line is one direction with a specific label ("Charges card [REST]", never "Uses" or "Calls"; rejected) and technology between containers; the key says what colours and shapes mean.
 - Boxes say their kind in text (tag), so the picture works in greyscale; the product goes in `sub`, never a logo.
 - Frames: grey dashed = boundary (account, region, environment, third party); tinted = network, subnet, cluster or trust zone, named in the legend.
 - Red only for failure, risk or a broken rule (DLQ, `down`, untrusted zone, layer-rule break).
@@ -59,7 +59,9 @@ Types for "what is the system made of, where does it run, what talks to what". T
 - ≤ 9 boxes per diagram, ≤ 6 frames, nesting ≤ 4 deep; over that → split per zone, tier or environment.
 - Canvas ≤ 1000px: the engine tries LR, then TB; it errors with the fix when both are too wide.
 - A group that reads better as a line: `layout: "row"` (side by side) or `"column"` (stacked).
-- Crowded ports in TB (two labelled arrows leaving one box downwards): send one out sideways with `from_side`.
+- Crowded ports in TB (two labelled arrows leaving one box downwards): the engine tries `from_side`; if a defect stays, set it yourself.
+- C4: default ranks put people and sending externals first, receiving-only externals last; still messy → set `rank` on every node (person 0, containers by flow, external stores last).
+- Trust and network in LR: each column gap widens to its crossing labels; keep crossing labels ≤ 20 characters or use TB.
 
 ## Common mistakes
 - Mixing C4 levels (components of two containers, or containers on a context diagram).

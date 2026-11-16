@@ -29,7 +29,7 @@ Find what would embarrass the author after publishing: code that does not run, f
 4. **Claims** - list every checkable statement (`references/format.md`, claim table). Open the linked page: does it say this, for this version? No link → find the official page. Mark each `confirmed` · `wrong` · `not supported by the link` · `unsourced` · `not checked`.
 5. **Read as the reader** in the brief, once, top to bottom, only title + summary + headings + takeaways first: is the thesis there, is the title kept? Then the full text.
 6. **Checklist** - walk areas 1-12 of `<blog skill dir>/references/review.md`; style against `references/style.md` of that skill.
-7. **Figures and HTML** - render or open every figure; compare `blog/<slug>.html` (if present) with the Markdown: rebuild with `--html` into a copy and diff.
+7. **Figures and HTML** - render or open every figure; engine-built figures (spec beside the post, or a `dg-` SVG) → `darshan-singh-meel-diagrams-review` rules (`review_diagrams.py`, re-derive from the post's code and text); compare `blog/<slug>.html` (if present) with the Markdown: rebuild with `--html` into a copy and diff.
 8. **Report** - `reviews/tech-blog-review-<YYYY-MM-DD-HHMM>.md` from `references/format.md`; add `/reviews/` to `.gitignore` when the folder is first created. Reply: verdict, counts, the Must lines, report path.
 9. **Self-check** - the reply ends with the CLAUDE.md Self-check (confidence · main risk · went well), logged with `python ~/.claude/hooks/log-work.py --skill darshan-singh-meel-tech-blog-review …`; this skill runs as a fork, so it logs its own entry.
 

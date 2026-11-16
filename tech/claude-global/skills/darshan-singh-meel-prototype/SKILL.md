@@ -23,6 +23,7 @@ A prototype is throwaway code that answers one question. The question decides th
 |---|---|
 | UI branch: look, layout, states | `darshan-singh-meel-frontend` + the build skill: `darshan-singh-meel-frontend-react` or `darshan-singh-meel-streamlit` |
 | Data and Pipeline branches: SQL, dbt, Airflow rules, pinned versions, official docs | `darshan-singh-meel-data-platform` (`sql.md`, `dbt.md`, `airflow.md` as needed) |
+| A diagram in `NOTES.md` (task graph, data model, state machine, flow of the answer) | `darshan-singh-meel-diagrams` + family: Mermaid text, 0 `LAYOUT` |
 | Real data is needed to answer | stop; `darshan-singh-meel-notebook` |
 | The question itself is unclear | `darshan-singh-meel-ask-me` |
 | Absorbing the answer into real code | `darshan-singh-meel-code` (tests and error handling start there) |

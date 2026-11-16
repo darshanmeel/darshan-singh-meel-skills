@@ -1,0 +1,174 @@
+{
+ "id": "release-impact",
+ "type": "flowchart",
+ "style": "dbt",
+ "direction": "TB",
+ "title": "Release train: what a failed contract test blocks",
+ "key": "Pill colour = stage kind (legend) · red = failed step · faded = not affected by the failure",
+ "notice": "A failed contract test blocks both staging deploys and the release; docs build and lint still finish.",
+ "groups": [
+  {
+   "id": "ci",
+   "label": "CI"
+  },
+  {
+   "id": "stg",
+   "label": "Staging"
+  },
+  {
+   "id": "rel",
+   "label": "Release"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "push",
+   "label": "merge to main",
+   "kind": "start",
+   "group": "ci"
+  },
+  {
+   "id": "lint",
+   "label": "lint",
+   "group": "ci",
+   "dim": true,
+   "kind": "step",
+   "cat": "check"
+  },
+  {
+   "id": "unit",
+   "label": "unit_tests",
+   "group": "ci",
+   "kind": "step",
+   "cat": "check"
+  },
+  {
+   "id": "ct",
+   "label": "contract_tests",
+   "group": "ci",
+   "tone": "red",
+   "kind": "step",
+   "cat": "check"
+  },
+  {
+   "id": "img",
+   "label": "build_image",
+   "group": "ci",
+   "kind": "step",
+   "cat": "build"
+  },
+  {
+   "id": "docs",
+   "label": "build_docs",
+   "group": "ci",
+   "dim": true,
+   "kind": "step",
+   "cat": "build"
+  },
+  {
+   "id": "dapi",
+   "label": "deploy_api_stg",
+   "group": "stg",
+   "kind": "step",
+   "cat": "deploy"
+  },
+  {
+   "id": "dweb",
+   "label": "deploy_web_stg",
+   "group": "stg",
+   "kind": "step",
+   "cat": "deploy"
+  },
+  {
+   "id": "smoke",
+   "label": "smoke_tests",
+   "group": "stg",
+   "kind": "step",
+   "cat": "check"
+  },
+  {
+   "id": "tag",
+   "label": "tag_release",
+   "group": "rel",
+   "kind": "step",
+   "cat": "release"
+  },
+  {
+   "id": "notes",
+   "label": "publish_notes",
+   "group": "rel",
+   "kind": "step",
+   "cat": "release"
+  },
+  {
+   "id": "done",
+   "label": "released",
+   "kind": "end",
+   "group": "rel"
+  }
+ ],
+ "edges": [
+  {
+   "from": "lint",
+   "to": "img",
+   "dim": true
+  },
+  {
+   "from": "unit",
+   "to": "img"
+  },
+  {
+   "from": "ct",
+   "to": "img"
+  },
+  {
+   "from": "img",
+   "to": "dapi"
+  },
+  {
+   "from": "img",
+   "to": "dweb"
+  },
+  {
+   "from": "dapi",
+   "to": "smoke"
+  },
+  {
+   "from": "dweb",
+   "to": "smoke"
+  },
+  {
+   "from": "smoke",
+   "to": "tag"
+  },
+  {
+   "from": "docs",
+   "to": "notes",
+   "dim": true
+  },
+  {
+   "from": "tag",
+   "to": "notes"
+  },
+  {
+   "from": "push",
+   "to": "lint"
+  },
+  {
+   "from": "push",
+   "to": "unit"
+  },
+  {
+   "from": "push",
+   "to": "ct"
+  },
+  {
+   "from": "push",
+   "to": "docs"
+  },
+  {
+   "from": "notes",
+   "to": "done"
+  }
+ ]
+}

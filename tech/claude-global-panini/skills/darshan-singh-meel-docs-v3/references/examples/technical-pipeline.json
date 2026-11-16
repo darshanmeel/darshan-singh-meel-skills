@@ -241,7 +241,8 @@
       {
        "from": "land",
        "to": "job",
-       "label": "Reads new rows"
+       "label": "Reads new rows",
+       "tech": "Spark"
       },
       {
        "from": "job",
@@ -251,12 +252,14 @@
       {
        "from": "job",
        "to": "clean",
-       "label": "Merges"
+       "label": "Merges",
+       "tech": "Spark"
       },
       {
        "from": "clean",
        "to": "views",
-       "label": "Read by"
+       "label": "Read by",
+       "tech": "SQL views"
       },
       {
        "from": "users",
@@ -373,7 +376,8 @@
         }
        ]
       }
-     ]
+     ],
+     "direction": "TB"
     }
    },
    {

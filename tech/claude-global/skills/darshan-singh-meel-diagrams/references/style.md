@@ -20,6 +20,7 @@ Same palette and fonts as the docs pages (`darshan-singh-meel-docs-v2/references
 | edge | #40454D | #B7BCC4 | arrows |
 
 - Tone = light fill + strong border. `solid` = strong fill + card-coloured text (dbt style).
+- `dim` = outline and fill at 40 % opacity, text in `muted` at 80 % (≥ 3:1 in both modes; the review checks it); a dim `solid` pill becomes an outline pill.
 - Dark mode: `prefers-color-scheme: dark` unless the page sets `data-theme="light"`; `data-theme="dark"` forces it.
 - No colours outside this table, no gradients, shadows, icons, logos or decoration.
 

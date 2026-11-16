@@ -20,11 +20,11 @@ One JSON object per diagram. Common fields first, then the type's own fields (fa
  "nodes": [{"id": "pay", "label": "Charge card", "sub": "PSP REST", "group": "api"}],
  "edges": [{"from": "pay", "to": "ok", "label": "202", "style": "dashed"}]}
 ```
-- **Node:** `id`, `label` (required); `sub` (second line, muted), `tag` (small mono line), `shape` (`box rounded pill circle cylinder document actor cloud diamond hexagon note`; default rounded), `tone` (`plain soft teal amber lav green red blue ink`), `solid` (filled with the strong colour), `dashed`, `strong` (thick border), `dim` (faded, for impact views), `mono`, `align: "left"`, `tip` (hover text), `href`, `group`, `rank` (fix the layer), `col` + `row` on every node (fixed grid instead of layered layout), `decision` (checked for ≥ 2 exits), `free` (no unconnected warning).
+- **Node:** `id`, `label` (required); `sub` (second line, muted), `tag` (small mono line), `shape` (`box rounded pill circle cylinder document actor cloud diamond hexagon note`; default rounded), `tone` (`plain soft teal amber lav green red blue ink`), `solid` (filled with the strong colour), `dashed`, `strong` (thick border), `dim` (faded outline, muted text that stays readable; a solid pill turns outline; for impact views), `mono`, `align: "left"`, `tip` (hover text), `href`, `group`, `rank` (fix the layer), `col` + `row` on every node (fixed grid instead of layered layout), `decision` (checked for ≥ 2 exits), `free` (no unconnected warning).
 - Style fields read by styles: `kind`, `state`, `operator`, `materialized`, `tests`.
 - **Edge:** `from`, `to`; `label` (≤ 36 chars), `style` (`solid dashed dotted thick`), `head` / `tail` (`filled open none tri diamond odiamond circle one only-one zero-one many one-many zero-many`), `tone` (`red blue green muted teal amber lav`), `kind` (see edge kinds), `dim`, `from_side` / `to_side` (`left right top bottom`), `own_port` (true: this arrow does not join a shared trunk, so its label reads as its own).
 - **Group:** `id`, `label`, `tone`; for overviews also `tag`, `sub`, `kind`, `state`, `shape`.
-- `direction`: `LR` (default) or `TB`; when LR would exceed 1000px and no direction is set, the engine tries TB.
+- `direction`: `LR` (default) or `TB`; when LR would exceed 1000px and no direction is set, the engine tries TB. Layers are then rows: for dbt and airflow styles the build warns `direction fell back to TB` when the key or Notice still says column or left to right.
 
 ## Graph style fields (any node-edge type)
 | Field | Values | Effect |

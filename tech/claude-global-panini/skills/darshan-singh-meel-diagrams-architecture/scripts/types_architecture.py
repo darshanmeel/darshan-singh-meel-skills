@@ -1,6 +1,8 @@
 """Architecture diagram types for the darshan-singh-meel-diagrams engine: C4 context / container / component,
 deployment, network topology, integration map, event-driven, service map, layered architecture, request path,
 trust boundaries. Loaded by the engine's registry; defines TYPES and runs nothing at import."""
+import itertools
+
 import diagram as core
 
 # ---------- kinds: node look per kind (our palette; C4 prescribes no colours) ----------
@@ -97,7 +99,8 @@ SERVICE_KINDS = {
 SERVICE_STATES = {"down": {"tone": "red", "label": "down"}, "degraded": {"tone": "amber", "label": "degraded"},
                   "healthy": {"tone": "green", "label": "healthy"}}
 TIER_KINDS = {
-    "client": {"tone": "plain", "shape": "actor", "label": "client"},
+    "user": {"tone": "plain", "shape": "actor", "label": "user"},
+    "client": {"tone": "plain", "shape": "rounded", "label": "client app"},
     "edge": {"tone": "lav", "shape": "box", "label": "edge"},
     "app": {"tone": "blue", "shape": "box", "label": "application"},
     "cache": {"tone": "green", "shape": "rounded", "label": "cache"},
@@ -111,8 +114,134 @@ EDGE_SYNC = {"sync": {"label": "sync call"}, "async": {"style": "dashed", "label
 
 # ---------- shared helpers ----------
 def flat(spec, nodes, edges, groups, kinds=None, states=None):
-    """core.graph with one port per arrow (no shared trunk), so every labelled arrow keeps its own line and label."""
-    return core.graph(spec, nodes, edges, groups, kinds, states, spread=True)
+    """core.graph with one port per arrow (no shared trunk), so every labelled arrow keeps its own line and label;
+    crowded ports are sent out sideways when that removes a defect (search_layout)."""
+    def draw(_, sides):
+        return core.graph(spec, nodes, _with_sides(edges, sides), groups, kinds, states, spread=True)
+    return search_layout(draw, [None], edges)
+
+
+def _trim(pts, a, b):
+    """Polyline pts with a px cut from the start and b px from the end."""
+    def cut(p, n):
+        while n > 0 and len(p) > 1:
+            (x0, y0), (x1, y1) = p[0], p[1]
+            d = abs(x1 - x0) + abs(y1 - y0)
+            if d > n:
+                f = n / d
+                return [(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f)] + p[1:]
+            p, n = p[1:], n - d
+        return p
+    return cut(cut(list(pts), a)[::-1], b)[::-1]
+
+
+def _near(a, b, min_len=8, tol=5):
+    """True when axis-parallel segments a and b run on (nearly) one line, within tol px, for more than min_len px."""
+    (p, q), (r, t) = a, b
+    for i in (0, 1):  # i = the axis both segments keep constant
+        if abs(p[i] - q[i]) < .5 and abs(r[i] - t[i]) < .5 and abs(p[i] - r[i]) < tol:
+            j = 1 - i
+            return min(max(p[j], q[j]), max(r[j], t[j])) - max(min(p[j], q[j]), min(r[j], t[j])) > min_len
+    return False
+
+
+def route_issues(geo, frames=True):
+    """Defects the base check.py does not count yet: arrows sharing (or running within 5px of) a line although they
+    share an end (beyond the first or last 14px there), arrows crossing, arrows drawn along a frame border, and arrows
+    running through a frame that holds neither end.
+    -> [(problem, text)]. Used to pick the cleanest layout variant and in tests."""
+    edges, out = geo.get("edges", []), []
+    segs = lambda pts: list(zip(pts, pts[1:]))  # noqa: E731
+    for k, e in enumerate(edges):
+        for f in edges[k + 1:]:
+            same_from, same_to = e["from"] == f["from"], e["to"] == f["to"]
+            a = _trim(e["points"], 14 * same_from, 14 * same_to)
+            b = _trim(f["points"], 14 * same_from, 14 * same_to)
+            ml = 24 if {e["from"], e["to"]} & {f["from"], f["to"]} else 8  # a short join next to a shared box reads fine
+            if any(_near(s, t, ml) for s in segs(a) for t in segs(b)):
+                out.append(("arrows share a line", f"{e['from']} -> {e['to']} / {f['from']} -> {f['to']}"))
+        for f in edges[k + 1:]:
+            for (p, q) in segs(e["points"]):
+                for (r, s) in segs(f["points"]):
+                    h, v = ((p, q), (r, s)) if abs(p[1] - q[1]) < .5 else ((r, s), (p, q))
+                    if abs(h[0][1] - h[1][1]) > .5 or abs(v[0][0] - v[1][0]) > .5:
+                        continue
+                    x, y = v[0][0], h[0][1]
+                    if (min(h[0][0], h[1][0]) + 3 < x < max(h[0][0], h[1][0]) - 3
+                            and min(v[0][1], v[1][1]) + 3 < y < max(v[0][1], v[1][1]) - 3):
+                        out.append(("arrows cross", f"{e['from']} -> {e['to']} / {f['from']} -> {f['to']}"))
+    for e in edges:  # a line drawn on a frame border reads as part of the frame
+        for g in geo.get("containers", []):
+            if g.get("kind") not in ("group", "boundary"):
+                continue
+            x0, y0, x1, y1 = g["x"], g["y"], g["x"] + g["w"], g["y"] + g["h"]
+            sides = [((x0, y0), (x1, y0)), ((x0, y1), (x1, y1)), ((x0, y0), (x0, y1)), ((x1, y0), (x1, y1))]
+            if any(_near(s, b, 20) for s in segs(e["points"]) for b in sides):
+                out.append(("arrow along frame border", f"{e['from']} -> {e['to']} / {g.get('text') or g['id']}"))
+    for e in edges if frames else []:
+        for g in geo.get("containers", []):
+            if g.get("kind") not in ("group", "boundary") or {e["from"], e["to"]} & set(g.get("members", [])):
+                continue
+            r = (g["x"] + 2, g["y"] + 2, g["w"] - 4, g["h"] - 4)
+            if any(core.checker.seg_hits_rect(p, q, r) for p, q in segs(e["points"])):
+                out.append(("arrow through foreign frame", f"{e['from']} -> {e['to']} / {g.get('text') or g['id']}"))
+    return out
+
+
+def _issues(res, frames):
+    return core.checker.check(res[1])[0], route_issues(res[1], frames)
+
+
+def _score(res, frames):
+    probs, extra = _issues(res, frames)
+    return (len(probs), sum(p != "arrows cross" for p, _ in extra), len(extra))
+
+
+def search_layout(draw, starts, edges, frames=True, limit=4):
+    """Cleanest drawing: draw(start, sides) for each start (e.g. with and without default ranks), then one or two of
+    up to limit arrows (in a defect or leaving a crowded port, defects first; edges without from_side) sent out of
+    another side, as {edge index: side}. Ranks base LAYOUT problems first, then shared lines and foreign frames, then
+    crossings; stops at the first clean result. -> draw()'s result."""
+    best, score, start = None, None, None
+    for st in starts:
+        try:
+            res = draw(st, {})
+        except core.LayoutError:
+            continue
+        sc = _score(res, frames)
+        if score is None or sc < score:
+            best, score, start = res, sc, st
+        if sc == (0, 0, 0):
+            return res
+    if best is None:
+        return draw(starts[0], {})  # raises the layout error with its fix
+    outs = {}
+    for e in edges:
+        outs[e["from"]] = outs.get(e["from"], 0) + 1
+    probs, extra = _issues(best, frames)
+    worst = " ".join(x for p, x in probs + extra if p != "arrows cross")
+    cross = " ".join(x for p, x in extra if p == "arrows cross")
+    tier = [0 if f"{e['from']} -> {e['to']}" in worst else 1 if f"{e['from']} -> {e['to']}" in cross else 2
+            for e in edges]
+    ks = sorted((k for k, e in enumerate(edges) if not e.get("from_side") and (tier[k] < 2 or outs[e["from"]] > 1)),
+                key=lambda k: tier[k])[:limit]
+    combos = sorted((c for c in itertools.product((None, "left", "right", "top", "bottom"), repeat=len(ks))
+                     if 0 < sum(map(bool, c)) <= 2), key=lambda c: sum(map(bool, c)))  # at most two changes
+    for combo in combos:
+        try:
+            res = draw(start, {k: v for k, v in zip(ks, combo) if v})
+        except core.LayoutError:
+            continue
+        sc = _score(res, frames)
+        if sc < score:
+            best, score = res, sc
+        if sc == (0, 0, 0):
+            break
+    return best
+
+
+def _with_sides(edges, sides):
+    return [dict(e, from_side=sides[k]) if k in sides else e for k, e in enumerate(edges)]
 
 
 def _kinds_err(spec, allowed, what="kind", key="nodes", field="kind"):
@@ -153,7 +282,7 @@ def _c4_key(n):
     return n.get("kind", "") + ("_ext" if n.get("external") else "")
 
 
-def _c4_parts(spec):
+def _c4_parts(spec, auto_rank=True):
     nodes, groups = [], []
     for g in spec.get("groups") or []:
         kind = g.get("kind") or C4_BOUNDARY[spec["type"]]
@@ -168,14 +297,35 @@ def _c4_parts(spec):
                       "tip": n.get("tip")})
     edges = [dict(e, label=" ".join(x for x in (e.get("label"), f"[{e['tech']}]" if e.get("tech") else None) if x))
              for e in spec.get("edges") or []]
+    if auto_rank and not any(n.get("rank") is not None for n in nodes):
+        _c4_ranks(spec, nodes, edges)
     return nodes, edges, groups
 
 
+def _c4_ranks(spec, nodes, edges):
+    """Default ranks when the spec sets none: people and externals that send anything in at the entry side, externals
+    that only receive at the far side, the rest by flow. Keeps actors left and providers right instead of scattered."""
+    kind = {n["id"]: n for n in spec["nodes"]}
+    outs = {e["from"] for e in edges}
+    first = {i for i, n in kind.items() if n["kind"] == "person" or (n.get("external") and i in outs)}
+    last = {i for i, n in kind.items() if n.get("external") and i not in outs and i not in first}
+    rank, _ = core.ranks([n["id"] for n in nodes], edges, fixed={i: 0 for i in first})
+    end = max(rank.values() or [0])
+    for n in nodes:
+        n["rank"] = end if n["id"] in last else rank[n["id"]]
+
+
 def svg_c4(spec, core):
-    nodes, edges, groups = _c4_parts(spec)
-    body, geo = flat(spec, nodes, edges, groups, kinds=C4_KINDS)
+    def draw(auto, sides):
+        nodes, edges, groups = _c4_parts(spec, auto)
+        return core.graph(spec, nodes, _with_sides(edges, sides), groups, C4_KINDS, spread=True)
+    body, geo = search_layout(draw, [True, False], spec.get("edges") or [])
     return body, geo, ["#S .dg-grp>rect{fill:none;stroke:var(--dg-muted);stroke-dasharray:7 4}"
                        "#S .dg-grp>text{fill:var(--dg-muted)}"]
+
+
+VAGUE = {"uses", "use", "calls", "call", "talks to", "connects to", "interacts with", "sends", "reads", "writes",
+         "data", "request", "requests"}
 
 
 def validate_c4(spec):
@@ -190,10 +340,17 @@ def validate_c4(spec):
             err.append(f"node {i}: desc required (C4 - every element has a short description)")
         if k in ("container", "database", "queue", "component") and not n.get("tech"):
             err.append(f"node {i}: tech required (C4 - every container and component names its technology)")
+    kind = {n.get("id"): n.get("kind") for n in spec.get("nodes") or []}
     for e in spec.get("edges") or []:
         lab = " ".join(x for x in (e.get("label"), f"[{e['tech']}]" if e.get("tech") else None) if x)
+        name = f"edge {e.get('from')} -> {e.get('to')}"
         if not e.get("label"):
-            err.append(f"edge {e.get('from')} -> {e.get('to')}: label required (C4 - every line says what it does)")
+            err.append(f"{name}: label required (C4 - every line says what it does)")
+        elif str(e["label"]).strip().lower() in VAGUE:
+            err.append(f"{name}: label '{e['label']}' says nothing - name the action (\"Charges card\", "
+                       "\"Reads orders\")")
+        if not e.get("tech") and {kind.get(e.get("from")), kind.get(e.get("to"))} <= {"container", "database", "queue"}:
+            err.append(f"{name}: tech required between containers (protocol, e.g. \"JSON/HTTPS\", \"SQL\")")
         elif len(lab) > 36:
             err.append(f"edge {e.get('from')} -> {e.get('to')}: label plus [tech] over 36 characters: shorten it")
     if spec["type"] != "c4-context" and not spec.get("groups"):
@@ -252,7 +409,17 @@ def nest_layout(nodes, edges, groups, direction="LR", gap=None, cross_gap=24):
     ids = [n["id"] for n, _, _ in nodes]
     rank, _ = core.ranks(ids, [e for e in edges if e["from"] in size and e["to"] in size])
     labs = [core.text_width(str(e["label"]), 11, True) + 40 for e in edges if e.get("label")]
-    gap = gap or (max([56] + [x - 12 for x in labs]) if lr else (64 if labs else 56))
+    base_gap = gap or (56 if lr else (64 if labs else 56))
+
+    def _gap(a, b):
+        """Gap between two neighbouring columns: in LR wide enough for the labels of the arrows that cross it."""
+        if gap or not lr:
+            return base_gap
+        sa = {x for k, i in a for x in (leaves(i) if k == "g" else [i])}
+        sb = {x for k, i in b for x in (leaves(i) if k == "g" else [i])}
+        w = [core.text_width(str(e["label"]), 11, True) + 28 for e in edges if e.get("label") and
+             ((e["from"] in sa and e["to"] in sb) or (e["from"] in sb and e["to"] in sa))]
+        return max([base_gap] + w)
 
     def _cross_gap(col):
         """Wider gap across the flow when an arrow links two members of one column (room for the line and label)."""
@@ -267,13 +434,20 @@ def nest_layout(nodes, edges, groups, direction="LR", gap=None, cross_gap=24):
     def leaves(g):
         return child_nodes.get(g, []) + [x for k in kids.get(g, []) for x in leaves(k)]
 
+    def _passes(g, inner):
+        """True when an arrow leaves frame g from a box that is not inside one of its inner frames."""
+        own = set(leaves(g)) - {x for k in inner for x in leaves(k)}
+        return bool(inner) and any((e["from"] in own) != (e["to"] in own) and not
+                                   (e["from"] in leaves(g) and e["to"] in leaves(g)) for e in edges)
+
     def crank(ch):
         kind, i = ch
         return rank[i] if kind == "n" else min(rank[x] for x in leaves(i))
 
     def box(g):
         """(w, h, [(kind, id, dx, dy)]) for frame g (None = canvas), offsets from its top-left."""
-        chs = [("g", k) for k in kids.get(g, [])] + [("n", i) for i in child_nodes.get(g, [])]
+        chs = sorted([("g", k) for k in kids.get(g, [])] + [("n", i) for i in child_nodes.get(g, [])],
+                     key=crank)  # source before target, also in row and column layout
         sub = {k: box(k) for kind, k in chs if kind == "g"}
         dims = {ch: (size[ch[1]] if ch[0] == "n" else sub[ch[1]][:2]) for ch in chs}
         mode = (gs.get(g) or {}).get("layout") or "flow"
@@ -290,8 +464,11 @@ def nest_layout(nodes, edges, groups, direction="LR", gap=None, cross_gap=24):
         mains = [max((dims[ch][0] if lr else dims[ch][1]) for ch in col) for col in cols]
         crosses = [sum((dims[ch][1] if lr else dims[ch][0]) for ch in col) + cg * (len(col) - 1)
                    for col, cg in zip(cols, cgs)]
-        M = sum(mains) + gap * (len(cols) - 1)
+        gaps = [_gap(a, b) for a, b in zip(cols, cols[1:])] + [0]
+        M = sum(mains) + sum(gaps)
         C = max(crosses or [0])
+        lane = 48 if g and _passes(g, [i for k, i in chs if k == "g"]) else 0  # a free lane on the far side, so a
+        # line leaving this frame need not cut through its inner frame
         pad = core.GP + 10 if g else 0  # room for a line between a box and its frame border
         lines = core.label_lines(gs[g]["label"], (M if lr else C) + 2 * pad) if g else []
         lab_w = max([core.text_width(x, 11, True) for x in lines] + [0])
@@ -301,12 +478,12 @@ def nest_layout(nodes, edges, groups, direction="LR", gap=None, cross_gap=24):
             first = cols[0]
             x0 = (C - crosses[0]) / 2 + dims[first[0]][0] / 2
             shift = max(0, lab_w + 22 - (pad + x0))
-        cw, ch_ = (M, C + shift) if lr else (C + shift, M)
+        cw, ch_ = (M, C + shift + lane) if lr else (C + shift + lane, M)
         W, H = cw + 2 * pad, ch_ + pad * 2 + head
         if g:  # a frame is at least as wide as its label
             W = max(W, lab_w + 24)
         place, m = [], 0
-        for col, mw, cs, cg in zip(cols, mains, crosses, cgs):
+        for col, mw, cs, cg, gp in zip(cols, mains, crosses, cgs, gaps):
             cpos = (C - cs) / 2 + (0 if lr else shift)
             for chh in col:
                 w, h = dims[chh]
@@ -317,7 +494,7 @@ def nest_layout(nodes, edges, groups, direction="LR", gap=None, cross_gap=24):
                     dx, dy = pad + cpos, head + pad + m + (mw - h) / 2
                     cpos += w + cg
                 place.append((chh[0], chh[1], dx, dy))
-            m += mw + gap
+            m += mw + gp
         return W, H, place, sub
 
     pos, grect, order = {}, {}, []
@@ -342,7 +519,6 @@ def nest_layout(nodes, edges, groups, direction="LR", gap=None, cross_gap=24):
 def nested(spec, nodes, edges, groups, kinds, zones, direction=None):
     """Style nodes through the base (kinds, legend), lay out nested frames, draw, route. -> (body, geometry)."""
     st = core.style_graph(dict(spec, style="plain", view=None, collapse=None), nodes, edges, groups, kinds)
-    c = core.canvas(spec)
     sized = [(n, *core.size(n, n.get("max_w", spec.get("max_w", 200)))) for n in st["nodes"]]
     direction = direction or spec.get("direction")
     lay = nest_layout(sized, st["edges"], groups, direction or "LR")
@@ -360,21 +536,25 @@ def nested(spec, nodes, edges, groups, kinds, zones, direction=None):
             members[g] = [n["id"] for n, _, _ in sized if n.get("group") == g] + [x for k in kids.get(g, []) for x in mem(k)]
         return members[g]
 
-    used = []
-    for g in lay["order"]:
-        z = zones.get(gs[g].get("kind"), {})
-        frame = gs[g].get("frame") or z.get("frame") or "group"
-        tone = gs[g].get("tone") or z.get("tone")
-        core.container(c, g, gs[g]["label"], *lay["groups"][g], members=mem(g), kind=frame, tone=tone if frame == "group" else None)
-        if gs[g].get("kind") in zones:
-            used.append(gs[g]["kind"])
-    for n, _, _ in sized:
-        core.node(c, n, *lay["pos"][n["id"]])
-    core.route(c, st["edges"], direction or "LR")
-    leg = [{"label": zones[k]["label"], "tone": zones[k].get("tone") if zones[k].get("frame") != "boundary" else None,
-            "dashed": True} for k in dict.fromkeys(used)]
-    core.legend(c, leg + st["legend"])
-    return core.finish(c)
+    def draw(_, sides):
+        c = core.canvas(spec)
+        used = []
+        for g in lay["order"]:
+            z = zones.get(gs[g].get("kind"), {})
+            frame = gs[g].get("frame") or z.get("frame") or "group"
+            tone = gs[g].get("tone") or z.get("tone")
+            core.container(c, g, gs[g]["label"], *lay["groups"][g], members=mem(g), kind=frame,
+                           tone=tone if frame == "group" else None)
+            if gs[g].get("kind") in zones:
+                used.append(gs[g]["kind"])
+        for n, _, _ in sized:
+            core.node(c, n, *lay["pos"][n["id"]])
+        core.route(c, _with_sides(st["edges"], sides), direction or "LR", spread=True)
+        leg = [{"label": zones[k]["label"], "tone": zones[k].get("tone") if zones[k].get("frame") != "boundary" else None,
+                "dashed": True} for k in dict.fromkeys(used)]
+        core.legend(c, leg + st["legend"])
+        return core.finish(c)
+    return search_layout(draw, [None], st["edges"])
 
 
 def validate_nested(spec, kinds, zones, why):
@@ -410,7 +590,7 @@ def validate_nested(spec, kinds, zones, why):
     return err
 
 
-def mermaid_nested(spec, nodes, edges, groups, kinds):
+def mermaid_nested(spec, nodes, edges, groups, kinds, zones=None):
     st = core.style_graph(dict(spec, style="plain", view=None, collapse=None), nodes, edges, groups, kinds)
     out = core.mermaid_head(spec, f"flowchart {spec.get('direction') or 'LR'}")
     kids = _tree(groups)
@@ -446,6 +626,14 @@ def mermaid_nested(spec, nodes, edges, groups, kinds):
         f, s = core.MM_TONE[t]
         out.append(f"  classDef {t} fill:{f},stroke:{s}" + (",color:#FFFFFF" if t == "ink" else ""))
         out.append(f"  class {','.join(ids)} {t}")
+    for g in groups:  # frames tinted as in the SVG, so the key holds for Markdown readers too
+        z = (zones or {}).get(g.get("kind"), {})
+        frame, tone = g.get("frame") or z.get("frame") or "group", g.get("tone") or z.get("tone")
+        if frame == "boundary":
+            out.append(f"  style {core.mm_id('g_' + g['id'])} fill:none,stroke:#5B6068,stroke-dasharray:6 4")
+        elif tone in core.MM_TONE:
+            f, s = core.MM_TONE[tone]
+            out.append(f"  style {core.mm_id('g_' + g['id'])} fill:{f},stroke:{s},stroke-dasharray:6 4")
     return "\n".join(out) + "\n"
 
 
@@ -462,7 +650,7 @@ def validate_infra(spec):
 
 
 def mermaid_infra(spec):
-    return mermaid_nested(spec, *_infra(spec), INFRA_KINDS)
+    return mermaid_nested(spec, *_infra(spec), INFRA_KINDS, INFRA_ZONES)
 
 
 def _trust(spec):
@@ -492,7 +680,7 @@ def validate_trust(spec):
 
 
 def mermaid_trust(spec):
-    return mermaid_nested(spec, *_trust(spec), TRUST_KINDS)
+    return mermaid_nested(spec, *_trust(spec), TRUST_KINDS, TRUST_ZONES)
 
 
 # ---------- flat node-edge types on the base graph ----------
@@ -503,7 +691,6 @@ def svg_integ(spec, core):
 
 def validate_integ(spec):
     err = core.check_graph(spec) + core.check_style(spec) + _kinds_err(spec, INTEG_KINDS)
-    err += _style_err(spec, ("plain", "dbt"), "airflow style is for executable steps with run state")
     err += [f"edge {e.get('from')} -> {e.get('to')}: via '{e['via']}' is not one of {', '.join(INTEG_VIA)}"
             for e in spec.get("edges") or [] if e.get("via") and e["via"] not in INTEG_VIA]
     return err
@@ -546,7 +733,6 @@ def svg_events(spec, core):
 
 def validate_events(spec):
     err = core.check_graph(spec) + core.check_style(spec) + _kinds_err(spec, EVENT_KINDS)
-    err += _style_err(spec, ("plain", "dbt"), "airflow style is for executable steps with run state")
     kind = {n.get("id"): n.get("kind") for n in spec.get("nodes") or []}
     if "topic" not in kind.values():
         err.append("nodes: at least one kind 'topic' (the channel events go through)")
@@ -576,8 +762,9 @@ def svg_services(spec, core):
 
 def validate_services(spec):
     err = core.check_graph(spec) + core.check_style(spec) + _kinds_err(spec, SERVICE_KINDS)
-    err += _kinds_err(spec, SERVICE_STATES, "state", field="state")
-    err += _style_err(spec, ("plain", "dbt"), "services are not task runs; use state healthy|degraded|down")
+    states = dict(SERVICE_STATES, **(core.AIRFLOW_STATES if spec.get("style") == "airflow" else {}),
+                  **(spec.get("states") or {}))
+    err += _kinds_err(spec, states, "state", field="state")
     err += [f"edge {e.get('from')} -> {e.get('to')}: call '{e['call']}' is not sync or async"
             for e in spec.get("edges") or [] if e.get("call") and e["call"] not in EDGE_SYNC]
     return err
@@ -701,7 +888,8 @@ def svg_layered(spec, core):
     if (core.MARGIN + W + (side_w + 20 if side else 0)) + core.MARGIN > core.MAX_W + 1:
         raise core.LayoutError("layers would exceed 1000px: shorten item labels, fewer items per layer, or drop "
                                "the cross-cutting column into its own band")
-    core.route(c, [{k: v for k, v in e.items() if k != "_bad"} for e in edges], "TB")
+    core.route(c, [{k: v for k, v in e.items() if k != "_bad"} for e in edges], "TB", spread=True)  # own port: a red
+    # rule break never shares its last segment with an allowed call
     leg = st["legend"] + ([{"label": "breaks the layer rule", "edge": {"tone": "red"}}] if any(e.get("_bad") for e in edges) else [])
     core.legend(c, leg)
     return core.finish(c)
@@ -737,15 +925,15 @@ def mermaid_layered(spec):
             a, b = core.MM_SHAPE.get(n.get("shape") or "rounded", ("(", ")"))
             out.append(f"    {core.mm_id(n['id'])}{a}{core.mm_text(n['label'])}{b}")
         out.append("  end")
-    ls = spec["layers"]
-    for a, b in zip(ls, ls[1:]):
-        out.append(f"  {core.mm_id('l_' + a['id'])} ~~~ {core.mm_id('l_' + b['id'])}")
     bad = []
-    for k, e in enumerate(_layer_edges(spec)):
+    for k, e in enumerate(_layer_edges(spec)):  # real edges first: linkStyle counts links in definition order
         lab = f"|{core.mm_text(e['label'])}|" if e.get("label") else ""
         out.append(f"  {core.mm_id(e['from'])} -->{lab} {core.mm_id(e['to'])}")
         if e.get("_bad"):
             bad.append(str(k))
+    ls = spec["layers"]
+    for a, b in zip(ls, ls[1:]):
+        out.append(f"  {core.mm_id('l_' + a['id'])} ~~~ {core.mm_id('l_' + b['id'])}")
     if bad:
         out.append(f"  linkStyle {','.join(bad)} stroke:#A12D2D")
     return "\n".join(out) + "\n"

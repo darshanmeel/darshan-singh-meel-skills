@@ -20,6 +20,8 @@ Every spec also has the common fields of the base (`id`, `type`, `title`, `key`,
 - `teams[]`: base node fields plus `type`: `stream-aligned` (amber), `platform` (blue), `enabling` (teal), `complicated-subsystem` (lav); override or add with `kinds`.
 - `interactions[]`: base edge fields plus `mode`: `collaboration` (thick lav), `x-as-a-service` (solid), `facilitating` (dashed teal); override with `edge_kinds`.
 - Base style fields apply: `style`, `view`, `collapse`, `group_layout`, `states`, `direction`.
+- `airflow` style: the team type is the tag. With `states` on teams the fill shows the state (sub = state label) and the team-type colours leave the legend.
+- Every interaction keeps its own port, so a label never sits on a line shared by two teams.
 - Mermaid: flowchart via the base `mermaid_graph`.
 
 ## capability-map
@@ -39,6 +41,8 @@ Every spec also has the common fields of the base (`id`, `type`, `title`, `key`,
  "stages": [{"label": "Code review", "sub": "peers", "time": 2, "wait": 20, "ca": 80, "tone": "amber"}]}
 ```
 - `stages[]`: `label`, `sub` (team), `time` (process time), `wait` (waiting before this stage), `ca` (% complete and accurate, shown as tag), `tone` (mark bottlenecks amber), `id`.
+- The first stage's `wait` sits between `start` and stage 1, so it needs `start` (validation error otherwise).
+- Width: up to 4 stages with `start` and `end`, 6 without.
 - `unit`: one unit for every number (`min`, `h`, `d`). Totals: lead time = Σ time + Σ wait; flow efficiency = Σ time / lead time.
 - Mermaid: flowchart LR with waits as link text.
 
@@ -64,9 +68,9 @@ Every spec also has the common fields of the base (`id`, `type`, `title`, `key`,
  "quadrants": {"top_left": {"label": "Quick wins", "tone": "green"}, "top_right": "Major projects"},
  "items": [{"label": "Freshness alerts", "x": 0.15, "y": 0.82, "sub": "2 weeks", "kind": "data"}]}
 ```
-- `items[]`: `label`, `x`, `y` from 0 to 1, `sub`, `tone` (dot colour, default ink), `kind` (looked up in `kinds`, legend).
+- `items[]`: `label`, `x`, `y` from 0 to 1 but never exactly 0.5 (the divider: validation error), `sub`, `tone` (dot colour, default ink), `kind` (looked up in `kinds`, legend).
 - `quadrants`: `top_left`, `top_right`, `bottom_left`, `bottom_right`, each a string or `{label, tone}` (default soft).
-- `size`: `[w, h]` of the plot (default `[600, 440]`). Labels sit next to their dot inside its quadrant; a thin leader line joins label and dot when they had to move. Crowded → `layout: no free place …`.
+- `size`: `[w, h]` of the plot (default `[600, 440]`). Labels sit next to their dot inside its quadrant, never across a divider; a thin leader line joins label and dot when they had to move. Crowded → `layout: no free place inside its quadrant …`. About 8 items fit the default size; 10-12 → `size: [720, 500]` or drop `sub`.
 - Mermaid: quadrantChart (quadrant-1 = top right).
 
 ## stakeholder-map
@@ -74,7 +78,7 @@ Every spec also has the common fields of the base (`id`, `type`, `title`, `key`,
 {"type": "stakeholder-map", "scale": 5,
  "stakeholders": [{"label": "CFO", "power": 5, "interest": 4, "stance": "critic", "sub": "budget owner"}]}
 ```
-- `stakeholders[]`: `label`, `power`, `interest` (1 to `scale`, default 5), `stance`: `supporter` green · `neutral` ink · `critic` amber · `blocker` red, `sub`, `tone`.
+- `stakeholders[]`: `label`, `power`, `interest` (1 to `scale`, default 5; the middle value of an odd scale, e.g. 3 of 5, sits on the divider and is rejected: pick a side), `stance`: `supporter` green · `neutral` ink · `critic` amber · `blocker` red, `sub`, `tone`.
 - Quadrants default to Manage closely / Keep satisfied / Keep informed / Monitor; override with `quadrants` as in `quadrant`.
 - Mermaid: quadrantChart.
 

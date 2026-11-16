@@ -2,7 +2,7 @@
   "id": "ml-churn-lifecycle",
   "type": "ml-lifecycle",
   "title": "Churn model: from training data to monitored production and back",
-  "key": "Box = stage (tool in the sub line) · cylinder = store · hexagon = gate · dashed blue = feedback loop that retrains",
+  "key": "Box = stage (tool in the sub line) · cylinder = store · diamond = gate · dashed blue = feedback loop that retrains",
   "notice": "Two loops retrain the model: a failed offline eval goes straight back to training, a drift alert rebuilds the training set.",
   "groups": [
     {
@@ -32,7 +32,7 @@
       "id": "evaluate",
       "label": "Offline eval",
       "sub": "AUC, calibration",
-      "kind": "guard",
+      "kind": "gate",
       "group": "dev"
     },
     {

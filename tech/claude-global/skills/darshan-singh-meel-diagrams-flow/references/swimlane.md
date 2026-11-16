@@ -24,11 +24,13 @@ A subset of BPMN 2.0.2 collaboration diagrams: enough for hand-offs between role
 
 ## Checks
 - Message flow inside one pool, sequence flow between pools → error naming the fix.
+- A message flow out of a start event (it only catches) or into an end event (it only throws) → error.
 - Start event with an incoming sequence flow, end event with an outgoing one, gateway that neither splits nor merges, timer on an end event, terminate on a non-end event → error.
 - At least one start and one end event.
 
 ## Layout
-- Step index: a sequence flow moves one step on, a message flow keeps the step, so sender and receiver sit level and the dashed line is straight.
+- Step index: a sequence flow moves one step on, a message flow keeps the step, so sender and receiver sit level and the dashed line is straight. A reply (a message whose sender was itself reached by a message) moves one step on, so the flow never reads backwards.
+- A lane named like its pool (a one-lane pool such as "Vendor") shows only the pool header.
 - Boxes that share a lane and step sit side by side, ordered by where their next steps are.
 - LR holds ~6 steps at 1000px; longer processes switch to TB (lanes as columns, ≤ 5 lanes), or split at a hand-off.
 

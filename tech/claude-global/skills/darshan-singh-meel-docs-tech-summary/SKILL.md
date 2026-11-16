@@ -49,6 +49,7 @@ Silent pre-check: graph present (`./<repo>-knowledge-graph/` or `./.knowledge-gr
 - **Rules (optional):** up to 5 business or technical rules that change behaviour, each with `path:line`, as a `rules` block under At a glance or Main flows.
 - **Main flows:** sequence diagrams, ≤7 steps, each step with its output (`out`) and `path:line`; `alt` for the failure branch the code has; `why` states why the flow exists or what breaks without it. Merge plumbing (parse, dispatch) into the step that produces data.
 - **Data model:** entities with keys only (`PK`, `FK`, `UK`) plus `more: n` for the rest; ER lines are keys, never flow. No tables → one line.
+- **Other diagram types** the builder has no block for (state machine, C4, deployment, lineage, Gantt, …): build with `darshan-singh-meel-diagrams` + family (`--page generated-docs/diagrams/<id>.html`, `--mermaid` for `--md`, 0 `LAYOUT`) and link it from a `pointers` row; the builder's `flow`, `seq`, `er` stay as they are.
 - **Tech stack:** versions exactly as pinned (`stack.py`); unpinned → "not pinned". Never a guessed version.
 - **Deploy, security, access:** environments, how each deploys, rollback, health check, roles, secret **names** (values `<redacted>`), where personal data lives. Unknown → "Not defined yet — owner to decide", also a Top risks row with status `Owner to decide`.
 - **Run locally:** the commands in order with the expected output, from README, Makefile, CI or code.

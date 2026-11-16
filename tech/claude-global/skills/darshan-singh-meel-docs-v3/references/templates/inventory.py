@@ -83,6 +83,7 @@ BY_CONVENTION = [  # (node type, path pattern): entry points when there is no gr
     ("cli_command", re.compile(r"(^|/)(cli|__main__|manage|main)\.py$|(^|/)bin/[^/.]+$")),
     ("ui_screen", re.compile(r"(^|/)(pages|screens|views)/[^/]+\.(tsx|jsx|vue|svelte)$|(^|/)App\.(tsx|jsx|vue|svelte)$")),
 ]
+ROUTE = re.compile(r"^\s*@\w+\.(get|post|put|patch|delete|route|api_route|websocket)\(", re.M)  # FastAPI / Flask route in any .py
 
 
 def repo_paths():
@@ -113,15 +114,16 @@ def scan_nodes():
             add("file", p, p) if CODE.search(p) and not DATA.search(p) else None
         elif CONFIG.search(p):
             add("config", p, p)
+        src = Path(p).read_text(encoding="utf-8", errors="ignore") if p.endswith(".py") and not (test or ci) else ""
         for t, rx in BY_CONVENTION if not (test or ci) else []:
-            if rx.search(p):
+            if t == "endpoint" and ROUTE.search(src) or rx.search(p):
                 add(t, Path(p).stem if t in ("dag", "ui_screen") else p, p)
                 break
         if CODE.search(p) and not test and not ci:
             add("module", p, p)
         if p.endswith(".py") and not test and not ci:
             try:
-                tree = ast.parse(Path(p).read_text(encoding="utf-8", errors="ignore"))
+                tree = ast.parse(src)
             except (SyntaxError, ValueError):
                 continue
             for x in tree.body:
@@ -176,6 +178,7 @@ def scan_plan(inv):
     p["main_flows"] = [{"h3": f"{name}: {ENTRY_H3[g]}", "flow": None, "steps": 0, "ordered": False, "diagram": False, "entry": None,
                         "boxes": [], "files": sorted(set(files))} for (g, _), (name, files) in groups.items()] or p["main_flows"]
     p["deploy"]["units"] = [x["name"] for x in inv["items"].get("job", []) if x.get("ci")]
+    p.get("diagrams", {}).get("technical", {}).pop("Main flows", None)  # scan plan: diagram false everywhere (no flows)
     for d in p["sections"].values():
         d["not_applicable"] = {}
     p["coverage"] = [t for t in p["coverage"] if t not in ("flow", "business_rule", "process", "table", "view", "storage_location")]

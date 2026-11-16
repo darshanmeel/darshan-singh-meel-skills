@@ -253,6 +253,38 @@ def straddles_rule():
     assert not check.straddles((200, 10, 20, 10), (0, 0, 100, 100))
 
 
+@test
+def route_issues_are_advisory():
+    a, b, c, e = nd("a", 10, 10), nd("b", 300, 10), nd("c", 10, 200), nd("e", 300, 200)
+    grp = {"id": "grp", "x": 120, "y": 0, "w": 100, "h": 300, "kind": "group", "text": "grp", "members": []}
+    g = geo(nodes=[a, b, c, e], containers=[grp],
+            edges=[{"from": "a", "to": "e", "points": [[90, 30], [250, 30], [250, 200]], "look": ["", "solid", "", False]},
+                   {"from": "c", "to": "b", "points": [[50, 200], [50, 150], [270, 150], [270, 50], [300, 50]], "look": ["", "solid", "", False]}])
+    found = [p for p, _ in check.route_issues(g)]
+    assert "arrows cross" in found and "arrow through foreign frame" in found, found
+    assert not problems(g), "route issues must not become LAYOUT problems"
+    g["containers"] = []
+    t1 = {"from": "a", "to": "b", "points": [[90, 30], [300, 30]], "look": ["", "solid", "", False]}
+    t2 = {"from": "a", "to": "e", "points": [[90, 30], [200, 30], [200, 200], [300, 200]], "look": ["", "solid", "", False]}
+    g["edges"] = [t1, t2]
+    assert not check.route_issues(g), "a same-look trunk is fine"
+    t2["look"] = ["asset", "dashed", "lav", False]
+    assert "arrows run on one line" in [p for p, _ in check.route_issues(g)]
+
+
+@test
+def validator_warn_and_mermaid_lines():
+    old = d.registry()["boxes"]["validate"]
+    d.registry()["boxes"]["validate"] = lambda s: ["WARN dead end: b has no exit"]
+    try:
+        r = d.build(spec())
+    finally:
+        d.registry()["boxes"]["validate"] = old
+    assert not r["errors"] and "WARN t | dead end: b has no exit" in r["warnings"], r
+    assert d.mm_text(["Embed <x>", "bge-m3", ""]) == '"Embed #60;x#62;<br/>bge-m3"', d.mm_text(["Embed <x>", "bge-m3"])
+    assert d.mm_text("a|b") == '"a#124;b"'
+
+
 # ---------- registry / discovery ----------
 FAMILY = '''
 import diagram as engine
@@ -333,6 +365,51 @@ def trunk_by_default_spread_on_request():
     assert len(ports_into(g2, "c")) == 2, "spread=True: one port per arrow"
     s["edges"][0]["own_port"] = True
     assert len(ports_into(d.build(s)["geometry"], "c")) == 2, "own_port on one edge splits that side"
+
+
+@test
+def trunk_per_line_look():
+    s = spec(nodes=[{"id": i, "label": i} for i in ("a", "b", "c", "d")],
+             edges=[{"from": "a", "to": "b"}, {"from": "a", "to": "c"}, {"from": "a", "to": "d", "kind": "asset"}])
+    r = d.build(s)
+    assert not r["errors"], r["errors"]
+    starts = {e["to"]: tuple(e["points"][0]) for e in r["geometry"]["edges"]}
+    assert starts["b"] == starts["c"] != starts["d"], "same look shares a port, a dashed asset arrow gets its own"
+    seg = [[0, 50], [200, 50]]
+    g = geo(nodes=[nd("a", 0, 30), nd("b", 300, 0), nd("c", 300, 100)],
+            edges=[{"from": "a", "to": "b", "points": seg + [[200, 10]], "look": ["", "solid", "", False]},
+                   {"from": "a", "to": "c", "points": seg + [[200, 110]], "look": ["asset", "dashed", "lav", False]}])
+    assert "two arrows share a line" in problems(g), "a trunk mixing two looks is flagged"
+    g["edges"][1]["look"] = g["edges"][0]["look"]
+    assert "two arrows share a line" not in problems(g), "a trunk of one look is fine"
+
+
+@test
+def dag_notation_checked_in_build():
+    s = spec(type="lineage", style="dbt", groups=[{"id": "l1", "label": "raw"}, {"id": "l2", "label": "marts"}],
+             nodes=[{"id": "a", "label": "a", "group": "l1"}, {"id": "b", "label": "b", "group": "l2"}],
+             edges=[{"from": "a", "to": "b"}, {"from": "b", "to": "a"}])
+    if "lineage" not in d.registry():
+        return
+    r = d.build(s)
+    assert any("graph not acyclic" in e for e in r["errors"]), r["errors"]
+    found = d.dag_check(dict(s, edges=s["edges"] + [{"from": "a", "to": "b", "label": "x" * 60}]))
+    assert {c for _, c, _ in found} == {"graph not acyclic", "edge against layer order"}, found
+
+
+@test
+def fallback_to_top_down_warns():
+    wide = [{"id": f"n{i}", "label": f"stage_number_{i}_long"} for i in range(9)]
+    s = spec(type="lineage", style="dbt", key="column = layer", nodes=wide,
+             edges=[{"from": f"n{i}", "to": f"n{i + 1}"} for i in range(8)])
+    if "lineage" not in d.registry():
+        return
+    r = d.build(s)
+    assert not r["errors"] and r["geometry"]["direction"] == "TB", r["errors"]
+    assert any("direction fell back to TB" in w for w in r["warnings"]), r["warnings"]
+    assert not any("fell back" in w for w in d.build(dict(s, key="row = layer"))["warnings"]), "key fits the picture"
+    r = d.build(dict(s, direction="TB"))
+    assert not any("fell back" in w for w in r["warnings"]), "a set direction is the author's choice"
 
 
 @test

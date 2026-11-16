@@ -72,7 +72,9 @@
 | Review v2 (fixed report: main review, then a detailed section per file with Must/Should findings) — only when I say "v2" | `darshan-singh-meel-review-v2` |
 | Docs: READMEs, KT, design docs, user guides, runbooks | `darshan-singh-meel-docs` |
 | Docs, version 2 (fixed builder: same structure every run) — only when I say "v2" | `darshan-singh-meel-docs-v2` |
+| Docs v3 (diagrams from the diagram skills) — only when I say "v3" | `darshan-singh-meel-docs-v3` |
 | Tech summary: mid-depth technical doc — components, main flows, data model, stack, deploy, risks (~10 min read) | `darshan-singh-meel-docs-tech-summary` |
+| Diagrams of any kind (inline SVG + Mermaid, layout-checked; plain, dbt-style lineage or Airflow-style DAG graph look, picked per diagram) in pages, docs, reviews, briefs, blogs, answers: base engine plus the family for the type — flow, architecture, data, interaction, ai, business / review one | `darshan-singh-meel-diagrams` + `darshan-singh-meel-diagrams-<family>` / `darshan-singh-meel-diagrams-review` |
 | Architecture review: current, problems, proposed target (Technical-doc shape), impact on cost/performance/maintenance/tech debt — when I ask, or offered after a Technical doc | `darshan-singh-meel-architecture` |
 | Requirements brief: what is asked, data, flows, gaps, tech options, what needs to be done (one HTML page with SVG) / review one | `darshan-singh-meel-requirements-brief` / `darshan-singh-meel-requirements-brief-review` |
 | Write an English technical blog post / review one | `darshan-singh-meel-tech-blog` / `darshan-singh-meel-tech-blog-review` |

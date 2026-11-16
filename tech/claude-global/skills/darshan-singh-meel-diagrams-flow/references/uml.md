@@ -37,7 +37,7 @@
 - Checks: an initial (no incoming, one outgoing); fork 1 in / ≥ 2 out; join ≥ 2 in / 1 out; decision 1 in / ≥ 2 out with a guard on every exit; merge ≥ 2 in / 1 out; finals have no outgoing.
 - Fork and join bars grow with their branch count; their arrows leave and arrive at separate points.
 - Decision exits leave from the side corners.
-- Mermaid: `flowchart` with `@{ shape: fork }`, `sm-circ`, `fr-circ`, `cross-circ` (Mermaid 11.3+; check: https://mermaid.js.org/syntax/flowchart.html).
+- Mermaid: `flowchart` with `@{ shape: fork }`, `sm-circ`, `fr-circ`, `cross-circ` (Mermaid 11.3+; check: https://mermaid.js.org/syntax/flowchart.html). Mermaid lists `cross-circ` as "Summary"; it stands in for the flow final because it looks the same.
 
 ```json
 {"id": "backup", "type": "activity", "title": "Nightly backup", "key": "Bar = fork / join",

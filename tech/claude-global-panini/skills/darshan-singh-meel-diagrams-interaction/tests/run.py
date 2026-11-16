@@ -188,6 +188,54 @@ def sequence_nested_frames_and_notes():
 
 
 @test
+def sequence_activation_per_operand():
+    s = {"id": "alt", "type": "sequence", "title": "T", "key": "k", "notice": "n",
+         "participants": [{"id": "w", "label": "web"}, {"id": "a", "label": "api"}, {"id": "d", "label": "db"}],
+         "steps": [{"from": "w", "to": "a", "label": "POST"},
+                   {"frame": "alt", "label": "[ok]", "steps": [{"from": "a", "to": "d", "label": "INSERT"},
+                                                              {"from": "d", "to": "a", "label": "ok", "kind": "reply"},
+                                                              {"from": "a", "to": "w", "label": "201", "kind": "reply"}],
+                    "else": [{"label": "[bad]", "steps": [{"from": "a", "to": "w", "label": "422", "kind": "reply"}]}]}]}
+    r = d.build(s)
+    assert not r["errors"], r["errors"]
+    assert r["svg"].count('class="ia-act"') == 3, r["svg"].count('class="ia-act"')  # api in each operand + db
+    assert "activate n_a" in r["mermaid"].split("else [bad]")[1], r["mermaid"]
+    s["steps"][1]["frame"], s["steps"][1]["label"] = "break", "[blocked]"
+    del s["steps"][1]["else"]
+    s["steps"].append({"from": "a", "to": "w", "label": "200", "kind": "reply"})
+    r = d.build(s)
+    assert not r["errors"], r["errors"]
+    assert r["svg"].count('class="ia-act"') == 3, r["svg"].count('class="ia-act"')  # api before and after break + db
+    assert r["mermaid"].rstrip().splitlines()[-2].strip() == "activate n_a", r["mermaid"]
+
+
+@test
+def gantt_start_before_after_ends():
+    s = load("dbt-run-timing")
+    t = next(x for x in s["tasks"] if x.get("after"))
+    dep = next(x for x in s["tasks"] if x["id"] == t["after"][0])
+    t["start"] = dep.get("start") or s["start"]
+    t.pop("queued", None)
+    assert any(f"task {t['id']}: start" in e and f"before '{dep['id']}' ends" in e for e in errors(s)), errors(s)
+
+
+@test
+def gantt_label_column_enforced():
+    s = load("nightly-run-gantt")
+    s["tasks"][0]["label"] = "a_very_long_task_identifier_that_cannot_fit_in_the_column_x"
+    assert any("label column would be" in e for e in errors(s)), errors(s)
+
+
+@test
+def gantt_mermaid_vert_and_states():
+    s = load("nightly-run-gantt")
+    s["markers"] = [{"date": "04:30", "label": "SLA"}]
+    m = d.build(s)["mermaid"]
+    assert "SLA : vert, " in m and "04:30:00, 1s" in m, m
+    assert ":done," in m and "queued time is in the SVG only" in m, m
+
+
+@test
 def gantt_task_outside_window():
     s = load("lakehouse-roadmap")
     s["end"] = "2026-03-01"

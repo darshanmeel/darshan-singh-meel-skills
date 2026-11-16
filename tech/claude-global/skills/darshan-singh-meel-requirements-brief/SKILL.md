@@ -44,6 +44,7 @@ Second prompt, right after, once the stack is confirmed: `python <skill>/referen
 
 ## Rules
 - **Every requirement traceable:** the input's ids appear in the Requirements rows (the build rescans the inputs and fails otherwise), and again in needs, work items and risks where they apply.
+- **Other diagram types** (swimlane, sequence, ER, lineage, state machine, Gantt) the builder has no block for: build with `darshan-singh-meel-diagrams` + family (`--page generated-docs/diagrams/<id>.html`, 0 `LAYOUT`), link it from a `text` block; context, links and timeline stay the builder's.
 - **Every source has a row and a box:** a `source` box in the context diagram needs a `sources` row with the same id; a row without a box is a WARN.
 - **Use cases without a source are shown**, not hidden: an empty `sources` list renders "no source", a `missing` field renders "partial"; both get a work item.
 - **Confirmed stack = given.** Shown as given with how it fits, used in the work items, never re-litigated; a real misfit is a risk in section 11, not a swap. The build fails when a confirmed tech has no given row.

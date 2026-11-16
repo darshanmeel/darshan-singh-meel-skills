@@ -223,5 +223,59 @@ def too_wide_layered_graph_falls_back_to_top_down():
     assert not r["errors"] and r["geometry"]["width"] <= d.MAX_W, r["errors"]
 
 
+def _enters(r, e):
+    """Side of the target box where edge e's last point lands."""
+    n = next(n for n in r["geometry"]["nodes"] if n["id"] == e["to"])
+    x, y = e["points"][-1]
+    gap = {"left": abs(x - n["x"]), "right": abs(x - n["x"] - n["w"]), "top": abs(y - n["y"]),
+           "bottom": abs(y - n["y"] - n["h"])}
+    return min(gap, key=gap.get)
+
+
+@test
+def rag_two_stores_enter_from_the_left():
+    s = by_type("rag-pipeline")
+    first = s["stores"][0]["id"]
+    s["stores"].append({"id": "kw2", "label": "keyword index"})
+    s["edges"] += [{"from": s["ingest"][-2]["id"], "to": "kw2"},
+                   {"from": "kw2", "to": next(e["to"] for e in s["edges"] if e["from"] == first)}]
+    r = d.build(s)
+    assert not r["errors"], r["errors"]
+    sto = {x["id"] for x in s["stores"]}
+    for e in r["geometry"]["edges"]:
+        if e["from"] in sto or e["to"] in sto:
+            assert _enters(r, e) == "left", (e["from"], e["to"], _enters(r, e))
+
+
+@test
+def ring_bottom_row_runs_straight_left():
+    s = by_type("ml-lifecycle")
+    r = d.build(s)
+    ids = [x["id"] for x in s["stages"]]
+    k = (len(ids) + 1) // 2
+    bottom = list(zip(ids[k:], ids[k + 1:]))
+    for e in r["geometry"]["edges"]:
+        if (e["from"], e["to"]) in bottom:
+            assert len(e["points"]) == 2 and _enters(r, e) == "right", (e["from"], e["to"], e["points"])
+
+
+@test
+def mermaid_keeps_sub_lines():
+    for name, s in specs().items():
+        if s.get("style") in ("dbt", "airflow"):
+            continue
+        subs = [n["sub"] for k in ("ingest", "query", "stores", "stages", "nodes", "sources", "segments")
+                for n in s.get(k) or [] if n.get("sub")]
+        m = d.build(s)["mermaid"]
+        for sub in subs:
+            assert d.mm_text(sub)[1:-1] in m, (name, sub)
+
+
+@test
+def context_legend_names_sources():
+    r = d.build(by_type("context-assembly"))
+    assert ">source<" in r["svg"], "legend lacks the source entry"
+
+
 print(f"\n{'FAIL' if FAILS else 'OK'}: {len(FAILS)} failed")
 sys.exit(1 if FAILS else 0)

@@ -345,6 +345,13 @@ check("no graph: kinds, CI file as deploy unit, tests, config; secrets never rea
 check("no graph: no section ruled out, coverage only of scanned types",
       all(d["not_applicable"] == {} for d in ni["plan"]["sections"].values()) and "flow" not in ni["plan"]["coverage"]
       and {"config", "test_file", "endpoint", "cli_command"} <= set(ni["plan"]["coverage"]), ni["plan"]["coverage"])
+check("no graph: scan plan suggests no Main flows diagram (every main_flows entry has diagram false)",
+      "Main flows" not in ni["plan"]["diagrams"].get("technical", {}) and "Architecture" in ni["plan"]["diagrams"]["technical"], ni["plan"]["diagrams"])
+RF = W / "rf"; repo(RF, {"app/main.py": "from fastapi import FastAPI\napp = FastAPI()\n\n\n@app.post('/tickets')\ndef create():\n    pass\n"})
+inventory(RF)
+nf = json.loads((RF / "generated-docs/_spec/inventory.json").read_text(encoding="utf-8"))
+check("no graph: a .py with @app.post routes is an endpoint (FastAPI app/main.py -> web_api, not cli)",
+      "web_api" in {k["kind"] for k in nf["profile"]} and "cli" not in {k["kind"] for k in nf["profile"]}, nf["profile"])
 mfs = [b for h in h3s for b in ({"type": "h3", "text": h}, ipo())]
 spec = tech({"Main flows": mfs}, app_types=ni["plan"]["app_types"])
 out, rc = run(RN, spec)
@@ -1121,7 +1128,8 @@ C4 = {"type": "c4-container", "groups": [{"id": "app", "label": "Shop"}],
       "nodes": [{"id": "u", "label": "Buyer", "kind": "person", "desc": "Orders"},
                 {"id": "api", "label": "shop-api", "kind": "container", "tech": "Python", "desc": "Orders", "group": "app"},
                 {"id": "db", "label": "shop-db", "kind": "database", "tech": "Postgres", "desc": "Orders", "group": "app"}],
-      "edges": [{"from": "u", "to": "api", "label": "Uses"}, {"from": "api", "to": "db", "label": "Writes"}]}
+      "edges": [{"from": "u", "to": "api", "label": "Places orders", "tech": "HTTPS"},
+                {"from": "api", "to": "db", "label": "Saves orders", "tech": "SQL"}], "direction": "TB"}
 dia = lambda did="A", spec=None, **k: {"type": "diagram", "id": did, "title": f"Shop containers {did}", "key": "Blue = container",
                                      "notice": "Only shop-api writes orders.", "spec": spec or C4, **k}
 custom = lambda secs, **k: {"type": "custom", "title": "c", "subtitle": "py · daily · a → b", "sections": secs, **k}
@@ -1210,6 +1218,9 @@ check("check.py: engine layout problems -> 'LAYOUT <section> | diagram A (map-1)
       r.returncode == 1 and re.search(r"LAYOUT 1 A \| diagram A \(map-1\) \| [^|]*overlap", r.stdout), r.stdout + r.stderr)
 r = subprocess.run([sys.executable, str(T / "check.py"), str(RD / "generated-docs/doc.html")], capture_output=True, text=True, encoding="utf-8")
 check("check.py: a clean engine diagram -> 0 layout problems", r.returncode == 0, r.stdout + r.stderr)
+r = subprocess.run([sys.executable, str(T / "check.py"), str(W / "no-such.html")], capture_output=True, text=True, encoding="utf-8")
+check("check.py: missing HTML file -> 'ERROR ... not found', no traceback", r.returncode != 0 and "not found" in r.stdout + r.stderr
+      and "Traceback" not in r.stdout + r.stderr, r.stdout + r.stderr)
 
 # inventory: preferred diagram types per section and repo kind
 RI = W / "ri"; repo(RI, {"dbt_project.yml": "name: shop\n", "models/staging/stg_orders.sql": "select 1\n", "models/marts/fct_orders.sql": "select 1\n"})

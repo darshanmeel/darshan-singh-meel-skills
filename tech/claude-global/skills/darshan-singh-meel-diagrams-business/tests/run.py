@@ -146,9 +146,82 @@ def org_chart_stacks_leaves_when_wide():
 @test
 def quadrant_reports_crowding():
     s = load("backlog-priority")
-    s["items"] = [{"label": f"Item number {i}", "x": 0.5, "y": 0.5} for i in range(30)]
+    s["items"] = [{"label": f"Item number {i}", "x": 0.45, "y": 0.45} for i in range(30)]
     e = errs(s)
-    assert e and "no free place" in e[0], e
+    assert e and "no free place inside its quadrant" in e[0], e
+
+
+@test
+def quadrant_labels_stay_in_their_quadrant():
+    s = load("backlog-priority")
+    r = d.build(s)
+    PW, PH = s.get("size", [600, 440])
+    for n in r["geometry"]["nodes"]:
+        it = next((i for i in s["items"] if i["label"] == n["text"]), None)
+        if not it:
+            continue
+        dot = next(lb for lb in r["geometry"]["labels"] if lb["text"] == "point " + it["label"])
+        dx, dy = dot["x"] + 6, dot["y"] + 6
+        x0, y0 = dx - it["x"] * PW, dy - (1 - it["y"]) * PH
+        mx, my = x0 + PW / 2, y0 + PH / 2
+        assert (n["x"] >= mx) == (dx >= mx) and (n["x"] + n["w"] <= mx or n["x"] >= mx), it["label"]
+        assert (n["y"] >= my) == (dy >= my) and (n["y"] + n["h"] <= my or n["y"] >= my), it["label"]
+
+
+@test
+def points_on_a_divider_are_rejected():
+    s = copy.deepcopy(load("backlog-priority"))
+    s["items"][0]["x"] = 0.5
+    assert any("on the divider" in e for e in errs(s)), errs(s)
+    s = copy.deepcopy(load("crm-stakeholders"))
+    s["stakeholders"][0]["interest"] = 3
+    assert any("sits on the divider" in e for e in errs(s)), errs(s)
+    assert not [e for e in errs(dict(s, scale=6)) if "divider" in e]  # an even scale has no middle value
+
+
+@test
+def value_stream_first_wait_needs_start():
+    s = copy.deepcopy(load("feature-delivery"))
+    assert s.get("start") and s["stages"][0].get("wait") is not None, "example must cover the counted first wait"
+    s.pop("start")
+    assert any("stages[0].wait needs 'start'" in e for e in errs(s)), errs(s)
+    s["stages"][0].pop("wait")
+    assert not errs(s), errs(s)
+
+
+@test
+def team_topology_airflow_states_keep_the_type():
+    s = copy.deepcopy(load("team-deps"))
+    s["style"] = "airflow"
+    s["states"] = {"done": {"tone": "green", "label": "onboarded"}, "todo": {"tone": "amber", "label": "not started"}}
+    for i, t in enumerate(s["teams"]):
+        t["state"] = "done" if i % 2 else "todo"
+    r = d.build(s)
+    assert not r["errors"], r["errors"]
+    assert "stream-aligned team" in r["svg"] and "onboarded" in r["svg"] and "not started" in r["svg"]
+    leg = [lb["text"] for lb in r["geometry"]["labels"] if lb.get("kind") == "legend"]
+    assert "onboarded" in leg and not [x for x in leg if x.endswith(" team")], leg  # fill = state, not type
+    assert "stream-aligned team · " in r["mermaid"] and "· onboarded" in r["mermaid"]
+    plain = d.build(dict(s, states=None, style="airflow", teams=[{k: v for k, v in t.items() if k != "state"}
+                                                                  for t in s["teams"]]))
+    assert not plain["errors"] and "stream-aligned team" in plain["svg"], plain["errors"]
+
+
+@test
+def team_topology_arrows_keep_their_own_port():
+    for st in d.GRAPH_STYLES:
+        g = d.build(dict(load("team-deps"), style=st))["geometry"]
+        starts = {}
+        for e in g["edges"]:
+            starts.setdefault((e["from"], tuple(e["points"][0])), []).append(e["to"])
+        assert all(len(v) == 1 for v in starts.values()), (st, starts)
+
+
+@test
+def value_chain_names_the_advantage():
+    s = load("saas-value-chain")
+    assert any(a.get("tone") == "green" for a in s["primary"])
+    assert "advantage" in d.build(s)["svg"]
 
 
 @test
@@ -167,6 +240,7 @@ def validation_catches_bad_specs():
         ("ai-assistant-swot", lambda s: s.pop("threats"), "threats: required"),
         ("analytics-bmc", lambda s: s.pop("channels"), "channels: required"),
         ("feature-delivery", lambda s: s["stages"][0].update(time="2 days"), "must be a number"),
+        ("feature-delivery", lambda s: s.pop("start"), "stages[0].wait needs 'start'"),
     ]
     for name, change, want in cases:
         s = copy.deepcopy(load(name))

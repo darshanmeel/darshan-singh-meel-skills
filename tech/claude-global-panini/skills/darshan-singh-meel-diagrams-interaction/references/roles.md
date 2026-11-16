@@ -26,9 +26,10 @@
 | `columns` | optional headings per slot ("day 1", "Mon", "sprint 3") |
 | `handoffs` | `{from, to, label?}`; across lanes they become `kind: "handoff"` (amber, legend "handoff to another team"); `label` = the wait ("3 d") |
 | `style` | `plain` (default), `airflow`, `dbt`; `view` and `collapse` are rejected |
-| `max_w` | box width, default 130 |
+| `max_w` | box width, default 130; dbt names over ~14 characters wrap at 130 - unbroken names need `max_w` 160 and ≤ 3 slots |
 
 - Keep wait labels short (`"3 d"`, `"4 h"`): the gap between slots grows with the label.
+- Put a handoff's target in a later slot. A same-slot handoff leaves the wait label only the gap between lanes; when `check.py` reports it on a lane border, move the target one slot later.
 - Mermaid: flowchart with one subgraph per lane.
 
 ```json

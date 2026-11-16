@@ -3,7 +3,7 @@
 **Verdict:** Ready after Must fixes - both diagrams share one id, and the run diagram shows the wrong operator for the alert task.
 
 **Scope:** `generated-docs/orders-pipeline.html`, specs in `generated-docs/diagrams/` · Source: repo code (`models/`, `dags/orders_nightly.py`) · Mermaid: HTML only
-**Script:** `review_diagrams.py` → 4 MUST, 1 SHOULD · 2 specs rebuilt, 0 LAYOUT lines · PNGs looked at: 2 light + 2 dark
+**Script:** `review_diagrams.py` → 4 MUST, 1 SHOULD (the 4 `duplicate id` lines and the `id reused` line are one defect → Must 1; Must 2 and both Shoulds come from the source and the PNGs) · 2 specs rebuilt, 0 LAYOUT lines · PNGs looked at: 2 light + 2 dark
 
 ## Must
 1. **Two diagrams share the id `shop-lineage`** - `generated-docs/diagrams/orders-nightly.json#shop-lineage`

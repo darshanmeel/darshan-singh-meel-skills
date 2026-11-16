@@ -52,6 +52,13 @@ def main():
             {"id": "a", "resource_type": "model", "layer": "staging", "depends_on": ["b"]},
             {"id": "b", "resource_type": "model", "layer": "marts", "depends_on": ["a"]}]})
         ok("MUST" in run(p)[1], "cycle in dbt-lineage not flagged")
+        p = spec(d, "masked", {**lin, "nodes": [
+            {"id": "stg", "label": "stg_orders", "kind": "model", "group": "staging"},
+            {"id": "fct", "label": "fct_orders", "kind": "model", "group": "marts"}],
+            "edges": [{"from": "stg", "to": "fct", "label": "x" * 60}, {"from": "fct", "to": "stg"}]})
+        out = run(p)[1]
+        ok("label over 36" in out and "graph not acyclic" in out and "edge against layer order" in out,
+           f"a build error hides the notation checks: {out}")
         p = spec(d, "names", {"type": "boxes", "nodes": [{"id": "a", "label": "Service A"},
                                                          {"id": "b", "label": "orders-db", "sub": "password=hunter2"}],
                               "edges": [{"from": "a", "to": "b"}]})
@@ -74,6 +81,52 @@ def main():
         for want in ("duplicate id | dg-x", "accessibility", "canvas too wide", "external resource", "machine path",
                      "figure needs the scroll frame"):
             ok(want in out, f"page check missing: {want}: {out}")
+        code, out = run(*sorted((SKILLS / "darshan-singh-meel-docs-v3" / "references" / "examples").glob("*.html")))
+        ok(code == 0 and "MUST" not in out and "not built by the engine" not in out,
+           f"docs-v3 pages: the builder's own drawings are not engine diagrams: {out}")
+        doc = d / "doc-spec.json"
+        doc.write_text(json.dumps({"type": "technical", "sections": {"Main flows": [
+            {"type": "h3", "text": "Nightly build"},
+            {"type": "diagram", "id": "C", "key": "Pill colour = resource type", "notice": "fct_orders reads staging.",
+             "spec": {"type": "dbt-lineage", "nodes": [
+                 {"id": "stg_orders", "resource_type": "model", "layer": "staging", "depends_on": ["fct_orders"]},
+                 {"id": "fct_orders", "resource_type": "model", "layer": "marts", "depends_on": ["stg_orders"]}]}}]}}),
+            encoding="utf-8")
+        out = run(doc)[1]
+        ok("doc-spec.json#c | graph not acyclic" in out, f"diagram block inside a docs-v3 spec not rebuilt: {out}")
+        run_spec = {"type": "airflow-dag", "tasks": [
+            {"id": "load", "operator": "BashOperator", "state": "failed"},
+            {"id": "dbt_build", "operator": "BashOperator", "upstream": ["load"], "state": "skipped"},
+            {"id": "alert", "operator": "SlackWebhookOperator", "upstream": ["dbt_build"], "state": "success",
+             "trigger_rule": "one_failed"}]}
+        p = spec(d, "night", run_spec)
+        out = run(p)[1]
+        ok("airflow state | dbt_build is skipped" in out and "| alert is" not in out, f"airflow state vs rule: {out}")
+        ok("Mermaid text colour" in out, f"pale Mermaid classDef without color not flagged: {out}")
+        frag = d / "frag.html"
+        built = rd.diagram.build({"id": "night", **HEAD, **run_spec})["html"]
+        frag.write_text(built, encoding="utf-8")
+        ok("| no spec |" in run(frag)[1], "engine svg on a page with no spec not flagged")
+        out = run(p, frag)[1]
+        ok("frag.html" not in out, f"page svg equal to its spec flagged: {out}")
+        frag.write_text(built.replace('<rect ', '<rect x="900" ', 1), encoding="utf-8")
+        ok("page SVG differs from its spec" in run(p, frag)[1], "hand-edited page svg not flagged")
+        geo = rd.diagram.build({"id": "night", **HEAD, **run_spec})["geometry"]
+        geo["nodes"][1].update(x=geo["nodes"][0]["x"], y=geo["nodes"][0]["y"])
+        dgv = d / "v3.html"
+        dgv.write_text('<style>.dgv { overflow-x:auto; }</style><div class="dgv" data-id="C" data-geo="'
+                       + json.dumps(geo).replace("&", "&amp;").replace('"', "&quot;") + '">'
+                       + built.split('<div class="dg-frame"', 1)[1].split(">", 1)[1].split("</div>")[0]
+                       + '</div><p class="key">Key: x</p>', encoding="utf-8")
+        out = run(dgv)[1]
+        ok("LAYOUT boxes overlap" in out, f"data-geo layout not re-checked: {out}")
+        ok("Notice text missing" in out, f"dgv without Notice not flagged: {out}")
+        p = spec(d, "seq", {"type": "sequence", "participants": [{"id": "a", "label": "checkout-api"},
+                                                                 {"id": "b", "label": "payments-api"}],
+                            "steps": [{"from": "a", "to": "b", "label": "charge"},
+                                      {"frame": "alt", "label": "[declined]",
+                                       "steps": [{"from": "b", "to": "a", "label": "402", "kind": "reply"}]}]})
+        ok("alt with one operand" in run(p)[1], "alt with one operand not flagged")
         md = d / "doc.md"
         md.write_text("# Doc\n\n```mermaid\nflowchart LR\n  a --> b\n```\n\nNext.\n\n![x](diagrams/gone.svg)\n",
                       encoding="utf-8")

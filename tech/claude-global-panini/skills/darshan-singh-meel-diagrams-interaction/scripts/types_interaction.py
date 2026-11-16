@@ -164,6 +164,16 @@ def svg_sequence(spec, core):
         off = 4 * (lv - 1)
         return cx[col[p]] + off + (5 if toward > cx[col[p]] + off else -5)
 
+    def reset(snap, y):
+        """Activation is per operand: back to the stacks of `snap`; bars opened since close at y, closed ones reopen at y."""
+        for p, stack in st["act"].items():
+            base, keep = snap[p], 0
+            while keep < min(len(stack), len(base)) and stack[keep] == base[keep]:
+                keep += 1
+            while len(stack) > keep:
+                st["bars"].append((p, len(stack), stack.pop(), y))
+            stack.extend([y] * (len(base) - keep))
+
     def run(steps):
         """Draw steps from st['y']; return [xmin, xmax] of what was drawn."""
         ext = [1e9, -1e9]
@@ -177,14 +187,18 @@ def svg_sequence(spec, core):
                 op = s["frame"]
                 tw = core.text_width(op, 11, True, True) + 18
                 st["y"] += 30
+                snap = {p: list(v) for p, v in st["act"].items()}
                 inner = [run(s["steps"])]
                 seps = []
                 for b in s.get("else") or []:
                     st["y"] += 4
                     seps.append((st["y"], b.get("label", "")))
+                    reset(snap, st["y"])
                     st["y"] += 24
                     inner.append(run(b.get("steps") or []))
                 st["y"] += 8
+                if op == "break":  # the rest of the enclosing fragment is skipped: back to the state before it
+                    reset(snap, st["y"])
                 lo = min(e[0] for e in inner) - 16
                 hi = max(e[1] for e in inner) + 16
                 guard = s.get("label", "")
@@ -279,15 +293,29 @@ def mermaid_sequence(spec):
     actors = {p["id"] for p in spec["participants"] if p.get("actor") or p.get("shape") == "actor"}
     arrows = {"sync": "->>", "async": "-)", "reply": "-->>"}
 
+    def reset(snap, ind):
+        """Mermaid counts activations in line order: explicit (de)activate lines give each operand the pre-frame state."""
+        for p in act:
+            while act[p] > snap[p]:
+                out.append(f"{ind}deactivate {core.mm_id(p)}")
+                act[p] -= 1
+            while act[p] < snap[p]:
+                out.append(f"{ind}activate {core.mm_id(p)}")
+                act[p] += 1
+
     def emit(steps, ind):
         for s in steps:
             if s.get("frame"):
                 out.append(f"{ind}{s['frame']} {_mm(s.get('label', ''))}".rstrip())
+                snap = dict(act)
                 emit(s["steps"], ind + "  ")
                 for b in s.get("else") or []:
                     out.append(f"{ind}{FRAMES[s['frame']]} {_mm(b.get('label', ''))}".rstrip())
+                    reset(snap, ind + "  ")
                     emit(b.get("steps") or [], ind + "  ")
                 out.append(f"{ind}end")
+                if s["frame"] == "break":
+                    reset(snap, ind)
             elif "note" in s:
                 if s.get("over"):
                     on = s["over"] if isinstance(s["over"], list) else [s["over"]]
@@ -515,6 +543,16 @@ def validate_gantt(spec):
         _err(bool(t.get("status")) and t.get("status") not in STATUS, f"task {i}: status one of {', '.join(STATUS)}", err)
         _err(style == "airflow" and bool(t.get("state")) and t.get("state") not in core.AIRFLOW_STATES and
              t.get("state") not in (spec.get("states") or {}), f"task {i}: state '{t.get('state')}' is not an Airflow state", err)
+    if not err:  # 'after' is finish-to-start: an explicit start may not come before a dependency ends
+        try:
+            se, timed = _resolve(spec)
+        except core.LayoutError as ex:
+            return [str(ex)]
+        for t in ts:
+            for a in t.get("after") or []:
+                if t.get("start") and se[t["id"]][0] < se[a][1]:
+                    end = se[a][1] - (0 if timed else 1)
+                    err.append(f"task {t['id']}: start {_fmt(se[t['id']][0], timed)} is before '{a}' ends ({_fmt(end, timed)})")
     return err
 
 
@@ -567,10 +605,12 @@ def svg_gantt(spec, core):
     arrows = spec.get("arrows", True)
     sources = {a for t in spec["tasks"] for a in t.get("after") or []} if arrows else set()
     ind = 12 if secs else 0
-    lab_w = min(230, max(core.text_width(t["label"], 12.5 if mono else 12, mono, mono) for t in spec["tasks"]) + ind + 8)
+    wide = max(spec["tasks"], key=lambda t: core.text_width(t["label"], 12.5 if mono else 12, mono, mono))
+    lab_w = core.text_width(wide["label"], 12.5 if mono else 12, mono, mono) + ind + 8
     lab_w = max(lab_w, *[core.text_width(s.get("label", ""), 12, bold=True) + 8 for s in secs] or [0])
     if lab_w > 260:
-        raise core.LayoutError("a section or task label is wider than 260px: shorten it")
+        raise core.LayoutError(f"label column would be {int(lab_w)}px (max 260): shorten the longest task or section "
+                               f"label (e.g. '{wide['label'][:40]}')")
     notes, looks, legend = {}, {}, []
     for t in spec["tasks"]:
         look, leg = _look(style, t, spec, STATUS)
@@ -690,7 +730,11 @@ def _hms(minutes):
 
 def _dur(minutes):
     s = round(minutes * 60)
-    return f"{s // 60}m {s % 60:02d}s" if s < 3600 else f"{s // 3600}h {s % 3600 // 60:02d}m"
+    if s < 60:
+        return f"{s}s"
+    if s < 3600:
+        return f"{s // 60}m" + (f" {s % 60}s" if s % 60 else "")
+    return f"{s // 3600}h" + (f" {s % 3600 // 60}m" if s % 3600 // 60 else "")
 
 
 def mermaid_gantt(spec):
@@ -700,14 +744,14 @@ def mermaid_gantt(spec):
     if spec.get("today"):
         out.append(f"  %% today line at {spec['today']} (Mermaid draws today's real date)")
     for m in spec.get("markers") or []:
-        if timed:
-            out.append(f"  %% marker {m['label']} at {m['date']}")
-        else:
-            out.append(f"  {_mm(m['label'])} : vert, {core.mm_id('v_' + m['label'])}, {m['date']}, 1d")
+        at, length = (_hms(_num(m["date"])), "1s") if timed else (m["date"], "1d")
+        out.append(f"  {_mm(m['label'])} : vert, {core.mm_id('v_' + m['label'])}, {at}, {length}")
     ids = {t["id"]: core.mm_id(t["id"]) for t in spec["tasks"]}
     secs = spec.get("sections") or []
     groups = [(s.get("label", s["id"]), [t for t in spec["tasks"] if t.get("section") == s["id"]]) for s in secs]
     groups.append(("Other", [t for t in spec["tasks"] if not t.get("section")]))
+    if spec.get("style") == "airflow" and any(t.get("queued") for t in spec["tasks"]):
+        out.append("  %% queued time is in the SVG only")
     for name, ts in groups:
         if not ts:
             continue
@@ -715,11 +759,16 @@ def mermaid_gantt(spec):
         for t in ts:
             s, e = se[t["id"]]
             tags = [x for x in ("done", "active", "crit") if t.get("status") == x]
-            if (spec.get("style") == "airflow" and t.get("state") == "failed"):
-                tags = ["crit"]
+            if spec.get("style") == "airflow":
+                tags = [{"success": "done", "running": "active", "failed": "crit"}[t["state"]]] \
+                    if t.get("state") in ("success", "running", "failed") else []
             if t.get("milestone"):
                 tags.append("milestone")
-            start = "after " + " ".join(ids[a] for a in t["after"]) if t.get("after") and not t.get("start") \
+            # Mermaid has one start: 'after' when the task starts as its dependencies end, else the time and a comment
+            deps = t.get("after") or []
+            if deps and s > max(se[a][1] for a in deps):
+                out.append(f"    %% {t['id']} starts after {', '.join(deps)} end, later than the latest of them")
+            start = "after " + " ".join(ids[a] for a in deps) if deps and s == max(se[a][1] for a in deps) \
                 else (_hms(s) if timed else _fmt(s, False))
             length = "0d" if t.get("milestone") else (f"{round((e - s) * 60)}s" if timed else f"{int(e - s)}d")
             out.append(f"    {_mm(t['label'])} :" + ", ".join(tags + [ids[t['id']], start, length]))
@@ -851,7 +900,7 @@ def svg_blueprint(spec, core):
     for i in spec["items"]:
         n = dict(i, tone=i.get("tone") or ("red" if i.get("fail") else tone[i["lane"]]),
                  shape=i.get("shape") or ("document" if i["lane"] == "evidence" else "rounded"),
-                 strong=i.get("fail", False), free=i["lane"] == "evidence")
+                 strong=i.get("fail", False), free=i["lane"] in ("evidence", "customer"))
         if i.get("fail"):
             n["tag"] = "fail point"
         nodes.append(n)
@@ -861,8 +910,10 @@ def svg_blueprint(spec, core):
     lay = core.layout_lanes(lanes, [{"id": n["id"], "w": w, "h": h, "lane": n["lane"], "col": n["col"]} for n, w, h in sized],
                             edges, header_w=hw, gap=40, row_gap=18)
     if lay["width"] > core.MAX_W:
+        mw = spec.get("max_w", 170)
         raise core.LayoutError(f"blueprint would be {int(lay['width'])}px wide (max {core.MAX_W}): "
-                               "fewer steps (<= 5), shorter labels (max_w 150), or split by journey stage")
+                               + (f"max_w {max(110, mw - 20)}, " if mw > 110 else "")
+                               + "shorter labels, <= 4 steps, or split by journey stage")
     for lid, lb, _ in BP_LANES:
         core.container(c, lid, lb, *lay["lanes"][lid], members=[n["id"] for n in nodes if n["lane"] == lid],
                        kind="lane", header_w=hw)
@@ -959,6 +1010,9 @@ def _handoff_parts(spec):
     lane_of = {s["id"]: s["lane"] for s in spec["steps"]}
     edges = [dict(e, kind=e.get("kind") or ("handoff" if lane_of[e["from"]] != lane_of[e["to"]] else None))
              for e in spec.get("handoffs") or []]
+    for e in edges:  # a handoff gets its own port, so it never merges with an in-lane arrow into the same step
+        if e["kind"] == "handoff":
+            e.setdefault("own_port", True)
     sp = dict(spec, edge_kinds=dict(HANDOFF, **(spec.get("edge_kinds") or {})), view="detail", collapse=[])
     nodes = [dict(s, group=s["lane"]) for s in spec["steps"]]
     groups = [{"id": l["id"], "label": l["label"]} for l in spec["lanes"]]

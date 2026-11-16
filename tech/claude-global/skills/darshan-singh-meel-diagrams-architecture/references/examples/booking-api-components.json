@@ -62,7 +62,7 @@
   {
    "from": "web",
    "to": "router",
-   "label": "Calls",
+   "label": "Posts bookings",
    "tech": "JSON/HTTPS"
   },
   {
@@ -78,7 +78,7 @@
   {
    "from": "search",
    "to": "repo",
-   "label": "Reads"
+   "label": "Reads availability"
   },
   {
    "from": "hold",

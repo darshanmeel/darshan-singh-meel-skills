@@ -206,8 +206,11 @@ def service_map_dbt_style_and_dim():
     s = load("booking-services")
     r = d.build(s)
     assert s["style"] == "dbt" and "dg-solid" in r["svg"] and "dg-dim" in r["svg"]
-    s["style"] = "airflow"
-    assert any("does not fit service-map" in x for x in errs(s))
+    s["style"] = "airflow"  # styles are the author's choice; airflow fits services that are jobs with run state
+    s["nodes"][3]["state"] = "failed"
+    assert not errs(s), errs(s)
+    s["style"] = "fancy"
+    assert any("style 'fancy'" in x for x in errs(s))
 
 
 @test
@@ -236,6 +239,90 @@ def integration_via_drives_legend():
     s = load("booking-integrations")
     s["edges"][0]["via"] = "fax"
     assert any("via 'fax'" in x for x in errs(s))
+
+
+def arch():
+    return d.registry()["c4-context"]["svg"].__globals__  # the loaded types module (route_issues and helpers)
+
+
+@test
+def examples_have_no_route_issues():
+    for f in sorted(EX.glob("*.json")):
+        g = d.build(load(f.stem))["geometry"]
+        issues = arch()["route_issues"](g, load(f.stem)["type"] != "layered-architecture")
+        assert not issues, (f.name, issues)
+
+
+@test
+def route_issues_finds_cross_merge_and_foreign_frame():
+    geo = {"edges": [{"from": "a", "to": "b", "points": [(0, 50), (100, 50)]},
+                     {"from": "c", "to": "d", "points": [(50, 0), (50, 100)]},
+                     {"from": "a", "to": "e", "points": [(0, 52), (100, 52), (100, 200)]},
+                     {"from": "x", "to": "y", "points": [(300, 0), (300, 200)]}],
+           "containers": [{"id": "z", "kind": "group", "x": 280, "y": 50, "w": 60, "h": 60, "members": ["q"]}]}
+    kinds = {p for p, _ in arch()["route_issues"](geo)}
+    assert {"arrows cross", "arrows share a line", "arrow through foreign frame"} <= kinds, kinds
+
+
+@test
+def c4_rejects_vague_labels_and_missing_tech():
+    s = load("booking-containers")
+    s["edges"][1]["label"] = "Uses"
+    s["edges"][1].pop("tech")
+    e = " ".join(errs(s))
+    assert "says nothing" in e and "tech required between containers" in e, e
+
+
+@test
+def c4_default_ranks_people_first_receivers_last():
+    s = load("booking-containers")
+    nodes, _, _ = arch()["_c4_parts"](s)
+    rank = {n["id"]: n["rank"] for n in nodes}
+    assert rank["guest"] == 0 and rank["psp"] == max(rank.values()), rank
+
+
+@test
+def layered_mermaid_linkstyle_points_at_the_bad_edge():
+    s = load("booking-layers")
+    m = d.build(s)["mermaid"]
+    links = [ln for ln in m.splitlines() if "-->" in ln or "~~~" in ln]
+    idx = [int(x) for x in re.search(r"linkStyle ([\d,]+)", m).group(1).split(",")]
+    bad = [e for e in arch()["_layer_edges"](s) if e.get("_bad")]
+    assert [links[i] for i in idx] and all("-->" in links[i] for i in idx), links
+    assert all(f"n_{e['from']}" in links[i] and f"n_{e['to']}" in links[i] for i, e in zip(idx, bad)), (idx, links)
+
+
+@test
+def trust_longer_label_still_fits_lr():
+    s = load("booking-trust")
+    s["edges"][3]["label"] = "OAuth 2 client creds"
+    r = d.build(s)
+    assert not r["errors"] and r["geometry"]["width"] <= d.MAX_W, r["errors"]
+
+
+@test
+def nested_column_keeps_flow_order():
+    s = load("booking-trust")
+    s["direction"] = "TB"
+    g = d.build(s)["geometry"]
+    y = {n["id"]: n["y"] for n in g["nodes"]}
+    assert y["api"] < y["tok"], y  # source above the restricted zone it feeds
+    assert not arch()["route_issues"](g), arch()["route_issues"](g)
+
+
+@test
+def nested_mermaid_tints_frames():
+    m = d.build(load("booking-trust"))["mermaid"]
+    assert "style n_g_inet fill:#F8E3E3" in m and "style n_g_psp fill:none" in m, m
+
+
+@test
+def request_path_client_app_is_a_box():
+    s = load("booking-request")
+    svg = d.build(s)["svg"]
+    s["nodes"][0]["kind"] = "user"
+    assert not errs(s)
+    assert "client app" in svg
 
 
 if __name__ == "__main__":

@@ -261,6 +261,16 @@ def split_arrivals(c, edges, direction):
                 used.add(e["to_side"])
 
 
+def _ahead(c, e, direction, straight=False):
+    """True when e's target lies further along the flow than its source (a forward edge); straight: and its centre
+    lies within the source's span across the flow."""
+    a, b = c["rects"][e["from"]], c["rects"][e["to"]]
+    k = 1 if direction == "TB" else 0
+    j = 1 - k
+    inline = a[j] <= b[j] + b[j + 2] / 2 <= a[j] + a[j + 2]
+    return b[k] + b[k + 2] / 2 > a[k] + a[k + 2] / 2 + 1 and (inline or not straight)
+
+
 def too_wide(width, fix):
     raise core.LayoutError(f"canvas would be {int(width)}px wide (max {core.MAX_W}): {fix}")
 
@@ -283,7 +293,8 @@ def layered(spec, preps, edges, groups=None, gtones=None, direction="LR", group_
     items = [{"id": p["n"]["id"], "w": p["iw"], "h": p["ih"], "group": p["n"].get("group"), "rank": p["n"].get("rank")}
              for p in preps]
     lay = core.layout_layered(items, rank_edges, direction, groups, group_layout=group_layout)
-    if lay["width"] > core.MAX_W and auto_tb and direction != "TB" and not spec.get("direction"):
+    switched = lay["width"] > core.MAX_W and auto_tb and direction != "TB" and not spec.get("direction")
+    if switched:
         direction = "TB"
         lay = core.layout_layered(items, rank_edges, direction, groups, group_layout=group_layout)
     if lay["width"] > core.MAX_W:
@@ -307,20 +318,42 @@ def layered(spec, preps, edges, groups=None, gtones=None, direction="LR", group_
     if split_in:
         split_arrivals(c, edges, direction)
     main = "bottom" if direction == "TB" else "right"
+    entry = "top" if direction == "TB" else "left"
     looped = {e["from"] for e in edges if e["from"] == e["to"]}
-    loop_side = "right" if direction == "TB" else "top"
     for e in edges:  # failure, rejection, escalation leave from a side: the main path keeps the flow direction
-        if e.get("kind") in side_kinds and not e.get("from_side") and e["from"] != e["to"] and any(
+        if e.get("kind") in side_kinds and e["from"] != e["to"] and any(
                 f["from"] == e["from"] and f.get("kind") not in side_kinds and f["to"] != f["from"] for f in edges):
-            skip = {main, "top" if main == "bottom" else "left"} | ({loop_side} if e["from"] in looped else set())
-            e["from_side"] = side_toward(c["rects"][e["from"]], c["rects"][e["to"]], skip)
+            if not e.get("from_side"):
+                e["from_side"] = side_toward(c["rects"][e["from"]], c["rects"][e["to"]], {main, entry})
+            if not e.get("to_side") and e["from_side"] not in (main, entry) and _ahead(c, e, direction, True):
+                e["to_side"] = e["from_side"]  # target straight ahead: stay in the side lane, clear of the main path
+            e["own_port"] = True  # its own line out, never a trunk shared with the main path
+    pair = ("right", "left") if direction == "TB" else ("top", "bottom")
+    loop_side = {}
+    for n in looped:  # the self-loop takes a side no side exit uses; a drawn edge back into it arrives opposite
+        used = {e.get("from_side") for e in edges if e["from"] == n and e["to"] != n}
+        loop_side[n] = next((sd for sd in pair if sd not in used), pair[0])
+        other = pair[1] if loop_side[n] == pair[0] else pair[0]
+        for e in edges:
+            if e["to"] == n and e["from"] != n and not _ahead(c, e, direction):
+                e["to_side"], e["own_port"] = other, True
     core.route(c, [e for e in edges if e["from"] != e["to"]], direction, spread=spread)
     for e in edges:
         if e["from"] == e["to"]:
-            loop(c, e, direction)
+            loop(c, e, direction, loop_side[e["from"]])
     core.legend(c, list(legend))
     body, geo = core.finish(c)
+    if switched:
+        geo["direction"] = direction  # LR ran out of width: the Mermaid header and the base checker read this
     return body, geo, [CSS]
+
+
+def drawn_dir(svg_fn, spec, default):
+    """Direction the SVG layout actually used, so the Mermaid text matches the picture."""
+    try:
+        return svg_fn(spec, core)[1].get("direction") or spec.get("direction") or default
+    except core.LayoutError:
+        return spec.get("direction") or default
 
 
 LOOP = 24  # how far a self-loop stands off its box
@@ -333,16 +366,21 @@ def loop_room(label, direction):
     return {"_pad": LOOP + (22 if label else 4)}
 
 
-def loop(c, e, direction):
-    """Self-loop drawn as a small rectangle on the top (LR) or right side (TB), label beside it."""
+def loop(c, e, direction, side=None):
+    """Self-loop drawn as a small rectangle on one side (default top in LR, right in TB), label beside it."""
     x, y, w, h = c["rects"][e["from"]]
     lw = core.text_width(str(e.get("label", "")), 11, True) + 10
-    if direction == "TB":
-        y0, y1, xr = y + h * 0.3, y + h * 0.7, x + w + LOOP
-        pts, xy = [(x + w, y0), (xr, y0), (xr, y1), (x + w, y1)], (xr + lw / 2 + 6, (y0 + y1) / 2)
+    side = side or ("right" if direction == "TB" else "top")
+    if side in ("right", "left"):
+        y0, y1 = y + h * 0.3, y + h * 0.7
+        bx, xr = (x + w, x + w + LOOP) if side == "right" else (x, x - LOOP)
+        sx = 1 if side == "right" else -1
+        pts, xy = [(bx, y0), (xr, y0), (xr, y1), (bx, y1)], (xr + sx * (lw / 2 + 6), (y0 + y1) / 2)
     else:
-        x0, x1, yt = x + w * 0.35, x + w * 0.65, y - LOOP
-        pts, xy = [(x1, y), (x1, yt), (x0, yt), (x0, y)], ((x0 + x1) / 2, yt - 11)
+        x0, x1 = x + w * 0.35, x + w * 0.65
+        by, yt = (y, y - LOOP) if side == "top" else (y + h, y + h + LOOP)
+        sy = -1 if side == "top" else 1
+        pts, xy = [(x1, by), (x1, yt), (x0, yt), (x0, by)], ((x0 + x1) / 2, yt + sy * 11)
     core.arrow(c, pts, e, xy if e.get("label") else None)
 
 
@@ -422,6 +460,9 @@ RETRY_EDGES = {"retry": {"style": "dashed", "tone": "amber", "label": "retry"},
                "fallback": {"style": "dotted", "label": "fallback"}}
 
 
+SINKS = ("end", "dlq", "alert", "compensate", "fallback", "note", "store", "document")  # may end a path
+
+
 # dbt style: the flow kind becomes the pill colour and legend entry
 DBT_FLOW = {"start": "green", "end": "soft", "step": "blue", "decision": "amber", "io": "teal", "subprocess": "blue",
             "store": "ink", "document": "soft", "note": "soft", "wait": "lav", "manual": "amber", "dlq": "red",
@@ -433,11 +474,14 @@ def _flow_nodes(spec, items, kinds, tones=None, max_w=180):
     """Map flow items {id, label, kind, ...} onto base nodes: shape by kind, own painters for io / subprocess."""
     out = []
     for it in items:
-        n = {k: v for k, v in it.items() if k not in ("kind", "role", "sla", "retry", "timeout")}
+        n = {k: v for k, v in it.items() if k not in ("kind", "role", "sla", "retry", "timeout", "cat")}
         k = it.get("kind") or ("step" if "step" in kinds else next(iter(kinds)))
-        if spec.get("style") == "dbt":
-            n["kind"] = k
+        dbt = spec.get("style") == "dbt"
+        if dbt:
+            n["kind"] = it.get("cat") or k  # the author's category (check, build, deploy ...) colours the pill
         shape = kinds.get(k, "box")
+        if dbt and shape == "box" and not it.get("shape"):
+            shape = None  # the base dbt look draws a plain step as a pill
         if k == "end" and not it.get("tone"):
             n["tone"] = "soft"
         if (tones or {}).get(k) and not it.get("tone"):
@@ -454,38 +498,63 @@ def _flow_nodes(spec, items, kinds, tones=None, max_w=180):
     return out
 
 
+CAT_TONES = ("blue", "teal", "amber", "lav", "green", "ink", "soft")  # red stays for failure
+
+
 def _styled(spec, nodes, edges, groups, edge_kinds=None):
     s = dict(spec, edge_kinds=dict(edge_kinds or {}, **(spec.get("edge_kinds") or {})))
-    return core.style_graph(s, nodes, edges, groups, kinds=DBT_FLOW if spec.get("style") == "dbt" else None)
+    if spec.get("style") != "dbt":
+        return core.style_graph(s, nodes, edges, groups)
+    kinds, k = dict(DBT_FLOW), 0
+    for n in nodes:  # a category the spec's kinds does not name gets the next free tone
+        c = n.get("kind")
+        if c not in kinds and c not in (spec.get("kinds") or {}) and c not in core.DBT_KINDS:
+            kinds[c] = CAT_TONES[k % len(CAT_TONES)]
+            k += 1
+    st = core.style_graph(s, nodes, edges, groups, kinds=kinds)
+    tags = {n["id"]: n["tag"] for n in nodes if n.get("tag")}
+    for n in st["nodes"]:  # the author's tag (role, operator, timeout) wins over the kind name
+        if n["id"] in tags and not n.get("collapsed"):
+            n["tag"] = tags[n["id"]]
+    return st
 
 
 def _draw_flow(spec, nodes, edges, groups, edge_kinds=None, default_dir="TB", max_w=180, spread=False, side_kinds=()):
     st = _styled(spec, nodes, edges, groups, edge_kinds)
     paints = {n["id"]: (n.get("_paint"), n.get("_extra_w")) for n in nodes}
-    direction = spec.get("direction") or default_dir
-    loops = {e["from"]: loop_room(e.get("label"), direction) for e in st["edges"] if e["from"] == e["to"]}
-    preps = []
-    for n in st["nodes"]:
-        n = dict(n)
-        pt, xw = paints.get(n["id"], (None, None))
-        if pt:
-            n["_paint"], n["_extra_w"] = pt, xw
-        n.update(loops.get(n["id"], {}))
-        preps.append(prep(n, max_w))
     gl = {g["id"]: g.get("label", g["id"]) for g in st["groups"]}
     gt = {g["id"]: g.get("tone") for g in st["groups"]}
-    return layered(spec, preps, st["edges"], gl, gt, direction, st["group_layout"], st["legend"], spread=spread,
-                   side_kinds=side_kinds)
+    first = spec.get("direction") or default_dir
+    tries = [first] + (["TB"] if first != "TB" and not spec.get("direction") else [])
+    for k, direction in enumerate(tries):  # self-loop room depends on the direction: prepare per try
+        loops = {e["from"]: loop_room(e.get("label"), direction) for e in st["edges"] if e["from"] == e["to"]}
+        preps = []
+        for n in st["nodes"]:
+            n = dict(n)
+            pt, xw = paints.get(n["id"], (None, None))
+            if pt:
+                n["_paint"], n["_extra_w"] = pt, xw
+            n.update(loops.get(n["id"], {}))
+            preps.append(prep(n, max_w))
+        try:
+            out = layered(spec, preps, st["edges"], gl, gt, direction, st["group_layout"], st["legend"],
+                          spread=spread, auto_tb=False, side_kinds=side_kinds)
+            if k:
+                out[1]["direction"] = direction  # LR ran out of width: the Mermaid header and the base checker read this
+            return out
+        except core.LayoutError as ex:
+            if k == len(tries) - 1 or "canvas would be" not in str(ex):
+                raise
 
 
-def _mm_flow_type(spec, nodes, edges, groups, edge_kinds=None, default_dir="TB"):
+def _mm_flow_type(spec, nodes, edges, groups, edge_kinds=None, default_dir="TB", direction=None):
     st = _styled(spec, nodes, edges, groups, edge_kinds)
     own = {n["id"]: ("lean-r" if n.get("_paint") is _para else "subproc", True) for n in nodes if n.get("_paint")}
     ns = st["nodes"]
     if spec.get("style") in ("dbt", "airflow"):
         ns = [dict(n, label=" · ".join(str(x) for x in (n["label"], n.get("tag"), n.get("sub")) if x)) for n in ns]
     gs = {g["id"]: g.get("label", g["id"]) for g in st["groups"]}
-    return mermaid_flow(spec, ns, st["edges"], spec.get("direction") or default_dir, gs, own)
+    return mermaid_flow(spec, ns, st["edges"], direction or spec.get("direction") or default_dir, gs, own)
 
 
 def _check_flow(spec, items_key, edges_key, kinds):
@@ -501,6 +570,8 @@ def _check_flow(spec, items_key, edges_key, kinds):
             err.append(f"{items_key[:-1]} {it.get('id')}: kind '{it['kind']}' is not one of {', '.join(kinds)}")
         if (it.get("tone") or "plain") not in core.TONES:
             err.append(f"{items_key[:-1]} {it.get('id')}: tone '{it['tone']}' is not one of {', '.join(core.TONES)}")
+        if it.get("cat") is not None and (spec.get("style") != "dbt" or not isinstance(it["cat"], str)):
+            err.append(f"{items_key[:-1]} {it.get('id')}: cat is the dbt-style colour key: a short text, with style 'dbt'")
         if it.get("group") and it["group"] not in gids:
             err.append(f"{items_key[:-1]} {it.get('id')}: group '{it['group']}' is not in groups")
         if it.get("id") in gids:
@@ -509,10 +580,23 @@ def _check_flow(spec, items_key, edges_key, kinds):
     for e in edges:
         if len(str(e.get("label", ""))) > 36:
             err.append(f"edge {e.get('from')} -> {e.get('to')}: label over 36 characters: shorten it or move it into a box sub")
-    _, dout = _deg(edges)
+    din, dout = _deg([e for e in edges if e.get("from") != e.get("to")])
+    what = items_key[:-1]
+    kind = {it.get("id"): it.get("kind") for it in items}
+    has_end = "end" in kind.values()  # with explicit ends, every other step must lead somewhere
     for it in items:
-        if it.get("kind") == "end" and dout.get(it.get("id")):
-            err.append(f"{items_key[:-1]} {it.get('id')}: an end has no outgoing arrow")
+        i = it.get("id")
+        if it.get("kind") == "end" and dout.get(i):
+            err.append(f"{what} {i}: an end has no outgoing arrow")
+        if has_end and din.get(i) and not dout.get(i) and (it.get("kind") or "step") not in SINKS:
+            err.append(f"{what} {i}: dead end (arrows in, none out): add its next step, or make it kind 'end'"
+                       + (", 'dlq' or 'alert'" if "dlq" in kinds else ""))
+    if sum(1 for k in kind.values() if k == "start") > 1 and spec.get("view") != "overview":
+        err.append(f"{items_key}: more than one 'start': one process has one start; draw two diagrams, or one start "
+                   "and a decision")
+    for e in edges:
+        if kind.get(e.get("from")) == "decision" and not (e.get("label") or e.get("outcome") or e.get("kind")):
+            err.append(f"edge {e.get('from')} -> {e.get('to')}: an exit of a decision needs a label (the answer)")
     return err + core.check_style(spec)
 
 
@@ -522,7 +606,8 @@ def svg_flowchart(spec, core_):
 
 
 def mermaid_flowchart(spec):
-    return _mm_flow_type(spec, _flow_nodes(spec, spec["nodes"], FLOW_KINDS), spec.get("edges") or [], spec.get("groups"))
+    return _mm_flow_type(spec, _flow_nodes(spec, spec["nodes"], FLOW_KINDS), spec.get("edges") or [], spec.get("groups"),
+                         direction=drawn_dir(svg_flowchart, spec, "TB"))
 
 
 def validate_flowchart(spec):
@@ -561,7 +646,8 @@ def svg_retry(spec, core_):
 
 
 def mermaid_retry(spec):
-    return _mm_flow_type(spec, _retry_nodes(spec), _retry_edges(spec), spec.get("groups"), RETRY_EDGES, "LR")
+    return _mm_flow_type(spec, _retry_nodes(spec), _retry_edges(spec), spec.get("groups"), RETRY_EDGES, "LR",
+                         drawn_dir(svg_retry, spec, "LR"))
 
 
 def validate_retry(spec):
@@ -616,7 +702,8 @@ def svg_approval(spec, core_):
 
 
 def mermaid_approval(spec):
-    return _mm_flow_type(spec, _approval_nodes(spec), _approval_edges(spec), spec.get("groups"), APPROVAL_OUTCOMES, "TB")
+    return _mm_flow_type(spec, _approval_nodes(spec), _approval_edges(spec), spec.get("groups"), APPROVAL_OUTCOMES, "TB",
+                         drawn_dir(svg_approval, spec, "TB"))
 
 
 def validate_approval(spec):
@@ -806,7 +893,7 @@ def mermaid_state(spec):
     kind = lambda i: by[i].get("kind") or "state"  # noqa: E731
     comps = {s.get("parent") for s in states if s.get("parent")}
     out = core.mermaid_head(spec, "stateDiagram-v2")
-    out.insert(4, f"  direction {spec.get('direction') or 'LR'}")
+    out.insert(4, f"  direction {drawn_dir(svg_state, spec, spec.get('direction') or 'LR')}")
     sid = lambda i: "[*]" if kind(i) in ("initial", "final") else core.mm_id(i)  # noqa: E731
 
     def scope(parent, ind):
@@ -1001,6 +1088,14 @@ def _pool_of(spec):
     return {ln["id"]: ln.get("pool") for ln in spec.get("lanes") or []}
 
 
+def _lane_label(spec, ln):
+    """A lane named like its pool shows no second header (one-lane pool "Vendor / Vendor")."""
+    plabel = {p.get("id"): p.get("label", p.get("id")) for p in spec.get("pools") or []}
+    pl = plabel.get(ln.get("pool"))
+    lab = ln.get("label", "")
+    return "" if pl and lab.strip().lower() == str(pl).strip().lower() else lab
+
+
 def _sw_edges(spec):
     out = []
     for f in spec.get("flows") or []:
@@ -1040,19 +1135,22 @@ def _sw_node(it, max_w, tb):
 
 def _sw_cols(spec, edges):
     """Step index along the flow: a sequence flow moves one step on, a message flow keeps the step (the receiver
-    sits level with the sender); back edges (loops) are ignored; a node's own col wins."""
+    sits level with the sender), except a reply (the sender was itself reached by a message), which moves one step
+    on so the flow never reads backwards; back edges (loops) are ignored; a node's own col wins."""
     items = spec["nodes"]
     ids = [n["id"] for n in items]
     _, back = core.ranks(ids, edges)
     col = {n["id"]: n.get("col") or 0 for n in items}
     fixed = {n["id"] for n in items if n.get("col") is not None}
     flows = spec.get("flows") or []
+    replied = {f["to"] for f in flows if f.get("type") == "message"}
     for _ in range(len(ids)):
         moved = False
         for k, (f, e) in enumerate(zip(flows, edges)):
             if k in back or e["to"] in fixed:
                 continue
-            want = col[e["from"]] + (0 if (f.get("type") or "sequence") == "message" else 1)
+            msg = (f.get("type") or "sequence") == "message"
+            want = col[e["from"]] + (0 if msg and e["from"] not in replied else 1)
             if col[e["to"]] < want:
                 col[e["to"]], moved = want, True
         if not moved:
@@ -1079,7 +1177,7 @@ def _lanes_tb(spec, preps, col, lanes, pools):
         lw[ln["id"]] = max(need + [90]) + 2 * pad
     rows = sorted({r for _, r in cell})
     rh = {r: max(preps[i]["ih"] for (_, rr), v in cell.items() if rr == r for i in v) for r in rows}
-    head = max([len(core.label_lines(ln.get("label", ""), lw[ln["id"]])) for ln in lanes] + [1]) * 15 + 12
+    head = max([len(core.label_lines(_lane_label(spec, ln), lw[ln["id"]])) for ln in lanes] + [1]) * 15 + 12
     has_pool = any(pools.values())
     ptop = 30 if has_pool else 0
     x, prev, lrect, prect = core.MARGIN, None, {}, {}
@@ -1116,7 +1214,7 @@ def _lanes_lr(spec, preps, col, lanes, pools):
     """Lanes as rows, flow left to right, pool header column on the left: same record as _lanes_tb."""
     items = spec["nodes"]
     has_pool = any(pools.values())
-    lay = core.layout_lanes([{"id": ln["id"], "label": ln.get("label", "")} for ln in lanes],
+    lay = core.layout_lanes([{"id": ln["id"], "label": _lane_label(spec, ln)} for ln in lanes],
                             [{"id": it["id"], "w": preps[it["id"]]["iw"], "h": preps[it["id"]]["ih"],
                               "lane": it["lane"], "col": col[it["id"]]} for it in items],
                             _sw_edges(spec), header_w=LANE_W, gap=44, row_gap=18)
@@ -1161,7 +1259,7 @@ def svg_swimlane(spec, core_):
                        members=[it["id"] for it in items if pools[it["lane"]] == pid])
     for ln in lanes:
         r = lay["lanes"][ln["id"]]
-        core.container(c, ln["id"], ln.get("label", ""), *r, kind="lane", header_w=0 if tb else LANE_W,
+        core.container(c, ln["id"], _lane_label(spec, ln), *r, kind="lane", header_w=0 if tb else LANE_W,
                        members=[it["id"] for it in items if it["lane"] == ln["id"]])
         if tb:
             core.line(c, [(r[0], r[1] + lay["head"]), (r[0] + r[2], r[1] + lay["head"])])
@@ -1201,7 +1299,7 @@ def mermaid_swimlane(spec):
             n["shape"] = "document"
         nodes.append(n)
     plabel = {p.get("id"): p.get("label", p.get("id")) for p in spec.get("pools") or []}
-    groups = {ln["id"]: " / ".join(x for x in (plabel.get(pools.get(ln["id"]), pools.get(ln["id"])), ln.get("label")) if x)
+    groups = {ln["id"]: " / ".join(x for x in (plabel.get(pools.get(ln["id"]), pools.get(ln["id"])), _lane_label(spec, ln)) if x)
               for ln in spec["lanes"]}
     edges = [dict(e, tail="none") for e in _sw_edges(spec)]  # Mermaid has no circle tail: one-way dashed arrow
     return mermaid_flow(spec, nodes, edges, "LR", groups, own)
@@ -1250,6 +1348,12 @@ def validate_swimlane(spec):
             err.append(f"flow {f['from']} -> {f['to']}: a message flow connects two pools; inside one pool use a sequence flow")
         if t != "message" and not same:
             err.append(f"flow {f['from']} -> {f['to']}: a sequence flow stays inside its pool; between pools use type 'message'")
+        if t == "message" and kind[f["from"]] == "start":
+            err.append(f"flow {f['from']} -> {f['to']}: a start event only catches: send the message from a task or "
+                       "a message end event")
+        if t == "message" and kind[f["to"]] == "end":
+            err.append(f"flow {f['from']} -> {f['to']}: an end event only throws: let a task, a start or an "
+                       "intermediate event receive the message")
         if t == "conditional" and kind[f["from"]] == "gateway":
             err.append(f"flow {f['from']} -> {f['to']}: flows out of a gateway carry no condition marker: use a label")
         if len(str(f.get("label", ""))) > 36:

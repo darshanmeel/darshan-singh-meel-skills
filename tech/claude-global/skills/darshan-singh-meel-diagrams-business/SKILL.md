@@ -49,7 +49,7 @@ Types for "how is the business organised, where is value, what do we decide". Th
 ## Notation rules
 - Colour = one meaning, always named in the key or legend and repeated in text (heat word as tag, status word in sub, stance in legend), so greyscale still works.
 - Red only for failure, risk, off track, missing or threats; green for strong, on track, helpful; amber for weak, at risk, critics, waiting.
-- Quadrants: Mermaid numbering (1 top right, 2 top left, 3 bottom left, 4 bottom right) in Mermaid output; the spec uses `top_left` … `bottom_right`.
+- Quadrants: Mermaid numbering (1 top right, 2 top left, 3 bottom left, 4 bottom right) in Mermaid output; the spec uses `top_left` … `bottom_right`. No point on a divider (0.5, or the middle of an odd stakeholder scale): pick a side.
 - Team topology: four team types and three interaction modes as named by Team Topologies (check: https://teamtopologies.com/key-concepts).
 - Funnel: default bars narrow evenly (`scale: "steps"`, key says "not to scale"); `scale: "value"` makes width proportional but small stages keep a minimum width for their number.
 - Decision matrix: weights are shown as % of their sum; the weighted score is Σ(weight × score) / Σweight on the score scale.
@@ -59,7 +59,7 @@ Types for "how is the business organised, where is value, what do we decide". Th
 - Canvas ≤ 1000px; each type raises `layout: … : <fix>` instead of overflowing.
 - org chart: leaves stack under their manager automatically when wide (`stack_leaves`); still too wide → one chart per direct report.
 - mind map: ≤ 3 levels; the deepest level folds into sub text when wide (`compact`).
-- value stream ≤ 6 stages; SIPOC ≤ 8 steps; fishbone ≤ 8 categories; decision matrix ≤ 6 options; quadrant ~12 items.
+- value stream ≤ 4 stages with `start` and `end`, ≤ 6 without; SIPOC ≤ 8 steps; fishbone ≤ 8 categories; decision matrix ≤ 6 options; quadrant ~8 items at the default size (10-12 → `size: [720, 500]` or drop `sub`).
 - Labels: short names; detail in `sub`; causes and bullets ≤ ~6 words.
 
 ## Common mistakes

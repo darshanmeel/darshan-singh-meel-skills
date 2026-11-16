@@ -35,6 +35,7 @@ DARK = dict(ground="#141619", card="#1C1F24", line="#3A3F47", ink="#E8EAED", mut
             teal="#173A37", teal_ink="#83D3C9", amber="#3B2E12", amber_ink="#EEC065", lav="#2B2540", lav_ink="#BCA9F0",
             green="#6CCB95", green_bg="#16301F", blue="#86B2EE", blue_bg="#172A42", red="#F09090", red_bg="#3A1C1C",
             edge="#B7BCC4")
+DIM_TEXT = .8  # a dim node fades its outline to .4; its text turns muted at this opacity and stays >= 3:1
 SANS = '"IBM Plex Sans","Segoe UI",Arial,sans-serif'
 MONO = '"IBM Plex Mono",Consolas,monospace'
 _TONE_CSS = {"soft": ("soft", "muted"), "teal": ("teal", "teal-ink"), "amber": ("amber", "amber-ink"),
@@ -50,7 +51,9 @@ BASE_CSS = ("#S{font-family:" + SANS + "}#S text{white-space:pre}#S .dg-bg{fill:
             "#S .dg-dash>.dg-sh{stroke-dasharray:5 4}#S .dg-strong>.dg-sh{stroke-width:2.4}"
             + "".join(f"#S .dg-solid.dg-t-{t}>.dg-sh{{fill:var(--dg-{v});stroke:var(--dg-{v})}}" for t, v in _SOLID.items())
             + "#S .dg-solid .dg-l,#S .dg-solid .dg-lm,#S .dg-solid .dg-s,#S .dg-solid .dg-g{fill:var(--dg-card)}"
-            "#S .dg-dim{opacity:.4}#S .dg-lg{font-family:" + MONO + ";font-size:11px;fill:var(--dg-muted)}"
+            "#S .dg-dim{opacity:.4}#S .dg-n.dg-dim{opacity:1}#S .dg-n.dg-dim>:not(text){opacity:.4}"
+            "#S .dg-n.dg-dim text{fill:var(--dg-muted);opacity:" + str(DIM_TEXT) + "}#S .dg-dim.dg-solid>.dg-sh{fill:var(--dg-card)}"
+            "#S .dg-lg{font-family:" + MONO + ";font-size:11px;fill:var(--dg-muted)}"
             "#S .dg-act{fill:none;stroke:var(--dg-ink);stroke-width:1.4}"
             "#S .dg-l{font-size:13px;font-weight:600;fill:var(--dg-ink)}"
             "#S .dg-lm{font-family:" + MONO + ";font-size:12.5px;font-weight:600;fill:var(--dg-ink)}"
@@ -255,7 +258,8 @@ def canvas(spec):
     did = spec["id"]
     return {"id": did, "parts": {0: [], 1: [], 2: [], 3: []}, "css": [], "markers": set(), "rects": {}, "shapes": {},
             "obst": [], "pending": [], "legend": [],
-            "geo": {"id": did, "type": spec.get("type", ""), "width": 0, "height": 0, "connected": True,
+            "geo": {"id": did, "type": spec.get("type", ""), "style": spec.get("style") or "plain", "width": 0,
+                    "height": 0, "connected": True,
                     "nodes": [], "containers": [], "edges": [], "labels": []}}
 
 
@@ -398,7 +402,7 @@ def arrow(c, pts, e, label_xy=None):
     cls = f"dg-e {style}" + (f" c-{tone}" if tone else "") + (" dg-dim" if e.get("dim") else "")
     add(c, f'<path class="{cls}" d="{_path_d(pts)}"{attrs}/>', 1)
     c["geo"]["edges"].append({"from": e.get("from"), "to": e.get("to"), "points": [list(map(float, p)) for p in pts],
-                              "label": None})
+                              "label": None, "look": list(_look_of(e))})
     k = len(c["geo"]["edges"]) - 1
     if e.get("label"):
         c["pending"].append((k, str(e["label"]), label_xy))
@@ -477,8 +481,9 @@ def route(c, edges, direction="LR", spread=None):
     """Route edges (from, to, label, style, head, tail, tone, from_side, to_side, own_port) orthogonally around every
     node and container label drawn so far, then draw them. Ports spread along a side; labels go on their own line in
     finish(). Arrows that all leave or all reach one side share a port (a trunk) unless spread=True (every arrow)
-    or the edge sets own_port (that side)."""
+    or the edge sets own_port (that side). Arrows of different looks (kind, style, tone, dim) never share a trunk."""
     R = c["rects"]
+    c["geo"]["direction"] = direction
     if spread is None:
         spread = bool(c.get("spread"))
     for e in edges:
@@ -524,12 +529,15 @@ def route(c, edges, direction="LR", spread=None):
         lst.sort(key=lambda t: (_ctr(R[t[2]])[along], t[0]))
         n = len(lst)
         span = (r[3] if along else r[2]) - 16
-        trunk = (len({t[1] for t in lst}) == 1 and not spread  # all leave or all arrive: one shared port
+        trunk = (len({t[1] for t in lst}) == 1 and not spread  # all leave or all arrive: one port per line look
                  and not any(edges[t[0]].get("own_port") for t in lst))
+        looks = list(dict.fromkeys(_look_of(edges[t[0]]) for t in lst))
+        slot = [looks.index(_look_of(edges[k])) if trunk else i for i, (k, _, _) in enumerate(lst)]
+        m = len(looks) if trunk else n
         shape = c["shapes"].get(nid)
-        sp = min(18.0, span / max(n, 1)) if shape in _SPREAD and not trunk else 0.0
+        sp = min(18.0, span / max(m, 1)) if shape in _SPREAD and m > 1 else 0.0
         for i, (k, end, _) in enumerate(lst):
-            off = (i - (n - 1) / 2) * sp
+            off = (slot[i] - (m - 1) / 2) * sp
             ports[k][end] = _port(r, side, off, shape)
             p = _port(r, side, off)  # the stub starts outside the box's clear margin, whatever the outline
             stubs[k][end] = (p[0] + _NORM[side][0] * CLEAR, p[1] + _NORM[side][1] * CLEAR)
@@ -590,18 +598,24 @@ def route(c, edges, direction="LR", spread=None):
         gi, gj = X.index(round(b[0], 2)), Y.index(round(b[1], 2))
         sd = 0 if sides[k][0] in ("left", "right") else 1
         gd = 0 if sides[k][1] in ("left", "right") else 1
-        cells = _astar(X, Y, (si, sj), (gi, gj), sd, gd, bp, bh, bv, usage, cross, (e["from"], e["to"]))
+        me = (e["from"], e["to"], _look_of(e))
+        cells = _astar(X, Y, (si, sj), (gi, gj), sd, gd, bp, bh, bv, usage, cross, me)
         if cells is None:
             raise LayoutError(f"no route for {e['from']} -> {e['to']}: move the boxes apart or split the diagram")
         for (i1, j1), (i2, j2) in zip(cells, cells[1:]):
             key = ("h", min(i1, i2), j1) if j1 == j2 else ("v", i1, min(j1, j2))
-            usage.setdefault(key, []).append((e["from"], e["to"]))
+            usage.setdefault(key, []).append(me)
             cross.setdefault((i2, j2), set()).add(key[0])
         pts = [ports[k][0]] + [(X[i], Y[j]) for i, j in cells] + [ports[k][1]]
         paths[k] = _simplify(pts)
     for k, e in enumerate(edges):
         arrow(c, paths[k], e)
     return paths
+
+
+def _look_of(e):
+    """What an arrow's line says: two arrows that differ here must not share a line."""
+    return e.get("kind") or "", e.get("style") or "solid", e.get("tone") or "", bool(e.get("dim"))
 
 
 def _ctr(r):
@@ -657,7 +671,7 @@ def _astar(X, Y, start, goal, sd, gd, bp, bh, bv, usage, cross, me):
             for o in usage.get(key, ()):
                 if o[0] == "__near":
                     cost += 6
-                elif o[0] != me[0] and o[1] != me[1]:
+                elif o[0] != me[0] and o[1] != me[1] or o[2:] != me[2:]:  # another look is a foreign line
                     cost += 40 + 4 * ln
                 else:
                     shared = True
@@ -1318,7 +1332,10 @@ MM_TONE = {"soft": ("#EEEFEC", "#5B6068"), "teal": ("#DDF0EE", "#1C5C57"), "ambe
 
 
 def mm_text(s):
-    """A quoted Mermaid label with the characters that break the parser written as entity codes."""
+    """A quoted Mermaid label with the characters that break the parser written as entity codes.
+    A list or tuple gives one line per item, joined with <br/>."""
+    if isinstance(s, (list, tuple)):
+        return '"' + "<br/>".join(mm_text(x)[1:-1] for x in s if str(x).strip()) + '"'
     s = str(s).replace("\n", " ")
     for a, b in (("#", "#35;"), ('"', "#quot;"), ("|", "#124;"), ("<", "#60;"), (">", "#62;")):
         s = s.replace(a, b)
@@ -1541,7 +1558,8 @@ def style_graph(spec, nodes=None, edges=None, groups=None, kinds=None, states=No
             n["strong"] = n.get("strong", bool(st))
             tags = [n["operator"]] if n.get("operator") else []
             if st and not n.get("collapsed"):
-                n["sub"] = " · ".join(x for x in (st.replace("_", " "), n.get("sub")) if x)
+                word = _look(sm, st).get("label", st.replace("_", " "))  # "none" reads "no status", as in the legend
+                n["sub"] = " · ".join(x for x in (word, n.get("sub")) if x)
         else:
             n["shape"] = n.get("shape") or look.get("shape")
             n["solid"] = n.get("solid", look.get("solid", False))
@@ -1573,6 +1591,82 @@ def style_graph(spec, nodes=None, edges=None, groups=None, kinds=None, states=No
     return {"nodes": nodes, "edges": edges, "groups": groups, "legend": leg if spec.get("legend", True) else [],
             "group_layout": spec.get("group_layout") or ("columns" if style == "dbt" else "auto"),
             "direction": spec.get("direction") or ("LR" if style != "plain" else None)}
+
+
+# types that are DAGs by definition; types whose loops are the point; types drawn in a style by default
+DAG_TYPES = {"lineage", "dbt-lineage", "airflow-dag", "airflow-overview", "orchestration", "medallion"}
+LOOPS_OK = {"retry-flow", "agent-loop", "state-machine", "ml-lifecycle"}
+STYLE_OF = {"dbt-lineage": "dbt", "airflow-dag": "airflow", "airflow-overview": "airflow", "orchestration": "airflow"}
+
+
+def find_cycle(edges):
+    """First cycle in [{from, to}] as [a, b, ..., a], or None."""
+    g = {}
+    for e in edges:
+        g.setdefault(e.get("from"), []).append(e.get("to"))
+    done, path = set(), []
+
+    def walk(n):
+        if n in path:
+            return path[path.index(n):] + [n]
+        if n in done:
+            return None
+        path.append(n)
+        for m in g.get(n, []):
+            c = walk(m)
+            if c:
+                return c
+        done.add(path.pop())
+        return None
+    return next((c for c in map(walk, list(g)) if c), None)
+
+
+def spec_graph(spec):
+    """(node ids -> group, edges) straight from a spec, for checks that must run when the build fails: spec edges plus
+    depends_on / upstream lists on nodes, models, tasks, activities or dags."""
+    groups, edges = {}, [e for e in spec.get("edges") or [] if isinstance(e, dict)]
+    for key in ("nodes", "models", "tasks", "activities", "dags"):
+        for n in spec.get(key) or []:
+            if isinstance(n, dict) and n.get("id"):
+                groups[n["id"]] = n.get("group")
+                edges += [{"from": d, "to": n["id"]} for f in ("depends_on", "upstream") for d in n.get(f) or []]
+    return groups, edges
+
+
+def dag_check(spec, geo=None):
+    """DAG notation: [(level "error" | "warn", check, detail)]. A DAG type or the dbt style must be acyclic (error);
+    the airflow style on another type should be (warn), unless loops are the point of the type. In the dbt style
+    with layer groups no edge runs back against the layer order (again unless loops are the point): drawn positions when geo is given, else the order
+    of spec groups."""
+    t, out = spec.get("type"), []
+    style = spec.get("style") or STYLE_OF.get(t)
+    if geo:
+        nodes = {n["id"]: n for n in geo["nodes"]}
+        edges = [e for e in geo["edges"] if e.get("from") in nodes and e.get("to") in nodes]
+        has_groups = bool(geo["containers"])
+    else:
+        where, edges = spec_graph(spec)
+        edges = [e for e in edges if e.get("from") in where and e.get("to") in where]
+        has_groups = bool(spec.get("groups"))
+    if t in DAG_TYPES or (style in ("dbt", "airflow") and t not in LOOPS_OK):
+        c = find_cycle(edges)
+        if c:
+            lvl = "error" if t in DAG_TYPES or style == "dbt" else "warn"
+            out.append((lvl, "graph not acyclic", " -> ".join(map(str, c)) + f" ({style or t} reads as a DAG)"))
+    if style == "dbt" and has_groups and edges and t not in LOOPS_OK:
+        if geo:
+            def fwd(ax, e):
+                a, b, d = nodes[e["from"]], nodes[e["to"]], "h" if ax == "y" else "w"
+                return b[ax] + b[d] / 2 - (a[ax] + a[d] / 2)
+            down = sum(fwd("y", e) > 1 for e in edges) > sum(fwd("x", e) > 1 for e in edges)
+            ax = "y" if spec.get("direction") == "TB" or geo.get("direction") == "TB" or down else "x"
+            back = [e for e in edges if fwd(ax, e) < -1]
+        else:
+            order = {g.get("id"): i for i, g in enumerate(spec.get("groups") or []) if isinstance(g, dict)}
+            back = [e for e in edges if where[e["from"]] in order and where[e["to"]] in order
+                    and order[where[e["to"]]] < order[where[e["from"]]]]
+        out += [("error", "edge against layer order", f"{e['from']} -> {e['to']}") for e in back]
+    return out
 
 
 def check_style(spec):
@@ -1941,7 +2035,10 @@ def build(spec, chrome=True):
     if res["errors"]:
         return res
     try:
-        res["errors"] += list(t["validate"](spec) or [])
+        found = [str(x) for x in t["validate"](spec) or []]
+        # a validator marks a soft finding with a leading "WARN ": it becomes "WARN <id> | <text>", not an error
+        res["errors"] += [x for x in found if not x.startswith("WARN ")]
+        res["warnings"] += [f"WARN {spec['id']} | {x[5:]}" for x in found if x.startswith("WARN ")]
     except Exception as ex:
         res["errors"].append(f"validate crashed: {type(ex).__name__}: {ex}")
     if res["errors"]:
@@ -1959,6 +2056,12 @@ def build(spec, chrome=True):
     geo["id"], geo["type"] = spec["id"], spec["type"]
     res["geometry"] = geo
     probs, warns = checker.check(geo)
+    words = re.findall(r"column|left[ -]to[ -]right", str(spec.get("key", "")) + " " + str(spec.get("notice", "")), re.I)
+    if geo.get("style") in ("dbt", "airflow") and geo.get("direction") == "TB" and not spec.get("direction") and words:
+        warns.append(("direction fell back to TB", f"too wide left to right, drawn top-down: the key says '{words[0]}', "
+                      "but layers are rows"))
+    for lvl, p, x in dag_check(spec, geo):
+        (probs if lvl == "error" else warns).append((p, x))
     res["errors"] += [f"LAYOUT {spec['id']} | {p} | {x}" for p, x in probs]
     res["warnings"] += [f"WARN {spec['id']} | {p} | {x}" for p, x in warns]
     res["svg"] = _root(spec, body, geo, chrome, extra)

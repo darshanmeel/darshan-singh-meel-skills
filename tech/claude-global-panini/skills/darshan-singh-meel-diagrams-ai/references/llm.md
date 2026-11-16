@@ -3,7 +3,7 @@
 Fields of `rag-pipeline`, `agent-loop`, `multi-agent` and `context-assembly`. Common fields (`id`, `type`, `title`, `key`, `notice`, `style`, `view`, `collapse`, `legend`, `max_w`) and node / edge fields are in the base `references/spec.md`.
 
 ## Node kinds (all AI types)
-`data` · `step` · `model` · `agent` · `store` · `tool` · `guard` · `human` · `client` · `gateway` · `router` · `cache` · `monitor` · `output` · `pass` · `fail`. Each type sets a default kind for its lists; set `kind` on a node to change it. dbt kind names are accepted too.
+`data` · `step` · `model` · `agent` · `store` · `tool` · `guard` · `gate` · `human` · `client` · `gateway` · `router` · `cache` · `monitor` · `output` · `pass` · `fail`. Each type sets a default kind for its lists; set `kind` on a node to change it. dbt kind names are accepted too.
 
 ## `rag-pipeline`
 | Field | Rule |
@@ -12,7 +12,7 @@ Fields of `rag-pipeline`, `agent-loop`, `multi-agent` and `context-assembly`. Co
 | `stores` | ≥ 1 node (vector index, keyword index, document store); default kind `store` |
 | `query` | ≥ 2 nodes in order (question, embed, retrieve, rerank, generate, answer), chained |
 | `edges` | at least one ingest step → each store and each store → one query step; labels such as `upsert`, `k-NN + keyword` |
-| `ingest_label`, `query_label`, `store_label` | frame titles; defaults `Ingest (offline)`, `Query (online, per request)`, `Index` |
+| `ingest_label`, `query_label`, `store_label` | frame titles; defaults `Ingest (offline)`, `Query (per request)`, `Index` |
 | `nodes` | extra boxes (an eval hook, a cache); switches to the layered layout |
 | `layout` | `columns` (default: ingest, index, query side by side, the store level with the step that reads it) or `flow` |
 
@@ -39,7 +39,7 @@ Placement in `loop`: the entry chain (client → input guard) runs down into the
 | `groups` | teams or parallel branches |
 
 - Structure view (who may call whom): plain style.
-- Run view (what happened last run): `style: "airflow"` and `state` per agent (`success`, `failed`, `up_for_retry`, `running`, `none` …); the legend shows the states used.
+- Run view (what happened last run): `style: "airflow"` and `state` per agent (`success`, `failed`, `up_for_retry`, `running`, `none` …); the legend shows the states used. A `human` node keeps its stick figure with the state colour; other kinds become task boxes, so put the role in `operator`.
 - Supervisor patterns: one supervisor fanning out to a group of workers, results merging in one node.
 
 ## `context-assembly`

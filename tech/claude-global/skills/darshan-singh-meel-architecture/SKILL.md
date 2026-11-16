@@ -36,6 +36,7 @@ One prompt (skip what the user already said this session):
 | 13 | Accuracy + feasibility + voice: `build.py --checklist <spec>` → open each item, fix the spec, tick it (`- [x]`) → rebuild: "Accuracy: N of N checked" | Opus | ticked checklist |
 | 14 | Layout: `python <docs-v2>/references/templates/check.py <html> generated-docs/_spec/shots` (1280 and 390 px) → 0 `LAYOUT`; `python <skill>/references/templates/shots.py <html> generated-docs/_spec/shots` → read every `map-<n>.png`, `s1…s8.png` and `p1…p8.png` (native size) | Haiku | 0 LAYOUT, shots read |
 
+- **Diagram types the builder lacks** (C4 context, deployment, network topology, ER, lineage, sequence, Gantt for the migration): build with `darshan-singh-meel-diagrams` + family (`--page generated-docs/diagrams/<id>.html`, 0 `LAYOUT`), current and target from the same ids so they compare; link it from the section's text. The builder's own diagrams stay as they are.
 - **Done** = 0 ERROR · 0 WARN · 0 LAYOUT · checklist all ticked · shots read. Otherwise the reply says what is missing ("accuracy not reviewed", "layout not checked"), never "done".
 - No subagents unless asked: run 13 as a separate pass; tell the user in one line which model to switch to per phase.
 - First time `generated-docs/` is created: ask once whether to commit it. Start the spec from `references/examples/architecture-example.json`.

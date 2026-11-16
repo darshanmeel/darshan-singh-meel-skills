@@ -10,13 +10,13 @@ Eleven data types plugged into `darshan-singh-meel-diagrams` (engine, style, emb
 ## Pick the type
 | Question | Type | Not when → instead |
 |---|---|---|
-| Which tables exist, their keys, how they relate? | `er` | > 9 tables → one diagram per area · physical columns not decided → header-only boxes |
+| Which tables exist, their keys, how they relate? | `er` | > 6 tables → one diagram per area · physical columns not decided → header-only boxes |
 | How is one fact table sliced? | `star-schema` | several facts sharing dimensions → `er` with areas |
 | Where does this data come from, what does it feed, what breaks if X changes? | `lineage` | dbt project → `dbt-lineage` · run order and state → `airflow-dag` |
 | How do dbt models depend on each other, layer by layer? | `dbt-lineage` | non-dbt tools in the chain → `lineage` |
 | What does one DAG run do and where did it stop? | `airflow-dag` | several DAGs → `airflow-overview` |
 | Which DAGs trigger which, on what schedule or asset? | `airflow-overview` | task detail → one `airflow-dag` per DAG |
-| What data moves between people, processes and stores? | `dfd` | system parts and protocols → architecture family |
+| What data moves between people, processes and stores? | `dfd` | system parts and protocols → architecture family · level 1 over 8 nodes → one level-2 diagram per process |
 | What lives in each lake or warehouse layer and its rule? | `medallion` | table-level dependencies → `lineage` |
 | How does an ADF / Databricks Workflows / Step Functions pipeline run? | `orchestration` | Airflow → `airflow-dag` |
 | How do changes stream from a database to consumers? | `cdc-streaming` | batch loads → `lineage` |
@@ -35,7 +35,7 @@ Every node-edge type takes `style` (base `references/spec.md`). Pick by content,
 - `dbt-lineage`: `view: "overview"` = one box per layer with counts → then `select` per area (`"+fct_orders"`, `"stg_orders+"`).
 - `airflow-overview` for all DAGs → one `airflow-dag` per DAG that matters; `collapse` task groups the reader does not need.
 - `data-mesh`: `view: "overview"` = one box per domain → detail for one domain.
-- `er`: one diagram per subject area (`areas`) when over 9 tables; `more: n` instead of listing every column.
+- `er`: over 6 tables → a header-only `er` of all tables as the overview, then one diagram per subject area (`areas`); `more: n` instead of listing every column.
 - `orchestration`: `collapse` container activities (ForEach, Until) for the run picture; draw a container's inner activities as their own diagram.
 
 ## Process
@@ -54,9 +54,11 @@ Every node-edge type takes `style` (base `references/spec.md`). Pick by content,
 - Impact views: changed node and the paths it reaches red, everything else faded (`impact`).
 
 ## Sizing limits
-- Canvas ≤ 1000px. A styled graph tries left to right, then groups as bands, then top-down; when all fail the error names the fix (overview, `select`, split, shorter labels).
+- Canvas ≤ 1000px. A styled graph tries left to right, then groups as bands, then top-down, and keeps the first picture with no `LAYOUT` line; when all fail the error names the fix (overview, `select`, split, shorter labels). Mermaid follows the direction drawn.
+- Arrows of different kinds from one box (sensor and asset, lookup and data, failure and success) leave on different sides; arrows into one box in a top-down lineage or DAG each get their own end.
 - About five layers fit left to right with dbt pills; more → overview or `select`.
-- `er`: about three entity columns side by side; `star-schema`: dimensions on two sides, outriggers stacked under their parent.
+- `er`: about three entity columns side by side, then top-down with one area per row; `star-schema`: dimensions on two sides, outriggers under their parent, boxes wrap at 200px.
+- `dfd`: left to right, then a grid (processes in the middle row, externals above, stores below their main process), then top-down.
 - Edge labels ≤ 36 characters; port, asset and flow names only.
 
 ## Common mistakes

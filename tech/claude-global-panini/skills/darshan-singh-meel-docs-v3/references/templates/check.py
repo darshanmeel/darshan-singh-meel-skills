@@ -199,6 +199,8 @@ JS = r"""(narrow) => {
 
 def main(path, shots=None):
     sys.stdout.reconfigure(encoding="utf-8")  # box text can hold arrows; Windows consoles default to cp1252
+    if not Path(path).is_file():
+        sys.exit(f"ERROR {path} not found: build the page first")
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:

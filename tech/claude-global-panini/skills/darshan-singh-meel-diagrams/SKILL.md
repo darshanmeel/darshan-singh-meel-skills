@@ -33,6 +33,7 @@ Any node-edge type takes `"style"`. The author picks what fits the content; noth
 - **dbt** - things that depend on things: lineage, dependencies, impact ("what breaks if X changes"), service call graphs, job chains. Left to right, one column per layer (group), pill colour by `kind`, legend. Use `view: "overview"` for the one-screen picture (a pill per group with counts), then a detail diagram per group. Not only for dbt projects.
 - **airflow** - executable steps with run state: DAG runs, CI pipelines, agent workflows, batch jobs. Task box with type (`operator`) and `state` colour, frames for task groups, `collapse` some groups, `kind: "asset"` / `"trigger"` edges between DAGs or pipelines.
 - **plain** (default) - everything else.
+- dbt and airflow read as DAGs: the build fails on a cycle (dbt style, DAG types) or an edge back against the layer order; airflow style on other types warns. Too wide left to right with no `direction` set → drawn top-down: layers are then rows, so the key says "row" (the build warns `direction fell back to TB` when the key or Notice says "column" or "left to right").
 - Families map their own kinds and states onto a style (`kinds`, `states` maps). Details: `references/spec.md`.
 
 ## High level first, then detail

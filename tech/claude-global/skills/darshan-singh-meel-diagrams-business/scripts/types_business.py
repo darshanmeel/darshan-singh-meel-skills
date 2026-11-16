@@ -315,17 +315,31 @@ TEAM_MODES = {"collaboration": {"style": "thick", "tone": "lav", "label": "colla
 
 
 def _team_map(spec):
+    """Teams and interactions as base nodes and edges, plus the team-type kinds to colour by. In the airflow style
+    the fill shows the run state when teams carry one, so the type moves into the tag and leaves the legend."""
     nodes = [{k: v for k, v in dict(t, kind=t.get("kind") or t.get("type")).items() if k != "type"} for t in spec["teams"]]
     edges = [dict({k: v for k, v in e.items() if k != "mode"}, kind=e.get("kind") or e.get("mode"))
              for e in spec.get("interactions") or []]
+    kinds = TEAM_KINDS
+    if spec.get("style") == "airflow":
+        km = dict(TEAM_KINDS, **(spec.get("kinds") or {}))
+        for n in nodes:
+            if n.get("kind") and not n.get("operator"):
+                n["operator"] = _kind_look({}, km, n["kind"]).get("label", n["kind"])
+        if any(n.get("state") for n in nodes):
+            kinds = None
+            for n in nodes:
+                n.pop("kind", None)
     s = dict(spec, nodes=nodes, edges=edges, edge_kinds=dict(TEAM_MODES, **(spec.get("edge_kinds") or {})))
-    return s, nodes, edges
+    if not kinds:
+        s.pop("kinds", None)
+    return s, nodes, edges, kinds
 
 
 def validate_team(spec):
     if not spec.get("teams"):
         return ["teams: required [{id, label, type, sub?, group?}]"]
-    s, _, edges = _team_map(spec)
+    s, _, edges, _ = _team_map(spec)
     err = core.check_graph(s) + core.check_style(s)
     known = set(TEAM_KINDS) | set(spec.get("kinds") or {})
     err += [f"team {t['id']}: type '{t.get('type')}' is not one of {', '.join(sorted(known))}"
@@ -336,13 +350,14 @@ def validate_team(spec):
 
 
 def svg_team(spec, core_):
-    s, nodes, edges = _team_map(spec)
-    return core.graph(s, nodes, edges, spec.get("groups"), kinds=TEAM_KINDS)
+    s, nodes, edges, kinds = _team_map(spec)
+    # one port per arrow: a label on a shared trunk could belong to any branch
+    return core.graph(s, nodes, edges, spec.get("groups"), kinds=kinds, spread=True)
 
 
 def mermaid_team(spec):
-    s, nodes, edges = _team_map(spec)
-    return core.mermaid_graph(s, nodes, edges, spec.get("groups"), kinds=TEAM_KINDS)
+    s, nodes, edges, kinds = _team_map(spec)
+    return core.mermaid_graph(s, nodes, edges, spec.get("groups"), kinds=kinds)
 
 
 # ---------- capability-map ----------
@@ -466,6 +481,9 @@ def validate_vs(spec):
             if k in s and not isinstance(s[k], (int, float)):
                 err.append(f"stage {s.get('label')}: {k} must be a number in spec unit '{spec.get('unit', 'h')}'")
         err += _tone_err(f"stage {s.get('label')}", s.get("tone"))
+    st = spec.get("stages") or []
+    if st and st[0].get("wait") is not None and not spec.get("start"):
+        err.append("stages[0].wait needs 'start' (the wait sits between start and stage 1): add start or drop the wait")
     return err
 
 
@@ -495,7 +513,7 @@ def svg_vs(spec, core_):
     for (w, _), gp in zip(sz, gaps + [0]):
         rects.append((x, M, w, H))
         x += w + gp
-    _too_wide(x + M, "fewer stages per diagram (split the stream), or shorter stage names")
+    _too_wide(x + M, "fewer stages per diagram (split the stream), shorter stage names, or drop the start/end pills")
     for n, r in zip(ns, rects):
         core.node(c, n, *r)
     for a, b, ra, rb in zip(ns, ns[1:], rects, rects[1:]):
@@ -551,6 +569,11 @@ def validate_vc(spec):
     return err
 
 
+def _vc_sub(a):
+    """Green marks a source of advantage; the word repeats it so greyscale (and teal next to green) still reads."""
+    return " · ".join(x for x in (a.get("sub"), "advantage" if a.get("tone") == "green" else None) if x) or None
+
+
 def svg_vc(spec, core_):
     c = core.canvas(spec)
     c["geo"]["connected"] = False
@@ -575,9 +598,9 @@ def svg_vc(spec, core_):
     pw = (aw - 8 * (len(pr) - 1)) / len(pr)
     if pw < 120:
         raise core.LayoutError(f"{len(pr)} primary activities leave {int(pw)}px each (min 120): merge activities")
-    ph = max(panel_h(a["label"], _items(a.get("items")), pw, a.get("sub")) for a in pr)
+    ph = max(panel_h(a["label"], _items(a.get("items")), pw, _vc_sub(a)) for a in pr)
     for i, a in enumerate(pr):
-        panel(c, f"pri{i}", a["label"], _items(a.get("items")), M + i * (pw + 8), y, pw, ph, a.get("tone") or "teal", a.get("sub"))
+        panel(c, f"pri{i}", a["label"], _items(a.get("items")), M + i * (pw + 8), y, pw, ph, a.get("tone") or "teal", _vc_sub(a))
     bottom = y + ph
     mg = spec.get("margin") or {}
     n = {"id": "margin", "label": mg.get("label", "Margin"), "sub": mg.get("sub"), "shape": "box", "tone": mg.get("tone", "amber"),
@@ -646,6 +669,8 @@ def validate_quad(spec):
             v = it.get(a)
             if not isinstance(v, (int, float)) or not 0 <= v <= 1:
                 err.append(f"item {it.get('label')}: {a} must be a number from 0 to 1")
+            elif v == 0.5:
+                err.append(f"item {it.get('label')}: {a} = 0.5 is on the divider: pick a side (e.g. 0.45 or 0.55)")
         err += _tone_err(f"item {it.get('label')}", it.get("tone"))
     return err
 
@@ -703,23 +728,20 @@ def _quad_draw(spec, kinds=None):
                       (dx - dist - w, dy - dist - h), (dx - dist - w, dy + dist)]
         pick = None
         mx, my = x0 + PW / 2, y0 + PH / 2
-        for same in (True, False):  # first try to keep the label inside the dot's own quadrant
-            for cx, cy in cands:
-                r = (cx, cy, w, h)
-                if r[0] < x0 + 2 or r[1] < y0 + 2 or r[0] + w > x0 + PW - 2 or r[1] + h > y0 + PH - 2:
-                    continue
-                if same and ((r[0] < mx < r[0] + w) or (r[1] < my < r[1] + h) or (r[0] >= mx) != (dx >= mx)
-                             or (r[1] >= my) != (dy >= my)):
-                    continue
-                if any(_ov(r, b, 4) for b in blocked + dots):
-                    continue
-                pick = r
-                break
-            if pick:
-                break
+        for cx, cy in cands:  # the label stays inside the dot's own quadrant, or the reader misplaces it
+            r = (cx, cy, w, h)
+            if r[0] < x0 + 2 or r[1] < y0 + 2 or r[0] + w > x0 + PW - 2 or r[1] + h > y0 + PH - 2:
+                continue
+            if ((r[0] < mx < r[0] + w) or (r[1] < my < r[1] + h) or (r[0] >= mx) != (dx >= mx)
+                    or (r[1] >= my) != (dy >= my)):
+                continue
+            if any(_ov(r, b, 4) for b in blocked + dots):
+                continue
+            pick = r
+            break
         if not pick:
-            raise core.LayoutError(f"no free place for the label of '{it['label']}': shorten labels, move the item, or "
-                                   "set a larger size [w, h]")
+            raise core.LayoutError(f"no free place inside its quadrant for the label of '{it['label']}': shorten labels "
+                                   "or drop sub, move the item, or set a larger size [w, h] (e.g. [720, 500])")
         blocked.append(pick)
         core.node(c, n, *pick)
         near_x = min(max(dx, pick[0]), pick[0] + w)
@@ -784,6 +806,9 @@ def validate_stake(spec):
         for k in ("power", "interest"):
             if not isinstance(s.get(k), (int, float)) or not 1 <= s[k] <= sc:
                 err.append(f"stakeholder {s.get('label')}: {k} must be a number from 1 to {sc}")
+            elif s[k] == (1 + sc) / 2:
+                err.append(f"stakeholder {s.get('label')}: {k} {s[k]:g} is the middle of 1-{sc} and sits on the divider: "
+                           "pick a side (lower or higher), or use an even scale")
         if s.get("stance") and s["stance"] not in dict(STANCE, **(spec.get("kinds") or {})):
             err.append(f"stakeholder {s.get('label')}: stance '{s['stance']}' is not one of {', '.join(STANCE)}")
         if not s.get("label"):

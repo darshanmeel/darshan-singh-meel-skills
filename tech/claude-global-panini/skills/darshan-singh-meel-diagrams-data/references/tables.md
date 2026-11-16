@@ -14,7 +14,7 @@ Both draw entity tables: a header (name, optional `sub`) and one row per column 
 | `dim`, `tip`, `free` | faded / hover text / no unconnected warning |
 
 - List key columns and the few that explain the relation; the rest goes in `more`.
-- A long column name wraps after `_`; a long type moves under the name. The box never grows past `max_w` (spec, default 260 for `er`, 240 for `star-schema`).
+- A long column name wraps after `_`; a long type moves under the name. The box never grows past `max_w` (spec, default 260 for `er`, 200 for `star-schema`).
 - No columns → a header-only box (conceptual model).
 
 ## `er`
@@ -29,8 +29,9 @@ Both draw entity tables: a header (name, optional `sub`) and one row per column 
 - `label` = verb phrase, ≤ 36 characters; leave it out when the FK name says it.
 - `areas` = subject areas drawn as frames; Mermaid lists them as comments.
 - `from_side` / `to_side` (`left right top bottom`) on a relation: use when two relations reach one table from the same side and read as one line (e.g. a table in another area below → `to_side: "bottom"`).
-- `direction` LR (default) or TB; `rank` on an entity fixes its column; `area_layout` `auto` | `bands` | `columns`.
-- Too wide: split by area, cut columns with `more`, or `direction: "TB"`.
+- `direction` LR (default) or TB; `rank` on an entity fixes its column; `area_layout` `auto` | `bands` | `columns`. Unset, the build tries LR, then TB, then TB with one area per row (`columns`), and sends a table's relations to tables beside it out of its sides when the default has a `LAYOUT` line.
+- Over 6 tables: a header-only `er` of all tables (no `columns`) as the overview, then one diagram per area.
+- Too wide: split by area, cut columns with `more`; the error lists only fixes not already set.
 
 ## `star-schema`
 ```json
@@ -41,6 +42,6 @@ Both draw entity tables: a header (name, optional `sub`) and one row per column 
 ```
 - Fact in the middle (blue header); dimensions alternate left and right unless `side` is set (teal header).
 - `parent` makes a snowflaked outrigger (grey header) stacked under its parent dimension.
-- `via` = label on the relation (join key or role, e.g. "order / ship date" for a role-playing date).
+- `via` = label on the relation (join key or role, e.g. "order / ship date" for a role-playing date). It sets the gap to the fact: too wide → shorter `via` (key name only), lower `max_w`, `more: n`, or all dimensions on one side.
 - `card` default `1:0..N` (one dimension row, many fact rows); `identifying` as in `er`.
 - Several facts sharing dimensions (bus matrix) → `er` with areas, or a base `grid` for the matrix.

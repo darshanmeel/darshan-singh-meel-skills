@@ -12,6 +12,7 @@ AI_KINDS = {
     "store": {"tone": "blue", "label": "store", "shape": "cylinder"},
     "tool": {"tone": "teal", "label": "tool"},
     "guard": {"tone": "amber", "label": "guardrail", "shape": "hexagon"},
+    "gate": {"tone": "amber", "label": "gate", "shape": "diamond"},
     "human": {"tone": "amber", "label": "human", "shape": "actor"},
     "client": {"tone": "soft", "label": "client"},
     "gateway": {"tone": "ink", "label": "gateway"},
@@ -38,7 +39,7 @@ AI_EDGES = {
     "feedback": {"style": "dashed", "tone": "blue", "label": "feedback loop"},
     "fallback": {"style": "dashed", "tone": "amber", "label": "fallback"},
     "return": {"style": "dashed", "tone": "muted", "label": "returns result"},
-    "handoff": {"style": "thick", "label": "hands off"},
+    "handoff": {"style": "thick", "label": "handoff"},
     "approval": {"style": "dashed", "tone": "amber", "label": "human approval"},
     "telemetry": {"style": "dotted", "tone": "muted", "label": "telemetry"},
     "residual": {"tone": "muted", "label": "residual (skip) connection"},
@@ -110,7 +111,10 @@ def _styled(p):
                                    shape=None if v.get("shape") == "actor" else v.get("shape"))
                            for k, v in p["kinds"].items()})
     if p["spec"].get("style") == "airflow":
-        p = dict(p, kinds={}, nodes=[{k: v for k, v in n.items() if k != "kind"} for n in p["nodes"]])
+        # a human gate keeps its stick figure (state colour on the outline); other kinds become task boxes
+        p = dict(p, kinds={}, nodes=[dict({k: v for k, v in n.items() if k != "kind"},
+                                          **({"shape": n.get("shape", "actor")} if n.get("kind") == "human" else {}))
+                                     for n in p["nodes"]])
     return p
 
 
@@ -129,7 +133,12 @@ def _graph_type(parts, rules, doc):
 
     def mermaid(spec):
         p = _styled(parts(spec))
-        return core.mermaid_graph(p["spec"], p["nodes"], p["edges"], p["groups"], kinds=p["kinds"])
+        nodes = p["nodes"]
+        if p["spec"].get("style") not in ("dbt", "airflow"):  # those styles join the lines already
+            # model names, dims and top-k live in sub; Mermaid would drop them
+            nodes = [dict(n, label=" · ".join(str(x) for x in (n["label"], n.get("tag"), n.get("sub")) if x))
+                     for n in nodes]
+        return core.mermaid_graph(p["spec"], nodes, p["edges"], p["groups"], kinds=p["kinds"])
 
     def validate(spec):
         try:
@@ -242,7 +251,7 @@ def _rag(spec):
         qry = [dict(n, rank=j + base - hit[0]) for j, n in enumerate(qry)]
     groups = [{"id": "ingest", "label": spec.get("ingest_label", "Ingest (offline)")},
               {"id": "stores", "label": spec.get("store_label", "Index"), "tone": "blue"},
-              {"id": "query", "label": spec.get("query_label", "Query (online, per request)")}]
+              {"id": "query", "label": spec.get("query_label", "Query (per request)")}]
     extra = list(spec.get("nodes") or [])
     p = {"spec": _sp(spec, group_layout="bands"), "nodes": ing + sto + qry + extra,
          "edges": _chain(ing) + _chain(qry) + [dict(e) for e in edges], "groups": groups, "kinds": AI_KINDS}
@@ -257,6 +266,9 @@ def _rag(spec):
             if a and b and a[0] == b[0]:
                 e.setdefault("from_side", "bottom")
                 e.setdefault("to_side", "top")
+            elif a and b and b[0] == a[0] + 1:  # ingest -> index -> query: sideways, never on the chain's trunk
+                e.setdefault("from_side", "right")
+                e.setdefault("to_side", "left")
     return p
 
 
@@ -409,13 +421,24 @@ def _ring_cells(st, extra, edges):
     cells = {n["id"]: (i, 1) if i < k else (len(st) - 1 - i, 2) for i, n in enumerate(st)}
     for a, b in zip(st, st[1:]):  # chain edges leave towards the next stage on the racetrack
         for e in edges:
-            if e["from"] == a["id"] and e["to"] == b["id"] and cells[a["id"]][1] != cells[b["id"]][1]:
+            if e["from"] != a["id"] or e["to"] != b["id"]:
+                continue
+            if cells[a["id"]][1] != cells[b["id"]][1]:
                 e.setdefault("from_side", "bottom")
                 e.setdefault("to_side", "top")
+            elif cells[a["id"]][1] == 2:  # bottom row runs right to left: straight across, not under the frame
+                e.setdefault("from_side", "left")
+                e.setdefault("to_side", "right")
     for e in edges:  # a loop back to the first column runs round the outside on the left
         a, b = cells.get(e["from"]), cells.get(e["to"])
         if a and b and a[0] == b[0] == 0 and a[1] > b[1]:
             e.setdefault("outside", "left")
+        elif a and b and a[1] == 2 and b[1] == 1:  # other loops go straight up; the sides carry the chain
+            e.setdefault("from_side", "top")
+            e.setdefault("to_side", "bottom")
+        elif a and b and a[1] == b[1] == 1 and b[0] < a[0] and e.get("kind") == "feedback":
+            e.setdefault("from_side", "top")  # a loop back along the top row: over the chain, not on its exit
+            e.setdefault("to_side", "top")
     used = set(cells.values())
     for n in extra:
         near = [cells[e["to"] if e["from"] == n["id"] else e["from"]] for e in edges
@@ -665,7 +688,9 @@ def _ctx_svg(spec, core_):
     total = sum(s["tokens"] for s in segs)
     bar_w, gap, unit = 300, 6, spec.get("bar_h", 520) / limit
     srcs = [dict(s, kind=s.get("kind", "step")) for s in spec.get("sources") or []]
-    st = core_.style_graph(dict(spec, style="plain", legend=False), srcs, [], [], kinds=AI_KINDS)["nodes"]
+    # sources stay neutral (their shape names the kind): colour belongs to the segment kinds in the legend
+    plain = {k: dict(v, tone="plain") for k, v in AI_KINDS.items()}
+    st = core_.style_graph(dict(spec, style="plain", legend=False), srcs, [], [], kinds=plain)["nodes"]
     sized = [(n,) + core_.size(n, 210) for n in st]
     src_w = max([w for _, w, _ in sized] or [0])
     x_bar = core_.MARGIN + (src_w + 150 if srcs else 0)
@@ -706,8 +731,9 @@ def _ctx_svg(spec, core_):
         if k in SEGMENTS and k not in used:
             used.append(k)
     if spec.get("legend", True):
-        core_.legend(c, [{"label": SEGMENTS[k]["label"], "tone": SEGMENTS[k]["tone"],
-                          "dashed": SEGMENTS[k].get("dashed")} for k in used])
+        core_.legend(c, ([{"label": "source", "tone": "plain"}] if srcs else []) +
+                     [{"label": SEGMENTS[k]["label"], "tone": SEGMENTS[k]["tone"],
+                       "dashed": SEGMENTS[k].get("dashed")} for k in used])
     c["geo"]["connected"] = False
     return core_.finish(c)
 
@@ -719,13 +745,14 @@ def _ctx_mermaid(spec):
     head = f"Context window · {_fmt(total)} of {_fmt(spec['limit'])} tokens"
     out.append(f"  subgraph ctx [{core.mm_text(head)}]")
     for s in spec["segments"]:
-        out.append(f"    {core.mm_id(s['id'])}[{core.mm_text(s['label'] + ' · ' + _fmt(s['tokens']) + ' tokens')}]")
+        lab = " · ".join(x for x in (s["label"], f"{_fmt(s['tokens'])} tokens", s.get("sub")) if x)
+        out.append(f"    {core.mm_id(s['id'])}[{core.mm_text(lab)}]")
     segs = spec["segments"]
     for a, b in zip(segs, segs[1:]):
         out.append(f"    {core.mm_id(a['id'])} ~~~ {core.mm_id(b['id'])}")
     out.append("  end")
     for n in spec.get("sources") or []:
-        out.append(f"  {core.mm_id(n['id'])}({core.mm_text(n['label'])})")
+        out.append(f"  {core.mm_id(n['id'])}({core.mm_text(' · '.join(x for x in (n['label'], n.get('sub')) if x))})")
     for s in segs:
         if s.get("source"):
             lab = f"|{core.mm_text(s['via'])}|" if s.get("via") else ""
