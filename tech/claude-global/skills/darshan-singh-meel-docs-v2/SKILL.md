@@ -10,6 +10,7 @@ Maximum information, minimum words. Senior-architect voice that anyone can follo
 - **Every word carries a fact or an insight** (what, how, why, a number, a name, a consequence). No word count to hit; cut only words that carry nothing. **No block repeats another: say each fact once, where the reader looks for it** (the build WARNs `repeat:`, also for cells repeated down a column). Cut filler (repeated cells, placeholder rows, constant columns, restatements); add insight: why a step or rule exists, what breaks if it fails, for whom (`why` on a step, Why / impact on a rule). Each section's lead states its main insight, not the heading again.
 - **Every section answers what · how · why** (who · when · where if it applies). Global CLAUDE.md rules apply (local files only, relative paths, data handling).
 - **Exact rules, block fields, columns, title forms, ERROR/WARN texts:** `references/templates/spec.md`. This file says what to do; the build enforces it.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside: per document a `lede` (the point) and `why` (why it matters) under the title, per section a lead with its main point, detail in layers below.
 - **Not for / see:** mid-depth tech summary (engineers and tech leads, 10–15 min read) → `darshan-singh-meel-docs-tech-summary`.
 - **`<skill>` = the folder holding this SKILL.md.** Always run its scripts; never a copy inside the repo (an old builder: the build WARNs `inventory.json was written by templates X`).
 
@@ -43,14 +44,15 @@ AskUserQuestion(questions=[
 - `facts.json`: inventory writes three plan counts and keeps yours on rerun. Add every other number the doc states as `{fact, value, how}`; `how` = one POSIX shell line from the repo root (Git Bash on Windows).
 - Then `python <skill>/references/templates/inventory.py --check-facts`: 0 `MISMATCH` / `NOT RUN` before the build.
 
-## Every document opens with four tabs
+## Every document opens with a lede and four tabs
+- **Lede** under the title, before the tabs: spec `lede` = one sentence the reader must remember (Overview: what it does and for whom · Technical: the main mechanism · User guide: what the reader can do and the first step), optional `why` = why it matters to this reader. Missing, only the title again, or describing the document → WARN.
 - Right after the title: **Does · Doesn't · Limitations · Top issues**.
   - **Does** (3–5): outcomes (Overview) · what components handle (Technical) · tasks users can do (User guide).
   - **Doesn't** (3–5): out of scope by design.
   - **Limitations** (real ones, ≤5): constraints inside the scope ("refreshed daily 06:00", "uploads ≤50 MB"). Only here.
   - **Top issues:** exactly min(10, open Must + Should), review order, one line + status; none `Fixed since review`. None → leave empty; the build names the other items.
 - **Subtitle:** `<stack> · <schedule> · <source> → <outputs>` (two `·`, one `→`; no schedule → "on demand").
-- Markdown / Confluence: four short headed lists, same order.
+- Markdown / Confluence: the lede and why first, then four short headed lists, same order.
 
 ## Last section of every document: "Known issues, assumptions, and decisions needed"
 - The body describes intended, current behaviour. Defects, fix effort and approvals only here. Owner's voice (global Author voice): open points as facts ("Not yet tested in production", "Owner to decide: retention"); build WARNs `chat voice`.
@@ -86,7 +88,7 @@ AskUserQuestion(questions=[
 
 **Technical:** Overview · Architecture (L2 flow + `components`, one box per top-level module or folder; library: + `api` table, Call · Returns · Raises · Where, one row per `plan.api` name) · the interface sections the plan requires · Main flows · Code files (optional) · Data model · Business rules · Configuration · Security and access · Deploy and environments · Operations · Performance and limits · Tests · Key decisions.
 - **Main flows:** per plan `main_flows` h3 (exact text, order): `h3 ipo flow* io?`. One `ipo` per h3 = Input → Process → Output, each step showing its output:
-  - `input` (with its source) · `steps [{do ≤8 words, out, where path:line}]` covering the plan's ordered steps, **≤7**: merge plumbing (parse argv, dispatch, fetch) into the step that produces data, `graph: [k, …]` = the graph steps it covers · `output` (where it lands).
+  - `input` (with its source) · `steps [{do (a short verb phrase), out, where path:line}]` covering the plan's ordered steps, **≤7**: merge plumbing (parse argv, dispatch, fetch) into the step that produces data, `graph: [k, …]` = the graph steps it covers · `output` (where it lands).
   - `out` names what the step produces with a name or number its `do` lacks ("HTTP request" after "fetch(…)" says nothing).
   - `why` (one clause, shown under `out`, from code, tests or docs, never invented): why the step exists or what breaks if it fails ("downstream joins need one row per key"). Every flow has at least one; required on a step that branches, drops, filters or writes data; never a restatement of its `out` or `branch` (WARN each).
   - `examples`: 2–3 traces through those steps `{case, title, expect, in, at, out, source}`; a = typical, ≥1 edge/rejected/failure. Each `at` cell is the example's value at that step (name, number, status), `"="` only for unchanged from the column before (never at step 1: ERROR), `null` (`–`) not reached or not touched by this example. A trace more than half `=` is a one-step example: put it in the rule's row (WARN). Never "skipped", "sent", "valid", "rows".
@@ -95,7 +97,7 @@ AskUserQuestion(questions=[
 - **Coverage:** every item of a `plan.coverage` type (incl. storage locations, business rules, processes) by exact name in visible text — a box label, step or table row. Never in a hover `tip` (not counted); groups have no `tip`. Long names: full name in a table row. A name defined in several places: name each, or the count next to it (`` `var.region` (4 modules) ``). Leave out only via `coverage_skip {name: why}`. Items that say the same thing share one group row: "13 schema files: `a`, `b`, …", or a pattern row ending in `{"covers": [names]}` (counts for coverage; count and names are its hover title: no "(2 graph rules)" in a cell, WARN). Unused and marker files: one group row.
 - **Data model** (only if the plan requires it: ≥2 tables/views/dbt models or any fk; else name the table in Architecture `components`): one `er` per plan area, title = the plan's `ER: <area>`, in order; `views` only if the graph has views.
 - **Business rules:** one `rules` row per business_rule node: Rule (a phrase a reader understands, never an identifier alone (WARN); graph ids in Where or `covers`) · Example in → out (values) · Why / impact (why it exists, what breaks for whom without it; WARN when empty; never a citation, WARN) · Where (`basename:line`); no examples block. One rule over N entities = one row "… applies to: a, b, c". A rule a Main flows step already shows → `see step 5.1.3`; Where empty, or other lines than the step's. **Operations** (only if the plan requires it: pipeline, dbt, web API, streaming): one `tasks` table (Task · Command · When · Where), one heading row per task with its rows under it; Tasks only `Rerun and backfill` (plan `rerun_and_backfill`) or the plan's `how_tos` (process nodes + `Run the tests`), plan order: the exact text, or plain words with the how-to in Where or `covers`. A how-to that is a flow → point to its Main flows h3. A command Deploy or Commands gives → point there. **Deploy:** every `plan.deploy` unit and `deploys` source in a steps or environments row; one row per file kind (all Dockerfiles in one). **Configuration:** `Default (code) / deploy value`.
-- **Code files** (optional, any repo with code): `entries` (App · Entry file · Starts at) → a file-to-file main-path flow → one `file` block per code file: `purpose` (2–3 lines), `called_by` / `calls` (repo files, never module names) / `data` (from graph `imports`, `calls`, `reads`/`writes`), `chains` (longest call chains), `functions` (one row per function: Function · Lines · Does · Calls · Called from, shown on click), `notice`, `tested_by`.
+- **Code files** (optional, any repo with code): `entries` (App · Entry file · Starts at) → a file-to-file main-path flow → one `file` block per code file: `purpose` (briefly), `called_by` / `calls` (repo files, never module names) / `data` (from graph `imports`, `calls`, `reads`/`writes`), `chains` (longest call chains), `functions` (one row per function: Function · Lines · Does · Calls · Called from, shown on click), `notice`, `tested_by`.
 - **Tests:** one `testfile` block per test file (folder + `covers` for a group, e.g. SQL tests): `checks` (code files it tests, most first, from graph `imports`/`calls`), `proves` (one line), `purpose`, `topics` (groups of tests), `tests` (one row per test: Test · Lines · What it proves, input → result, from the test's docstring, name and asserts), `count`. The build draws the test map and the table.
 - **Repeats:** a repeated pattern → one group "Repeats for each …" + one sub-flow; every member named in a table row (fan-out frames: the build).
 
@@ -146,7 +148,7 @@ What goes into the sections the plan picked:
 - Key example missing or data may be sensitive → ask once.
 
 ## Writing rules
-- **No word target** (build WARNs; `spec.md` → Word budgets): words stay when they carry a fact or insight. Caps only catch prose: lead ≤2 sentences / 40 words · table cell or `why` ≤40 (over: split into fact + why) · ipo step `do` ≤8 · card, strip and trace value ≤12 · no lead that restates the next block.
+- **No word target** (build WARNs; `spec.md` → Length caps): words stay when they carry a fact or insight. The build's internal caps only catch prose that runs long: a lead past its conclusion · a table cell or `why` holding two facts (split into fact + why) · an ipo step `do` longer than a verb phrase · a card, strip or trace value longer than a value · a lead that restates the next block · filler phrases.
 - **Repeats** (build WARNs `repeat:`): one sentence (≥6 words) in two blocks, one `path:line` in two sections (not Known issues), one command in two sections, a column with one value in ≥70% of its rows, the same cell in 4+ rows. Keep it where the reader looks for it; point from the other ("see step 5.1.3", "Deploy: Run locally"). A column with one value in every row the build says once above the table ("All rows: …").
 - One fact per bullet; tables for anything repeated (the build renders 1–2-row and one-column tables as lists). Diagram, then bullets, then example.
 - **Fewer tables:** ≤3 tables per section (WARN); merge rows that say the same thing; adjacent tables of one shape render as one. A cell shows ≤6 names, then "+N more" (full list in its hover; still covered). A status in ≥ half the rows is said once ("… unless shown").
@@ -162,7 +164,7 @@ What goes into the sections the plan picked:
 - Last line `built <out>: N sections, N WARN (templates <ver>)`. Fix every ERROR and WARN, or explain each remaining WARN in the reply (never in the doc).
 - `python <skill>/references/templates/check.py <doc.html> <shots_dir>` → 0 `LAYOUT` lines (`LAYOUT <section> | diagram <id> (map-<n>) | <problem> | <text>`); writes `page.png` + `map-<n>.png` per diagram.
 - Builder can't draw it → say so; ask before changing `build.py`.
-- Markdown/Confluence: same plan, sections, diagrams (Mermaid / images), examples. Confluence: never upload; one line on how to import. Word/PDF only if asked.
+- Markdown/Confluence: same plan, sections, diagrams (Mermaid / images), examples; the lede and why right under the title, before the tabs (rerun the build: it WARNs `<doc>.md: the lede is not first`). Confluence: never upload; one line on how to import. Word/PDF only if asked.
 
 ## Other document kinds (`type: "custom"`, same blocks)
 - **Code explanation:** what · flow · `Name | Does | Example` · one traced example · top 3 gotchas · "to change X, edit `file:function`".

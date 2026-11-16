@@ -4,6 +4,7 @@
   "subtitle": "Airflow, dbt, Snowflake · nightly 02:00 UTC · Postgres `orders` → Snowflake marts",
   "review": "reviews/review-v2-2026-11-10-0930.html",
   "verdict": "evolve",
+  "lede": "Evolve: keep Airflow, dbt and Snowflake, and make the marts incremental first, which ends the nightly rebuild from all history that drives warehouse cost.",
   "summary": "The stack fits the load; nightly full rebuilds and one scheduler VM drive cost and outage risk, so change how it runs, not what it runs on.",
   "top": [
     "C1",

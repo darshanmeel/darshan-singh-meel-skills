@@ -61,6 +61,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - No comments or docstrings that restate the code; comments only explain *why*. Comments, docstrings, commit and PR messages describe the code, never the chat: no "as requested", "per user", "as discussed", "Claude added".
 - No placeholders, TODOs, "example usage" blocks, commented-out code, or unused parameters.
 - No new README, docs, or summary files unless asked.
+- Commit messages, PR text and code comments follow `darshan-singh-meel-brevity` (load alongside): the subject line says what changed, the PR text opens with the result and why it matters, then the detail.
 
 ## 8. Minimal tests, maximum coverage
 - Fewest tests that cover the most behavior: the few that would catch real bugs.
@@ -91,7 +92,7 @@ Guards against common AI coding failures: overcomplicated code, bloated abstract
 - Explicit refactor/cleanup requests: the "surgical" rule applies to the requested scope.
 
 ## Final summary
-End of reply, in order: summary · Self-check (CLAUDE.md) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line); a graph or docs question comes after the reply text.
+Lead with the result (`darshan-singh-meel-brevity`). End of reply, in order: summary · Self-check (CLAUDE.md) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line); a graph or docs question comes after the reply text.
 - **Changed:** files/models and what changed, one line each
 - **Why:** root cause or reasoning, one sentence
 - **Verified:** how it was checked and the result

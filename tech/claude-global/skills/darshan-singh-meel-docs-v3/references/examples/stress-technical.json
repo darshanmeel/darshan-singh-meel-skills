@@ -5,6 +5,8 @@
  ],
  "title": "Customer orders warehouse (stress example)",
  "subtitle": "Spark on a DAG scheduler · nightly · 12 region files → order marts",
+ "lede": "Each night 12 region tasks load partner order files in parallel, and one merge turns them into the finance order mart.",
+ "why": "One slow region delays the mart for all 12, and region tasks retry on any error, bad files included.",
  "tabs": {
   "does": [
    "Loads partner order files for 12 regions into `very_long_schema_name.stg_customer_orders_incremental_v2` every night",

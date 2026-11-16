@@ -14,6 +14,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+# internal thresholds for "?" lines only; length is judged, never a target (darshan-singh-meel-brevity)
+LONG_SUMMARY, LONG_PARAGRAPH, LONG_SENTENCE, DASH_EVERY = 80, 120, 35, 300
 BANNED = [
     "delve", "in today's", "ever-evolving", "ever-changing", "fast-paced", "game-changer", "game changer",
     "unlock the", "unleash", "revolutioni", "seamless", "cutting-edge", "supercharge", "worth noting",
@@ -113,8 +115,10 @@ def check(path):
             fail(f"front matter: '{key}' missing")
     if meta.get("date") and not re.fullmatch(r"\d{4}-\d\d-\d\d", meta["date"]):
         fail("front matter: date must be YYYY-MM-DD")
-    for key in ("reader", "goal", "thesis", "type", "words"):
-        if not brief.get(key):
+    for key in ("reader", "goal", "thesis", "type", "scope"):
+        if key == "scope" and not brief.get(key) and brief.get("words"):
+            warn("brief comment: replace words=... with scope=focused, standard or deep")
+        elif not brief.get(key):
             fail(f"brief comment: '{key}' missing")
     title, desc = meta.get("title", ""), meta.get("description", "")
     if len(title) > 70:
@@ -142,8 +146,8 @@ def check(path):
     lead = " ".join(plain(t) for n, t in prose if n < first_h2)
     if not lead:
         fail("no summary paragraph between the title and the first section")
-    elif len(lead.split()) > 80:
-        warn(f"summary before the first section has {len(lead.split())} words (default: 80 or fewer)")
+    elif len(lead.split()) > LONG_SUMMARY:
+        warn("summary before the first section runs long: the problem, the answer, what the post shows - nothing else")
 
     code_dir = path.parent / "_code" / slug
     proof = [p.read_text(encoding="utf-8", errors="replace") for p in sorted(code_dir.glob("*")) if p.is_file()]
@@ -215,18 +219,15 @@ def check(path):
             if re.search(pattern, text_line, re.I):
                 warn(f"line {n}: {name}")
         if not line.lstrip().startswith("|"):
-            if len(text_line.split()) > 120:
-                warn(f"line {n}: paragraph has {len(text_line.split())} words (default: 120 or fewer)")
+            if len(text_line.split()) > LONG_PARAGRAPH:
+                warn(f"line {n}: paragraph runs long - split it, or turn it into a list")
             for s in re.split(r"(?<=[.?!])\s+", text_line):
-                if len(s.split()) > 35:
-                    warn(f"line {n}: sentence has {len(s.split())} words (default: 35 or fewer)")
+                if len(s.split()) > LONG_SENTENCE:
+                    warn(f"line {n}: sentence runs long - one idea per sentence")
         words += len(LINK.sub(lambda m: m.group(2), line).replace("`", "").split())
     dashes = sum(t.count("—") for _, t in prose)
-    if dashes > max(2, words // 300):
-        warn(f"{dashes} em dashes in {words} words - use commas, colons or two sentences")
-    target = [int(x) for x in re.findall(r"\d+", brief.get("words", ""))]
-    if target and not min(target) * 0.9 <= words <= max(target) * 1.1:
-        warn(f"{words} words, brief says {brief['words']}")
+    if dashes > max(2, words // DASH_EVERY):
+        warn(f"{dashes} em dashes - use commas, colons or two sentences")
 
     for line in fails:
         print("FAIL", line)
@@ -235,7 +236,7 @@ def check(path):
     links = [m for _, x in prose for m in LINK.findall(x)]
     domains = sorted({re.sub(r"https?://([^/]+).*", r"\1", t) for _, _, t in links if t.startswith("http")})
     figures = sum(b[1] == "mermaid" for b in blocks) + sum(bool(m[0]) for m in links)
-    print(f"{path.name}: {words} words (about {max(1, round(words / 200))} min), {len(blocks)} code blocks, "
+    print(f"{path.name}: about {max(1, round(words / 200))} min read, {len(blocks)} code blocks, "
           f"{figures} figures, links to: {', '.join(domains) or 'none'}")
     print(f"{len(fails)} errors, {len(warns)} warnings")
     return len(fails)

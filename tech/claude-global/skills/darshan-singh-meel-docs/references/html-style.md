@@ -108,7 +108,7 @@ Every diagram: a one-line key beside it and a one-line "Notice:" caption.
 - Screenshot each page at 1400 px with a menu link clicked, and at 390 px: no page-wide horizontal scroll, no label on a line or box edge, no arrows crossing labels.
 - Text never overflows or touches a border: size boxes from the longest label (~7.5px per mono character at 12px, plus padding) or shorten it; tags sit inside the padding.
 - Canvas ≤ 1000px wide — no horizontal scroll; split into two diagrams instead (except pre-rendered lineage/DAG SVGs, which scroll in their frame).
-- Arrows never cross boxes or labels; parallel lines ≥ 20px apart; labels ≥ 12px, 2–4 words.
+- Arrows never cross boxes or labels; parallel lines ≥ 20px apart; labels ≥ 12px, a short phrase.
 - Render and screenshot at 100% and in print preview; fix overlap, wrapping, empty space.
 
 ## Ported or rewritten code (old → exact copy → new)

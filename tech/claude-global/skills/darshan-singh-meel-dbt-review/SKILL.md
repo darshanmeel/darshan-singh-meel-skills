@@ -33,5 +33,6 @@ Find what makes a dbt change or a dbt answer wrong, unsafe or misleading: wrong 
 - **Facts:** view, column, function, latency and retention names from the dbt skill's references; anything not there → official docs (docs.getdbt.com, docs.snowflake.com, docs.databricks.com) if allowed, else "unverified — check: <page>".
 - **Never open secret files** (CLAUDE.md list, `profiles.yml`) or data (`target/run/`, stored test failures, seeds with personal data, notebook outputs on sensitive tables). A secret found → path + rule, value `<redacted>`.
 - **Review, not fix.** Fixes go in the report; files change only when the user asks, then add a "Fixed" line per finding and rerun step 1.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside. Check answers, notebook notes and model docs against `darshan-singh-meel-brevity/references/checks.md` and put each hit in Must / Should / Other at the severity listed there; the report itself opens with the verdict and the finding that decides it.
 - **Brief, not gentle:** no praise section, no summary of the work, no taste-only findings.
 - Report and replies use relative paths only.

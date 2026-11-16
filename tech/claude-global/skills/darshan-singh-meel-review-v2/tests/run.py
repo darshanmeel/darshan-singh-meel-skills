@@ -71,9 +71,9 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("secret with lines", edit(lambda s: s["other"].append({"area": "Security", "path": ".env", "lines": "1", "what": "a", "why": "b", "impact": "c"})), 1, "secret file: cite it by path only"),
     ("secret by path ok", edit(lambda s: s["other"].append({"area": "Security", "path": ".env", "what": "committed env file", "why": "b", "impact": "c"})), 0, "0 WARN"),
     ("missing scope goal", edit(lambda s: s["scope"].pop("goal")), 1, "scope needs reviewed"),
-    ("problem over budget", edit(lambda s: f1(s).update(problem=" ".join(["word"] * 26))), 0, "problem is 26 words (max 25)"),
-    ("why over budget", edit(lambda s: f1(s).update(why=" ".join(["word"] * 21))), 0, "why is 21 words (max 20)"),
-    ("main line over budget", edit(lambda s: f1(s).update(summary=" ".join(["word"] * 22) + " · fix it")), 0, "words (max 25): shorten summary"),
+    ("problem over budget", edit(lambda s: f1(s).update(problem=" ".join(["word"] * 26))), 0, "problem is too long"),
+    ("why over budget", edit(lambda s: f1(s).update(why=" ".join(["word"] * 21))), 0, "why is too long"),
+    ("main line over budget", edit(lambda s: f1(s).update(summary=" ".join(["word"] * 22) + " · fix it")), 0, "too long to scan: shorten summary"),
     ("summary without ·", edit(lambda s: f1(s).update(summary="use a bound parameter")), 0, "summary should read 'problem · fix'"),
     ("diagram under 3 boxes", edit(lambda s: f0(s)["diagram"].update(nodes=f0(s)["diagram"]["nodes"][:2], edges=f0(s)["diagram"]["edges"][:1])), 0, "boxes (min 3)"),
     ("diagram duplicates text", edit(lambda s: f0(s)["diagram"].update(nodes=[dict(n, label=w, sub="") for n, w in zip(CHAIN["nodes"], ["order_total", "order_items", "join"])], edges=CHAIN["edges"])), 0, "diagram duplicates the text"),
@@ -100,6 +100,12 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("tech debt biggest", edit(lambda s: s["other"].append({"area": "Tech debt", "path": "tests/test_orders_api.py", "effort": "L", "what": "fixtures copied per test", "why": "b", "impact": "c"})),
      0, "Tech debt: 2 items, biggest: src/export/orders_api.py:8-9"),
     ("tech debt Must first", edit(lambda s: f1(s).update(area="Tech debt")), 0, "biggest: src/export/orders_api.py:31-34"),
+    ("lede missing", edit(lambda s: s.pop("lede")), 0, "WARN lede missing"),
+    ("lede describes the report", edit(lambda s: s.update(lede="This review covers the export change.")), 0, "WARN lede describes the report"),
+    ("lede holds a machine path", edit(lambda s: s.update(lede="The cache in C:/work/x leaks rows.")), 1, "absolute or machine path"),
+    ("lede reads as approval", edit(lambda s: s.update(lede="The export change is safe to merge; one small tweak remains.")), 0, "lede reads as an approval ('safe to merge')"),
+    ("lede misses top finding", edit(lambda s: s.update(lede="Parquet output lands in a new bucket path.")), 0, "lede shares no word with the top Must finding"),
+    ("filler in a finding", edit(lambda s: f1(s).update(why="It is important to note that rows leak.")), 0, "filler 'It is important to note'"),
     ("snippet too long", edit(lambda s: f1(s).update(code="\n".join(["x = 1"] * 13))), 0, "code snippet over 12 lines"),
 ]
 
@@ -113,7 +119,9 @@ def main():
     ok = ok and len(links) == 4 and all(page.count(f'id="{x}"') == 1 for x in links)  # each main line -> one finding
     ok = ok and "Must 2 &middot; Should 2 &middot; Minor 1" in page and "effort S" in page
     ok = ok and "Tech debt: 1 item, biggest: src/export/orders_api.py:8-9" in out and "<b>Tech debt:</b> 1 item" in page and "(1 minor)" in page and "Diagram B" in page
-    print(("PASS" if ok else "FAIL"), "valid spec: counts, links, terminal summary")
+    top = page.find('class="lede"')
+    ok = ok and 0 < page.find('class="verdict') < top < page.find('class="toc"') and BASE["lede"] in out.splitlines()[1]  # lede right after the verdict
+    print(("PASS" if ok else "FAIL"), "valid spec: counts, links, terminal summary, lede after the verdict")
     fails += not ok
     for name, spec, want_code, want in CASES:
         code, out, _ = build(spec)

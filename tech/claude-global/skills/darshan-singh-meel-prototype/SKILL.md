@@ -39,10 +39,11 @@ A prototype is throwaway code that answers one question. The question decides th
 - **Synthetic only, local only.** Rows are written by hand or generated in code. No warehouse, no cloud, no API, no real rows, no secrets, no secret files opened (CLAUDE.md data rules). Stubs replace every real system.
 - **Never promoted as is.** The answer is absorbed by rewriting it under `darshan-singh-meel-code`; prototype files do not move into the real tree.
 - **Local files only.** No hosted preview, no shared link.
+- **`NOTES.md` per `darshan-singh-meel-brevity`** (load alongside): "Answer" opens with the answer to the question in one sentence; then what was tried, results, limits, next step.
 
 ## Location
 ```
-prototypes/<name>/          git-ignored; <name> = lower case, hyphens, 2-4 words
+prototypes/<name>/          git-ignored; <name> = lower case, hyphens, a few words
   NOTES.md                  question, branch, run command, assumptions, answer, keep
   <core>                    logic.py · rules/*.sql or a dbt project · flow.py / dag.py · index.html / app.py
   <shell>                   tui.py · run.py

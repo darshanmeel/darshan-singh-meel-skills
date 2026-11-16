@@ -48,6 +48,8 @@ Defaults I chose: <user can override>
 Verify by: <tests/checks>
 Open risks: <if any>
 ```
+The plan follows `darshan-singh-meel-brevity` (load alongside): `Goal` states the decision, each line carries a fact.
+
 Ask "Good to start?" (skip the question if the user already said go: show the plan and start) — then build it following the darshan-singh-meel-code skill.
 
 The plan goes into a file (design doc, ticket, `NOTES.md`) → rewrite it in the owner's voice (CLAUDE.md "Author voice"): "Defaults I chose" become decisions ("We use a 3-day lookback"), open risks are facts ("Not yet tested on production volumes"), no reference to the interview.

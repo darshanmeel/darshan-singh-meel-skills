@@ -10,6 +10,7 @@ One page that lets an engineer or tech lead understand a system in 10–15 minut
 - **Depth:** more than the Overview (real names, versions, flows, entities, commands), less than the Technical doc: no per-file walkthroughs, no full config tables, no exhaustive endpoint or column lists. Name the main 20%; "Where to look next" points to the rest.
 - **Fixed top level, free inside:** the same 11 sections in the same order; the build refuses a missing or extra one. Inside, blocks are chosen per repo, within a depth budget the build checks (`references/spec.md`).
 - **Not for / see:** Overview, Technical, User guide → `darshan-singh-meel-docs` (or `-docs-v2` when asked for v2) · architecture review with a target → `darshan-singh-meel-architecture` · requirements brief → `darshan-singh-meel-requirements-brief`.
+- **Writing:** `darshan-singh-meel-brevity` (lede first, detail in layers): load it alongside. The page opens with `lede`: one sentence on what the system is and its biggest risk (the top row of Top risks).
 - `<skill>` = the folder holding this SKILL.md. Always run its scripts; never copy them into the repo.
 
 ## Step 0 — ask first (new summary only)
@@ -59,7 +60,7 @@ Silent pre-check: graph present (`./<repo>-knowledge-graph/` or `./.knowledge-gr
 
 ## Voice and words
 - Owner's voice: "We poll every 10 minutes because two carriers offer no webhooks." Open points as facts ("Owner to decide: retention period"). No trace of the chat ("you said", "the user", "as discussed", what was skipped). The build WARNs chat voice and filler.
-- Bullets and tables; a section `lead` is one or two sentences stating the conclusion. One fact per bullet, ≤40 words per string. Say each fact once.
+- Bullets and tables; a section `lead` states the conclusion and stops. One fact per bullet; a string that runs long holds two facts (the build WARNs). Say each fact once.
 - Real names in backticks; paths relative to the repo root. No marketing words, intros, outros or emoji.
 
 ## Updating

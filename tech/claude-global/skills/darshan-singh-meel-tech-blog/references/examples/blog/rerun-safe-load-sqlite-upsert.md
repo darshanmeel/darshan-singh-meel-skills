@@ -4,7 +4,7 @@ description: A load job that retries should not duplicate rows or crash. A prima
 date: 2026-11-11
 tags: [sqlite, python, data-engineering, idempotency]
 ---
-<!-- brief: reader=data engineers who write Python load jobs and SQL but have not used ON CONFLICT; goal=write a load that can run twice without duplicates, crashes or stale overwrites; thesis=A batch load is safe to rerun when the table has a natural key and the insert is an UPSERT guarded by a timestamp; type=tutorial; words=600-900 -->
+<!-- brief: reader=data engineers who write Python load jobs and SQL but have not used ON CONFLICT; goal=write a load that can run twice without duplicates, crashes or stale overwrites; thesis=A batch load is safe to rerun when the table has a natural key and the insert is an UPSERT guarded by a timestamp; type=tutorial; scope=focused -->
 
 # Make a batch load safe to rerun with SQLite UPSERT
 

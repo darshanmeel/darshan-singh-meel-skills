@@ -79,7 +79,7 @@ def tech(sections, auto=True, **kw):
             "Deploy and environments": [{"type": "steps", "rows": []}, {"type": "environments", "rows": []}],
             "Operations": [{"type": "symptoms", "rows": []}]}
     base.update(sections)
-    spec = {"type": "technical", "app_types": [], "title": "t", "subtitle": "py · daily · src → out", "sections": base, **kw}
+    spec = {"type": "technical", "app_types": [], "title": "t", "subtitle": "py · daily · src → out", "lede": "Loads rows from src into out.", "sections": base, **kw}
     return auto_ids(spec) if auto else spec
 
 
@@ -702,16 +702,21 @@ spec = tech({"Overview": [{"type": "text", "text": "One. Two. Three."}, {"type":
                             dict(ipo([item("t", expect=long(13)), item("u", case="edge")]), steps=[{"do": long(9), "out": long(13)}])]})
 names_ = ["Overview", "Architecture", "Main flows", "Deploy and environments", "Operations"]
 _, warn = build.check(spec, "technical", names_, None)
-check("budget: lead text > 2 sentences -> WARN", any("words: Overview: lead text has 3 words, 3 sentences" in w for w in warn), warn)
+check("budget: lead text > 2 sentences -> WARN", any("words: Overview: lead text runs long" in w for w in warn), warn)
 check("budget: lead that restates the next block -> WARN", any("words: Architecture: lead text names 3 of its 3 names again in the next flow" in w for w in warn), warn)
 check("budget: table cells > 40 words -> one WARN with count and longest: split into fact + why",
-      any("words: Architecture: 2 table cells over 40 words (longest 45:" in w and "split it into fact + why" in w for w in warn), warn)
+      any("words: Architecture: 2 table cells too long to take in at a glance (longest:" in w and "split it into fact + why" in w for w in warn), warn)
 check("budget: ipo do > 8, step output and trace value > 12 -> WARN",
-      any("1 ipo step `do`s over 8 words (longest 9" in w for w in warn) and any("1 ipo step outputs over 12 words" in w for w in warn)
-      and any("1 trace values over 12 words (longest 13" in w for w in warn), warn)
+      any("1 ipo step `do`s too long" in w for w in warn) and any("1 ipo step outputs too long" in w for w in warn)
+      and any("1 trace values too long" in w for w in warn), warn)
 spec = tech({"Overview": [{"type": "text", "text": "Short lead, " + long(30) + "."}, {"type": "flow", "nodes": [box()]}]})
 _, warn = build.check(spec, "technical", names_, None)
-check("budget: lead within 2 sentences / 40 words -> no WARN", not any(w.startswith("words:") for w in warn), warn)
+check("budget: lead within the caps -> no WARN", not any(w.startswith("words:") for w in warn), warn)
+spec = tech({"Overview": [{"type": "text", "text": "It is important to note that the loader basically retries."}, {"type": "flow", "nodes": [box()]}]})
+spec["lede"] = "In order to load orders, the loader runs hourly."
+_, warn = build.check(spec, "technical", names_, None)
+check("filler: brevity phrases in lede and lead text -> WARN (M2)", any("filler: 'In order to' in lede" in w for w in warn)
+      and any("filler: 'basically' in Overview" in w for w in warn), warn)
 
 # ---- inline lists ----
 spec = {"type": "user-guide", "app_types": [], "title": "t", "subtitle": "a · b · c → d",
@@ -1245,6 +1250,53 @@ EX = W / "ex"; EX.mkdir()
 for f in sorted((SKILL / "references" / "examples").glob("*.json")):
     r = subprocess.run([sys.executable, str(T / "build.py"), str(f), str(W / (f.stem + ".html"))], cwd=EX, capture_output=True, text=True, encoding="utf-8")
     check(f"example {f.name}: 0 ERROR, 0 WARN", r.returncode == 0 and " 0 WARN " in r.stdout, r.stdout + r.stderr)
+
+# lede (darshan-singh-meel-brevity): one sentence under the title, an optional why, a WARN when missing or empty of a point
+spec = tech({}, lede="Loads `orders` nightly into one table per day.", why="Finance reads it at 06:00.")
+out, rc = run(RP, spec); p = page(RP)
+check("lede: lede and why shown in a lead block under the title, before the tabs",
+      rc == 0 and '<div class="doclede"><p class="l1">Loads <code>orders</code> nightly into one table per day.</p><p class="why">Finance reads it at 06:00.</p></div>' in p
+      and p.index('class="doclede"') < p.index('class="tabs"') and "WARN lede" not in out, out)
+out, rc = run(RP, tech({}, lede=None)); p = page(RP)
+check("lede: missing -> WARN, the build still succeeds, no lead block", rc == 0 and "WARN lede: the document has no `lede`" in out and 'class="doclede"' not in p, out)
+err, warn = build.check(tech({}, title="Orders pipeline", lede="The orders pipeline."), "technical",
+                        sorted(tech({})["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
+check("lede: repeats the title -> WARN", any("repeats the title" in w for w in warn), warn)
+err, warn = build.check(tech({}, lede="This document describes the loader."), "technical",
+                        sorted(tech({})["sections"], key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)
+check("lede: describes the document -> WARN", any("describes the document" in w for w in warn), warn)
+md, cx = RP / "generated-docs/doc.md", RP / "generated-docs/doc.confluence.xhtml"
+spec = tech({}, lede="Loads orders nightly into one table per day.")
+md.write_text("<!-- generated by docs -->\n# t\n\n## Does\n- a\n\nLoads orders nightly into one table per day.\n", encoding="utf-8")
+cx.write_text("<h1>t</h1><h2>Does</h2><p>Loads orders nightly into one table per day.</p>", encoding="utf-8")
+out, rc = run(RP, spec)
+check("lede: Markdown / Confluence copy with the lede after a heading -> WARN each",
+      "WARN doc.md: the lede is not first" in out and "WARN doc.confluence.xhtml: the lede is not first" in out, out)
+md.write_text("<!-- generated by docs -->\n# t\n\nLoads `orders` nightly into one table per day.\n\n## Does\n- a\n", encoding="utf-8")
+cx.write_text("<h1>t</h1><p>Loads orders nightly into one table per&#160;day.</p><h2>Does</h2>", encoding="utf-8")
+out, rc = run(RP, spec)
+check("lede: Markdown / Confluence copy with the lede first -> no WARN", rc == 0 and "the lede is not first" not in out, out)
+md.unlink(); cx.unlink()
+
+# issues block without a list of items: a clear ERROR naming the block, no traceback
+RI = W / "ri"; repo(RI, {"src/a.py": "x = 1\n"})
+for bad_ in ({"type": "issues"}, {"type": "issues", "items": "none"}, {"type": "issues", "items": ["a string"]}):
+    out, rc = run(RI, tech({LAST: [{"type": "text", "text": "x"}, bad_]}))
+    check(f"issues: malformed block {json.dumps(bad_)} -> ERROR naming the block",
+          rc != 0 and f"ERROR {LAST}: block 2 (issues) needs \"items\"" in out and "Traceback" not in out, out)
+# the missing-section WARN suggests one 'Not defined yet' bullet: the other checks accept it in any required section
+ph = [{"type": "bullets", "items": ["Not defined yet - owner to decide."]}]
+spec = tech({"Main flows": ph, "Operations": ph, "Deploy and environments": ph}, app_types=["pipeline"])
+spec["sections"].update({"Job DAG and schedule": ph, "Data model": ph})
+out, rc = run(RI, spec)
+check("missing section: the suggested 'Not defined yet' bullet builds with no ERROR or recipe WARN",
+      rc == 0 and "ERROR" not in out and "recipe" not in out and "Not defined yet - owner to decide." in page(RI), out)
+check("missing section: a placeholder-only section still WARNs as an open point",
+      "Not defined yet - an open point, not checked until it has content" in out, out)
+check("missing section: WARN still suggests the 'Not defined yet' bullet",
+      any("missing section: Data model (add it, or one bullet 'Not defined yet - owner to decide.')" in w
+          for w in build.check(tech({}, app_types=["pipeline"]), "technical", sorted(tech({})["sections"],
+                               key=lambda n: (build.ORDER["technical"] + [LAST]).index(n)), None)[1]), "")
 
 # L8: the full and panini variants ship the same templates and examples
 other = {"claude-global": "claude-global-panini", "claude-global-panini": "claude-global"}.get(SKILL.parents[1].name)

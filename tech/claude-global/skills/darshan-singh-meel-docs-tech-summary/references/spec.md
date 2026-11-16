@@ -28,7 +28,9 @@ Also over budget: any `bullets` over 8 items · any `table` over 12 rows · fact
 
 ## Fields
 ```json
-{"title": "<repo>: tech summary", "date": "YYYY-MM-DD", "subtitle": "<stack> · <runs on> · <inputs> → <outputs>",
+{"title": "<repo>: tech summary", "date": "YYYY-MM-DD",
+ "lede?": "one sentence: what the system is and its biggest risk",  // rendered first, right under the title (HTML and Markdown)
+ "subtitle": "<stack> · <runs on> · <inputs> → <outputs>",
  "commit?": "<short sha>", "graph?": "knowledge graph at <sha> | file scan",  // sha ≠ commit → WARN
  "sections": {"<fixed name>": {"line": "…"} | {"lead?": "…", "blocks?": [ … ], "subsections?": [{"title": "…", "blocks": [ … ]}]}}}
 ```
@@ -44,7 +46,7 @@ A section renders `lead`, its own `blocks`, then `subsections`. Subsection title
 | `rules` | `rows` [{rule, where: path:line}] (≤5) | list; optional, under At a glance or Main flows |
 | `scope` | `does` [1–5], `doesnt` [1–5], `limits?` [≤5] | three columns: Does · Doesn't · Limitations |
 | `flow` | `title`, `nodes` [{id, label, sub?, kind: actor·service·job·tool·store·external·entry, col, row, tag?}], `edges` [{from, to, label? ≤14 chars, ≤9 between neighbours in a row, dashed?}], `lanes?` (one per row), `key` | SVG boxes on a grid; one id per grid cell; ≥3 boxes |
-| `seq` | `title`, `why?`, `participants` [{id, label, kind?}], `steps` [{from, to, do ≤8 words, out, where?, alt?, back?}], `example?` {in, out, source}, `key?` | sequence diagram (numbered), then `# · Step · Output · Where` table (`alt` = "If not: …"), then IN / OUT payloads |
+| `seq` | `title`, `why?`, `participants` [{id, label, kind?}], `steps` [{from, to, do (a short verb phrase), out, where?, alt?, back?}], `example?` {in, out, source}, `key?` | sequence diagram (numbered), then `# · Step · Output · Where` table (`alt` = "If not: …"), then IN / OUT payloads |
 | `er` | `title`, `entities` [{id, name, keys: ["PK id", "FK x_id", "UK y", "col"], more?: n}], `rels` [{a (one side), b, card: 1:1·1:N·N:1·N:M, on ≤14 chars, logical?}], `key` | entity cards in rows of 4; related entities next to each other (a relation that skips a row is a WARN) |
 | `example` | `title`, `in`, `out`, `source` | IN / OUT payloads with the source line |
 | `components` | `rows` [{name, does, tech, where, kind?}] | table; `where` a folder or module (a single file only for kind job or script) |
@@ -55,9 +57,9 @@ A section renders `lead`, its own `blocks`, then `subsections`. Subsection title
 | `risks` | `rows` [{risk, impact, status: Confirmed·Not verified·Design risk·Owner to decide, mitigation, where?}] | table with status chips |
 | `pointers` | `rows` [{topic, go, why?}] | table |
 
-Text: `code` and **bold** render; ≤40 words per string (code fields excepted). Participants and diagram boxes use the names in Components or Integrations.
+Text: `code` and **bold** render; a string that runs long → WARN (code fields excepted; the cap is internal, never a target). Participants and diagram boxes use the names in Components or Integrations.
 
 ## Checks
 **ERROR** (no output): a fixed section missing or unknown · a section with neither `line` nor blocks, or both · a required block missing · unknown block type · a typed row without its required fields · risk status, integration direction, node kind or relation card outside its list · flow box without id/label/col/row, id or grid cell twice, under 3 boxes, edge to an unknown box, fewer lanes than rows · seq with under 2 participants, a step without from/to/do/out or naming an unknown participant · example without in/out/source · ER relation to an unknown entity or without `on` · scope `does`/`doesnt` not 1–5 items · table head and rows of different length · `TODO` · absolute or machine path · an e-mail address or phone number · a rules row without `path:line` · a literal secret value (`KEY=value`, `token: value`, `user:password@`, `Bearer …`, JWT, token shapes `dapi…`, `AKIA…`, `ghp_…`, `xoxb-…`, `sk-…`; write `<redacted>`) · absolute paths include `C:\`, `/c/Users/`, `\\server\share`, `%VAR%\`, `/Workspace/Users/` · missing output folder.
 
-**WARN**: every budget above · a one-line core section · generic subsection title · diagram without `key` (seq gets a fixed key) · edge or relation label over 14 characters · box text cut · step `do` over 8 words · participant that is no component, integration or box · component that is no box · repo path not found, or a `path:line` past the file's end · a link into the knowledge-graph folder (git-ignored) · `graph` commit ≠ `commit` (graph behind: recount from code) · chat voice (`you`, `the user`, `Claude`, `as discussed`, `confirm with`, `was skipped`, …) · filler (robust, seamless, leverage, very, simply, comprehensive, …) · a string over 40 words · the same sentence (≥6 words) twice.
+**WARN**: `lede` missing, or it describes the page ("This summary …") instead of stating what the system is and its biggest risk · every length check above · a one-line core section · generic subsection title · diagram without `key` (seq gets a fixed key) · edge or relation label over 14 characters · box text cut · step `do` longer than a verb phrase · participant that is no component, integration or box · component that is no box · repo path not found, or a `path:line` past the file's end · a link into the knowledge-graph folder (git-ignored) · `graph` commit ≠ `commit` (graph behind: recount from code) · chat voice (`you`, `the user`, `Claude`, `as discussed`, `confirm with`, `was skipped`, …) · filler (robust, seamless, leverage, very, simply, comprehensive, …) · a string that runs long · the same sentence (≥6 words) twice.

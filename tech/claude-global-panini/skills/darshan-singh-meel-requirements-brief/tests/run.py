@@ -103,6 +103,9 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("e-mail address", edit(lambda s: S(s, "Context").update(lead="Statements go to jane.doe@example.com monthly.")), 1, "e-mail address in the text"),
     ("phone number", edit(lambda s: S(s, "Context").update(lead="Depot hotline +49 555 0100 gets the alert.")), 1, "phone number in the text"),
     ("phone number local form", edit(lambda s: S(s, "Context").update(lead="Depot hotline 030 5550100 gets the alert.")), 1, "phone number in the text"),
+    ("lede missing", edit(lambda s: s.pop("lede")), 0, "WARN lede missing"),
+    ("lede describes the page", edit(lambda s: s.update(lede="This brief covers fleet maintenance tracking.")), 0, "WARN lede describes the page"),
+    ("lede chat voice", edit(lambda s: s.update(lede="As requested, one record per vehicle; the service interval is missing.")), 0, "voice"),
     ("times, dates and ids are not phones", edit(lambda s: S(s, "Context").update(lead="Batch 05:00, dated 2026-11-12, covers FLT-12 and 2 of 20 VINs.")), 0, "0 WARN"),
     ("time range, row count, short number, IBAN groups are not phones",
      edit(lambda s: S(s, "Context").update(lead="Window 0500-0700; 015 000 rows; code 0815 4711; account DE89 3704 0044 0532 0130 00.")), 0, "0 WARN"),
@@ -114,7 +117,7 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("chat voice: requester", edit(lambda s: S(s, "Context").update(lead="The requester asked us for a daily load.")), 0, "voice: 'The requester'"),
     ("skipped note", edit(lambda s: SB(s, "Gaps, assumptions and risks")["items"].append("Profiling was skipped for the fuel file.")), 0, "voice: 'was skipped'"),
     ("filler", edit(lambda s: S(s, "Context").update(lead="A robust daily load.")), 0, "filler: 'robust'"),
-    ("over 40 words", edit(lambda s: S(s, "Context").update(lead=" ".join(["word"] * 41))), 0, "41 words, cap 40"),
+    ("text runs long", edit(lambda s: S(s, "Context").update(lead=" ".join(["word"] * 41))), 0, "runs long (two facts?)"),
     ("repeated sentence", edit(lambda s: S(s, "Data findings").update(lead=S(s, "Context")["lead"])), 0, "repeat:"),
 ]
 
@@ -133,8 +136,9 @@ def main():
     ok = (code == 0 and "0 WARN" in out and "12 requirements: 7 clear · 3 gap · 2 conflict" in out and page.count("<section") == 12
           and page.count("<svg") == 3 and 'class="chip none">no source' in page and 'class="chip gap">partial' in page and 'class="chip given"' in page
           and "values withheld" in page and "FLT-12" in page and 'id="s12"' in page and "YV2" not in page and "<dt>Status</dt><dd>12 requirements: 7 clear" in page
-          and 'content="darshan-singh-meel-requirements-brief' in page and "min-width:640px" in page and "note:" not in out)
-    report("valid spec: 12 sections, 3 diagrams, chips, computed status, no data values", ok, out)
+          and 'content="darshan-singh-meel-requirements-brief' in page and "min-width:640px" in page and "note:" not in out
+          and 0 < page.find('class="lede"') < page.find('class="toc"'))
+    report("valid spec: 12 sections, 3 diagrams, chips, computed status, no data values, lede under the title", ok, out)
     for name, spec, want_code, want in CASES:
         code, out, _ = build(spec)
         report(name, code == want_code and want in out, f"exit {code}\n  {out}")

@@ -7,6 +7,7 @@ The model writes only the spec (content, boxes, arrows, examples). Spec format: 
 """
 import fnmatch
 import html
+import importlib.util
 import json
 import math
 import os
@@ -22,6 +23,7 @@ sys.dont_write_bytecode = True  # importing inventory.py must not leave __pycach
 from inventory import HOW, diagram_titles, find_graph, graph_meta, meta_commit, meta_date, rel, secret, stale, version  # noqa: E402
 
 LAST = "Known issues, assumptions, and decisions needed"
+NOT_DEFINED = "Not defined yet"  # placeholder for a required section the source lacks
 ORDER = {
     "overview": ["What it is and why", "How it works", "Who uses it", "Example", "Value and cost", "Schedule",
                  "Design and operational risks", "Words used"],
@@ -95,8 +97,8 @@ NESTED = {"file"}  # blocks holding their own `blocks` (shown behind a click), c
 CASES = ["typical", "edge", "rejected", "failure"]
 EX_FIELDS = ["case", "title", "expect", "in", "out"]
 IPO_FIELDS = ["case", "title", "expect", "in", "at", "out"]  # a trace: one `at` value per step
-# word budgets (WARN): lead text, table cell (no target: only a cell that holds two facts, split it), ipo step `do`,
-# card / strip / trace value
+# internal length caps for WARN only (lead text, table cell, ipo step `do`, card / strip / trace value): no target for
+# writers, and the WARN text names the long text, never the number (darshan-singh-meel-brevity: length is judged)
 LEAD_WORDS, LEAD_SENTENCES, CELL_WORDS, DO_WORDS, CARD_WORDS = 40, 2, 40, 8, 12
 NEAR = 0.7  # a column with one value in >= 70% of its rows (not all): say it once, keep the rows that differ
 SAME_CELLS = 4  # the same cell value (2+ words) in this many rows of one column: group the rows or say it once
@@ -767,7 +769,7 @@ def draw(d, did, p, nodes, edges, groups, lanes, cell, C, R, w, k, kind, gap=GX,
     if fail is not None:
         e = edges[fail]
         lab = e.get("label") or ""
-        why = (f"label '{lab}' is over 3 words: shorten it" if len(lab.split()) > 3 else
+        why = (f"label '{lab}' is too long for the gap: shorten it" if len(lab.split()) > 3 else
                "too many lines and labels crowd the gaps around it: move those boxes apart (leave a column or row "
                "free), drop labels the text already says, or move part of the flow into a sub-flow")
         return None, (f"diagram {did}: no room for arrow {fail + 1} ({e['from']} -> {e['to']}): {why}"
@@ -1431,7 +1433,16 @@ def block(b, kind):
 
 
 def issue_items(spec):
-    return [i for b in flat(spec["sections"].get(LAST, [])) if b["type"] == "issues" for i in b["items"]]
+    out = []
+    for k, b in enumerate(flat(spec["sections"].get(LAST, [])), 1):
+        if b.get("type") != "issues":
+            continue
+        items = b.get("items")
+        if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
+            die(f"{LAST}: block {k} (issues) needs \"items\": a list of objects "
+                f"({{\"issue\", \"sev\", \"status\", \"where\", \"fix\", ...}}), got {json.dumps(items)[:80] if items is not None else 'no items'}")
+        out += items
+    return out
 
 
 def tabs(spec):
@@ -1458,6 +1469,12 @@ def slot(kind, name):
 
 def step_cols(b, kind, sec):
     return STEP_COLS.get((kind, sec)) or b.get("cols", ["Step", "In", "Out"])
+
+
+def placeholder(blocks):
+    """One bullet 'Not defined yet - ...': a required section the source does not have."""
+    return (len(blocks) == 1 and blocks[0].get("type") == "bullets" and len(blocks[0].get("items") or []) == 1
+            and str(blocks[0]["items"][0]).startswith(NOT_DEFINED))
 
 
 def flat(blocks):
@@ -1524,7 +1541,7 @@ def amounts(spec, err, warn):
                     warn.append(f"{name}: {n} cards (want 2-6: typical + edge or failure)")
                 if not any(c.get("case") in ("edge", "rejected", "failure") for c in b["items"]):
                     warn.append(f"{name}: no edge, rejected or failure card (want typical + edge or failure)")
-    found = sum(len(b["items"]) for b in flat(spec["sections"].get(LAST, [])) if b["type"] == "issues")
+    found = len(issue_items(spec))
     if found > 12:
         warn.append(f"known issues: {found} listed (keep ~12 in the overview; the rest go in the technical doc)")
 
@@ -1920,10 +1937,13 @@ def check(spec, kind, names, plan):
             warn.append(f"app_types {spec.get('app_types', [])} differ from the plan's {plan.get('app_types', [])}: use the plan's")
     else:
         want = REQUIRED[kind]["*"] + [s for a in spec.get("app_types", []) for s in REQUIRED[kind].get(a, [])]
-    warn += [f"missing section: {w} (add it, or one bullet 'Not defined yet - owner to decide.')"
+    warn += [f"missing section: {w} (add it, or one bullet '{NOT_DEFINED} - owner to decide.')"
              for w in dict.fromkeys(want) if w not in have]
     for n in names:
         blocks = flat(spec["sections"][n])
+        if slot(kind, n) in want and placeholder(blocks):
+            warn.append(f"{n}: {NOT_DEFINED} - an open point, not checked until it has content")
+            continue  # a required section the source lacks: the one bullet the missing-section WARN suggests
         types = [b["type"] for b in blocks]
         tt = tables(blocks)
         if len(tt) > MAX_TABLES:
@@ -1959,7 +1979,7 @@ def check(spec, kind, names, plan):
             if t in ("story", "file", "testfile"):
                 new_block_check(n, b, err, warn)
             if t == "callout" and (not b.get("text") or b.get("kind", "block") not in CALLOUT_KINDS):
-                err.append(f"{n}: callout needs `text` (one or two sentences) and kind one of {CALLOUT_KINDS}, got {b.get('kind')}")
+                err.append(f"{n}: callout needs `text` (the rule or risk) and kind one of {CALLOUT_KINDS}, got {b.get('kind')}")
             if t == "er" and len(b["entities"]) > 9:
                 err.append(f"{n}: ER has {len(b['entities'])} tables (max ~9): split it into one ER per area")
             if t == "h3" and fixed and not b["text"].startswith(fixed):
@@ -2014,8 +2034,10 @@ def check(spec, kind, names, plan):
     seen = Counter(str(b.get("title")) for n in names for b in flat(spec["sections"][n]) if b["type"] in ("flow", "er", "journey"))
     err += [f"diagram title '{t}' is used {k} times: every title is unique (name the entry or area apart)" for t, k in seen.items() if k > 1]
     ellipsis(spec, names, err)
+    lede_check(spec, warn)
     chat_voice(spec, names, warn)
     budgets(spec, kind, names, warn)
+    filler_check(spec, names, warn)
     repeats(spec, names, warn)
     cell_repeats(spec, kind, names, warn)
     return err, warn
@@ -2047,9 +2069,9 @@ def new_block_check(n, b, err, warn):
                     if k and len(r) != k]
     elif t == "file":
         if not b.get("path") or not b.get("purpose"):
-            err.append(f"{n}: file block needs path and purpose (2-3 lines: what the file is for)")
+            err.append(f"{n}: file block needs path and purpose (what the file is for)")
         elif len(SENT.split(str(b["purpose"]).strip())) > 3 or len(str(b["purpose"]).split()) > 60:
-            warn.append(f"words: {n}: file `{b['path']}` purpose is over 3 sentences or 60 words: keep the main purpose; details go in its blocks")
+            warn.append(f"words: {n}: file `{b['path']}` purpose runs long: keep the main purpose; details go in its blocks")
         fns = b.get("functions")
         if not fns:
             warn.append(f"{n}: file `{b.get('path')}`: add `functions` (one row per function: {', '.join(FUNC_COLS)}), from the graph")
@@ -2218,8 +2240,8 @@ def values(v):
 
 
 def budgets(spec, kind, names, warn):
-    """Word budgets: lead text <= 2 sentences and 40 words; table cell <= 15 words; ipo step `do` <= 8; card, strip
-    and trace value <= 12. A lead whose backticked names are >= 60% in the next block only restates it."""
+    """Length caps (internal, see LEAD_WORDS): a lead, cell, step or value too long to take in at a glance -> WARN.
+    A lead whose backticked names are >= 60% in the next block only restates it."""
     for n in names:
         blocks, over = flat(spec["sections"][n]), {}
         add = lambda what, cap, v: over.setdefault((what, cap), []).append(str(v)) if len(str(v).split()) > cap else None
@@ -2229,8 +2251,8 @@ def budgets(spec, kind, names, warn):
                 txt = str(b.get("text", "")).strip()
                 k, sent = len(txt.split()), len(re.findall(r"[.!?](?=\s|$)", txt)) or 1
                 if k > LEAD_WORDS or sent > LEAD_SENTENCES:
-                    warn.append(f"words: {n}: lead text has {k} words, {sent} sentences (max {LEAD_WORDS} words, "
-                                f"{LEAD_SENTENCES} sentences): '{' '.join(txt.split()[:8])} ...'")
+                    warn.append(f"words: {n}: lead text runs long: '{' '.join(txt.split()[:8])} ...': "
+                                "state the conclusion, move the rest into the block below")
                 tick = set(re.findall(r"`([^`]+)`", txt))
                 nxt = " ".join(strings(blocks[i + 1])) if i + 1 < len(blocks) else ""
                 said = [x for x in tick if x in nxt]
@@ -2264,7 +2286,7 @@ def budgets(spec, kind, names, warn):
             top = max(vs, key=lambda v: len(v.split()))
             fix = ("a cell this long holds two facts: split it into fact + why (the Why column, a step's `why`)"
                    if cap == CELL_WORDS else "keep the fact, names and numbers; cut the prose")
-            warn.append(f"words: {n}: {len(vs)} {what} over {cap} words (longest {len(top.split())}: "
+            warn.append(f"words: {n}: {len(vs)} {what} too long to take in at a glance (longest: "
                         f"'{' '.join(top.split()[:8])} ...'): {fix}")
 
 
@@ -2353,12 +2375,73 @@ def chat_voice(spec, names, warn):
     """The doc reads as written by its owner, not as a record of a chat: no "you said / didn't confirm", "as discussed",
     "ask the user", "Claude", process notes. Code spans are skipped."""
     parts = [(n, v) for n in names for v in texts(spec["sections"][n])] + [("tabs", v) for v in texts(spec.get("tabs", {}))]
-    parts += [("title", spec.get(k)) for k in ("title", "subtitle") if isinstance(spec.get(k), str)]
+    parts += [("title", spec.get(k)) for k in ("title", "subtitle", "lede", "why") if isinstance(spec.get(k), str)]
     for n, v in parts:
         m = CHAT.search(re.sub(r"`[^`]*`", " ", str(v)))
         if m:
             warn.append(f"{n}: chat voice '{m[0]}' in '{str(v)[:60]}': state it as the author, as a fact about the system "
                         f"('Not yet tested in production', 'Owner to decide: retention period')")
+
+
+def lede_words(t):
+    """Content words of a text, lower case, code ticks dropped: to compare a lede with the title or a Markdown head."""
+    return [w for w in re.findall(r"[a-z0-9]+", re.sub(r"`([^`]*)`", r"\1", str(t)).lower()) if w not in LEDE_STOP]
+
+
+LEDE_STOP = {"a", "an", "the", "of", "for", "and", "or", "to", "in", "on", "with", "is", "are", "it", "its", "this", "that",
+             "by", "from", "as", "at", "doc", "document", "guide", "overview", "technical", "user"}
+ABOUT = re.compile(r"^\s*(?:this|the) (?:document|doc|page|guide|section|report)\b|^\s*(?:introduction|overview of)\b", re.I)
+
+
+def filler_re():
+    """The filler-phrase regex of darshan-singh-meel-brevity, or None when that skill is not installed."""
+    path = Path(__file__).resolve().parents[3] / "darshan-singh-meel-brevity" / "scripts" / "check_brevity.py"
+    try:
+        mod_spec = importlib.util.spec_from_file_location("check_brevity", path)
+        mod = importlib.util.module_from_spec(mod_spec)
+        mod_spec.loader.exec_module(mod)
+        return mod.FILLER_RE
+    except Exception:
+        return None
+
+
+def filler_check(spec, names, warn):
+    """Filler phrases (brevity's list) in the lede, `why`, section lead texts and callouts -> WARN."""
+    rx = filler_re()
+    if not rx:
+        return
+    texts = [("lede", spec.get(k)) for k in ("lede", "why")]
+    texts += [(n, b.get("text")) for n in names for b in flat(spec["sections"].get(n) or []) if b.get("type") in ("text", "callout")]
+    for where, s in texts:
+        for m in rx.finditer(re.sub(r"`[^`]*`", " ", s)) if isinstance(s, str) else []:
+            warn.append(f"filler: '{m[0]}' in {where}: cut it, or say the fact")
+
+
+def lede_check(spec, warn):
+    """darshan-singh-meel-brevity: one sentence under the title says what the reader must remember (what it does, the
+    answer, the result). A missing lede, one that only repeats the title or one that describes the document -> WARN."""
+    lede = spec.get("lede")
+    if not isinstance(lede, str) or not lede.strip():
+        warn.append("lede: the document has no `lede`: add one sentence under the title, the point the reader must remember "
+                    "if they read nothing else (darshan-singh-meel-brevity)")
+        return
+    lw = lede_words(lede)
+    if not lw or set(lw) <= set(lede_words(spec.get("title", ""))):
+        warn.append(f"lede '{lede[:60]}' repeats the title: state the point (what it does, the answer, the result), not the subject")
+    elif ABOUT.search(lede):
+        warn.append(f"lede '{lede[:60]}' describes the document: state the point itself (what the system does, the answer, the result)")
+
+
+def lede_files(spec, out, warn):
+    """A Markdown or Confluence copy of the page (same name, written by hand) opens with the lede too: the lede's words
+    stand before the first heading under the title."""
+    lede = " ".join(lede_words(spec.get("lede") or ""))
+    for f, head in ((out.with_suffix(".md"), r"(?m)^#{2,6}\s"), (out.with_suffix(".confluence.xhtml"), r"<h[2-6][\s>]")):
+        if lede and f.is_file():
+            top = re.split(head, f.read_text(encoding="utf-8"), maxsplit=1)[0]
+            if lede not in " ".join(lede_words(html.unescape(re.sub(r"<[^>]+>", " ", top)))):
+                warn.append(f"{f.name}: the lede is not first: put it right under the title, before the tabs and sections, "
+                            f"as in the HTML")
 
 
 def ellipsis(spec, names, err):
@@ -2861,6 +2944,7 @@ def main(spec_path, out_path):
             synthetic_share(spec, names, inv["tests"], warn)
     else:
         print(f"note: no repo files under {root.name or root}: path, name, plan, coverage and facts checks skipped")
+    lede_files(spec, out, warn)
     warn = list(dict.fromkeys(pre + warn + review_warn(spec, files, root)))
     for x in NOTES:
         print("note:", x)
@@ -2887,10 +2971,12 @@ def main(spec_path, out_path):
     menu_css = "@media (min-width:1360px) { " + " ".join(rules) + " }"
     css = (Path(__file__).parent / "style.css").read_text(encoding="utf-8")
     sub = f'<p class="sub1">{esc(spec["subtitle"])}</p>' if spec.get("subtitle") else ""
+    lede = "".join(f'<p class="{c}">{esc(spec[k])}</p>' for k, c in (("lede", "l1"), ("why", "why")) if spec.get(k))
+    lede = f'<div class="doclede">{lede}</div>' if lede else ""
     page = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             f'<meta name="generator" content="darshan-singh-meel-docs-v2 {ver}"><title>{esc(spec["title"])}</title><style>{css}\n{menu_css}</style></head>'
             f'<body class="withnav">{nav}<main id="top">'
-            f'<div class="eyebrow">{kind.replace("-", " ")}</div><h1>{esc(spec["title"])}</h1>{stamp(spec, out.parent, files, stale_n)}{sub}'
+            f'<div class="eyebrow">{kind.replace("-", " ")}</div><h1>{esc(spec["title"])}</h1>{stamp(spec, out.parent, files, stale_n)}{sub}{lede}'
             f'{tabs(spec)}<nav class="toc">{toc}</nav>{body}</main></body></html>')
     ids = set(re.findall(r'id="ex-([^"]+)"', page))
     dangling = sorted(set(EXREF.findall(visible(page))) - ids)

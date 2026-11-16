@@ -5,7 +5,7 @@ File: `reviews/tech-blog-review-<YYYY-MM-DD-HHMM>.md`. Paths relative to the pro
 ```markdown
 # Review: <post title>
 Date: <YYYY-MM-DD HH:MM> · Skill: darshan-singh-meel-tech-blog-review · File: blog/<slug>.md
-Brief: reader <...> · type <...> · words <target> (actual <n>)
+Brief: reader <...> · type <...> · scope <...> (about <n> min read)
 Verdict: <Publish | Publish after Must fixes | Rework>
 Counts: Must <n> · Should <n> · Other <n> · Script: <n> errors, <n> warnings
 

@@ -33,5 +33,6 @@ Find what makes a diagram wrong, misleading or unreadable: a box or arrow the so
 - **Style choice is the author's:** plain, dbt or airflow look is a finding only when it misleads (a dbt look on a graph with loops, airflow states on something that never runs).
 - **Never open secret files** or data rows (CLAUDE.md list). A secret in a label → path + rule, value `<redacted>`.
 - **Review, not fix.** Fixes go in the report as spec changes; files change only when asked, then add a "Fixed" line per finding and rerun step 1 and step 4.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside. Check each diagram's title and Notice (Title and Lede rows) against `darshan-singh-meel-brevity/references/checks.md` and put each hit in Must / Should / Other at the severity listed there; the report itself opens with the verdict and the finding that decides it.
 - **Brief, not gentle:** no praise section, no summary of the diagrams, no taste-only findings.
 - PNGs stay in the scratch folder; report and replies use relative paths only; output stays local.

@@ -1,6 +1,7 @@
 {
   "title": "parcel-tracker: tech summary",
   "date": "2026-11-12",
+  "lede": "parcel-tracker lets staff create shipments and keeps parcel status current from the carriers; its biggest risk is that every container start runs migrations, so two tasks can migrate at once during a production deploy.",
   "subtitle": "Python 3.12 · FastAPI and Celery on AWS ECS · staff orders and carrier events → labels, parcel status, emails",
   "commit": "a1b2c3d",
   "graph": "knowledge graph at a1b2c3d",

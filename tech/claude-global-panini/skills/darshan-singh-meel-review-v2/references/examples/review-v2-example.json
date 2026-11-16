@@ -2,6 +2,7 @@
   "title": "Review: order revenue mart and export endpoint",
   "date": "2026-01-15 10:30",
   "verdict": "Request changes",
+  "lede": "The change adds a revenue mart and a CSV export, but the mart counts each multi-item order's total once per item, so dashboard revenue is overstated.",
   "scope": {
     "reviewed": "diff main...feature/order-export: 5 files, +142 -18 [synthetic]",
     "goal": "Daily revenue per order in `fct_order_revenue`, exported as CSV by `GET /orders/export`"

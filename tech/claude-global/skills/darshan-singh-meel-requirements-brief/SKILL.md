@@ -9,6 +9,7 @@ One page that lets a reader understand a requirement and the shape of a solution
 
 - **Output:** `generated-docs/requirements-brief-<slug>.html` from `generated-docs/_spec/requirements-brief-<slug>.json`. Raw inputs go to `generated-docs/_spec/inputs/`, text extracts to `generated-docs/_spec/text/`, the profile to `generated-docs/_spec/profile.json`. The two input folders are git-ignored on first creation (`inputs.py` adds them): requirements are confidential, the brief is not. One brief per run; a new run on the same inputs overwrites it.
 - **Fixed top level, free inside.** Every brief has the same 12 sections in the same order (`references/spec.md`); the build refuses a missing or extra one. Inside, blocks sit directly in the section; a subsection only when a named group needs its own heading, named from the input ("B. Telematics provider", "FLT-4 vs FLT-2"), never a wrapper title that fits any brief ("Overview", "Per need": the build warns). A section with nothing to say is one line.
+- **Writing:** `darshan-singh-meel-brevity` (lede first, detail in layers): load it alongside. The page opens with `lede`: one sentence on what is asked and the main gap (the `gap` or `conflict` that blocks the most).
 - `<skill>` = this folder. Fields and checks: `references/spec.md`. Tech catalogue: `references/tech-options.md`. Voice and wording: `references/style.md`.
 
 ## Step 0 — ask first

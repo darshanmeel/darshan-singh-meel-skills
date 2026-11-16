@@ -32,7 +32,8 @@ CARD = {"1:1": "||--||", "1:N": "||--o{", "N:1": "}o--||", "N:M": "}o--o{"}
 LIMIT = {"components": 8, "flow boxes": 10, "flows": 4, "steps": 7, "participants": 6, "entities": 12, "keys": 5, "integrations": 10,
          "stack": 15, "envs": 5, "commands": 8, "risks": 7, "pointers": 10, "bullets": 8, "table rows": 12, "facts": 8, "rules": 5, "minutes": 15}
 SEQ_KEY = "Solid = call · dashed = reply · numbers = steps in the table below"
-WORDS, DO_WORDS, LABEL, SHORT, WPM = 40, 8, 14, 9, 200  # word cap · step `do` words · edge/relation label chars · label between neighbours · reading speed
+# internal caps for WARN only, never shown as a target: text words · step `do` words · edge/relation label chars · label between neighbours · reading speed
+WORDS, DO_WORDS, LABEL, SHORT, WPM = 40, 8, 14, 9, 200
 FILLER = re.compile(r"\b(robust|seamless(?:ly)?|leverag(?:e|es|ing)|cutting[- ]edge|state[- ]of[- ]the[- ]art|best[- ]in[- ]class|"
                     r"world[- ]class|synerg\w*|holistic|next[- ]generation|simply|basically|very|really|comprehensive|powerful|"
                     r"in order to|it is important to note|note that)\b", re.I)
@@ -40,6 +41,7 @@ CHAT = re.compile(r"\b(you|your|the user|claude|as discussed|as agreed|as reques
                   r"(?:our|this) (?:conversation|chat)|asked (?:us|me)|(?:was|were) asked|confirm with|"
                   r"(?:we|i) (?:could not|couldn't|did not|didn't) (?:check|verify|confirm)|(?:was|were) skipped|we were told|in this session)\b", re.I)
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]*[a-z]{2,}", re.I)
+DESCRIBES = re.compile(r"^\W*(this|the following|in this|here is|here are)\b[^.]*\b(summary|document|page|doc)\b|^\W*(introduction|overview of)\b", re.I)
 PHONE = re.compile(r"(?<![\w-])(?:\+|00)\d{1,3}[\s./-]?(?:\(?\d{1,5}\)?[\s./-]?){2,4}\d{2,}\b")
 ABS = re.compile(r"(?<![\w])[A-Za-z]:[\\/]|(?<![\w.~])/(?:Users|home|root|opt|mnt|var|srv|etc|tmp)/|(?<![\w])~/|(?<![\w.])/[a-z]/(?:Users|home)/"
                  r"|(?<![\w:])\\\\[\w.-]+\\|%\w+%[\\/]|/Workspace/Users/")
@@ -69,7 +71,7 @@ code{font-size:13px;background:var(--soft);border:1px solid var(--line);border-r
 pre{font-size:12.5px;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:0;overflow-x:auto;white-space:pre}
 .eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)} .stamp,.src{font-size:12px;color:var(--muted)}
 .toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;margin:8px 0 0} .toc a{color:var(--blue)} a{color:inherit}
-.lead{margin:4px 0 8px} .line,.why{color:var(--muted)}
+.lead{margin:4px 0 8px} .lede{font-size:17px;margin:6px 0 8px} .line,.why{color:var(--muted)}
 table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px} th,td{text-align:left;vertical-align:top;padding:7px 10px;border:1px solid var(--line)}
 th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--soft)}
 .facts{display:grid;grid-template-columns:max-content 1fr;gap:5px 18px;margin:8px 0}
@@ -152,6 +154,11 @@ def check(spec, root):
     for k in ("title", "date", "sections"):
         if not spec.get(k):
             err.append(f"spec needs {k}")
+    lede = str(spec.get("lede") or "").strip()
+    if not lede:
+        warn.append("lede missing: one sentence under the title: what the system is and its biggest risk")
+    elif DESCRIBES.search(lede):
+        warn.append("lede describes the page: state what the system is and its biggest risk")
     secs = spec.get("sections") or {}
     for s in SECTIONS:
         if s not in secs:
@@ -259,7 +266,7 @@ def check(spec, root):
                 if s.get("from") not in parts or s.get("to") not in parts or not s.get("do") or not s.get("out"):
                     err.append(f"{w}: step {i} needs from, to (participant ids), do, out")
                 elif len(plain(s["do"]).split()) > DO_WORDS:
-                    warn.append(f"{w}: step {i} `do` over {DO_WORDS} words, move detail to `out`")
+                    warn.append(f"{w}: step {i} `do` runs long: keep a verb phrase, move detail to `out`")
             ex = b.get("example")
             if ex is not None and (not ex.get("in") or not ex.get("out") or not ex.get("source")):
                 err.append(f"{w}: example needs in, out and source")
@@ -354,7 +361,7 @@ def check(spec, root):
         if (m := FILLER.search(s)):
             warn.append(f"{where}: filler: '{m[0]}'")
         if len(plain(s).split()) > WORDS:
-            warn.append(f"{where}: {len(plain(s).split())} words, cap {WORDS}: split or cut")
+            warn.append(f"{where}: runs long (two facts?): split or cut")
         for sent in re.split(r"(?<=[.!?])\s+", plain(s)):
             k = sent.strip().lower()
             if len(k.split()) >= 6:
@@ -668,6 +675,8 @@ def render(spec, warn):
     secs = spec["sections"]
     toc = "".join(f'<a href="#s{i}">{i} {html.escape(s)}</a>' for i, s in enumerate(SECTIONS, 1))
     out = [f'<p class="eyebrow">Tech summary &middot; ~{minutes(spec)} min read</p><h1>{esc(spec["title"])}</h1>']
+    if spec.get("lede"):
+        out.append(f'<p class="lede">{esc(spec["lede"])}</p>')
     if spec.get("subtitle"):
         out.append(f'<p class="lead">{esc(spec["subtitle"])}</p>')
     out.append(f'<p class="stamp">{stamp(spec)}</p><nav class="toc">{toc}</nav>')
@@ -785,7 +794,7 @@ def md_io(ex):
 
 
 def render_md(spec):
-    out = [f"<!-- generated by {TOOL} {VERSION} -->", f"# {plain(spec['title'])}", "",
+    out = [f"<!-- generated by {TOOL} {VERSION} -->", f"# {plain(spec['title'])}", ""] + ([mdx(spec["lede"]), ""] if spec.get("lede") else []) + [
            f"Tech summary · ~{minutes(spec)} min read · " + " · ".join([spec["date"]] + [f"{k} {spec[k]}" for k in ("commit", "graph") if spec.get(k)]), ""]
     if spec.get("subtitle"):
         out += [mdx(spec["subtitle"]), ""]

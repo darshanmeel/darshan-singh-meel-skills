@@ -6,6 +6,8 @@
  ],
  "title": "Tasks app",
  "subtitle": "React + FastAPI + Postgres · on request · browser → tasks table",
+ "lede": "A React UI calls a FastAPI JSON API that signs users in with a JWT cookie and stores their projects and tasks in Postgres.",
+ "why": "Open security issue: any signed-in user can delete another user's task by id.",
  "tabs": {
   "does": [
    "Signs users in with e-mail and password (JWT in an http-only cookie)",

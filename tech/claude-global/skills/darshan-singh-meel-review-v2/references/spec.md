@@ -2,7 +2,7 @@
 `<skill>` = this skill's folder. Run from the repo root:
 `python <skill>/references/templates/build.py reviews/_spec/review-v2-<YYYY-MM-DD-HHMM>.json reviews/review-v2-<YYYY-MM-DD-HHMM>.html`
 - Optional: `darshan-singh-meel-docs-v2` beside this skill (diagram renderer, style, layout check). Missing or incompatible → `note:`, built-in style, each diagram as a text list, `Layout not checked` in the terminal block.
-- Prints the terminal reply (verdict, Must/Should one-liners, report path), then `built <out>: N files, N findings, N WARN`.
+- Prints the terminal reply (verdict, lede, Must/Should one-liners, report path), then `built <out>: N files, N findings, N WARN`.
 - Layout (docs-v2 only): `python <docs-v2>/references/templates/check.py <out.html> <shots_dir>` → 0 `LAYOUT` lines.
 - Start from `examples/review-v2-example.json`. Builder tests: `python <skill>/tests/run.py`.
 
@@ -10,6 +10,7 @@
 ```json
 {"title": "Review: <change>", "date": "YYYY-MM-DD HH:MM",
  "verdict": "Approve | Approve with changes | Request changes",
+ "lede": "one sentence: what the change does and the single most important finding",
  "scope": {"reviewed": "diff main...branch: 5 files, +142 -18", "goal": "what the change should do"},
  "checks": [["tests (changed)", "6 passed"], ["full suite", "not run (why)"]],
  "files": [{"path": "src/a.py", "what": "one line: what changed / what it does",
@@ -27,13 +28,14 @@
 ```
 | Field | Rule |
 |---|---|
+| `lede` | optional; rendered first, right after the verdict, and printed after `Verdict:` in the terminal block. What the change does + the finding that decides the verdict; never a description of the report |
 | `files` | only files with ≥1 Must or Should finding; the build sorts them (Must first, then path) and numbers findings |
 | `sev` | `Must` · `Should` (review skill, Severity). Minor/nit → `other` |
 | `area` | Correctness · Security · Performance · Design · Complexity · Size · Slop · Tests · Obvious · Data · Tech debt |
 | `effort` | optional, `S` · `M` · `L`: fix effort, shown for Tech debt (findings and `other`); `why` = cost of keeping it |
 | `lines` | `N` or `N-M`, inside the file; required except for secret files |
-| `summary` | the Main list line: `problem · fix`; whole line `[Area] path:lines — summary` ≤ 25 words; its fix uses the words of `fix` |
-| `problem` ≤ 25 · `why` ≤ 20 · `what` ≤ 20 · `evidence` ≤ 25 words | `what`: what changed (diff) or what the file does (whole repo) |
+| `summary` | the Main list line: `problem · fix`; whole line `[Area] path:lines — summary` scans at a glance; its fix uses the words of `fix` |
+| `problem` · `why` · `what` · `evidence`: one fact each | `what`: what changed (diff) or what the file does (whole repo) |
 | `evidence` | optional: probe or repro, input → observed result |
 | `also` | optional: same problem in other files, `path` or `path:lines`; shown as `(+N files)` in Main and listed in the finding |
 | secrets | never a value in any field: key name + `path:line`, value `<redacted>` |
@@ -52,5 +54,5 @@ docs-v2 flow blocks (docs-v2 `spec.md` → Flow nodes, Edges, Groups, Layout): `
 
 ## Checks
 **ERROR** (no output): path not in the repo, absolute, with `\` or `..` · lines malformed or past the file end · missing `lines` · secret file cited with lines or a snippet (path only; never opened) · `sev`, `area`, `verdict`, `unused` confidence, `effort` outside the fixed sets · Must/Should without `summary`, `problem`, `why` or `fix` · file section without findings · file both in `files` and `checked` · `other` > 10 · scope without `reviewed`/`goal` · diagram without title · impact without a `changed` or `fix` box · `also` path or lines invalid, or the finding's own file · likely secret literal in any string (`key: value`, `key = "value"`, `scheme://user:pw@`; not `<redacted>`/`${VAR}`) · absolute or machine path in any string (drive, `~/`, `/Users/`) · verdict: any Must → `Request changes`; Should and no Must → not `Approve` · diagram layout the docs-v2 renderer cannot draw · missing output folder.
-**WARN**: word budgets · summary without `·` · summary fix sharing no word with `fix` · lane name > 12 characters · snippet > 12 lines · diagram < 3 boxes, no arrows, or only words already in the finding (duplicates the text) · diagram a straight chain (no lanes, no decision, ≤ 1 arrow in and out per box) · two findings in different files with near-identical summary (→ one finding + `also`) · `other` on a file in neither `files`, `checked` nor `also` · `checked` path twice · `effort` on a non-Tech-debt item · `/home/`, `/root/`, `/tmp/`, `/var/` not after an HTTP verb · > 1 diagram per file · impact < 3 affected boxes · `Request changes` without Must · no findings and verdict not `Approve` · empty `checks` (no tests or linters → `["tests", "none in repo"]`).
+**WARN**: `lede` missing, or it describes the report ("This review …") instead of stating the finding · lede with approval words ("safe to merge", "no issues") under Request changes · lede sharing no word with the top Must or Should · filler phrases from `darshan-singh-meel-brevity` in the lede or a finding · a field too long to take in at a glance · summary without `·` · summary fix sharing no word with `fix` · lane name > 12 characters · snippet > 12 lines · diagram < 3 boxes, no arrows, or only words already in the finding (duplicates the text) · diagram a straight chain (no lanes, no decision, ≤ 1 arrow in and out per box) · two findings in different files with near-identical summary (→ one finding + `also`) · `other` on a file in neither `files`, `checked` nor `also` · `checked` path twice · `effort` on a non-Tech-debt item · `/home/`, `/root/`, `/tmp/`, `/var/` not after an HTTP verb · > 1 diagram per file · impact < 3 affected boxes · `Request changes` without Must · no findings and verdict not `Approve` · empty `checks` (no tests or linters → `["tests", "none in repo"]`).
 **note** (never a failure): no repo files under the cwd (example built in an empty folder) → path and line checks skipped · report not git-ignored · docs-v2 missing or incompatible. Not a git repo → stamp `repo not in git`, no ignore check.

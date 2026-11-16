@@ -6,6 +6,7 @@ description: Version 2 of darshan-singh-meel-review — same checks, plus a fixe
 # Review v2
 Checks, severity, discipline, data stack: **`darshan-singh-meel-review` SKILL.md** (sections 1–12; 12 Tech debt is always checked) — load and follow it. This skill adds the process and the report, and replaces the review skill's Output format and HTML report: write only the v2 report. Global CLAUDE.md rules apply.
 `<skill>` = this folder. Spec fields and every ERROR/WARN: `references/spec.md`.
+Writing: `darshan-singh-meel-brevity` (lede first, detail in layers) — load it alongside.
 Optional: docs-v2 (diagrams, layout check), knowledge graph (impact). Missing → review from the code; not a git repo, no tests or linters → notes, never failures.
 
 ## Process (fixed)
@@ -24,20 +25,21 @@ Optional: docs-v2 (diagrams, layout check), knowledge graph (impact). Missing �
    - Tech debt: `area: "Tech debt"`, `why` = cost of keeping it, optional `effort` S · M · L; severity per review §12.
    - Same problem in several files → one finding in the worst file, the others in `also` (`path:lines`), one severity.
 5. **Diagrams, only when they beat words:** per file ≤1 (before/after flow, join fan-out, call path to a vulnerable sink, race timeline); `impact` in Main only with ≥3 affected callers/readers/downstream (graph or code search). Never a diagram that repeats the text; a straight chain is a sentence: write it. Unnumbered by default; `numbered: true` only for a real step order (never a race or a comparison). Lane names ≤12 characters. A type the docs-v2 flow block cannot show (sequence, state machine, ER, lineage or dbt/airflow-style impact graph) → build it with `darshan-singh-meel-diagrams` + family (`--page reviews/_spec/diagrams/<id>.html`, 0 `LAYOUT`, rules in its `references/embedding.md` "Reviews") and cite that path in the finding's `why`; the builder is unchanged.
-6. **Spec** → `reviews/_spec/review-v2-<YYYY-MM-DD-HHMM>.json` (start from `references/examples/review-v2-example.json`).
+6. **Spec** → `reviews/_spec/review-v2-<YYYY-MM-DD-HHMM>.json` (start from `references/examples/review-v2-example.json`). `lede` = what the change does and the single most important finding (the one that sets the verdict), in one sentence (a shape, not a length); it must match the verdict and the top Must or Should (the build WARNs on approval words under Request changes, and on a lede that shares no word with the top finding).
 7. **Build** from the repo root: `mkdir -p reviews/_spec` (first time, in a git repo: git-ignore `/reviews/` per CLAUDE.md), then
    `python <skill>/references/templates/build.py reviews/_spec/review-v2-<ts>.json reviews/review-v2-<ts>.html`. Fix every ERROR and WARN.
 8. **Layout** (any diagram or table): `python <docs-v2 skill>/references/templates/check.py reviews/review-v2-<ts>.html reviews/_spec/shots` → 0 `LAYOUT`; open `page.png` and each `map-<n>.png`. No docs-v2 `check.py` → say "layout not checked" in the reply.
-9. **Reply** = the build's terminal block (verdict, Must/Should one-liners, report path), plus the graph update question or the staleness note if the graph is out of date (knowledge-graph "Keep it updated").
+9. **Reply** = the build's terminal block (verdict, lede, Must/Should one-liners, report path), plus the graph update question or the staleness note if the graph is out of date (knowledge-graph "Keep it updated").
 
 ## Report (built, never hand-written)
-1. **Main review:** verdict · reviewed · goal · checks run · counts · tech debt (count, biggest) · Must fix · Should fix (each `[Area] path:lines — problem · fix`, linked to its detail) · Questions · impact diagram · Unused files (if asked) · net size.
+0. **Top:** verdict, then the lede, under the title.
+1. **Main review:** reviewed · goal · checks run · counts · tech debt (count, biggest) · Must fix · Should fix (each `[Area] path:lines — problem · fix`, linked to its detail) · Questions · impact diagram · Unused files (if asked) · net size.
 2. **Files:** one section per file with Must/Should, Must first, then path; links to its Minor items in Other.
 3. **Checked, no main findings:** one line of paths (+ Minor count); >10 → grouped by folder.
 4. **Other findings** (if any), numbered.
 
 ## Writing
-- Minimum words: problem ≤25, why ≤20, evidence ≤25, main line ≤25. One fact per line.
+- Minimum words: each of problem, why, evidence and the main line is one fact a reader takes in at a glance; the build WARNs when one runs long.
 - Smallest complete fix: include what it breaks otherwise (test config, callers, imports). Snippet ≤12 lines, only the changed lines, pastes as is.
 - Summary's fix = the `fix` field, same words.
 - Secrets: never the value. Name the key, cite `path:line`, value as `<redacted>`.

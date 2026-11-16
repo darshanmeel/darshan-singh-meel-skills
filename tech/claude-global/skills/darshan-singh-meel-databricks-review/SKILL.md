@@ -17,6 +17,7 @@ Find what makes a Databricks answer wrong or unsafe: a column that does not exis
 - **Evidence per finding:** file and cell or line, the quoted SQL, and the corrected SQL or the docs page. No evidence → a question under "Not checked".
 - **Severity:** Must = wrong number or answer, writes or could write, leaks a secret or people's data, misses a table the answer depends on. Should = misleading caveat, missing note, fragile but currently right. Other = style.
 - **Review, not fix.** Fixes are proposed in the report; files change only when asked, then fix, rerun the script, add "Fixed" per finding.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside. Check the answer text and notebook notes against `darshan-singh-meel-brevity/references/checks.md` and put each hit in Must / Should / Other at the severity listed there; the report itself opens with the verdict and the finding that decides it.
 - **Brief, not gentle.** No praise, no summary of the artefact.
 
 ## Process (fixed)

@@ -38,6 +38,7 @@ analysis/<YYYY-MM-DD>-<topic>/
 [query]     SQL or Python
 [output]    kept in the notebook after running
 ```
+- Markdown notes follow `darshan-singh-meel-brevity` (load alongside): the first line says what the cell checks and which result means trouble; findings and the summary open with the result.
 - Markdown notes and findings read as the engineer's own (CLAUDE.md "Author voice"): "Not yet run on production volumes", not "you need to confirm on prod".
 - **Layout (auto, say which in one line; user can switch):** A — simple SQL: queries in the cells. B — procedures/dbt: queries in `sql/NN_name.sql`; cells read and run the file, so editing the file and rerunning the cell picks up the change. `sql/` files are SELECT-only; DDL lives only in the user-run notebooks.
 - Cell 1 (tag `setup`): connection via connector/profile parameters (role, warehouse, schema) and the PII hash key (§6) — no SQL statements, never secrets in the notebook.

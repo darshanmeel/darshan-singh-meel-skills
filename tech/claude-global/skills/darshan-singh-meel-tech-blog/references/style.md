@@ -10,18 +10,18 @@ The script flags the phrases below (`BANNED` = FAIL, `SUSPECT` and patterns = `?
 | Fact instead of adjective | "a powerful, flexible feature" | "one statement replaces the read-then-write" |
 | Number instead of intensifier | "significantly faster" | "6 s instead of 41 s (median of 5 runs)" |
 | Specific instead of general | "various issues can occur" | "the second run fails with `UNIQUE constraint failed`" |
-| One idea per sentence | 40-word sentence with three clauses | two or three sentences, 35 words at most |
+| One idea per sentence | one sentence with three clauses | two or three sentences, one idea each |
 | Term stays the same | "table", then "relation", then "dataset" for one thing | "table" every time |
 | Say it once | point, then "in other words", then recap | the point |
 | No hedging stack | "it might possibly be worth considering" | "use X when Y" - or state the doubt once, with its reason |
 | No difficulty judgements | "simply", "just", "easy", "obviously" | the step |
 
-- Paragraphs: 2-5 sentences, 120 words at most, first sentence carries the point.
+- Paragraphs: short, a few sentences; the first sentence carries the point. A paragraph that runs long becomes a list or two paragraphs.
 - Passive is right when the actor is unknown or irrelevant ("the feature was added in 3.24.0"). Keep those.
 - Define an abbreviation at first use unless the reader in the brief uses it daily.
 - Code terms, file names, commands, values in code font. UI labels in bold. No bold for emphasis in running text.
 - Humour, anecdotes and opinions: allowed when they carry a fact the reader needs; first person for experience ("we", "I"), second person for instructions.
-- Plain punctuation: at most one em dash per 300 words; no exclamation marks; no emoji; no rhetorical questions as transitions.
+- Plain punctuation: em dashes rare (commas, colons or two sentences instead); no exclamation marks; no emoji; no rhetorical questions as transitions.
 
 ## Slop: cut on sight
 | Kind | Examples | Fix |
@@ -40,7 +40,7 @@ The script flags the phrases below (`BANNED` = FAIL, `SUSPECT` and patterns = `?
 | Generic claims | "many developers struggle with", "experts agree" | who, where (link), or cut |
 | Drafting trace | "as discussed", "as you requested", "per your request", "based on our conversation", "you haven't confirmed this on production" | the fact in the author's words: "Not tested on a production workload yet" |
 | Signposting | "As mentioned above", "As we will see later" | link the section or reorder |
-| Padding lists | bullets that restate the paragraph above; 3-word bullets under every heading | keep one form |
+| Padding lists | bullets that restate the paragraph above; fragment bullets under every heading | keep one form |
 | Decorative structure | a heading over one paragraph; bold lead-ins on every bullet; a table for two items | plain paragraph |
 
 ## Before / after

@@ -43,7 +43,8 @@ PATTERNS = set(re.findall(r"^### `([a-z0-9-]+)`", (Path(__file__).resolve().pare
 CHECKLIST = "architecture-checklist.md"
 SECTIONS = ["Summary", "Current architecture", "Problems", "Proposed architecture", "Workflows: current vs proposed",
             "Impact", "Migration", "Open questions and assumptions"]
-CELL, DO, VALUE, LEAD_SENT = 40, 8, 12, 2  # word caps: any text · strip step `do` · strip and trace values · lead sentences
+# internal caps for WARN only (any text · strip step `do` · strip and trace values · lead sentences); messages never state them
+CELL, DO, VALUE, LEAD_SENT = 40, 8, 12, 2
 MAX_STEPS, MAX_LANE = 7, 12
 PLACEHOLDER = {"skipped", "skip", "not run", "not called", "n/a", "na", "none", "unchanged", "same", "ok", "done"}
 FILLER = re.compile(r"\b(robust|seamless(?:ly)?|leverag(?:e|es|ing)|cutting[- ]edge|state[- ]of[- ]the[- ]art|best[- ]in[- ]class|"
@@ -55,6 +56,13 @@ SECRET = re.compile(r"(^|/)(\.env[^/]*|[^/]*\.(pem|key|p12|pfx|jks|keystore|tfva
                     r"credentials[^/]*|secrets?[^/]*|\.npmrc|\.pypirc|\.netrc|\.git-credentials|\.docker/config\.json|"
                     r"kubeconfig[^/]*|profiles\.yml)$|(^|/)[^/]*secret[^/]*/", re.I)
 ABS = re.compile(r"(?<![\w])[A-Za-z]:[\\/]|(?<![\w.~])/(?:Users|home|root)/|(?<![\w])~/")
+# lede wording that claims a different verdict than the spec's
+LEDE_CLAIMS = {
+    "keep": re.compile(r"\b(redesign|rebuild|re-?architect|replace the (whole )?(stack|platform))\w*", re.I),
+    "evolve": re.compile(r"\b(no changes? (needed|required)|keep (it|everything) as is|full redesign|rebuild from scratch)\b", re.I),
+    "redesign": re.compile(r"\b(no changes? (needed|required)|keep (it|everything) as is|only small changes)\b", re.I),
+}
+DESCRIBES = re.compile(r"^\W*(this|the following|in this|here is|here are)\b[^.]*\b(review|report|page|document)\b|^\W*(introduction|overview of)\b", re.I)
 KEYS = r"[\w.-]*(?:passw(?:or)?d|pwd|secret|token|api_?key|access_?key|private_?key)[\w.-]*"
 SECRET_VALUE = [  # literal secret values: quoted, YAML/env style, or the password in a connection string
     re.compile(rf"""(?i)\b({KEYS})["']?\s*(?::\s*\w+\s*)?[:=]\s*(["'])(?!<redacted>|\$\{{|\{{\{{)[^"'\n]+\2"""),
@@ -66,7 +74,7 @@ RANGE = re.compile(r"\d[\d,.]*\s*(?:[–-]|to)\s*~?\$?\d[\d,.]*")
 NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
 CSS = """.verdict{display:inline-block;font:600 13px/1.4 "IBM Plex Mono",Consolas,monospace;padding:3px 10px;border-radius:6px;border:1px solid;text-transform:uppercase}
 .verdict.keep{color:var(--green);border-color:var(--green)} .verdict.evolve{color:var(--amber-ink);background:var(--amber);border-color:var(--amber-ink)}
-.verdict.redesign{color:var(--red);border-color:var(--red)} .sev{font:600 11px/1.4 "IBM Plex Mono",Consolas,monospace;letter-spacing:.06em}
+.verdict.redesign{color:var(--red);border-color:var(--red)} .lede{font-size:17px;margin:8px 0 4px} .sev{font:600 11px/1.4 "IBM Plex Mono",Consolas,monospace;letter-spacing:.06em}
 .sev.High{color:var(--red)} .sev.Medium{color:var(--amber-ink)} .sev.Low{color:var(--muted)}
 .pb{border-top:1px solid var(--line);padding:10px 0 4px;margin-top:8px} .pb .hd{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px}
 .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px}
@@ -372,7 +380,7 @@ def ipo_check(where, b, root, err, warn, check_files):
 
 def prose(spec):
     """(where, text, cap, lead): every reader-facing text the build checks for budgets, filler and repeats."""
-    out = [("summary", spec.get("summary", ""), CELL, True)]
+    out = [("lede", spec.get("lede", ""), CELL, True), ("summary", spec.get("summary", ""), CELL, True)]
     cur, pr = spec.get("current") or {}, spec.get("proposal") or {}
     out.append(("current lead", cur.get("lead", ""), CELL, True))
     out += [(f"runtime {r[0]}", r[1], CELL, False) for r in cur.get("runtime", []) if isinstance(r, list) and len(r) > 1]
@@ -425,7 +433,7 @@ def word_rules(spec, warn):
             over.setdefault(cap, []).append(f"{where}: '{' '.join(t.split()[:6])} …' ({words(t)})")
         n = len(re.findall(r"[.!?](?=\s|$)", t))
         if lead and n > LEAD_SENT:
-            warn.append(f"words: {where} has {n} sentences (max {LEAD_SENT}): lead with the conclusion, cut the rest")
+            warn.append(f"words: {where} runs long: lead with the conclusion, cut the rest")
         for m in FILLER.finditer(re.sub(r"`[^`]*`", " ", t)):
             warn.append(f"filler: '{m[0]}' in {where}: say the fact (a name, number, consequence) or cut the word")
         for m in CHAT.finditer(re.sub(r"`[^`]*`", " ", t)):
@@ -434,8 +442,9 @@ def word_rules(spec, warn):
             w = re.findall(r"\w+", part.lower())
             if len(w) >= 6:
                 sents.setdefault(" ".join(w), set()).add(where)
+    kinds = {CELL: "texts", DO: "strip steps", VALUE: "strip or trace values"}
     for cap, items in over.items():
-        warn.append(f"words: {len(items)} texts over {cap} words ({'; '.join(items[:3])}): keep the fact, names and numbers; cut the prose")
+        warn.append(f"words: {len(items)} {kinds.get(cap, 'texts')} too long to take in at a glance ({'; '.join(items[:3])}): keep the fact, names and numbers; cut the prose")
     for t, at in sents.items():
         if len(at) > 1:
             warn.append(f"repeat: '{' '.join(t.split()[:10])}' in {', '.join(sorted(at))}: say it once, point to it from the other")
@@ -611,6 +620,13 @@ def check(spec, root, check_files, facts, has_review, inv=None):
         err.append(f"verdict '{v}' unknown: use one of {VERDICTS}")
     if not str(spec.get("summary", "")).strip():
         err.append("summary missing: one line, why this verdict")
+    lede = str(spec.get("lede") or "").strip()
+    if not lede:
+        warn.append("lede missing: one sentence under the title: the verdict and the one change that matters most")
+    elif DESCRIBES.search(lede):
+        warn.append("lede describes the page: state the verdict and the one change that matters most")
+    elif v in VERDICTS and LEDE_CLAIMS[v].search(lede):
+        warn.append(f"lede reads as another verdict ('{LEDE_CLAIMS[v].search(lede)[0]}') but the verdict is {v}: make them agree")
     sub = str(spec.get("subtitle", ""))
     if sub and (sub.count("·") != 2 or sub.count("→") != 1):
         warn.append("subtitle should read '<stack> · <schedule> · <source> → <outputs>' (two ·, one →)")
@@ -1064,10 +1080,11 @@ def render(spec, R, used, stamp, head, accuracy):
             f'<meta name="generator" content="darshan-singh-meel-architecture {VERSION}">'
             + (f'<meta name="repo-commit" content="{html.escape(head)}">' if head else "")
             + f'<title>{title}</title><style>{R["css"]}{CSS}</style></head><body><main><div class="eyebrow">architecture review</div><h1>{title}</h1>'
-            f'<p class="sub1">{" &middot; ".join(esc(s) for s in stamp)}</p>'
+            + (f'<p class="lede">{esc(spec["lede"])}</p>' if spec.get("lede") else "")
+            + f'<p class="sub1">{" &middot; ".join(esc(s) for s in stamp)}</p>'
             + (f'<p class="sub1">{esc(spec["subtitle"])}</p>' if spec.get("subtitle") else "")
             + f'<nav class="toc">{toc}</nav>{secs_html}</main></body></html>')
-    term = [f"Verdict: {spec['verdict']} — {spec['summary']}"] + [
+    term = [f"Verdict: {spec['verdict']} — {spec['summary']}"] + ([spec["lede"]] if spec.get("lede") else []) + [
         f"- {c} {changes[c]['title']} — {DIMS[r['dim']].lower()}: {r['saving']} ({kind_label(r)})" for c, r in tops]
     term.append(f"Problems: High {count['High']}, Medium {count['Medium']}, Low {count['Low']} · "
                 + (f"components: {mc['move']} move, {mc['keep']} keep, {mc['later']} later · " if moves else "")

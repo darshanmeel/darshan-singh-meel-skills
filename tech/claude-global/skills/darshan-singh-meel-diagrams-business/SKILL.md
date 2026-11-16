@@ -60,7 +60,7 @@ Types for "how is the business organised, where is value, what do we decide". Th
 - org chart: leaves stack under their manager automatically when wide (`stack_leaves`); still too wide → one chart per direct report.
 - mind map: ≤ 3 levels; the deepest level folds into sub text when wide (`compact`).
 - value stream ≤ 4 stages with `start` and `end`, ≤ 6 without; SIPOC ≤ 8 steps; fishbone ≤ 8 categories; decision matrix ≤ 6 options; quadrant ~8 items at the default size (10-12 → `size: [720, 500]` or drop `sub`).
-- Labels: short names; detail in `sub`; causes and bullets ≤ ~6 words.
+- Labels: short names; detail in `sub`; causes and bullets a short phrase each.
 
 ## Common mistakes
 - A SWOT with no "so what": the Notice names the pair that matters.

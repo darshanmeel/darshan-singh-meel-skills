@@ -17,6 +17,7 @@ Find what makes the prototype's answer untrustworthy or its clean-up unsafe: it 
 - **A prototype is judged as a prototype.** Missing tests, error handling, structure and polish are correct. Findings are about the answer, the hard limits and containment.
 - **Evidence per finding:** the command and its output, the quoted line, or the two variants compared. No evidence → a question under "Not checked".
 - **Review, not fix.** Fixes are proposed in the report; files change only when the user asks (arguments say "fix", or a later request). Then: fix, rerun steps 2-4, add a "Fixed" line per finding. Never delete a prototype or absorb its answer: that is the builder's step, on the user's word.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside. Check `NOTES.md` against `darshan-singh-meel-brevity/references/checks.md` and put each hit in Must / Should / Other at the severity listed there; the report itself opens with the verdict and the finding that decides it.
 - **Brief, not gentle.** No praise section, no summary of the prototype, no taste-only findings.
 
 ## Process (fixed)

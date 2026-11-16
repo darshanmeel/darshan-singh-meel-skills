@@ -10,6 +10,7 @@ Current → problems → keep/move/later → target → workflows → impact →
 - **Input → Process → Output** with the output of each step: target Main flows (4) are strips with a `why`; workflows (5) trace one case current vs proposed.
 - **Every claim is evidence or a labelled estimate:** `path:line`, a `facts.json` fact, or `estimate` + assumption.
 - Global CLAUDE.md rules apply (local files only, relative paths, never open secret files, never read data rows, author voice: the page reads as the architect's own, open points as facts, no chat).
+- **Writing:** `darshan-singh-meel-brevity` (lede first, detail in layers): load it alongside. The page opens with `lede`: one sentence with the verdict and the one change that matters most (the first of `top`); `summary` then says why.
 - `<skill>` = this folder; `<docs-v2>` = `darshan-singh-meel-docs-v2` beside it. Fields, ERROR/WARN: `references/spec.md`. Moves: `references/patterns.md`.
 
 ## Step 0 — ask first

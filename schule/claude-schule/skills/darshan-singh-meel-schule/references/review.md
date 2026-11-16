@@ -8,7 +8,8 @@ Used by every school `*-review` skill and by step 6 of the base process (Must it
 3. Solve every task yourself, without looking at the solution; then compare. Recompute every number, sum, percentage, unit, date.
 4. Read every DE/EN pair with the 3-step test in `bilingual.md`.
 5. Open `animation.html`: step through every step forwards and backwards, play at each speed, toggle English, print preview.
-6. Walk the checklist below. Write the report to `reviews/<skill>-<YYYY-MM-DD-HHMM>.md` (add `/reviews/` to `.gitignore` on first use). Reply with verdict, counts, and the report path.
+6. Apply `darshan-singh-meel-brevity` `references/checks.md` to teacher-facing parts only (Stundenentwurf, Lösung, Erwartungshorizont, Hinweise); never to student task text.
+7. Walk the checklist below. Write the report to `reviews/<skill>-<YYYY-MM-DD-HHMM>.md` (add `/reviews/` to `.gitignore` on first use). Reply with verdict, counts, and the report path.
 
 ## Checklist
 | # | Area | Check | Must when |
@@ -44,6 +45,8 @@ Bilingual findings name the kind: `fehlt` (no English line) · `zu frei` (paraph
 Date: <YYYY-MM-DD HH:MM> · Skill: <skill> · Files: <relative paths>
 Verdict: <Einsatzbereit | Einsatzbereit nach Must-Korrekturen | Überarbeiten>
 Counts: Must <n> · Should <n> · Other <n> · Check script: <n> errors, <n> warnings
+
+<one sentence: the finding that decides the verdict, or why the material is ready>
 
 ## Must
 - **<file> · <task/line>** - what: <one line> · why: <one line> · fix: <concrete change>

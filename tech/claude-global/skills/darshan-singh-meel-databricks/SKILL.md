@@ -47,7 +47,7 @@ On-screen shape: `Answer` (one or two lines, or "run Q1–Q3 to answer") · `Que
 - **Facts** (view, column, function, value names) only from the references or official docs; anything not confirmed carries `check: <page>`.
 
 ## Rules
-- Answer first; queries prove it. No unrequested report, dashboard or app.
+- Answer first, with its unit (`darshan-singh-meel-brevity`, loaded alongside); queries prove it. No unrequested report, dashboard or app.
 - Generic content only: no account, workspace, customer or person names in queries, notes or files.
 - Never run anything that writes, starts compute beyond the warehouse the user named, or changes grants.
 - Files: notebooks and SQL in `analysis/<topic>/` (git-ignored per CLAUDE.md); paths relative to the repo root; no secrets (env-var names only).

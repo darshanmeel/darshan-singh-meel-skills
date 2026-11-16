@@ -16,6 +16,7 @@ Find what makes a Snowflake answer wrong or unsafe: a view or column that does n
 - **Never open secret files** (CLAUDE.md list, including connection configs and `profiles.yml`); a connection cell is judged by its text only.
 - **Evidence per finding:** the file and line or cell, the quoted SQL, and the reference entry or page that shows the problem. No evidence → a question under "Not checked".
 - **Review, not fix.** Fixes are proposed in the report; files change only when the arguments say "fix" or a later request asks. Then: fix, rerun steps 2-5, add a "Fixed" line per finding.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside. Check the answer text and notebook notes against `darshan-singh-meel-brevity/references/checks.md` and put each hit in Must / Should / Other at the severity listed there; the report itself opens with the verdict and the finding that decides it.
 - **Brief, not gentle.** No praise section, no summary of the work, no style-only findings.
 
 ## Process (fixed)

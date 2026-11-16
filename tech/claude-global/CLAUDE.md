@@ -8,7 +8,8 @@
 ## Communication
 - Replies read like good docs: minimal, to the point, bullets, no fluff, no preamble, no recaps.
 - Lead with the answer or result; only the details needed to act.
-- **End of reply, in order:** summary · Self-check (when a skill did the work) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
+- Replies and every produced text follow `darshan-singh-meel-brevity`: the answer is the lede, then why it matters where the reader can't see it, then the detail; a diagram where it explains better than a paragraph. Length is judged, never counted.
+- **End of reply, in order:** summary (when the reply opened with the result, that line is the summary: no second copy) · Self-check (when a skill did the work) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
 - **`Skills:` line:** `Skills: <skills used this turn> (<reference files read>)`, or `Skills: none`. E.g. `Skills: darshan-singh-meel-code, darshan-singh-meel-data-platform (sql.md, dbt.md)`. With the skill-usage hook installed, a full log is kept in `~/.claude/skill-usage.log`.
 - **Self-check** — after work done with a skill, three short lines: `Confidence: high/medium/low — why` · `Main risk: what could undermine the work` · `Went well: 1–2 things`. Honest, not modest or inflated. Then append the same as one entry: `python ~/.claude/hooks/log-work.py --skill <skill> --task "…" --confidence … --why "…" --risk "…" --good "…" [--good "…"] [--fixes "earlier mistake and the better way"] [--files <relative paths>]` → `~/.claude/skill-work/<skill>.jsonl`. `--fixes` when the work corrects an earlier mistake (own or a skill's). No secrets, data or personal details in entries. Write-only: never read these logs or change a skill from them — a separate process does that.
 - A correction of something you said earlier goes first: what was wrong, what's right.
@@ -75,6 +76,7 @@
 | Docs v3 (diagrams from the diagram skills) — only when I say "v3" | `darshan-singh-meel-docs-v3` |
 | Tech summary: mid-depth technical doc — components, main flows, data model, stack, deploy, risks (~10 min read) | `darshan-singh-meel-docs-tech-summary` |
 | Diagrams of any kind (inline SVG + Mermaid, layout-checked; plain, dbt-style lineage or Airflow-style DAG graph look, picked per diagram) in pages, docs, reviews, briefs, blogs, answers: base engine plus the family for the type — flow, architecture, data, interaction, ai, business / review one | `darshan-singh-meel-diagrams` + `darshan-singh-meel-diagrams-<family>` / `darshan-singh-meel-diagrams-review` |
+| Brevity: plain title, the point first (lede), why it matters, detail in layers; diagram over a paragraph — loaded alongside every skill that writes text, and for chat replies | `darshan-singh-meel-brevity` |
 | Architecture review: current, problems, proposed target (Technical-doc shape), impact on cost/performance/maintenance/tech debt — when I ask, or offered after a Technical doc | `darshan-singh-meel-architecture` |
 | Requirements brief: what is asked, data, flows, gaps, tech options, what needs to be done (one HTML page with SVG) / review one | `darshan-singh-meel-requirements-brief` / `darshan-singh-meel-requirements-brief-review` |
 | Write an English technical blog post / review one | `darshan-singh-meel-tech-blog` / `darshan-singh-meel-tech-blog-review` |

@@ -16,10 +16,11 @@ Find what would embarrass the author after publishing: code that does not run, f
 - **Evidence per finding:** the command and its output, the page and what it says, or the quoted words. No evidence → a question under "Not checked", not a finding.
 - **Review, not rewrite.** Fixes are proposed in the report; files change only when the user asks (arguments say "fix", or a later request). Then: fix, rerun steps 2-3, add a "Fixed" line per finding.
 - **Never execute** anything that touches real systems, real data, paid services or the network beyond package indexes the user approved; mark as not run with the reason.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside. Check the post (an accurate hook title is fine) against `darshan-singh-meel-brevity/references/checks.md` and put each hit in Must / Should / Other at the severity listed there; the report itself opens with the verdict and the finding that decides it.
 - **Brief, not gentle.** No praise section, no summary of the post, no taste-only findings.
 
 ## Process (fixed)
-1. **Scope** - the post in the arguments (`$ARGUMENTS`), else the newest `blog/*.md`. Read its brief comment (reader, goal, thesis, type, words). No brief → one AskUserQuestion prompt: reader · intended length; recommended first. Cannot ask (forked run) → reader = practitioner who uses the tool daily, length = as written; say so in the report.
+1. **Scope** - the post in the arguments (`$ARGUMENTS`), else the newest `blog/*.md`. Read its brief comment (reader, goal, thesis, type, scope). No brief → one AskUserQuestion prompt: reader · intended scope; recommended first. Cannot ask (forked run) → reader = practitioner who uses the tool daily, scope = as written; say so in the report.
 2. **Script** - `python <blog skill dir>/scripts/blog_post.py blog/<slug>.md --run`. Every `FAIL` is a Must candidate; every `?` is read in context.
 3. **Rerun the code** - `python <blog skill dir>/scripts/blog_post.py blog/<slug>.md --extract <temp dir>/<slug>`, then in that folder:
    - assemble the blocks the way a reader would (same file when the post says so, in order) and run them with the versions the post names; record command, version, exit code;

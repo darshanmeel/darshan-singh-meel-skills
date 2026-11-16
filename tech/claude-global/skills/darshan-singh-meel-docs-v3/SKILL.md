@@ -14,6 +14,7 @@ Docs v2 plus engine diagrams. Maximum information, minimum words, senior-archite
   - `references/diagrams.md`: which diagram goes where, dbt / airflow / plain style.
   - `references/html-style.md`: the look.
 - **`<skill>` = the folder holding this SKILL.md.** Always run its scripts, never a copy in the repo. Diagram blocks need `darshan-singh-meel-diagrams` (and the family skill of the type) installed next to it; load them when you write a `diagram` block.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside: per document a `lede` (the point) and `why` (why it matters) under the title, per section a lead with its main point, detail in layers below.
 - **Not for:** a mid-depth tech summary → `darshan-singh-meel-docs-tech-summary`.
 
 ## Step 0 - ask first, every time
@@ -57,6 +58,7 @@ AskUserQuestion(questions=[
   - Then run `inventory.py --check-facts` → 0 `MISMATCH` / `NOT RUN` before the build.
 
 ## Every document
+- **Lede** under the title, before the tabs: spec `lede` = one sentence the reader must remember (Overview: what it does and for whom · Technical: the main mechanism · User guide: what the reader can do and the first step), optional `why` = why it matters to this reader. Missing, only the title again, or describing the document → WARN.
 - **Tabs** right after the title: **Does · Doesn't · Limitations · Top issues**.
   - Does (3-5) and Doesn't (3-5): out of scope by design.
   - Limitations: real ones only, ≤5, and only here.
@@ -95,7 +97,7 @@ AskUserQuestion(questions=[
 - **Never hand-write HTML, CSS or SVG.** `mkdir -p` the output folder; start from the closest `references/examples/*.json` (pipeline, web app, library, user guides, stress; `readme-data-platform` for dbt and Airflow diagrams).
 - `python <skill>/references/templates/build.py generated-docs/_spec/<doc>.json generated-docs/<doc>.html` → last line `built <out>: N sections, N WARN (templates <ver>)`. Fix every ERROR and WARN (engine `diagram X (type): …` lines too), or explain each remaining WARN in the reply.
 - `python <skill>/references/templates/check.py <doc.html> <shots_dir>` → 0 `LAYOUT` lines; it reruns the engine checker on every `diagram` block and writes `page.png` + `map-<n>.png` per diagram.
-- **Markdown / Confluence:** same plan, sections, diagrams, examples. `--diagrams generated-docs/diagrams` on the build writes Mermaid `<id>.mmd` per `diagram` block (`<id>.svg` when the type has no Mermaid form); builder flows get hand-written Mermaid. Confluence: never upload, one line on how to import. Word/PDF only if asked.
+- **Markdown / Confluence:** same plan, sections, diagrams, examples; the lede and why right under the title, before the tabs (rerun the build: it WARNs `<doc>.md: the lede is not first`). `--diagrams generated-docs/diagrams` on the build writes Mermaid `<id>.mmd` per `diagram` block (`<id>.svg` when the type has no Mermaid form); builder flows get hand-written Mermaid. Confluence: never upload, one line on how to import. Word/PDF only if asked.
 - The builder can't draw it → say so; ask before changing `build.py`.
 
 ## Workflow - fixed, every run: `docs-v3-<repo>`

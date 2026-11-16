@@ -19,6 +19,7 @@ SEVS = ["Must", "Should"]
 AREAS = ["Correctness", "Security", "Performance", "Design", "Complexity", "Size", "Slop", "Tests", "Obvious", "Data", "Tech debt"]
 DEBT, EFFORT = "Tech debt", ["S", "M", "L"]  # effort: optional, shown for Tech debt only
 CONFIDENCE = ["High", "Medium", "Check"]
+# internal length caps for WARN only; messages give the reason, never the number (brevity: length is judged)
 BUDGET = {"problem": 25, "why": 20, "summary": 25, "what": 20, "evidence": 25}
 IMPACT_TAGS = ["changed", "fix"]  # fix = box the proposed fix changes (whole-repo review)
 MAX_LANE, MAX_CHECKED = 12, 10
@@ -37,9 +38,13 @@ SECRET_VALUE = [  # literal secret values: quoted, YAML/env style, or the passwo
     re.compile(r"(?i)\b\w+://[^\s:/@]+:(?!<redacted>|\$)([^\s@/]+)@"),
 ]
 LINES = re.compile(r"^(\d+)(?:-(\d+))?$")
+BREVITY = Path(__file__).resolve().parents[3] / "darshan-singh-meel-brevity" / "scripts" / "check_brevity.py"
+APPROVES = re.compile(r"(?<!not )(?<!n't )\b(safe to merge|ready to (merge|ship)|good to go|lgtm|no (issues|problems) (found|remain)|can be merged|approved?)\b", re.I)
+LEDE_COMMON = {"chan", "this", "that", "code", "file", "when", "whic", "will", "into", "does"}
+DESCRIBES = re.compile(r"^\W*(this|the following|in this|here is|here are)\b[^.]*\b(review|report|page|document)\b|^\W*(introduction|overview of)\b", re.I)
 CSS = """.verdict{display:inline-block;font:600 13px/1.4 "IBM Plex Mono",Consolas,monospace;padding:3px 10px;border-radius:6px;border:1px solid}
 .verdict.rc{color:var(--red);border-color:var(--red)} .verdict.ac{color:var(--amber-ink);background:var(--amber);border-color:var(--amber-ink)}
-.verdict.ok{color:var(--green);border-color:var(--green)} .sev{font:600 11px/1.4 "IBM Plex Mono",Consolas,monospace;letter-spacing:.06em}
+.verdict.ok{color:var(--green);border-color:var(--green)} .lede{font-size:17px;margin:8px 0 4px} .sev{font:600 11px/1.4 "IBM Plex Mono",Consolas,monospace;letter-spacing:.06em}
 .sev.Must{color:var(--red)} .sev.Should{color:var(--amber-ink)} .fd{border-top:1px solid var(--line);padding:10px 0 4px;margin-top:8px}
 .fd .hd{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px} pre.snip{background:var(--soft);border:1px solid var(--line);
 border-radius:6px;padding:8px 12px;font-size:12.5px;overflow-x:auto;margin:6px 0} pre.snip code{background:none;border:0;padding:0} .file{margin-top:22px}
@@ -117,6 +122,29 @@ def docs_v2():
 
 def words(text):
     return len([w for w in str(text).split() if re.search(r"\w", w)])
+
+
+def filler_re():
+    """The filler-phrase regex of darshan-singh-meel-brevity, or None when that skill is not installed beside this one."""
+    try:
+        spec = importlib.util.spec_from_file_location("check_brevity", BREVITY)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.FILLER_RE
+    except Exception:
+        return None
+
+
+def lede_warns(spec, lede, warn):
+    """A lede that contradicts the verdict or misses the finding that decides it."""
+    v = spec.get("verdict")
+    if v == "Request changes" and APPROVES.search(lede):
+        warn.append(f"lede reads as an approval ('{APPROVES.search(lede).group(0)}') but the verdict is Request changes: state the deciding finding")
+    found = [f for s in SEVS for fl in spec.get("files", []) for f in fl.get("findings", []) if f.get("sev") == s]
+    if v != "Approve" and found:
+        top = found[0]
+        if not (stems(lede) - LEDE_COMMON) & stems(f"{top.get('summary', '')} {top.get('problem', '')}"):
+            warn.append(f"lede shares no word with the top {top['sev']} finding: name the finding that sets the verdict")
 
 
 def strings(x):
@@ -224,6 +252,13 @@ def check(spec, root, check_files):
     sc = spec.get("scope") or {}
     if not sc.get("reviewed") or not sc.get("goal"):
         err.append("scope needs reviewed (what was reviewed) and goal (what the change should do)")
+    lede = str(spec.get("lede") or "").strip()
+    if not lede:
+        warn.append("lede missing: one sentence after the verdict: what the change does and the single most important finding")
+    elif DESCRIBES.search(lede):
+        warn.append("lede describes the report: state what the change does and the finding that decides the verdict")
+    if lede:
+        lede_warns(spec, lede, warn)
     if not spec.get("checks"):
         warn.append("checks is empty: list what ran, or 'not run (why)'")
     for c in spec.get("checks", []):
@@ -240,7 +275,7 @@ def check(spec, root, check_files):
         if not fl.get("what"):
             err.append(f"{where}: needs what (one line: what changed / what it does)")
         elif words(fl["what"]) > BUDGET["what"]:
-            warn.append(f"{where}: what is {words(fl['what'])} words (max {BUDGET['what']})")
+            warn.append(f"{where}: what is too long for one line: say what changed, cut words that carry no fact")
         if not fl.get("findings"):
             err.append(f"{where}: no Must or Should finding: list the file under checked instead")
         if sum(1 for f in fl.get("findings", []) if f.get("diagram")) > 1:
@@ -265,13 +300,13 @@ def check(spec, root, check_files):
                 if not str(f.get(k, "")).strip():
                     err.append(f"{w}: needs {k}" + (" (Must and Should need a concrete fix)" if k == "fix" else ""))
                 elif k in BUDGET and words(f[k]) > BUDGET[k]:
-                    warn.append(f"{w}: {k} is {words(f[k])} words (max {BUDGET[k]})")
+                    warn.append(f"{w}: {k} is too long: one fact, cut words that carry none")
             if f.get("summary") and "·" not in f["summary"]:
                 warn.append(f"{w}: summary should read 'problem · fix'")
             elif f.get("summary") and fix_drift(f):
                 warn.append(f"{w}: the fix in summary shares no word with fix: make them say the same fix")
             if f.get("evidence") and words(f["evidence"]) > BUDGET["evidence"]:
-                warn.append(f"{w}: evidence is {words(f['evidence'])} words (max {BUDGET['evidence']})")
+                warn.append(f"{w}: evidence is too long: input → observed result only")
             if f.get("code"):
                 if SECRET.search(p):
                     err.append(f"{w}: no code snippet for a secret file")
@@ -348,6 +383,12 @@ def check(spec, root, check_files):
             warn.append(f"machine-like path in '{s[:60]}': use a repo-relative path (a route: put the HTTP verb before it)")
         for k in secret_values(s):
             err.append(f"likely secret value for '{k}': write <redacted>, cite the file and line")
+    filler = filler_re()
+    prose = [lede] + [str(fl.get("what", "")) for fl in spec.get("files", [])] + [
+        str(f.get(k, "")) for fl in spec.get("files", []) for f in fl.get("findings", []) for k in ("summary", "problem", "why", "fix", "evidence")]
+    for s in prose if filler else []:
+        for m in filler.finditer(s):
+            warn.append(f"filler '{m.group(0)}' in '{s[:60]}': cut it")
     return err, list(dict.fromkeys(warn))
 
 
@@ -398,10 +439,12 @@ def render(spec, esc, diagram, css, plain=None):
               f"Questions {len(spec.get('questions', []))}")
     debt = debt_line(flat, other)
     sc = spec["scope"]
-    main = (f'<p><span class="verdict {vcls}">{esc(v)}</span></p><ul><li><b>Reviewed:</b> {esc(sc["reviewed"])}</li>'
+    main = (f'<ul><li><b>Reviewed:</b> {esc(sc["reviewed"])}</li>'
             f'<li><b>Goal:</b> {esc(sc["goal"])}</li><li><b>Checks run:</b> {checks}</li><li><b>Findings:</b> {counts}</li>'
             f'<li><b>Tech debt:</b> {esc(debt)}</li></ul>')
-    term = [f"Verdict: {v}", f"Tech debt: {debt}"]
+    lede = str(spec.get("lede") or "").strip()
+    top = f'<p><span class="verdict {vcls}">{esc(v)}</span></p>' + (f'<p class="lede">{esc(lede)}</p>' if lede else "")
+    term = [f"Verdict: {v}"] + ([lede] if lede else []) + [f"Tech debt: {debt}"]
     for s, head in (("Must", "Must fix"), ("Should", "Should fix")):
         items = [(p, f) for p, f in flat if f["sev"] == s]
         if not items:
@@ -413,7 +456,7 @@ def render(spec, esc, diagram, css, plain=None):
     for p, f in flat:
         line = f"[{f['area']}] {loc(p, f.get('lines'))} — {f['summary']}"
         if words(line) > BUDGET["summary"]:
-            late.append(f"main list line for {loc(p, f.get('lines'))} is {words(line)} words (max {BUDGET['summary']}): shorten summary")
+            late.append(f"main list line for {loc(p, f.get('lines'))} is too long to scan: shorten summary")
     if spec.get("questions"):
         main += "<h3>Questions</h3><ul>" + "".join(f"<li>{esc(q)}</li>" for q in spec["questions"]) + "</ul>"
     if spec.get("impact"):
@@ -469,7 +512,7 @@ def render(spec, esc, diagram, css, plain=None):
     page = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             f'<meta name="generator" content="darshan-singh-meel-review-v2"><title>{esc(spec.get("title") or "Code review")}</title>'
             f'<style>{css}{CSS}</style></head><body><main><div class="eyebrow">code review</div><h1>{esc(spec.get("title") or "Code review")}</h1>'
-            f'<p class="sub1">{stamp}</p><nav class="toc">{toc}</nav>{secs_html}</main></body></html>')
+            f'{top}<p class="sub1">{stamp}</p><nav class="toc">{toc}</nav>{secs_html}</main></body></html>')
     return page, term, late
 
 

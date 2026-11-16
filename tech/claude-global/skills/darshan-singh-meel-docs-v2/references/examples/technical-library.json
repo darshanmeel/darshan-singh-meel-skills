@@ -5,6 +5,8 @@
  ],
  "title": "tabkit",
  "subtitle": "Python library + CLI · on call · CSV/JSON/INI files → records",
+ "lede": "`tabkit` reads CSV, JSON and INI files into a list of records and checks them against a schema; other formats plug in through entry points.",
+ "why": "A plugin that fails at import stops every command, so one broken third-party format breaks the whole CLI.",
  "tabs": {
   "does": [
    "Parses CSV, JSON and INI files into a list of records",

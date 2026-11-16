@@ -28,7 +28,7 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - Q3 = build/update → run `darshan-singh-meel-knowledge-graph` first, then write the documents from the graph, checking key steps in the code. Record the answer with knowledge-graph `update.py --choice now` (update) or `--choice skip` (use as is), so the end-of-task graph question is not repeated. Docs being built → no docs question after that update.
 
 ## Every document opens with four tabs
-- First thing after the title, before any diagram: one tab box — **Does · Doesn't · Limitations · Top issues**.
+- First thing after the title and its one-sentence lede (`darshan-singh-meel-brevity` table), before any diagram: one tab box — **Does · Doesn't · Limitations · Top issues**.
   - **Does** (3–5): what it does for this reader (Overview: business outcomes · Technical: what the components handle · User guide: tasks users can do).
   - **Doesn't** (3–5): out of scope by design — so nobody expects it (e.g. "Doesn't edit source data", "Doesn't manage user access — that's the platform team").
   - **Limitations** (only real ones, ≤5): constraints inside the scope (e.g. "Refreshed daily at 6 AM, not real-time", "Reads cached 5 minutes", "Uploads up to 50 MB"). Only here, not at the end.
@@ -84,7 +84,8 @@ Before reading sources or writing anything. Silent pre-check: does a graph exist
 - `Problem | What to do` — top 5. Who to contact. No internals.
 
 ## Writing rules
-- **Bullets only**, ≤ ~15 words, one fact each. Tables for anything compared or repeated.
+- **Brevity:** load `darshan-singh-meel-brevity` alongside; title, lede, why it matters and layers follow its table for Overview, Technical, User guide, runbook and KT. It shortens sentences and the top layer, never the depth a Technical doc, runbook or KT needs.
+- **Bullets only**, short, one fact each. Tables for anything compared or repeated.
 - **Diagram first, then bullets, then example.** Every document has at least one diagram.
 - **Simplest correct explanation wins.** Plain words; explain a needed term once ("idempotent (safe to rerun — same result)"); spell out acronyms in the Overview; an everyday analogy when it helps, never so simple it's wrong.
 - **Lead each section with the conclusion.** Concrete over abstract ("daily at 6 AM", not "periodic cadence").

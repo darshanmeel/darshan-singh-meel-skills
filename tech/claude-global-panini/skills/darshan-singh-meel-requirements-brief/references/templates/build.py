@@ -21,7 +21,8 @@ BLOCKS = {"text", "bullets", "table", "facts", "flow", "links", "timeline", "req
 STATUS = ["clear", "gap", "conflict"]
 WORK = ["build", "configure", "decide", "clarify"]
 NODE = ["source", "step", "store", "consumer"]
-WORDS, MAX_STEPS, LABEL = 40, 7, 12  # word cap per text · timeline steps · edge label characters
+# internal caps for WARN only: words per text (never shown as a target) · timeline steps · edge label characters
+WORDS, MAX_STEPS, LABEL = 40, 7, 12
 FILLER = re.compile(r"\b(robust|seamless(?:ly)?|leverag(?:e|es|ing)|cutting[- ]edge|state[- ]of[- ]the[- ]art|best[- ]in[- ]class|"
                     r"world[- ]class|game[- ]chang\w*|synerg\w*|holistic|next[- ]generation|simply|basically|very|really|"
                     r"comprehensive|powerful|in order to|it is important to note|note that)\b", re.I)
@@ -29,6 +30,7 @@ CHAT = re.compile(r"\b(you|your|the user|claude|as discussed|as agreed|as reques
                   r"the requester|requester|asked (?:us|me)|(?:was|were) asked|confirm with|(?:we|i) (?:could not|couldn't|did not|didn't) (?:check|verify|confirm)|"
                   r"(?:was|were) skipped|not (?:asked|provided by))\b", re.I)
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]*[a-z]{2,}", re.I)
+DESCRIBES = re.compile(r"^\W*(this|the following|in this|here is|here are)\b[^.]*\b(brief|document|page)\b|^\W*(introduction|overview of)\b", re.I)
 # phones: international (+49 …, 0049 …) with 7+ digits; local (030 5550100) with 9+ digits. Not after a digit group (IBAN), not HHMM-HHMM.
 PHONE_INT = re.compile(r"(?<!\d\s)(?<![\w-])(?:\+|00)\d{1,3}[\s./-]?(?:\(?\d{1,5}\)?[\s./-]?){2,4}\d{2,}\b")
 PHONE_LOCAL = re.compile(r"(?<!\d\s)(?<![\w:.-])0\d{2,4}[\s/-]\d{3,}(?:[\s-]\d{2,})?\b")
@@ -59,7 +61,7 @@ code,.m,th,.eyebrow,.chip,.key,.stamp,.src,.kind{font-family:"IBM Plex Mono",Con
 code{font-size:13px;background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
 .eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)} .stamp,.src{font-size:12px;color:var(--muted)}
 .toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;margin:8px 0 0} .toc a{color:var(--blue)} a{color:inherit}
-.lead{margin:4px 0 8px} .line{color:var(--muted)}
+.lead{margin:4px 0 8px} .lede{font-size:17px;margin:6px 0 8px} .line{color:var(--muted)}
 table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px} th,td{text-align:left;vertical-align:top;padding:7px 10px;border:1px solid var(--line)}
 th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--soft)} td.m{font-size:12.5px}
 .facts{display:grid;grid-template-columns:max-content 1fr;gap:5px 18px;margin:8px 0} .facts dt{font:12px/1.6 "IBM Plex Mono",Consolas,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -166,6 +168,11 @@ def check(spec, root):
     for k in ("title", "date", "sections"):
         if not spec.get(k):
             err.append(f"spec needs {k}")
+    lede = str(spec.get("lede") or "").strip()
+    if not lede:
+        warn.append("lede missing: one sentence under the title: what is asked and the main gap")
+    elif DESCRIBES.search(lede):
+        warn.append("lede describes the page: state what is asked and the main gap")
     secs = spec.get("sections") or {}
     for s in SECTIONS:
         if s not in secs:
@@ -377,7 +384,7 @@ def check(spec, root):
         if (m := FILLER.search(s)):
             warn.append(f"{where}: filler: '{m[0]}'")
         if words(s) > WORDS:
-            warn.append(f"{where}: {words(s)} words, cap {WORDS}: split or cut")
+            warn.append(f"{where}: runs long (two facts?): split or cut")
         for sent in re.split(r"(?<=[.!?])\s+", plain(s)):
             k = sent.strip().lower()
             if len(k.split()) >= 6:
@@ -691,6 +698,8 @@ def render(spec, root, warn):
     toc = "".join(f'<a href="#s{i}">{i} {html.escape(s)}</a>' for i, s in enumerate(SECTIONS, 1))
     inputs = " &middot; ".join(esc(i["name"]) for i in spec.get("inputs") or [])
     out = [f'<p class="eyebrow">Requirements brief</p><h1>{esc(spec["title"])}</h1>']
+    if spec.get("lede"):
+        out.append(f'<p class="lede">{esc(spec["lede"])}</p>')
     if spec.get("subtitle"):
         out.append(f'<p class="lead">{esc(spec["subtitle"])}</p>')
     out.append(f'<p class="stamp">{esc(spec["date"])}' + (f" &middot; Inputs: {inputs}" if inputs else "") + "</p>")

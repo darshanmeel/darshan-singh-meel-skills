@@ -2,6 +2,8 @@
  "type": "custom",
  "title": "Billing analytics platform",
  "subtitle": "dbt + Airflow · nightly 02:00 UTC · app and billing databases → MRR board",
+ "lede": "Every night dbt builds monthly recurring revenue per account in `fct_mrr` from the app and billing databases and feeds the MRR board.",
+ "why": "MRR is final at 06:00 UTC; a read before then shows the previous day.",
  "tabs": {
   "does": [
    "Loads accounts and invoices every night",

@@ -73,4 +73,5 @@ Detect first (no questions for what the repo shows): `dbt_project.yml`, adapter 
 - **Secrets:** never open `profiles.yml`, `.env*`, key files, `target/` data; names only, values `<redacted>`.
 - **Generic output:** no account, workspace, customer or person names in templates and examples.
 - **Minimal dbt:** project defaults over per-model config; packages (`dbt_utils`) over custom macros; `ref`/`source` always.
+- **Brevity:** answers follow `darshan-singh-meel-brevity` (load alongside): the answer or the number with its unit first, then the change, command or query, how to read it, caveats.
 - Replies end per CLAUDE.md (summary · Self-check · Other findings · `Skills:` line).

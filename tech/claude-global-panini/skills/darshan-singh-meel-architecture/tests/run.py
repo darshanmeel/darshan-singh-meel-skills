@@ -98,14 +98,18 @@ CASES = [  # (name, spec, expected exit, text expected in output)
     ("two traces", edit(lambda s: W(s, 0)["examples"].append(dict(W(s, 0)["examples"][0], title="again", case="edge"))), 0, "2 traces"),
     ("step without out", edit(lambda s: W(s, 0)["steps"][0].pop("out")), 1, "needs do and out"),
     ("placeholder cell", edit(lambda s: W(s, 0)["examples"][0]["at"].__setitem__(1, "skipped")), 0, "placeholder words"),
-    ("step do over 8 words", edit(lambda s: W(s, 0)["steps"][0].update(do="Read the whole orders table from the primary Postgres")), 0, "texts over 8 words"),
+    ("step do over 8 words", edit(lambda s: W(s, 0)["steps"][0].update(do="Read the whole orders table from the primary Postgres")), 0, "strip steps too long"),
+    ("lede claims another verdict", edit(lambda s: s.update(lede="No changes needed: keep it as is, the stack fits the load.")), 0, "lede reads as another verdict"),
     ("one workflow", edit(lambda s: s.update(workflows=s["workflows"][:1])), 0, "workflows: 1 given"),
     ("workflow unknown change", edit(lambda s: s["workflows"][0].update(changes=["C9"])), 1, "change 'C9' is no change id"),
     ("filler word", edit(lambda s: C(s, 0).update(why="a robust way to scan days of rows")), 0, "filler: 'robust'"),
     ("chat voice in a question", edit(lambda s: s["questions"].append("As discussed, the user decides the retention period.")), 0, "voice: 'As discussed'"),
     ("could-not-check note", edit(lambda s: s["assumptions"].append(["We could not check the prod schedule", "C1 timing rests on it"])), 0, "voice: 'We could not check'"),
     ("repeated sentence", edit(lambda s: C(s, 1).update(why=C(s, 0)["why"])), 0, "repeat:"),
-    ("lead too long", edit(lambda s: s.update(summary="One. Two. Three.")), 0, "has 3 sentences"),
+    ("lead too long", edit(lambda s: s.update(summary="One. Two. Three.")), 0, "summary runs long"),
+    ("lede missing", edit(lambda s: s.pop("lede")), 0, "WARN lede missing"),
+    ("lede describes the page", edit(lambda s: s.update(lede="This review looks at the orders pipeline.")), 0, "WARN lede describes the page"),
+    ("lede filler", edit(lambda s: s.update(lede="Evolve: a robust incremental load ends the nightly rebuild.")), 0, "filler: 'robust' in lede"),
     ("migration unknown change", edit(lambda s: M(s, 0).update(changes=["C9"])), 1, "change 'C9' is no change id"),
     ("migration no rollback", edit(lambda s: M(s, 0).update(rollback="")), 1, "needs step and rollback"),
     ("migration bad effort", edit(lambda s: M(s, 0).update(effort="XL")), 1, "effort 'XL' unknown"),
@@ -189,7 +193,8 @@ def main():
           and "<b>Alternatives:</b> Snowflake Tasks" in page and "Main flow 4.2" in page and "Accuracy: not reviewed" in out
           and "2 move, 2 keep, 1 later" in out and "<h3>Operations</h3>" in page and 'title="infra/snowflake/warehouses.tf:5-9">warehouses.<wbr>tf:5-9' in page
           and 'id="M3"' in page and "Alternatives: Fivetran or Airbyte" in page and "<b>Size:</b>" in page and "Until: a dashboard" in page
-          and "now measured &middot; effect by design" in page and "<h3>Tests</h3>" in page and "3 edits → 1 per rule change (measured)" in out)
+          and "now measured &middot; effect by design" in page and "<h3>Tests</h3>" in page and "3 edits → 1 per rule change (measured)" in out
+          and page.find("</h1>") < page.find('class="lede"') < page.find('class="toc"') and BASE["lede"] in out)
     report("valid spec: counts, links, ids, terminal block, marker", ok, out)
     for name, spec, want_code, want in CASES:
         code, out, _, _ = build(spec)

@@ -5,6 +5,8 @@
  ],
  "title": "Orders pipeline",
  "subtitle": "Spark on a job scheduler · daily · order events → sales views",
+ "lede": "Analysts get one current, flat copy of every order each morning, built from the order system's updates.",
+ "why": "Data is up to one day old and a failed run is not retried, so a failed night leaves yesterday's data in place.",
  "tabs": {
   "does": [
    "Gives analysts one current, flat copy of every order",

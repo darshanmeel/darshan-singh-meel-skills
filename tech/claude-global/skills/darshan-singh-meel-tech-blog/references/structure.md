@@ -1,6 +1,6 @@
-# Structure: outline, scan layer, length
+# Structure: outline, scan layer, scope
 
-Word counts, character counts and section counts here are this skill's defaults, not rules of any platform (`sources.md`).
+Character and section counts here are this skill's defaults, not rules of any platform (`sources.md`). Length is judged against the thesis, never counted against a target.
 
 ## Thesis
 - One sentence, a claim: "Rerunning a load is safe when the table has a natural key and the insert is an UPSERT."
@@ -28,27 +28,27 @@ A reader who reads only title, summary, headings, figure captions and takeaways 
 
 | Element | Rule |
 |---|---|
-| Title | States the outcome or the claim in the reader's words; 70 characters or fewer; the main term early; sentence case. Matches what the post proves - no wider. Patterns: "Make X do Y with Z" · "Why X fails when Y" · "X or Y for Z: what we measured". No "ultimate", "complete guide", "you need to know", no unkept numbers, no clickbait question. |
+| Title | States the outcome or the claim in the reader's words, or opens with an accurate hook that the post keeps ("Run it twice, get the same rows"), never a riddle or a question the post does not answer; 70 characters or fewer; the main term early; sentence case. Matches what the post proves - no wider. Patterns: "Make X do Y with Z" · "Why X fails when Y" · "X or Y for Z: what we measured". No "ultimate", "complete guide", "you need to know", no unkept numbers, no clickbait question. |
 | Description | 70-160 characters; the case and the result; not a copy of the title; no keyword list. |
-| Summary paragraph | Directly under the title, 80 words or fewer: the problem, the answer, what the post shows. The answer is in it - no teaser. |
+| Summary paragraph | Directly under the title. Its first sentence is the thesis (the lede); then the problem and what the post shows, nothing else. The answer is in it - no teaser. |
 | Headings | Sentence case; state the point ("Give the table a natural key"), not the kind of content ("Background", "Implementation", "Overview"); no end punctuation; unique; no skipped levels; code font for code terms. |
 | Lists | Numbered for steps in sequence, bullets for parallel items, table for comparison on the same attributes. |
 | Takeaways | 3-5 bullets. Each a rule with its condition ("Use X when Y"), not a recap of sections ("We looked at X"). Nothing new that the post did not show. No sign-off, no call to subscribe. |
 
 Title check: write 3 candidates, pick the one that is true if the reader stops after it.
 
-## Length
-| Length | Words | Fits |
-|---|---|---|
-| Short | 600-900 | one technique, one example |
-| Standard | 1,200-1,800 | tutorial with 3-5 steps, explainer of one mechanism |
-| Long | 2,500-3,500 | comparison with measurements, lessons learned with history |
+## Scope
+| Scope | Fits |
+|---|---|
+| Focused | one technique, one example |
+| Standard | a tutorial of a few steps, an explainer of one mechanism |
+| Deep | a comparison with measurements, lessons learned with history |
 
-- Words = prose only; code and output are not counted. Reading time: words / 200 (own working figure).
+- The post is as long as the thesis needs within its scope: every section earns its place, nothing is padded. The script shows the reading time; it is information, not a target.
 - Too long for the thesis → cut sections, not sentences everywhere. Too short → the thesis needs less, say so; never pad.
 - Code share: a tutorial shows every line the reader must type; other types show only the lines the point is about and link the rest (`_code/<slug>/`).
 
 ## Openings and endings
-- Open with the concrete problem or the result: "A load job that runs twice inserts every row twice." Not with history, a definition, a trend or a question.
+- Open with the thesis, the concrete problem or the result: "A load job that runs twice inserts every row twice." Not with history, a definition, a trend or a question. A hook belongs in the title, never in place of the first sentence's point.
 - No "what we will cover" paragraph when the headings already say it.
 - End with `Takeaways`. No conclusion paragraph that repeats the summary.

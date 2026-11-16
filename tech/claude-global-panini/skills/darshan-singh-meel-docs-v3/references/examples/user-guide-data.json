@@ -5,6 +5,8 @@
  ],
  "title": "Orders data — user guide",
  "subtitle": "SQL views · refreshed daily · order system → 4 views in export.sales",
+ "lede": "Four views in `export.sales` answer questions about orders, their lines, discounts and shipments, refreshed daily by 06:00.",
+ "why": "Join keys are not enforced: join on all of them, or rows multiply.",
  "tabs": {
   "does": [
    "Find an order and its lines",

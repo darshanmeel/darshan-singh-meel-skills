@@ -18,9 +18,9 @@ Official pages only. Status: **read** = the fact was read on the page (November 
 | Worked example: connection as context manager commits or rolls back and does not close; named placeholders need a dict; `executemany`; `sqlite_version` | Python 3.12 docs, sqlite3 - `https://docs.python.org/3.12/library/sqlite3.html` | read |
 
 ## Own defaults (not official)
-- Title 70 characters or fewer; description 70-160 characters; summary 80 words or fewer. Google states no limits; these keep titles and snippets from being cut in typical result widths - not a guarantee.
-- Length bands (600-900, 1,200-1,800, 2,500-3,500 words); reading time = words / 200.
-- Sentence 35 words, paragraph 120 words, one em dash per 300 words, 3-6 sections, 5-9 nodes per figure.
+- Title 70 characters or fewer; description 70-160 characters. Google states no limits; these keep titles and snippets from being cut in typical result widths - not a guarantee.
+- Scope (focused, standard, deep) instead of word bands; reading time = words / 200, shown as information only.
+- Internal thresholds of `scripts/blog_post.py` for long summary, sentence, paragraph and em-dash `?` lines (never stated as targets); 3-6 sections, 5-9 nodes per figure.
 - The slop lists in `style.md` and `scripts/blog_post.py`.
 - The front matter keys (`title`, `description`, `date`, `tags`) and the brief comment.
 

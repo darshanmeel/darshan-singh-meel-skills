@@ -4,11 +4,11 @@ description: {{what the reader gets and for which case, 70-160 characters}}
 date: {{YYYY-MM-DD}}
 tags: [{{tag}}, {{tag}}]
 ---
-<!-- brief: reader={{who, and what they already know}}; goal={{what they can do after reading}}; thesis={{one sentence}}; type={{tutorial | explainer | lessons | comparison}}; words={{min-max}} -->
+<!-- brief: reader={{who, and what they already know}}; goal={{what they can do after reading}}; thesis={{one sentence}}; type={{tutorial | explainer | lessons | comparison}}; scope={{focused | standard | deep}} -->
 
 # {{same text as title}}
 
-{{Summary, 80 words or fewer: the problem, the answer, what the post shows. No scene-setting.}}
+{{Summary: the thesis as the first sentence, then the problem and what the post shows. No scene-setting.}}
 
 ## {{Section heading that states the point}}
 

@@ -1,6 +1,7 @@
 {
  "title": "Fleet maintenance tracking",
  "date": "2026-11-12",
+ "lede": "Planners and finance ask for one daily record per vehicle with next service due and cost to date; the main gap is that no source holds the service interval per model, so next service due cannot be computed yet.",
  "subtitle": "One view per vehicle for maintenance planners and finance · 4 sources, daily batch · Snowflake and Airflow given",
  "stack": [
   "Snowflake",

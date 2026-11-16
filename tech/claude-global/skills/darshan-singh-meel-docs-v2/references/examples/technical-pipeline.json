@@ -5,6 +5,8 @@
  ],
  "title": "Orders pipeline",
  "subtitle": "Spark on a job scheduler · daily · order events → sales views",
+ "lede": "Once a day five Spark tasks keep the newest version of each order and publish it as 4 read-only views in `export.sales`.",
+ "why": "Nothing retries automatically: a failed task leaves the views a day behind until someone reruns it.",
  "tabs": {
   "does": [
    "Reads order events from the landing table once a day",

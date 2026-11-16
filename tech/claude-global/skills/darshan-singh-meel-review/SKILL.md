@@ -192,7 +192,7 @@ Each finding tagged `[Tech debt]`: **what** · **cost of keeping it** (time, ris
 
 ## Output format
 ```
-Verdict: Approve | Approve with changes | Request changes
+Verdict: Approve | Approve with changes | Request changes — <the finding that decides it>
 Checks run: tests → result, linter → result | not run (why)
 Tech debt: N items, biggest: <what> | none found
 
@@ -218,6 +218,7 @@ Other findings (only if any)
 ```
 Tag each finding with its area: Correctness, Security, Performance, Design, Complexity, Size, Slop, Tests, Obvious, Data, Tech debt.
 Omit empty sections. If there are no findings, output the verdict, checks run, and "No issues found."
+Terminal and HTML report follow `darshan-singh-meel-brevity` (load it alongside). Docs, READMEs, comments or reports in the reviewed change: check them against `darshan-singh-meel-brevity/references/checks.md`; hits become `[Slop]` findings at the severity listed there.
 
 ## HTML report (always)
 - Show the review in the terminal **and** save it as one local, self-contained HTML file: `reviews/review-YYYY-MM-DD-HHMM.html` in the project root. Give the path.

@@ -65,7 +65,7 @@ Skip a question the user has already answered in their own words. No answer → 
 Follow `references/audit-apps.md`: a single read-only statement guard, a visibility probe before the run, `NOT_ASSESSED` with a reason instead of empty, an INFORMATION_SCHEMA fallback where one exists, one price and one as-of date per run, results cached locally (Parquet or DuckDB), and tests against a fake account. With Streamlit in Snowflake, also load `darshan-singh-meel-streamlit-snowflake`.
 
 ## Rules
-- Answer first: the query and how to read it, not a lecture. Explain only the pitfalls that apply to this query.
+- Answer first: the answer or the number with its unit (`darshan-singh-meel-brevity`, loaded alongside), then the query and how to read it, not a lecture. Explain only the pitfalls that apply to this query.
 - Never guess a view or column name. Not in the references and not confirmed on docs.snowflake.com → say "not verified" and mark it `check: <page>`.
 - Never run, or suggest that Claude runs, anything that writes, changes a setting, resumes a warehouse on purpose, or calls `SYSTEM$` functions; those are cells for the user.
 - Never open secret files (connection configs, keys, `.env`, `profiles.yml`). The connection uses environment variable names only.

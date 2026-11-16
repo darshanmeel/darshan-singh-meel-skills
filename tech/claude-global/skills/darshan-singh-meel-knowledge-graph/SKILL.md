@@ -150,6 +150,7 @@ Any question about the repo: "what does X do end to end", "how does the upload w
 1. **Find it in the graph:** search nodes, edges, and pages; walk `calls` / `reads` / `writes` / `ref` / `triggers`.
 2. **Check freshness:** compare involved files with `meta.json`. Involved files' hashes unchanged → answer from the graph, opening the cited lines for key steps. Changed → read that file's current code, using the graph as a map, and say so in one line.
 3. **Answer:**
+   - Lead with the direct answer, then the path through the graph, `path:line` and sources (`darshan-singh-meel-brevity`, loaded alongside).
    - On screen: short bullets + a small diagram or call chain (`ui/upload.py:42 run_upload() → data.save_rows() → CALL SP_UPLOAD`), with IN → OUT and `path:line` per step.
    - HTML: `<graph folder>/answers/<question-slug>.html`, in the docs skill's style and components. Give the path. No graph → on screen only.
    - Diagram beyond a call chain (flow, sequence, lineage, ER, impact): build it with `darshan-singh-meel-diagrams` + family (0 `LAYOUT`); on screen the Mermaid text, in HTML the `--fragment`; dbt or airflow style for dependency and impact graphs, whichever fits.

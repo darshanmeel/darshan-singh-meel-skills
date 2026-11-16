@@ -5,6 +5,8 @@
  ],
  "title": "Expense app — user guide",
  "subtitle": "web app · on demand · your expense entries → approved claims",
+ "lede": "Submit an expense with its receipt and follow it until it is approved: open the app in the browser and press **+ New**.",
+ "why": "Managers also approve or reject their team's expenses in the **Approvals** tab.",
  "tabs": {
   "does": [
    "Submit an expense with a receipt",

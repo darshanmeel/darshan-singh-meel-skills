@@ -9,7 +9,7 @@
 
 ## Words
 - Tables and one-line bullets; prose only in a section `lead` (one or two sentences that state the conclusion).
-- One fact per bullet, ≤ 15 words where possible, never over 40.
+- One fact per bullet, as short as the fact allows; a bullet that runs long holds two facts: split it.
 - Say a thing once: a fact lives in the section that owns it; other sections reference it ("section 5", "W1", "FLT-3").
 - Concrete over abstract: "daily at 05:00", not "periodic"; "17 of 20 VINs", not "most".
 - No intros, outros, restating diagrams in prose, marketing words (robust, seamless, leverage), best-practice padding, emoji.
