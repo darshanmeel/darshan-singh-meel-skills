@@ -1,6 +1,6 @@
 # Claude Code global setup
 
-One copy step gives Claude Code our global rules, 38 tech skills and 27 school skills; build scripts and reviewer skills check what they produce.
+One copy step gives Claude Code our global rules, 40 tech skills and 27 school skills; build scripts and reviewer skills check what they produce.
 
 Every session then follows the same rules for replies, data, secrets and output, and each skill that produces material has a reviewer partner. Overview with diagrams: `README.html`.
 
@@ -23,7 +23,7 @@ python ~/.claude/hooks/install-skill-log.py   # once; python3 on macOS/Linux
 Restart Claude Code. Files with the same names in `~/.claude/` are overwritten: back up first.
 
 ## What's inside
-- **`CLAUDE.md`** — global rules: push back, reply style, questions, local-only output, data handling and secrets, read-only querying, network, code style, skill routing, knowledge graph, model choice.
+- **`CLAUDE.md`** — global rules: push back, reply style, agent-effort estimates (tokens and time), questions, local-only output, data handling and secrets, read-only querying, network, code style, skill routing, knowledge graph, model choice.
 - **`hooks/`**
   - `log-skill.py` — logs every skill used to `~/.claude/skill-usage.log`.
   - `log-work.py` — after skill work, appends a self-check (confidence, main risk, what went well, fixes of earlier mistakes) to `~/.claude/skill-work/<skill>.jsonl`, for a later process that improves the skills.
@@ -52,6 +52,7 @@ Restart Claude Code. Files with the same names in `~/.claude/` are overwritten: 
 | `dbt` | All dbt work on Snowflake and Databricks: models, incrementals, snapshots, tests, macros, slim CI, performance and cost, lineage from `manifest.json`, project health, debugging; never runs warehouse commands; `dbt-review` checks models and answers |
 | `ask-me` | Plan unclear tasks by grilling me, one question at a time |
 | `prototype` | Throwaway prototypes in git-ignored `prototypes/<name>/` that answer one design question: logic (terminal app over a pure module), UI variants, data model / dbt on synthetic DuckDB, Airflow flow; `prototype-review` runs and checks them |
+| `design` | Visual design loop for new UIs and redesigns, from a brief, screenshots or a running app: claude.ai/design in your own Chrome (asked each run) or a local HTML canvas with 1, 3 or 5 directions, refine rounds, then HTML, tokens and a spec in git-ignored `designs/<name>/`; `design-review` takes its own screenshots and checks any frontend |
 | `frontend` | UI design rules: layout, type, colour, states, accessibility |
 | `frontend-react` | Build React + TypeScript UIs with a component library; React components for Streamlit |
 | `streamlit` | Build, test, deploy Streamlit apps (any host) |

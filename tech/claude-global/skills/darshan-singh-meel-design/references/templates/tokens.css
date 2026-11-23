@@ -1,0 +1,85 @@
+/* Design tokens: NAME. One line per token, both themes through light-dark(); the canvas and screenshot.py set data-theme.
+   Names are the contract with check_design.py (contrast pairs) and the canvas (knobs). Add tokens, do not rename these. */
+:root {
+  color-scheme: light dark;
+
+  /* knobs: the canvas sliders change these live; every value below derives from them */
+  --accent-h: 250;            /* OKLCH hue of the accent and the tint of every neutral */
+  --radius: 6px;
+  --density: 1;               /* multiplies spacing: 0.8 dense console, 1.2 airy landing page */
+  --font-size-base: 15px;
+
+  /* colour, OKLCH: equal lightness steps read as equal across hues; neutrals carry a trace of the accent hue */
+  --bg:          light-dark(oklch(98.5% 0.004 var(--accent-h)), oklch(16% 0.012 var(--accent-h)));
+  --surface:     light-dark(oklch(100% 0 0),                     oklch(20% 0.012 var(--accent-h)));
+  --surface-2:   light-dark(oklch(95.5% 0.006 var(--accent-h)), oklch(24.5% 0.014 var(--accent-h)));
+  --border:      light-dark(oklch(87% 0.008 var(--accent-h)),   oklch(33% 0.014 var(--accent-h)));  /* dividers, cards */
+  --border-strong: light-dark(oklch(62% 0.012 var(--accent-h)), oklch(60% 0.014 var(--accent-h))); /* inputs, buttons: 3:1 */
+  --ink:         light-dark(oklch(22% 0.02 var(--accent-h)),    oklch(94% 0.01 var(--accent-h)));
+  --ink-2:       light-dark(oklch(47% 0.02 var(--accent-h)),    oklch(75% 0.015 var(--accent-h)));
+  --ink-3:       light-dark(oklch(63% 0.015 var(--accent-h)),   oklch(58% 0.015 var(--accent-h)));  /* disabled only */
+  --accent:      light-dark(oklch(48% 0.19 var(--accent-h)),    oklch(78% 0.14 var(--accent-h)));
+  --accent-ink:  light-dark(oklch(99% 0 0),                      oklch(18% 0.05 var(--accent-h)));
+  --accent-soft: light-dark(oklch(94% 0.05 var(--accent-h)),    oklch(28% 0.08 var(--accent-h)));
+  --focus:       var(--accent);
+
+  /* status: fixed hues (green, amber, red, blue) regardless of the accent; -text goes on -soft, -ink goes on the solid */
+  --ok:          light-dark(oklch(50% 0.15 150), oklch(78% 0.16 150));
+  --ok-soft:     light-dark(oklch(94% 0.06 150), oklch(27% 0.07 150));
+  --ok-text:     light-dark(oklch(36% 0.12 150), oklch(86% 0.13 150));
+  --ok-ink:      light-dark(oklch(99% 0 0),      oklch(16% 0.04 150));
+  --warn:        light-dark(oklch(52% 0.14 70),  oklch(82% 0.15 80));
+  --warn-soft:   light-dark(oklch(95% 0.07 80),  oklch(28% 0.07 75));
+  --warn-text:   light-dark(oklch(40% 0.12 65),  oklch(88% 0.12 85));
+  --warn-ink:    light-dark(oklch(99% 0 0),      oklch(18% 0.05 75));
+  --danger:      light-dark(oklch(50% 0.2 25),   oklch(74% 0.18 25));
+  --danger-soft: light-dark(oklch(94% 0.05 25),  oklch(28% 0.08 25));
+  --danger-text: light-dark(oklch(38% 0.17 25),  oklch(86% 0.1 25));
+  --danger-ink:  light-dark(oklch(99% 0 0),      oklch(16% 0.05 25));
+  --info:        light-dark(oklch(50% 0.14 240), oklch(78% 0.12 240));
+  --info-soft:   light-dark(oklch(94% 0.04 240), oklch(27% 0.06 240));
+  --info-text:   light-dark(oklch(38% 0.12 240), oklch(86% 0.08 240));
+  --info-ink:    light-dark(oklch(99% 0 0),      oklch(16% 0.04 240));
+
+  /* type: system stacks only (no network); the display face is where the character comes from */
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --text-xs:  max(12px, calc(var(--font-size-base) * 0.8));   /* nothing on screen below 12px */
+  --text-sm:  calc(var(--font-size-base) * 0.875);
+  --text-md:  var(--font-size-base);
+  --text-lg:  calc(var(--font-size-base) * 1.2);
+  --text-xl:  calc(var(--font-size-base) * 1.44);
+  --text-2xl: calc(var(--font-size-base) * 1.73);
+  --text-3xl: calc(var(--font-size-base) * 2.3);
+  --leading-tight: 1.2;
+  --leading: 1.5;
+  --tracking-tight: -0.01em;
+
+  /* spacing: 4px grid scaled by density */
+  --space-1: calc(4px * var(--density));
+  --space-2: calc(8px * var(--density));
+  --space-3: calc(12px * var(--density));
+  --space-4: calc(16px * var(--density));
+  --space-5: calc(24px * var(--density));
+  --space-6: calc(32px * var(--density));
+  --space-7: calc(48px * var(--density));
+  --space-8: calc(64px * var(--density));
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 2);
+  --radius-full: 999px;
+
+  /* elevation: shadows for light, borders carry depth in dark */
+  --shadow-1: light-dark(0 1px 2px oklch(0% 0 0 / 0.08), 0 0 0 1px oklch(100% 0 0 / 0.06));
+  --shadow-2: light-dark(0 4px 14px oklch(0% 0 0 / 0.12), 0 0 0 1px oklch(100% 0 0 / 0.08));
+
+  /* motion: one fast and one base duration; nothing longer than 300ms on a UI response */
+  --motion-fast: 120ms;
+  --motion: 200ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+@media (prefers-reduced-motion: reduce) { :root { --motion-fast: 0ms; --motion: 0ms; } }

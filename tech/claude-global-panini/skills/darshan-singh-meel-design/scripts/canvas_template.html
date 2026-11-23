@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canvas · /*TITLE*/</title>
+<style>
+  /* the canvas chrome is deliberately plain and grey so the directions carry all the colour */
+  :root { --c-bg: #e9e9ec; --c-panel: #fafafa; --c-ink: #1b1b1f; --c-ink2: #55555f; --c-line: #c4c4cc; --c-acc: #1f4fd8; --c-acc-ink: #ffffff; }
+  :root[data-theme="dark"] { --c-bg: #202024; --c-panel: #2b2b31; --c-ink: #ececf1; --c-ink2: #b0b0ba; --c-line: #4a4a54; --c-acc: #9fbbff; --c-acc-ink: #10203f; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; max-width: 100vw; overflow-x: hidden; }
+  body { background: var(--c-bg); color: var(--c-ink); font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+           padding: 8px 14px; background: var(--c-panel); border-bottom: 1px solid var(--c-line); }
+  header h1 { font-size: 13px; font-weight: 600; margin: 0 8px 0 0; }
+  .grp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .grp > span { color: var(--c-ink2); }
+  button, select, .btn { font: inherit; color: inherit; background: var(--c-bg); border: 1px solid var(--c-line); border-radius: 6px;
+                         padding: 4px 9px; cursor: pointer; min-height: 28px; text-decoration: none; display: inline-flex; align-items: center; }
+  button[aria-pressed="true"] { background: var(--c-acc); color: var(--c-acc-ink); border-color: var(--c-acc); }
+  :focus-visible { outline: 2px solid var(--c-acc); outline-offset: 2px; }
+  label.knob { display: inline-flex; align-items: center; gap: 5px; color: var(--c-ink2); }
+  label.knob input { width: 90px; height: 24px; }
+  label.knob output { min-width: 3.5em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+  label.show { display: inline-flex; align-items: center; gap: 4px; }
+  label.show input { width: 24px; height: 24px; margin: 0; }
+  input { accent-color: var(--c-acc); }
+  ::placeholder { color: var(--c-ink2); }
+  main { padding: 18px 14px 40px; overflow: auto; }
+  #grid { display: grid; gap: 22px; align-items: start; width: max-content; }
+  .col { display: grid; gap: 18px; }
+  .col[hidden] { display: none; }
+  .col > h2 { margin: 0; font-size: 15px; display: flex; gap: 10px; align-items: baseline; width: 0; min-width: 100%; }  /* never widens the column */
+  .col > h2 small { font-weight: 400; color: var(--c-ink2); }
+  .col > h2 button { margin-left: auto; font-size: 12px; min-height: 24px; padding: 2px 8px; }
+  .frame { background: var(--c-panel); border: 1px solid var(--c-line); border-radius: 8px; padding: 10px; }
+  .frame h3 { margin: 0 0 8px; font-size: 12px; font-weight: 500; color: var(--c-ink2); display: flex; justify-content: space-between; gap: 8px; }
+  .frame h3 code { font: 12px ui-monospace, monospace; }
+  .view { overflow: hidden; border: 1px solid var(--c-line); background: #fff; }
+  .view iframe { border: 0; display: block; transform-origin: 0 0; }
+  .view.missing { display: grid; place-items: center; color: var(--c-ink2); border-style: dashed; background: transparent; }
+  .frame textarea { width: 100%; margin-top: 8px; min-height: 54px; resize: vertical; font: inherit; color: inherit;
+                    background: var(--c-bg); border: 1px solid var(--c-line); border-radius: 6px; padding: 6px 8px; }
+  dialog { max-width: 720px; width: 90vw; border: 1px solid var(--c-line); border-radius: 8px; background: var(--c-panel); color: inherit; }
+  dialog textarea { width: 100%; height: 50vh; font: 12px ui-monospace, monospace; }
+  #status { color: var(--c-ink2); margin-left: auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>/*TITLE*/</h1>
+  <div class="grp" role="group" aria-label="Viewport"><span>Viewport</span>
+    <button data-vp="1280x800" aria-pressed="true">Desktop</button><button data-vp="834x1112">Tablet</button><button data-vp="390x844">Mobile</button>
+  </div>
+  <div class="grp" role="group" aria-label="Theme"><span>Theme</span>
+    <button data-theme="light" aria-pressed="true">Light</button><button data-theme="dark">Dark</button>
+  </div>
+  <div class="grp"><span>Zoom</span>
+    <select id="zoom" aria-label="Zoom"><option value="fit" selected>Fit</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1">100%</option></select>
+  </div>
+  <div class="grp" id="columns" role="group" aria-label="Columns"><span>Show</span></div>
+  <div class="grp" id="knobs">
+    <label class="knob">Hue <input type="range" min="0" max="360" step="1" data-var="--accent-h" data-unit=""><output></output></label>
+    <label class="knob">Radius <input type="range" min="0" max="24" step="1" data-var="--radius" data-unit="px"><output></output></label>
+    <label class="knob">Density <input type="range" min="0.8" max="1.25" step="0.05" data-var="--density" data-unit=""><output></output></label>
+    <label class="knob">Base size <input type="range" min="13" max="18" step="0.5" data-var="--font-size-base" data-unit="px"><output></output></label>
+    <button id="reset">Reset</button>
+  </div>
+  <div class="grp"><button id="export">Export notes</button></div>
+  <span id="status" aria-live="polite"></span>
+</header>
+<main><div id="grid"></div></main>
+
+<dialog id="dlg">
+  <p style="margin:0 0 8px">Picks, notes, tweaks and the view, as text. Copy it, or save it as <code>comments.md</code> next to this canvas.</p>
+  <textarea id="exportText" aria-label="Export"></textarea>
+  <div class="grp" style="margin-top:8px;justify-content:flex-end"><button id="copy">Copy</button><a id="dl" class="btn" download="comments.md">Download</a><button id="close">Close</button></div>
+</dialog>
+
+<script>
+const FRAMES = /*FRAMES*/;
+const KEY = "canvas:" + location.pathname;
+const state = { vp: [1280, 800], theme: "light", zoom: "fit", tweaks: {} };
+let saved = { notes: {}, picks: [], hidden: ["System"] };
+try { saved = Object.assign(saved, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const frameId = (f) => f.key + "/" + (f.file || f.screen);
+const keys = [...new Set(FRAMES.map((f) => f.key))];
+const isDesign = (k) => !FRAMES.some((f) => f.key === k && !f.missing && !f.file.endsWith(".html"));
+
+function build() {
+  const grid = document.getElementById("grid");
+  grid.style.gridTemplateColumns = `repeat(${keys.length}, max-content)`;
+  for (const k of keys) {
+    const col = document.createElement("section"); col.className = "col"; col.dataset.key = k;
+    const frames = FRAMES.filter((f) => f.key === k);
+    const title = k === "System" || !isDesign(k) ? k : "Direction " + k;
+    const sub = [frames[0].name !== k ? frames[0].name : "", frames[0].pitch].filter(Boolean).join(" · ");
+    col.innerHTML = `<h2><span>${esc(title)} <small>${esc(sub)}</small></span>${isDesign(k) && k !== "System" ? `<button class="pick" aria-pressed="${saved.picks.includes(k)}">Pick</button>` : ""}</h2>`;
+    const pick = col.querySelector(".pick");
+    if (pick) pick.onclick = () => { saved.picks = saved.picks.includes(k) ? saved.picks.filter((x) => x !== k) : [...saved.picks, k]; pick.setAttribute("aria-pressed", saved.picks.includes(k)); persist(); };
+    for (const f of frames) {
+      const box = document.createElement("article"); box.className = "frame";
+      const label = esc(k + " " + (f.screen || f.name));
+      box.innerHTML = f.missing
+        ? `<h3><span>${esc(f.screen)}</span><code>no frame</code></h3><div class="view missing">no ${esc(f.screen)} screen in ${esc(k)}</div>`
+        : `<h3><span>${esc(f.screen || f.name)}</span><code>${esc(f.file)}</code></h3><div class="view"><iframe title="${label}"></iframe></div>
+           <textarea placeholder="Notes on this frame" aria-label="Notes on ${label}"></textarea>`;
+      if (!f.missing) {
+        box.querySelector("iframe").srcdoc = f.html;
+        const ta = box.querySelector("textarea");
+        ta.value = saved.notes[frameId(f)] || "";
+        ta.oninput = () => { saved.notes[frameId(f)] = ta.value; persist(); };
+      }
+      col.appendChild(box);
+    }
+    col.hidden = saved.hidden.includes(k);
+    grid.appendChild(col);
+    const lab = document.createElement("label"); lab.className = "show";
+    lab.innerHTML = `<input type="checkbox" ${col.hidden ? "" : "checked"}> ${esc(k)}`;
+    lab.querySelector("input").onchange = (e) => { col.hidden = !e.target.checked; saved.hidden = keys.filter((x) => document.querySelector(`.col[data-key="${CSS.escape(x)}"]`).hidden); persist(); apply(); };
+    document.getElementById("columns").appendChild(lab);
+  }
+}
+
+const docs = () => [...document.querySelectorAll(".col:not([hidden]) iframe")].map((i) => i.contentDocument).filter(Boolean);
+
+function apply() {
+  const [w, h] = state.vp;
+  const width = (k) => (k === "System" ? Math.min(w, 640) : w);
+  const shown = keys.filter((k) => !document.querySelector(`.col[data-key="${CSS.escape(k)}"]`).hidden);
+  const total = shown.reduce((s, k) => s + width(k), 0) || w;
+  const z = state.zoom === "fit" ? Math.max(0.2, Math.min(1, (innerWidth - 28 - 44 * shown.length) / total)) : +state.zoom;
+  for (const v of document.querySelectorAll(".view")) {
+    const fw = width(v.closest(".col").dataset.key), i = v.querySelector("iframe");
+    v.style.width = Math.round(fw * z) + "px"; v.style.height = Math.round(h * z) + "px";
+    if (i) { i.style.width = fw + "px"; i.style.height = h + "px"; i.style.transform = `scale(${z})`; }
+  }
+  document.documentElement.dataset.theme = state.theme;
+  for (const d of document.querySelectorAll("iframe")) {
+    const doc = d.contentDocument; if (!doc) continue;
+    doc.documentElement.dataset.theme = state.theme;
+    doc.documentElement.removeAttribute("style");
+    for (const [k, val] of Object.entries(state.tweaks)) doc.documentElement.style.setProperty(k, val);
+  }
+  document.getElementById("status").textContent = `${w}×${h} · ${state.theme} · ${Math.round(z * 100)}%`;
+}
+
+function readKnobDefaults() {
+  const d = docs().find((x) => x.body && x.body.textContent.trim());
+  if (!d) return;
+  const cs = getComputedStyle(d.documentElement);
+  for (const inp of document.querySelectorAll("#knobs input")) {
+    const v = parseFloat(cs.getPropertyValue(inp.dataset.var));
+    inp.disabled = isNaN(v);  /* the token file has no such knob: the slider cannot work */
+    if (!isNaN(v)) inp.value = v;
+    inp.nextElementSibling.value = isNaN(v) ? "n/a" : inp.value + inp.dataset.unit;
+  }
+}
+
+function exportText() {
+  const lines = [`# Canvas notes · ${document.title.replace("Canvas · ", "")}`, `View: ${document.getElementById("status").textContent}`];
+  lines.push(`Picked: ${saved.picks.join(", ") || "none"}`);
+  lines.push(`Tweaks: ${Object.entries(state.tweaks).map(([k, v]) => `${k}: ${v};`).join(" ") || "none"}`, "");
+  for (const f of FRAMES) {
+    const n = (saved.notes[frameId(f)] || "").trim();
+    if (n) lines.push(`## ${f.key} — ${f.name}${f.screen ? " / " + f.screen : ""} (${f.file})`, n, "");
+  }
+  return lines.join("\n");
+}
+
+const press = (b) => { for (const x of b.parentElement.querySelectorAll("button")) x.setAttribute("aria-pressed", x === b); };
+document.querySelectorAll("[data-vp]").forEach((b) => b.onclick = () => { state.vp = b.dataset.vp.split("x").map(Number); press(b); apply(); });
+document.querySelectorAll("[data-theme]").forEach((b) => b.onclick = () => { state.theme = b.dataset.theme; press(b); apply(); });
+document.getElementById("zoom").onchange = (e) => { state.zoom = e.target.value; apply(); };
+document.querySelectorAll("#knobs input").forEach((inp) => inp.oninput = () => {
+  state.tweaks[inp.dataset.var] = inp.value + inp.dataset.unit; inp.nextElementSibling.value = inp.value + inp.dataset.unit; apply();
+});
+document.getElementById("reset").onclick = () => { state.tweaks = {}; apply(); readKnobDefaults(); };
+document.getElementById("export").onclick = () => {
+  const t = exportText(); document.getElementById("exportText").value = t;
+  document.getElementById("dl").href = URL.createObjectURL(new Blob([t], { type: "text/markdown" }));
+  document.getElementById("dlg").showModal();
+};
+document.getElementById("copy").onclick = async () => {
+  const ta = document.getElementById("exportText");
+  try { await navigator.clipboard.writeText(ta.value); } catch (e) { ta.select(); document.execCommand("copy"); }
+  document.getElementById("status").textContent = "copied";
+};
+document.getElementById("close").onclick = () => document.getElementById("dlg").close();
+addEventListener("resize", () => { if (state.zoom === "fit") apply(); });
+
+build();
+let pending = document.querySelectorAll("iframe").length;
+document.querySelectorAll("iframe").forEach((i) => i.addEventListener("load", () => { if (--pending === 0) { apply(); readKnobDefaults(); } }));
+apply();
+</script>
+</body>
+</html>

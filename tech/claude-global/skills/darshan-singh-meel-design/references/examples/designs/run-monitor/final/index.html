@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runs · last 24 h</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+           padding: 0 var(--space-3); min-height: 36px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button:disabled { color: var(--ink-3); border-color: var(--border); cursor: default; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.primary:hover { filter: brightness(1.08); }
+  input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); min-height: 28px; padding: 0 var(--space-2); accent-color: var(--accent); }
+  ::placeholder { color: var(--ink-2); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .chip { border: 1px solid var(--border-strong); border-radius: var(--radius-full); min-height: 28px; padding: 0 var(--space-2); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border); background: var(--surface); }
+  header strong { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  header nav { display: flex; gap: var(--space-1); margin-left: var(--space-4); overflow-x: auto; }
+  header nav a { color: var(--ink-2); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; }
+  header nav a[aria-current] { color: var(--ink); background: var(--surface-2); }
+  header .who { margin-left: auto; color: var(--ink-2); font-size: var(--text-sm); white-space: nowrap; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: var(--space-5); display: grid; gap: var(--space-5); }
+  h1 { margin: 0; font: 400 var(--text-3xl)/var(--leading-tight) var(--font-display); letter-spacing: var(--tracking-tight); }
+  h1 small { display: block; font: var(--text-sm)/var(--leading) var(--font-sans); color: var(--ink-2); margin-top: var(--space-2); }
+
+  .fails { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: var(--space-3); }
+  /* the card's head is the pipeline's last 24 runs at full width: the one box that differs is why the card exists */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 0 var(--space-3); display: grid; gap: var(--space-2); align-content: start; overflow: hidden; }
+  .card > * { margin: 0 var(--space-4); }
+  .card .strip { margin: 0; display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 32px; padding: var(--space-1) var(--space-1) 0; background: var(--surface-2); }
+  .card .strip i { background: var(--ok-soft); border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-top: 14px; }
+  .card .strip i.f { background: var(--danger); margin-top: 0; }
+  .card .strip i.l { background: var(--warn); margin-top: 0; }
+  .card h2 { font-size: var(--text-lg); display: flex; justify-content: space-between; gap: var(--space-2); align-items: baseline; margin-top: var(--space-2); }
+  .card .cap { color: var(--ink-2); font-size: var(--text-xs); }
+  .card pre { padding: var(--space-2) var(--space-3); background: var(--danger-soft); color: var(--danger-text); border-radius: var(--radius-sm); font: var(--text-sm)/1.45 var(--font-mono); white-space: pre-wrap; }
+  .card.late pre { background: transparent; color: var(--warn-text); padding: 0; }
+  .card .meta { color: var(--ink-2); font-size: var(--text-sm); }
+  .card .row { display: flex; gap: var(--space-2); justify-content: flex-end; flex-wrap: wrap; }
+  .card .row button { white-space: nowrap; }
+  .empty { border: 1px dashed var(--border-strong); border-radius: var(--radius-md); padding: var(--space-5); text-align: center; color: var(--ink-2); display: none; }
+
+  section h2 { font-size: var(--text-sm); color: var(--ink-2); font-weight: 500; margin: 0; }
+  .bar { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-2); }
+  .bar input { width: 180px; margin-left: auto; }
+  .scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px var(--space-3); border-top: 1px solid var(--border); font-size: var(--text-sm); white-space: nowrap; }
+  th { position: sticky; top: 0; border-top: 0; color: var(--ink-2); font-weight: 500; background: var(--surface-2); font-size: var(--text-xs); }
+  td.num, th.num { text-align: right; }
+  td.msg { max-width: 0; width: 30%; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+  tbody tr:hover td { background: var(--surface-2); }
+  tbody tr { cursor: pointer; }
+  .st { display: inline-block; width: 8px; height: 8px; border-radius: var(--radius-sm); margin-right: 6px; vertical-align: 1px; }
+  .st.ok { background: var(--ok); } .st.fail { background: var(--danger); } .st.run { background: var(--info); } .st.late { background: var(--warn); }
+  .bar-dur { display: inline-block; height: 6px; background: var(--ink-3); vertical-align: middle; border-radius: var(--radius-sm); margin-left: 6px; }
+
+  @media (max-width: 719px) {
+    header .who { display: none; }  /* the nav keeps its room; the on-call team is one tap away in Alerts */
+    main { padding: var(--space-4); }
+    h1 { font-size: var(--text-2xl); }
+    .card .row button { min-height: 44px; flex: 1 1 100%; }
+    .card h2 { flex-direction: column; align-items: flex-start; gap: 0; }  /* state on its own line: no mid-phrase wrap */
+    td:nth-child(4), th:nth-child(4), td.msg, th.msg, .bar-dur { display: none; }
+    .bar input { width: 100%; margin: 0; }
+  }
+</style>
+</head>
+<body data-direction="A2" data-name="Triage first, dense list" data-screen="Runs" data-pitch="A with B's table: the incident-line headline, failures with their 24 h strip, every run in a dense filterable table">
+<header>
+  <strong>Runs</strong>
+  <nav aria-label="Main"><a href="#" aria-current="page">Last 24 h</a><a href="#">Pipelines</a><a href="#">Schedules</a><a href="#">Alerts</a></nav>
+  <span class="who">on call: platform-b · 14:32</span>
+</header>
+<main>
+  <h1>3 failed, 1 late, 1 running. <small>41 runs since 14:30 yesterday · 36 ok · refreshed 20 s ago</small></h1>
+
+  <div class="fails" aria-label="Runs that need attention">
+    <article class="card">
+      <div class="strip" aria-label="Last 24 runs of finance_close_daily, one a day: 22 ok, then 2 failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i><i class="f"></i></div>
+      <h2>finance_close_daily <span class="mono">failed 14:08 · 2nd try</span></h2>
+      <p class="cap">24 runs, 24 d: 22 ok, then 2 failed</p>
+      <pre>Database Error in model fct_ledger (models/marts/fct_ledger.sql)
+  Numeric value 'N/A' is not recognized · line 112</pre>
+      <p class="meta">dbt · 41 of 58 models built · owner finance-data</p>
+      <div class="row"><button>Open log</button><button class="primary">Retry finance_close_daily from failure</button></div>
+    </article>
+    <article class="card">
+      <div class="strip" aria-label="Last 24 runs of events_hourly, one an hour: 23 ok, then 1 failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i></div>
+      <h2>events_hourly <span class="mono">failed 13:30</span></h2>
+      <p class="cap">24 runs, 24 h: 23 ok, then 1 failed</p>
+      <pre>Timeout after 25 min (p50 is 6 min) · 1.9 GB staged, 0 loaded</pre>
+      <p class="meta">spark · owner platform-b</p>
+      <div class="row"><button>Open log</button><button class="primary">Retry events_hourly</button></div>
+    </article>
+    <article class="card">
+      <div class="strip" aria-label="Last 24 runs of crm_contacts_sync, one a day: 4 failed in the last 6"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i><i></i><i class="f"></i><i class="f"></i><i></i><i class="f"></i></div>
+      <h2>crm_contacts_sync <span class="mono">failed 09:22</span></h2>
+      <p class="cap">24 runs, 24 d: 4 of the last 6 failed</p>
+      <pre>HTTP 429 from source after 3 retries · 12 of 14 streams loaded</pre>
+      <p class="meta">ingestion · owner growth</p>
+      <div class="row"><button>Open log</button><button class="primary">Retry crm_contacts_sync</button></div>
+    </article>
+    <article class="card late">
+      <div class="strip" aria-label="Last 24 runs of inventory_snapshot, one a day: 23 ok, 1 late now"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="l"></i></div>
+      <h2>inventory_snapshot <span class="mono">running 52 min</span></h2>
+      <p class="cap">24 runs, 24 d: 23 ok, 1 late now</p>
+      <pre>Late: usually done in 18 min · waiting on warehouse queue (4 ahead)</pre>
+      <p class="meta">dbt · owner supply</p>
+      <div class="row"><button>Open log</button><button>Cancel run</button></div>
+    </article>
+  </div>
+  <p class="empty">Nothing needs attention. All 41 runs since yesterday 14:30 finished on time.</p>
+
+  <section>
+    <div class="bar" role="toolbar" aria-label="Filter runs">
+      <h2>All runs</h2>
+      <button class="chip" aria-pressed="true">All 41</button><button class="chip">Failed 3</button><button class="chip">Running 1</button><button class="chip">Late 1</button>
+      <input type="search" placeholder="Pipeline or owner" aria-label="Filter by pipeline or owner">
+    </div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Status</th><th>Pipeline</th><th>Started</th><th>Owner</th><th class="num">Duration</th><th class="msg">Message</th></tr></thead>
+      <tbody>
+        <tr><td><i class="st run"></i>running</td><td>dbt_marts_hourly</td><td class="mono">14:30</td><td>platform-b</td><td class="num mono">2 min<i class="bar-dur" style="width:4px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st fail"></i>failed</td><td>events_hourly</td><td class="mono">13:05</td><td>platform-b</td><td class="num mono">25 min<i class="bar-dur" style="width:50px"></i></td><td class="msg">Timeout after 25 min</td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>orders_daily</td><td class="mono">14:00</td><td>commerce</td><td class="num mono">11 min<i class="bar-dur" style="width:22px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st fail"></i>failed</td><td>finance_close_daily</td><td class="mono">13:51</td><td>finance-data</td><td class="num mono">17 min<i class="bar-dur" style="width:34px"></i></td><td class="msg">Numeric value 'N/A' is not recognized</td></tr>
+        <tr><td><i class="st late"></i>late</td><td>inventory_snapshot</td><td class="mono">13:40</td><td>supply</td><td class="num mono">52 min<i class="bar-dur" style="width:104px"></i></td><td class="msg">usually 18 min · queued</td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>events_hourly</td><td class="mono">12:05</td><td>platform-b</td><td class="num mono">6 min<i class="bar-dur" style="width:12px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>customer_scd</td><td class="mono">12:30</td><td>growth</td><td class="num mono">4 min<i class="bar-dur" style="width:8px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>warehouse_export</td><td class="mono">12:00</td><td>finance-data</td><td class="num mono">23 min<i class="bar-dur" style="width:46px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>dbt_marts_hourly</td><td class="mono">11:30</td><td>platform-b</td><td class="num mono">9 min<i class="bar-dur" style="width:18px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>events_hourly</td><td class="mono">11:05</td><td>platform-b</td><td class="num mono">7 min<i class="bar-dur" style="width:14px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>pricing_feed</td><td class="mono">10:00</td><td>commerce</td><td class="num mono">1 min<i class="bar-dur" style="width:2px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st fail"></i>failed</td><td>crm_contacts_sync</td><td class="mono">09:14</td><td>growth</td><td class="num mono">8 min<i class="bar-dur" style="width:16px"></i></td><td class="msg">HTTP 429 from source after 3 retries</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

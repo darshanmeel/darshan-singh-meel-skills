@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A · Triage first · Run</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+           padding: 0 var(--space-3); min-height: 36px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.quiet { border-color: transparent; color: var(--ink-2); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border); background: var(--surface); }
+  header strong { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  header nav { display: flex; gap: var(--space-1); margin-left: var(--space-4); overflow-x: auto; }
+  header nav a { color: var(--ink-2); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; }
+  header nav a[aria-current] { color: var(--ink); background: var(--surface-2); }
+  header .who { margin-left: auto; color: var(--ink-2); font-size: var(--text-sm); white-space: nowrap; }
+
+  main { max-width: 920px; margin: 0 auto; padding: var(--space-5); display: grid; gap: var(--space-5); }
+  .back { color: var(--ink-2); text-decoration: none; font-size: var(--text-sm); display: inline-block; min-height: 24px; line-height: 24px; }
+  h1 { margin: 0; font: 400 var(--text-3xl)/var(--leading-tight) var(--font-display); letter-spacing: var(--tracking-tight); }
+  h1 small { display: block; font: var(--text-sm)/var(--leading) var(--font-sans); color: var(--ink-2); margin-top: var(--space-2); }
+  .error { padding: var(--space-3) var(--space-4); background: var(--danger-soft); color: var(--danger-text); border-radius: var(--radius-md); font: var(--text-md)/1.5 var(--font-mono); white-space: pre-wrap; margin: 0; }
+  .actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .actions .quiet { margin-left: auto; }
+
+  h2 { margin: 0 0 var(--space-2); font-size: var(--text-sm); color: var(--ink-2); font-weight: 500; }
+  /* stages on one time scale: the width is the duration, the ghost is the p50 */
+  .stages { display: grid; gap: var(--space-2); }
+  .stage { display: grid; grid-template-columns: 140px 1fr 110px; gap: var(--space-3); align-items: center; font-size: var(--text-sm); }
+  .stage .bar { position: relative; height: 18px; background: var(--surface-2); border-radius: var(--radius-sm); }
+  .stage .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ok); border-radius: var(--radius-sm); }
+  .stage .bar i.f { background: var(--danger); }
+  .stage .bar b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink-3); }
+  .stage .dur { text-align: right; }
+  .legend { color: var(--ink-2); font-size: var(--text-xs); }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-4); margin: 0; font-size: var(--text-sm); }
+  dt { color: var(--ink-2); } dd { margin: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+
+  @media (max-width: 719px) {
+    header .who { display: none; }  /* the nav keeps its room; the on-call team is one tap away in Alerts */
+    main { padding: var(--space-4); }
+    h1 { font-size: var(--text-2xl); }
+    .actions button { min-height: 44px; flex: 1; } .actions .quiet { margin: 0; }
+    .stage { grid-template-columns: 1fr auto; } .stage .bar { grid-column: 1 / -1; }
+    .two { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body data-direction="A" data-name="Triage first" data-screen="Run" data-pitch="failures are the job; the headline reads like an incident line and every failure carries its 24 h strip">
+<header>
+  <strong>Runs</strong>
+  <nav aria-label="Main"><a href="#" aria-current="page">Last 24 h</a><a href="#">Pipelines</a><a href="#">Schedules</a><a href="#">Alerts</a></nav>
+  <span class="who">on call: platform-b · 14:32</span>
+</header>
+<main>
+  <a class="back" href="#">← Runs, last 24 h</a>
+  <h1>events_hourly failed at 13:30 after 25 min. <small>run <span class="mono">#4a1f</span> · started 13:05 by schedule · p50 is 6 min · owner platform-b</small></h1>
+  <pre class="error">Timeout after 25 min in stage load_events
+1.9 GB staged, 0 rows loaded · warehouse queue was 4 deep at 13:10</pre>
+  <div class="actions"><button class="primary">Retry run</button><button>Open full log</button><button>Mute alerts 2 h</button><button class="quiet">Delete run…</button></div>
+
+  <section>
+    <h2>Stages <span class="legend">· bar = this run · mark = usual (p50)</span></h2>
+    <div class="stages">
+      <div class="stage"><span>extract_events</span><div class="bar"><i style="width:20%"></i><b style="left:20%"></b></div><span class="dur mono">3 min · ok</span></div>
+      <div class="stage"><span>stage_to_parquet</span><div class="bar"><i style="width:47%"></i><b style="left:27%"></b></div><span class="dur mono">7 min · ok</span></div>
+      <div class="stage"><span>load_events</span><div class="bar"><i class="f" style="width:100%"></i><b style="left:7%"></b></div><span class="dur mono">15 min · timeout</span></div>
+    </div>
+  </section>
+
+  <div class="two">
+    <section><h2>Facts</h2>
+      <dl><dt>Trigger</dt><dd>schedule, hourly at :05</dd><dt>Attempt</dt><dd>1 of 3</dd><dt>Cluster</dt><dd class="mono">spark-prod-03</dd><dt>Input</dt><dd>1.9 GB, 14 partitions</dd><dt>Previous run</dt><dd class="mono">13:00 · ok · 6 min</dd></dl>
+    </section>
+    <section><h2>Same failure before</h2>
+      <dl><dt>Last timeout</dt><dd>9 days ago, same stage, queue 6 deep</dd><dt>Fixed by</dt><dd>retry after the queue cleared</dd></dl>
+    </section>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C · Timeline · Run</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+           padding: 0 var(--space-3); min-height: 36px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--danger); color: var(--danger-ink); border-color: var(--danger); }
+  button.quiet { border-color: transparent; color: var(--ink-2); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-5); background: var(--surface); border-bottom: 1px solid var(--border); }
+  header strong { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  header nav { display: flex; gap: var(--space-1); overflow-x: auto; }
+  header nav a { color: var(--ink-2); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; }
+  header nav a[aria-current] { color: var(--ink); background: var(--surface-2); }
+  header .primary { margin-left: auto; white-space: nowrap; }
+
+  main { padding: var(--space-5); display: grid; gap: var(--space-4); max-width: 1400px; margin: 0 auto; }
+  .back { color: var(--ink-2); text-decoration: none; font-size: var(--text-sm); display: inline-block; min-height: 24px; line-height: 24px; }
+  h1 { margin: 0; font-size: var(--text-xl); letter-spacing: var(--tracking-tight); display: flex; gap: var(--space-3); align-items: baseline; flex-wrap: wrap; }
+  h1 small { font-size: var(--text-sm); color: var(--ink-2); font-weight: 400; }
+  h1 .fail-text { color: var(--danger-text); }
+  .actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .actions .quiet { margin-left: auto; }
+
+  /* the run's stages on the same hour axis as the day grid: 14:00 to 15:00, one column per 5 minutes */
+  .gantt { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+  table { border-collapse: collapse; min-width: 900px; width: 100%; }
+  th, td { padding: 0; border-bottom: 1px solid var(--border); }
+  th { font-weight: 500; color: var(--ink-2); font-size: var(--text-xs); text-align: left; padding: var(--space-2) var(--space-3); background: var(--surface-2); }
+  th.t { text-align: center; padding: var(--space-2) 0; min-width: 56px; }
+  td.name { padding: 0 var(--space-3); white-space: nowrap; font-size: var(--text-sm); width: 200px; position: sticky; left: 0; background: var(--surface); }
+  td.name small { display: block; color: var(--ink-2); font-size: var(--text-xs); }
+  td.lane { position: relative; height: 44px; }
+  td.lane > span { position: absolute; top: 8px; height: 28px; border-radius: var(--radius-sm); font: var(--text-xs)/28px var(--font-mono); padding: 0 var(--space-2); white-space: nowrap; }
+  .ok { background: var(--ok-soft); color: var(--ok-text); } .fail { background: var(--danger); color: var(--danger-ink); }
+  .ghost { position: absolute; top: 8px; height: 28px; border: 1px dashed var(--ink-3); border-radius: var(--radius-sm); }
+  .now { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); }
+  .legend { display: flex; gap: var(--space-4); font-size: var(--text-sm); color: var(--ink-2); flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: var(--radius-sm); vertical-align: -2px; margin-right: 6px; }
+  .legend i.g { border: 1px dashed var(--ink-3); }
+  pre { margin: 0; padding: var(--space-3) var(--space-4); background: var(--danger-soft); color: var(--danger-text); border-radius: var(--radius-md); font: var(--text-sm)/1.5 var(--font-mono); white-space: pre-wrap; max-width: 920px; }
+
+  @media (max-width: 719px) { main { padding: var(--space-4); } header nav { display: none; } .actions button { min-height: 44px; flex: 1; } .actions .quiet { margin: 0; } td.name { width: 130px; } }
+</style>
+</head>
+<body data-direction="C" data-name="Timeline" data-screen="Run" data-pitch="time is the axis on every screen; late and overlapping runs only show on a time axis">
+<header>
+  <strong>Run monitor</strong>
+  <nav aria-label="Main"><a href="#" aria-current="page">Runs</a><a href="#">Pipelines</a><a href="#">Schedules</a><a href="#">Alerts</a></nav>
+  <button class="primary">Open 3 failed</button>
+</header>
+<main>
+  <a class="back" href="#">← Today</a>
+  <h1>events_hourly <span class="mono">#4a1f</span> <span class="fail-text">failed 13:30</span> <small>started 13:05 by schedule · 25 min, p50 6 min · owner platform-b</small></h1>
+  <div class="legend"><span><i class="ok"></i>stage ok</span><span><i class="fail"></i>stage failed</span><span><i class="g"></i>usual duration (p50)</span><span>the 13:00 hour</span></div>
+  <div class="gantt">
+    <table aria-label="Stages of run 4a1f on the 13:00 hour axis">
+      <thead><tr><th>Stage</th><th class="t">13:00</th><th class="t">:05</th><th class="t">:10</th><th class="t">:15</th><th class="t">:20</th><th class="t">:25</th><th class="t">:30</th><th class="t">:35</th><th class="t">:40</th><th class="t">:45</th><th class="t">:50</th><th class="t">:55</th></tr></thead>
+      <tbody>
+        <tr><td class="name">extract_events<small>3 min · ok</small></td><td class="lane" colspan="12"><span class="ok" style="left:8.3%;width:5%">3m</span></td></tr>
+        <tr><td class="name">stage_to_parquet<small>7 min · ok, usually 4</small></td><td class="lane" colspan="12"><span class="ghost" style="left:13.3%;width:6.7%"></span><span class="ok" style="left:13.3%;width:11.7%">7m</span></td></tr>
+        <tr><td class="name">load_events<small>15 min · timeout, usually 1</small></td><td class="lane" colspan="12"><span class="ghost" style="left:25%;width:1.7%"></span><span class="fail" style="left:25%;width:25%">15m · timeout at 13:30</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <pre>Timeout after 25 min in stage load_events
+1.9 GB staged, 0 rows loaded · warehouse queue was 4 deep at 13:10</pre>
+  <div class="actions"><button class="primary">Retry run</button><button>Open full log</button><button>Mute alerts 2 h</button><button class="quiet">Delete run…</button></div>
+</main>
+</body>
+</html>

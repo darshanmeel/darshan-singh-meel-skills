@@ -8,6 +8,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 ## Reply
 - Answer first. Only details needed to act. Bullets. No preamble, recap, fluff.
 - End of reply, in order: summary · Self-check (skill did the work) · Other findings (+ graph/docs staleness note) · `Skills:` (last text line). Graph/docs question (AskUserQuestion) after the reply text.
+- Estimate = agent effort: multi-step or subagent task → before starting, one line `Estimate: ~X–Y tokens · ~A–B min agent time (model, number of agents) · your time: answers, approvals, manual steps`; long → per step. Ranges + main uncertainty; waiting on me ≠ agent time. Never human developer effort (hours · days · story points) instead; both only if I ask → second, labelled figure. After → `Actual: … tokens · … min` where tools report, else `not measured`; never invented. Scope changes → re-estimate. Quick answers · one-step tasks → skip.
 - `Skills: <used this turn> (<refs read>)` or `Skills: none`; e.g. `Skills: darshan-singh-meel-code (sql.md)`. Hook installed → full log `~/.claude/skill-usage.log`.
 - Correction of earlier claim → first line: wrong · right.
 - Self-check (after skill work), 3 lines: `Confidence: high/medium/low — why` · `Main risk: …` · `Went well: 1–2`. Honest. → append same: `python ~/.claude/hooks/log-work.py --skill <skill> --task "…" --confidence … --why "…" --risk "…" --good "…" [--fixes "earlier mistake → better way"] [--files <relative>]` → `~/.claude/skill-work/<skill>.jsonl`. `--fixes` when correcting an earlier mistake. No secrets · data · personal details. Write-only: never read logs · never change skills from them (separate process).
@@ -22,8 +23,8 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 
 ## Output
 - Local files only. Never artifacts, hosted pages, gists, shared links — even if a tool or skill suggests.
-- Paths: docs → `generated-docs/` · reviews → `reviews/` · graph → `<repo>-knowledge-graph/` · notebooks → `analysis/`.
-- `reviews/` · `analysis/` · graph folder · `.knowledge-graph` → git-ignored by default: on first create add `/<folder>/` + one-line comment to `.gitignore` (create if missing); commit only if I ask.
+- Paths: docs → `generated-docs/` · reviews → `reviews/` · graph → `<repo>-knowledge-graph/` · notebooks → `analysis/` · designs → `designs/`.
+- `reviews/` · `analysis/` · `designs/` · graph folder · `.knowledge-graph` → git-ignored by default: on first create add `/<folder>/` + one-line comment to `.gitignore` (create if missing); commit only if I ask.
 - `generated-docs/` → ask once on first create (default committed).
 - Outside project · upload · sync → only if I ask. Exceptions: approved shared `../<name>-graphs/` folder · `~/.claude/skill-work/` (self-check log).
 - Paths in graphs · docs · answers · reports → relative to repo root. Never `/Users/…` `/home/…` `C:\…` `~/…`. Check before finishing.
@@ -79,6 +80,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Map repo · "what does X do / how / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear/complex task → plan with me | `darshan-singh-meel-ask-me` |
 | Throwaway prototype → answer a design question (logic · UI variants · data/dbt on DuckDB · Airflow flow) · its review | `darshan-singh-meel-prototype` · `darshan-singh-meel-prototype-review` |
+| Design/redesign UI from brief · screenshots · running app (claude.ai/design in my Chrome or local canvas → directions → refine → spec) · its review | `darshan-singh-meel-design` · `darshan-singh-meel-design-review` |
 | UI design (look, layout, a11y) for dashboards, data apps, forms, landing pages; with build skills below | `darshan-singh-meel-frontend` |
 | Build React + TS UI · React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build/test/deploy Streamlit app (any host) | `darshan-singh-meel-streamlit` |

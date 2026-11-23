@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C · Timeline · Runs</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+           padding: 0 var(--space-3); min-height: 36px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--danger); color: var(--danger-ink); border-color: var(--danger); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-5); background: var(--surface); border-bottom: 1px solid var(--border); }
+  header strong { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  header nav { display: flex; gap: var(--space-1); overflow-x: auto; }
+  header nav a { color: var(--ink-2); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; }
+  header nav a[aria-current] { color: var(--ink); background: var(--surface-2); }
+  header .primary { margin-left: auto; white-space: nowrap; }
+
+  main { padding: var(--space-5); display: grid; gap: var(--space-4); max-width: 1400px; margin: 0 auto; }
+  h1 { margin: 0; font-size: var(--text-xl); letter-spacing: var(--tracking-tight); display: flex; gap: var(--space-3); align-items: baseline; flex-wrap: wrap; }
+  h1 small { font-size: var(--text-sm); color: var(--ink-2); font-weight: 400; }
+  [role="tablist"] { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--border); }
+  [role="tab"] { border: 0; background: none; border-radius: 0; padding: var(--space-2) var(--space-3); color: var(--ink-2); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .legend { display: flex; gap: var(--space-4); font-size: var(--text-sm); color: var(--ink-2); flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: var(--radius-sm); vertical-align: -2px; margin-right: 6px; }
+
+  .grid { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+  table { border-collapse: collapse; min-width: 960px; width: 100%; }
+  th, td { padding: 0; border-bottom: 1px solid var(--border); }
+  th { font-weight: 500; color: var(--ink-2); font-size: var(--text-xs); text-align: left; padding: var(--space-2) var(--space-3); background: var(--surface-2); }
+  th.hour { text-align: center; padding: var(--space-2) 0; }
+  td.name { padding: 0 var(--space-3); white-space: nowrap; font-size: var(--text-sm); width: 180px; position: sticky; left: 0; background: var(--surface); }
+  td.name small { display: block; color: var(--ink-2); font-size: var(--text-xs); }
+  td.cell { height: 44px; min-width: 44px; vertical-align: middle; padding: 3px 1px; }
+  td.cell > a { display: block; height: 100%; border-radius: var(--radius-sm); font: var(--text-xs)/38px var(--font-mono); text-align: center; text-decoration: none; }
+  .ok { background: var(--ok-soft); color: var(--ok-text); }
+  .fail { background: var(--danger); color: var(--danger-ink); }
+  .run { background: var(--info-soft); border: 1px dashed var(--info); color: var(--info-text); }
+  .late { background: var(--warn); color: var(--warn-ink); }
+  .now-line { box-shadow: inset 2px 0 var(--accent); }
+
+  @media (max-width: 719px) { main { padding: var(--space-4); } header nav { display: none; } td.name { width: 120px; } }
+</style>
+</head>
+<body data-direction="C" data-name="Timeline" data-screen="Runs" data-pitch="time is the axis on every screen; late and overlapping runs only show on a time axis">
+<header>
+  <strong>Run monitor</strong>
+  <nav aria-label="Main"><a href="#" aria-current="page">Runs</a><a href="#">Pipelines</a><a href="#">Schedules</a><a href="#">Alerts</a></nav>
+  <button class="primary">Open 3 failed</button>
+</header>
+<main>
+  <h1>Today, 14:32 <small>41 runs · 36 ok · 3 failed · 1 late · 1 running · on call: platform-b</small></h1>
+  <div role="tablist" aria-label="Day"><button role="tab" aria-selected="true">Today</button><button role="tab">Yesterday</button><button role="tab">This week</button></div>
+  <div class="legend"><span><i class="ok"></i>ok</span><span><i class="fail"></i>failed</span><span><i class="late"></i>late</span><span><i class="run"></i>running</span><span>▏ now · a cell opens the run</span></div>
+
+  <div class="grid">
+    <table aria-label="Runs per pipeline and hour">
+      <thead><tr><th>Pipeline</th><th class="hour">06</th><th class="hour">07</th><th class="hour">08</th><th class="hour">09</th><th class="hour">10</th><th class="hour">11</th><th class="hour">12</th><th class="hour">13</th><th class="hour">14</th><th class="hour">15</th><th class="hour">16</th><th class="hour">17</th></tr></thead>
+      <tbody>
+        <tr><td class="name">events_hourly<small>platform-b · hourly</small></td>
+          <td class="cell"><a class="ok" href="#">6m</a></td><td class="cell"><a class="ok" href="#">6m</a></td><td class="cell"><a class="ok" href="#">6m</a></td><td class="cell"><a class="ok" href="#">7m</a></td><td class="cell"><a class="ok" href="#">6m</a></td><td class="cell"><a class="ok" href="#">6m</a></td><td class="cell"><a class="ok" href="#">6m</a></td><td class="cell"><a class="fail" href="#">25m</a></td><td class="cell now-line"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">dbt_marts_hourly<small>platform-b · every 3 h</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"><a class="ok" href="#">9m</a></td><td class="cell"></td><td class="cell"></td><td class="cell"><a class="ok" href="#">9m</a></td><td class="cell"></td><td class="cell"></td><td class="cell now-line"><a class="run" href="#">2m</a></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">finance_close_daily<small>finance-data · 13:30</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><a class="fail" href="#">17m</a></td><td class="cell now-line"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">inventory_snapshot<small>supply · 13:40</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><a class="late" href="#">52m</a></td><td class="cell now-line"><a class="late" href="#">…</a></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">orders_daily<small>commerce · 14:00</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell now-line"><a class="ok" href="#">11m</a></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">crm_contacts_sync<small>growth · 09:00</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><a class="fail" href="#">8m</a></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell now-line"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">customer_scd<small>growth · 12:30</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><a class="ok" href="#">4m</a></td><td class="cell"></td><td class="cell now-line"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+        <tr><td class="name">warehouse_export<small>finance-data · 12:00</small></td>
+          <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><a class="ok" href="#">23m</a></td><td class="cell"></td><td class="cell now-line"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

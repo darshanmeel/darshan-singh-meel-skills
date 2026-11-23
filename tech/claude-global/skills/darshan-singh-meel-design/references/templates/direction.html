@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KEY · DIRECTION NAME · SCREEN</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  /* every colour, size, radius and duration is a token: check_design.py fails on a literal colour here */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong);
+           border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); min-height: 36px; cursor: pointer;
+           transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  /* layout: name the regions after the user's job, not the widgets */
+  main { display: grid; gap: var(--space-5); padding: var(--space-5); max-width: 1280px; margin: 0 auto; }
+  @media (max-width: 720px) { main { padding: var(--space-4); } }
+</style>
+</head>
+<body data-direction="KEY" data-name="DIRECTION NAME" data-screen="SCREEN" data-pitch="one line: what this direction bets on">
+<header></header>
+<main>
+  <h1>Screen heading that states the user's job</h1>
+  <!-- synthetic content only, shaped like the real data; every data view shows one of: data · loading · empty · error -->
+</main>
+</body>
+</html>

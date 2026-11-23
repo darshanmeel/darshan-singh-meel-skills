@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>States · run-monitor</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+           padding: 0 var(--space-3); min-height: 36px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button:disabled { color: var(--ink-3); border-color: var(--border); cursor: default; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.primary:disabled { background: var(--accent-soft); color: var(--ink-2); border-color: var(--accent-soft); }
+  button.quiet { border-color: transparent; color: var(--ink-2); }
+  button.hover { background: var(--surface-2); }
+  button.focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); min-height: 28px; padding: 0 var(--space-2); accent-color: var(--accent); }
+  input.invalid { border-color: var(--danger); }
+  ::placeholder { color: var(--ink-2); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .chip { border: 1px solid var(--border-strong); border-radius: var(--radius-full); min-height: 28px; padding: 0 var(--space-2); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  main { max-width: 1180px; margin: 0 auto; padding: var(--space-5); display: grid; gap: var(--space-6); }
+  h1 { margin: 0; font-size: var(--text-xl); letter-spacing: var(--tracking-tight); }
+  h1 small { display: block; font-size: var(--text-sm); color: var(--ink-2); font-weight: 400; }
+  section { display: grid; gap: var(--space-3); }
+  h2 { margin: 0; font-size: var(--text-sm); color: var(--ink-2); font-weight: 500; }
+  .frame { border: 1px dashed var(--border-strong); border-radius: var(--radius-md); padding: var(--space-4); display: grid; gap: var(--space-3); overflow-x: auto; min-width: 0; }
+  .frame > b { font-size: var(--text-xs); color: var(--ink-2); font-weight: 500; }
+  .row { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: var(--space-3); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 0 var(--space-3); display: grid; gap: var(--space-2); align-content: start; overflow: hidden; }
+  .card > * { margin: 0 var(--space-4); }
+  .card .strip { margin: 0; display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 32px; padding: var(--space-1) var(--space-1) 0; background: var(--surface-2); }
+  .card .strip i { background: var(--ok-soft); border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-top: 14px; }
+  .card .strip i.f { background: var(--danger); margin-top: 0; } .card .strip i.q { background: var(--info); margin-top: 0; }
+  .card h3 { font-size: var(--text-lg); display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-2); }
+  .card h3 span { font-size: var(--text-sm); color: var(--ink-2); font-weight: 400; }
+  .card pre { padding: var(--space-2) var(--space-3); background: var(--danger-soft); color: var(--danger-text); border-radius: var(--radius-sm); font: var(--text-sm)/1.45 var(--font-mono); white-space: pre-wrap; }
+  .card .actions { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
+  .card .err { color: var(--danger-text); font-size: var(--text-sm); }
+  .sk { background: var(--surface-2); border-radius: var(--radius-sm); height: 14px; }
+  .sk.w60 { width: 60%; } .sk.w40 { width: 40%; } .sk.tall { height: 48px; }
+  .empty { border: 1px dashed var(--border-strong); border-radius: var(--radius-md); padding: var(--space-5); text-align: center; color: var(--ink-2); }
+  .banner { display: flex; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--danger-soft); color: var(--danger-text); }
+  .banner.stale { background: var(--warn-soft); color: var(--warn-text); }
+  .banner button { margin-left: auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  th, td { text-align: left; padding: 6px var(--space-3); border-top: 1px solid var(--border); font-size: var(--text-sm); white-space: nowrap; }
+  th { border-top: 0; color: var(--ink-2); font-weight: 500; background: var(--surface-2); font-size: var(--text-xs); }
+  tr.hover td { background: var(--surface-2); }
+  .st { display: inline-block; width: 8px; height: 8px; border-radius: var(--radius-sm); margin-right: 6px; vertical-align: 1px; background: var(--ok); }
+  .hint { font-size: var(--text-xs); color: var(--ink-2); }
+  .hint.err { color: var(--danger-text); }
+  dialog { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--ink); padding: var(--space-4); max-width: 100%; position: static; display: grid; gap: var(--space-3); }
+  dialog h3 { margin: 0; font-size: var(--text-lg); }
+  dialog button.danger { background: var(--danger); color: var(--danger-ink); border-color: var(--danger); }
+</style>
+</head>
+<body data-direction="Final" data-name="States" data-screen="States" data-pitch="every state of every component on one page">
+<main>
+  <h1>States <small>every loading, empty, error and interactive state of the Runs and Run screens</small></h1>
+
+  <section>
+    <h2>Buttons</h2>
+    <div class="frame"><b>default · hover · focus-visible · disabled · primary · primary disabled · quiet</b>
+      <div class="row"><button>Open log</button><button class="hover">Open log</button><button class="focus">Open log</button><button disabled>Open log</button><button class="primary">Retry events_hourly</button><button class="primary" disabled>Retrying…</button><button class="quiet">Delete run…</button></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Filter chips and search</h2>
+    <div class="frame"><b>default · pressed · search with hint · search invalid</b>
+      <div class="row"><button class="chip">Failed 3</button><button class="chip" aria-pressed="true">Failed 3</button>
+        <span><input type="search" placeholder="Pipeline or owner" aria-label="Filter by pipeline or owner"> <span class="hint">12 of 41 runs</span></span>
+        <span><input type="search" value="fin*ance" aria-label="Filter by pipeline or owner, invalid" class="invalid"> <span class="hint err">Letters, digits, _ and - only</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Attention cards</h2>
+    <div class="two">
+      <div class="frame"><b>loading</b><div class="card"><div class="strip" aria-label="loading"></div><div class="sk w60"></div><div class="sk tall"></div><div class="sk w40"></div></div></div>
+      <div class="frame"><b>retrying</b><article class="card"><div class="strip" aria-label="Last 24 runs of events_hourly, one an hour: 23 ok, then 1 failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i></div><h3>events_hourly <span class="mono">failed 13:30</span></h3><pre>Timeout after 25 min (p50 is 6 min) · 1.9 GB staged, 0 loaded</pre><div class="actions"><button disabled>Open log</button><button class="primary" disabled>Retrying…</button></div></article></div>
+      <div class="frame"><b>retry queued (3 s, then the card leaves the list)</b><article class="card"><div class="strip" aria-label="Last 24 runs of events_hourly, one an hour: 23 ok, then 1 queued for retry"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="q"></i></div><h3>events_hourly <span class="mono">queued 14:33</span></h3><div class="actions"><button class="primary" disabled>Queued</button></div></article></div>
+      <div class="frame"><b>retry failed</b><article class="card"><div class="strip" aria-label="Last 24 runs of events_hourly, one an hour: 23 ok, then 1 failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i></div><h3>events_hourly <span class="mono">failed 13:30</span></h3><pre>Timeout after 25 min (p50 is 6 min) · 1.9 GB staged, 0 loaded</pre><div class="actions"><button>Open log</button><button class="primary">Retry events_hourly</button></div><span class="err">Retry failed: the scheduler did not answer. Try again, or open the log.</span></article></div>
+    </div>
+    <div class="frame"><b>nothing needs attention</b><p class="empty" style="margin:0">Nothing needs attention. All 41 runs since yesterday 14:30 finished on time.</p></div>
+  </section>
+
+  <section>
+    <h2>Runs table</h2>
+    <div class="frame"><b>loading: header stays, 8 skeleton rows (3 shown)</b>
+      <table><thead><tr><th>Status</th><th>Pipeline</th><th>Started</th><th>Owner</th><th>Duration</th></tr></thead>
+        <tbody><tr><td><div class="sk w60"></div></td><td><div class="sk"></div></td><td><div class="sk w40"></div></td><td><div class="sk w60"></div></td><td><div class="sk w40"></div></td></tr>
+        <tr><td><div class="sk w60"></div></td><td><div class="sk"></div></td><td><div class="sk w40"></div></td><td><div class="sk w60"></div></td><td><div class="sk w40"></div></td></tr>
+        <tr><td><div class="sk w60"></div></td><td><div class="sk"></div></td><td><div class="sk w40"></div></td><td><div class="sk w60"></div></td><td><div class="sk w40"></div></td></tr></tbody></table>
+    </div>
+    <div class="frame"><b>row hover</b>
+      <table><thead><tr><th>Status</th><th>Pipeline</th><th>Started</th><th>Owner</th><th>Duration</th></tr></thead>
+        <tbody><tr class="hover"><td><i class="st"></i>ok</td><td>orders_daily</td><td class="mono">14:00</td><td>commerce</td><td class="mono">11 min</td></tr></tbody></table>
+    </div>
+    <div class="frame"><b>no rows match the filter</b><p class="empty" style="margin:0">No runs match "fin". <button class="quiet">Clear filters</button></p></div>
+    <div class="frame"><b>load error, last data kept</b>
+      <div class="banner"><span>Could not load runs — the last refresh was 14:31.</span><button>Retry</button></div>
+      <div class="banner stale"><span>Showing runs as of 14:31; refreshing in the background.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Run screen</h2>
+    <div class="two">
+      <div class="frame"><b>loading</b><div class="sk w60" style="height:28px"></div><div class="sk tall"></div><div class="sk w40"></div></div>
+      <div class="frame"><b>run not found</b><p class="empty" style="margin:0">Run 4a1f is not in the last 30 days. <button class="quiet">Back to runs</button></p></div>
+      <div class="frame"><b>delete run: confirmation</b>
+        <dialog open aria-labelledby="del"><h3 id="del">Delete run 4a1f?</h3><p style="margin:0;color:var(--ink-2)">The log and the stage timings are removed. The pipeline and its schedule stay.</p><div class="row"><button class="danger">Delete run</button><button>Keep it</button></div></dialog>
+      </div>
+      <div class="frame"><b>alerts muted</b><div class="banner stale"><span>Alerts for events_hourly muted until 16:32.</span><button>Unmute</button></div></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

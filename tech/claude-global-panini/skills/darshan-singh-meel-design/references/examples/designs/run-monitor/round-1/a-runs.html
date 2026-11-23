@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A · Triage first · Runs</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-md)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+           padding: 0 var(--space-3); min-height: 36px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.primary:hover { filter: brightness(1.08); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border); background: var(--surface); }
+  header strong { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  header nav { display: flex; gap: var(--space-1); margin-left: var(--space-4); overflow-x: auto; }
+  header nav a { color: var(--ink-2); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; }
+  header nav a[aria-current] { color: var(--ink); background: var(--surface-2); }
+  header .who { margin-left: auto; color: var(--ink-2); font-size: var(--text-sm); white-space: nowrap; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: var(--space-5); display: grid; gap: var(--space-5); }
+  /* the memorable element: the situation as a sentence, set in the display serif */
+  h1 { margin: 0; font: 400 var(--text-3xl)/var(--leading-tight) var(--font-display); letter-spacing: var(--tracking-tight); }
+  h1 small { display: block; font: var(--text-sm)/var(--leading) var(--font-sans); color: var(--ink-2); margin-top: var(--space-2); }
+
+  .fails { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: var(--space-3); }
+  /* the card's head is the pipeline's last 24 runs at full width: the one box that differs is why the card exists */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 0 var(--space-3); display: grid; gap: var(--space-2); align-content: start; overflow: hidden; }
+  .card > * { margin: 0 var(--space-4); }
+  .card .strip { margin: 0; display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 32px; padding: var(--space-1) var(--space-1) 0; background: var(--surface-2); }
+  .card .strip i { background: var(--ok-soft); border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-top: 14px; }
+  .card .strip i.f { background: var(--danger); margin-top: 0; }
+  .card .strip i.l { background: var(--warn); margin-top: 0; }
+  .card h2 { font-size: var(--text-lg); display: flex; justify-content: space-between; gap: var(--space-2); align-items: baseline; margin-top: var(--space-2); }
+  .card .cap { color: var(--ink-2); font-size: var(--text-xs); }
+  .card pre { padding: var(--space-2) var(--space-3); background: var(--danger-soft); color: var(--danger-text); border-radius: var(--radius-sm); font: var(--text-sm)/1.45 var(--font-mono); white-space: pre-wrap; }
+  .card.late pre { background: transparent; color: var(--warn-text); padding: 0; }
+  .card .meta { color: var(--ink-2); font-size: var(--text-sm); }
+  .card .row { display: flex; gap: var(--space-2); justify-content: flex-end; flex-wrap: wrap; }
+  .card .row button { white-space: nowrap; }
+
+  section h2 { font-size: var(--text-sm); color: var(--ink-2); font-weight: 500; margin: 0 0 var(--space-2); }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  th, td { text-align: left; padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); font-size: var(--text-sm); }
+  th { border-top: 0; color: var(--ink-2); font-weight: 500; background: var(--surface-2); }
+  td.num, th.num { text-align: right; }
+  tr:hover td { background: var(--surface-2); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 1px var(--space-2); border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 500; }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .ok { background: var(--ok-soft); color: var(--ok-text); } .run { background: var(--info-soft); color: var(--info-text); }
+
+  @media (max-width: 719px) {
+    header .who { display: none; }  /* the nav keeps its room; the on-call team is one tap away in Alerts */
+    main { padding: var(--space-4); }
+    h1 { font-size: var(--text-2xl); }
+    .card .row button { min-height: 44px; flex: 1 1 100%; }
+    .card h2 { flex-direction: column; align-items: flex-start; gap: 0; }  /* state on its own line: no mid-phrase wrap */
+    table thead { display: none; }
+    table, tbody, tr, td { display: block; border: 0; }
+    tr { padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; }
+    td { padding: 0; border: 0; }
+    td.num { text-align: right; color: var(--ink-2); }
+    td:nth-child(3), td:nth-child(5) { display: none; }
+  }
+</style>
+</head>
+<body data-direction="A" data-name="Triage first" data-screen="Runs" data-pitch="failures are the job; the headline reads like an incident line and every failure carries its 24 h strip">
+<header>
+  <strong>Runs</strong>
+  <nav aria-label="Main"><a href="#" aria-current="page">Last 24 h</a><a href="#">Pipelines</a><a href="#">Schedules</a><a href="#">Alerts</a></nav>
+  <span class="who">on call: platform-b · 14:32</span>
+</header>
+<main>
+  <h1>3 failed, 1 late, 1 running. <small>41 runs since 14:30 yesterday · 36 ok · refreshed 20 s ago</small></h1>
+
+  <div class="fails" aria-label="Runs that need attention">
+    <article class="card">
+      <div class="strip" aria-label="Last 24 runs of finance_close_daily, one a day: 22 ok, then 2 failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i><i class="f"></i></div>
+      <h2>finance_close_daily <span class="mono">failed 14:08 · 2nd try</span></h2>
+      <p class="cap">24 runs, 24 d: 22 ok, then 2 failed</p>
+      <pre>Database Error in model fct_ledger (models/marts/fct_ledger.sql)
+  Numeric value 'N/A' is not recognized · line 112</pre>
+      <p class="meta">dbt · 41 of 58 models built · owner finance-data</p>
+      <div class="row"><button>Open log</button><button class="primary">Retry from failure</button></div>
+    </article>
+    <article class="card">
+      <div class="strip" aria-label="Last 24 runs of events_hourly, one an hour: 23 ok, then 1 failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i></div>
+      <h2>events_hourly <span class="mono">failed 13:30</span></h2>
+      <p class="cap">24 runs, 24 h: 23 ok, then 1 failed</p>
+      <pre>Timeout after 25 min (p50 is 6 min) · 1.9 GB staged, 0 loaded</pre>
+      <p class="meta">spark · owner platform-b</p>
+      <div class="row"><button>Open log</button><button class="primary">Retry</button></div>
+    </article>
+    <article class="card">
+      <div class="strip" aria-label="Last 24 runs of crm_contacts_sync, one a day: 4 failed in the last 6"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="f"></i><i></i><i class="f"></i><i class="f"></i><i></i><i class="f"></i></div>
+      <h2>crm_contacts_sync <span class="mono">failed 09:22</span></h2>
+      <p class="cap">24 runs, 24 d: 4 of the last 6 failed</p>
+      <pre>HTTP 429 from source after 3 retries · 12 of 14 streams loaded</pre>
+      <p class="meta">ingestion · owner growth</p>
+      <div class="row"><button>Open log</button><button class="primary">Retry</button></div>
+    </article>
+    <article class="card late">
+      <div class="strip" aria-label="Last 24 runs of inventory_snapshot, one a day: 23 ok, 1 late now"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="l"></i></div>
+      <h2>inventory_snapshot <span class="mono">running 52 min</span></h2>
+      <p class="cap">24 runs, 24 d: 23 ok, 1 late now</p>
+      <pre>Late: usually done in 18 min · waiting on warehouse queue (4 ahead)</pre>
+      <p class="meta">dbt · owner supply</p>
+      <div class="row"><button>Open log</button><button>Cancel run</button></div>
+    </article>
+  </div>
+
+  <section>
+    <h2>All runs, newest first</h2>
+    <table>
+      <thead><tr><th>Pipeline</th><th>Status</th><th>Started</th><th class="num">Duration</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td>dbt_marts_hourly</td><td><span class="badge run">running</span></td><td class="mono">14:30</td><td class="num mono">2 min</td><td>platform-b</td></tr>
+        <tr><td>orders_daily</td><td><span class="badge ok">ok</span></td><td class="mono">14:00</td><td class="num mono">11 min</td><td>commerce</td></tr>
+        <tr><td>events_hourly</td><td><span class="badge ok">ok</span></td><td class="mono">12:05</td><td class="num mono">6 min</td><td>platform-b</td></tr>
+        <tr><td>customer_scd</td><td><span class="badge ok">ok</span></td><td class="mono">12:30</td><td class="num mono">4 min</td><td>growth</td></tr>
+        <tr><td>warehouse_export</td><td><span class="badge ok">ok</span></td><td class="mono">12:00</td><td class="num mono">23 min</td><td>finance-data</td></tr>
+        <tr><td>dbt_marts_hourly</td><td><span class="badge ok">ok</span></td><td class="mono">11:30</td><td class="num mono">9 min</td><td>platform-b</td></tr>
+        <tr><td>events_hourly</td><td><span class="badge ok">ok</span></td><td class="mono">11:05</td><td class="num mono">7 min</td><td>platform-b</td></tr>
+        <tr><td>pricing_feed</td><td><span class="badge ok">ok</span></td><td class="mono">10:00</td><td class="num mono">1 min</td><td>commerce</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

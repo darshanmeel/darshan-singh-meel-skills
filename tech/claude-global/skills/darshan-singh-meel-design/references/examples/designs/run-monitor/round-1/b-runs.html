@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B · Dense console · Runs</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--text-sm)/var(--leading) var(--font-sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+           padding: 0 var(--space-3); min-height: 32px; cursor: pointer; transition: background var(--motion-fast) var(--ease); }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  input, select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 var(--space-2); min-height: 32px; accent-color: var(--accent); }
+  ::placeholder { color: var(--ink-2); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  .app { display: grid; grid-template-columns: 200px 1fr 360px; min-height: 100vh; }
+  .rail { background: var(--surface); border-right: 1px solid var(--border); padding: var(--space-3); display: grid; gap: var(--space-1); align-content: start; }
+  .rail strong { padding: var(--space-2); font-size: var(--text-md); letter-spacing: var(--tracking-tight); }
+  .rail a { color: var(--ink-2); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); display: flex; justify-content: space-between; }
+  .rail a[aria-current] { color: var(--ink); background: var(--surface-2); }
+  .rail a b { font-weight: 500; color: var(--danger-text); }
+  .rail h2 { font-size: var(--text-xs); color: var(--ink-2); font-weight: 500; margin: var(--space-3) var(--space-2) var(--space-1); }
+
+  main { display: grid; align-content: start; min-width: 0; }
+  main > h1 { margin: 0; padding: var(--space-3) var(--space-4) 0; font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  .bar { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-4); align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 1; }
+  .bar input { width: 140px; }
+  .bar .count { margin-left: auto; color: var(--ink-2); }
+  .chip { border: 1px solid var(--border-strong); border-radius: var(--radius-full); padding: 0 var(--space-2); min-height: 28px; background: var(--surface); font: inherit; color: var(--ink); cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px var(--space-3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { position: sticky; top: 0; background: var(--surface-2); color: var(--ink-2); font-weight: 500; font-size: var(--text-xs); }
+  th.num, td.num { text-align: right; }
+  td.msg { max-width: 0; width: 30%; overflow: hidden; text-overflow: ellipsis; }  /* max-width: 0 lets a nowrap cell shrink and ellipsize */
+  tr[aria-selected="true"] td { background: var(--accent-soft); }
+  tbody tr:hover td { background: var(--surface-2); }
+  tbody tr { cursor: pointer; }
+  .st { display: inline-block; width: 8px; height: 8px; border-radius: var(--radius-sm); margin-right: 6px; vertical-align: 1px; }
+  .st.ok { background: var(--ok); } .st.fail { background: var(--danger); } .st.run { background: var(--info); } .st.late { background: var(--warn); }
+  td.fail-text { color: var(--danger-text); }
+  .bar-dur { display: inline-block; height: 6px; background: var(--ink-3); vertical-align: middle; border-radius: var(--radius-sm); margin-left: 6px; }
+
+  aside { border-left: 1px solid var(--border); background: var(--surface); padding: var(--space-4); display: grid; gap: var(--space-3); align-content: start; }
+  aside h2 { margin: 0; font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+  aside dl { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-3); margin: 0; }
+  aside dt { color: var(--ink-2); } aside dd { margin: 0; }
+  aside pre { margin: 0; padding: var(--space-2) var(--space-3); background: var(--danger-soft); color: var(--danger-text); border-radius: var(--radius-sm); font: var(--text-xs)/1.5 var(--font-mono); white-space: pre-wrap; }
+  aside .actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  aside h3 { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--ink-2); font-weight: 500; }
+  .hist { display: flex; gap: 3px; align-items: flex-end; height: 36px; }
+  .hist i { flex: 1; background: var(--ok); border-radius: var(--radius-sm); } .hist i.fail { background: var(--danger); }
+
+  @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } .rail, aside { display: none; } }
+  @media (max-width: 719px) { td:nth-child(4), th:nth-child(4), td:nth-child(6), th:nth-child(6), .bar-dur { display: none; } .bar .count { width: 100%; margin: 0; } .bar input { flex: 1; } }
+</style>
+</head>
+<body data-direction="B" data-name="Dense console" data-screen="Runs" data-pitch="every run at once; the list never leaves: the Run screen is the panel grown wide">
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <strong>Run monitor</strong>
+    <a href="#" aria-current="page">Runs <b>3</b></a><a href="#">Pipelines</a><a href="#">Schedules</a><a href="#">Alerts</a>
+    <h2>Teams</h2>
+    <a href="#">platform-b <b>1</b></a><a href="#">finance-data <b>1</b></a><a href="#">growth <b>1</b></a><a href="#">commerce</a><a href="#">supply</a>
+  </nav>
+  <main>
+    <h1>Runs, last 24 h</h1>
+    <div class="bar" role="toolbar" aria-label="Filters">
+      <button class="chip" aria-pressed="true">All 41</button><button class="chip">Failed 3</button><button class="chip">Running 1</button><button class="chip">Late 1</button>
+      <select aria-label="Team"><option>All teams</option><option>platform-b</option><option>finance-data</option></select>
+      <input type="search" placeholder="Pipeline" aria-label="Filter by pipeline">
+      <span class="count">36 ok · 3 failed · refreshed 20 s ago</span>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Status</th><th>Pipeline</th><th>Started</th><th>Owner</th><th class="num">Duration</th><th>Message</th></tr></thead>
+      <tbody>
+        <tr><td><i class="st run"></i>running</td><td>dbt_marts_hourly</td><td class="mono">14:30</td><td>platform-b</td><td class="num mono">2 min<i class="bar-dur" style="width:4px"></i></td><td class="msg"></td></tr>
+        <tr aria-selected="true"><td><i class="st fail"></i>failed</td><td>events_hourly</td><td class="mono">13:05</td><td>platform-b</td><td class="num mono">25 min<i class="bar-dur" style="width:50px"></i></td><td class="msg fail-text">Timeout after 25 min</td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>orders_daily</td><td class="mono">14:00</td><td>commerce</td><td class="num mono">11 min<i class="bar-dur" style="width:22px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st fail"></i>failed</td><td>finance_close_daily</td><td class="mono">13:51</td><td>finance-data</td><td class="num mono">17 min<i class="bar-dur" style="width:34px"></i></td><td class="msg fail-text">Numeric value 'N/A' is not recognized</td></tr>
+        <tr><td><i class="st late"></i>late</td><td>inventory_snapshot</td><td class="mono">13:40</td><td>supply</td><td class="num mono">52 min<i class="bar-dur" style="width:104px"></i></td><td class="msg">usually 18 min · queued</td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>events_hourly</td><td class="mono">12:05</td><td>platform-b</td><td class="num mono">6 min<i class="bar-dur" style="width:12px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>customer_scd</td><td class="mono">12:30</td><td>growth</td><td class="num mono">4 min<i class="bar-dur" style="width:8px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>warehouse_export</td><td class="mono">12:00</td><td>finance-data</td><td class="num mono">23 min<i class="bar-dur" style="width:46px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>dbt_marts_hourly</td><td class="mono">11:30</td><td>platform-b</td><td class="num mono">9 min<i class="bar-dur" style="width:18px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>events_hourly</td><td class="mono">11:05</td><td>platform-b</td><td class="num mono">7 min<i class="bar-dur" style="width:14px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st ok"></i>ok</td><td>pricing_feed</td><td class="mono">10:00</td><td>commerce</td><td class="num mono">1 min<i class="bar-dur" style="width:2px"></i></td><td class="msg"></td></tr>
+        <tr><td><i class="st fail"></i>failed</td><td>crm_contacts_sync</td><td class="mono">09:14</td><td>growth</td><td class="num mono">8 min<i class="bar-dur" style="width:16px"></i></td><td class="msg fail-text">HTTP 429 from source after 3 retries</td></tr>
+      </tbody>
+    </table></div>
+  </main>
+  <aside aria-label="Selected run">
+    <h2>events_hourly <span class="mono" style="color: var(--ink-2); font-size: var(--text-xs)">#4a1f</span></h2>
+    <dl><dt>Status</dt><dd class="fail-text">failed · 13:30</dd><dt>Started</dt><dd class="mono">13:05 by schedule</dd><dt>Duration</dt><dd class="mono">25 min (p50 6 min)</dd><dt>Owner</dt><dd>platform-b</dd></dl>
+    <pre>Timeout after 25 min
+1.9 GB staged, 0 loaded
+stage: load_events → warehouse</pre>
+    <div class="actions"><button class="primary">Retry run</button><button>Open log</button><button>Open run</button></div>
+    <h3>Last 14 runs</h3>
+    <div class="hist" aria-label="Duration of the last 14 runs"><i style="height:30%"></i><i style="height:35%"></i><i style="height:28%"></i><i style="height:32%"></i><i style="height:40%"></i><i style="height:30%"></i><i style="height:33%"></i><i style="height:29%"></i><i style="height:36%"></i><i style="height:31%"></i><i style="height:34%"></i><i style="height:30%"></i><i style="height:38%"></i><i class="fail" style="height:100%"></i></div>
+  </aside>
+</div>
+</body>
+</html>

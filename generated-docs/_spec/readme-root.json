@@ -3,7 +3,7 @@
  "app_types": [],
  "title": "Claude Code skills and global rules",
  "subtitle": "Markdown skills + Python checks · copied on install · repo → home .claude folder",
- "lede": "One copy step gives Claude Code our global rules, 38 tech skills and 27 school skills; build scripts and reviewer skills check what they produce.",
+ "lede": "One copy step gives Claude Code our global rules, 40 tech skills and 27 school skills; build scripts and reviewer skills check what they produce.",
  "why": "Every session then follows the same rules for replies, data, secrets and output, and each skill that produces material has a reviewer partner.",
  "tabs": {
   "does": [
@@ -13,7 +13,7 @@
    "Logs which skill ran and a self-check after the work"
   ],
   "doesnt": [
-   "Doesn't publish anything: all output stays in the current project",
+   "Doesn't publish output: only the design skill may send a list you approve to claude.ai/design",
    "Doesn't run warehouse writes: data queries go through read-only notebook cells",
    "Doesn't install itself: the copy step is run by hand"
   ],

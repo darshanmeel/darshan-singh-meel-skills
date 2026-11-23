@@ -10,6 +10,7 @@
 - Lead with the answer or result; only the details needed to act.
 - Replies and every produced text follow `darshan-singh-meel-brevity`: the answer is the lede, then why it matters where the reader can't see it, then the detail; a diagram where it explains better than a paragraph. Length is judged, never counted.
 - **End of reply, in order:** summary (when the reply opened with the result, that line is the summary: no second copy) · Self-check (when a skill did the work) · Other findings (incl. the graph/docs staleness note) · `Skills:` line (always the last text line). A graph or docs question (AskUserQuestion) comes after the reply text.
+- **Estimate tasks by agent effort:** before any task with several steps or subagents, one line: `Estimate: ~X–Y tokens · ~A–B min agent time (model, number of agents) · your time: answers, approvals, manual steps`. Split by step when the task is long. Ranges, with the main uncertainty; waiting on me is not agent time. Never human developer effort (hours, days, story points) in its place; add it as a second, labelled figure only when I ask for both. Afterwards, one line with actuals where the tools report them (`Actual: … tokens · … min`), otherwise `not measured`: never invented. Re-estimate when the scope changes. Skip for quick answers and one-step tasks.
 - **`Skills:` line:** `Skills: <skills used this turn> (<reference files read>)`, or `Skills: none`. E.g. `Skills: darshan-singh-meel-code, darshan-singh-meel-data-platform (sql.md, dbt.md)`. With the skill-usage hook installed, a full log is kept in `~/.claude/skill-usage.log`.
 - **Self-check** — after work done with a skill, three short lines: `Confidence: high/medium/low — why` · `Main risk: what could undermine the work` · `Went well: 1–2 things`. Honest, not modest or inflated. Then append the same as one entry: `python ~/.claude/hooks/log-work.py --skill <skill> --task "…" --confidence … --why "…" --risk "…" --good "…" [--good "…"] [--fixes "earlier mistake and the better way"] [--files <relative paths>]` → `~/.claude/skill-work/<skill>.jsonl`. `--fixes` when the work corrects an earlier mistake (own or a skill's). No secrets, data or personal details in entries. Write-only: never read these logs or change a skill from them — a separate process does that.
 - A correction of something you said earlier goes first: what was wrong, what's right.
@@ -23,8 +24,8 @@
 
 ## Output: local files only
 - **Never create artifacts**, published pages, hosted output, gists, or shared links — even if a tool or skill suggests it.
-- Output goes to the current project: docs → `generated-docs/`, reviews → `reviews/`, graph → `<repo>-knowledge-graph/`, notebooks → `analysis/`.
-- `reviews/`, `analysis/`, the graph folder and `.knowledge-graph` are **git-ignored by default** — on first creation add `/<folder>/` plus a one-line comment to `.gitignore` (create it if missing). Committed only if I ask.
+- Output goes to the current project: docs → `generated-docs/`, reviews → `reviews/`, graph → `<repo>-knowledge-graph/`, notebooks → `analysis/`, designs → `designs/`.
+- `reviews/`, `analysis/`, `designs/`, the graph folder and `.knowledge-graph` are **git-ignored by default** — on first creation add `/<folder>/` plus a one-line comment to `.gitignore` (create it if missing). Committed only if I ask.
 - `generated-docs/`: ask once on first creation whether to commit (default: committed).
 - Don't write outside the project, or upload/sync anything, unless I explicitly ask. Exceptions: the shared `../<name>-graphs/` folder (related repos) once I've approved it; `~/.claude/skill-work/` (self-check log).
 - **Paths in graphs, docs, answers, and reports are always relative to the repo root** — never absolute or machine-specific (`/Users/…`, `/home/…`, `C:\…`, `~/…`). Check output for absolute paths before finishing.
@@ -84,6 +85,7 @@
 | Map a repo; answer "what does X do / how does Y work / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear or complex task — plan it with me first | `darshan-singh-meel-ask-me` |
 | Throwaway prototype to answer a design question (logic, UI variants, data model/dbt on DuckDB, Airflow flow) / review one | `darshan-singh-meel-prototype` / `darshan-singh-meel-prototype-review` |
+| Design or redesign a UI from a brief, screenshots or a running app: claude.ai/design in my Chrome or a local canvas, several directions, refine rounds, spec for other agents / review one | `darshan-singh-meel-design` / `darshan-singh-meel-design-review` |
 | App UI design: look, layout, accessibility (dashboards, data apps, forms, landing pages); used together with the build skills below | `darshan-singh-meel-frontend` |
 | Build a React + TypeScript UI, or a React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build, test, deploy a Streamlit app (any host) | `darshan-singh-meel-streamlit` |
