@@ -1,5 +1,5 @@
 # Brief: NAME
-Mode: new design | redesign | design system · Route: local canvas | claude.ai/design | both · Stack: plain HTML | React | Streamlit
+Mode: new design | redesign | design system · Route: design canvas | local canvas | both · Stack: plain HTML | React | Streamlit
 Status: round 1 | round N | final
 
 ## Job

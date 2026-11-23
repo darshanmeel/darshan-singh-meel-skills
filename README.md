@@ -52,7 +52,7 @@ Restart Claude Code. Files with the same names in `~/.claude/` are overwritten: 
 | `dbt` | All dbt work on Snowflake and Databricks: models, incrementals, snapshots, tests, macros, slim CI, performance and cost, lineage from `manifest.json`, project health, debugging; never runs warehouse commands; `dbt-review` checks models and answers |
 | `ask-me` | Plan unclear tasks by grilling me, one question at a time |
 | `prototype` | Throwaway prototypes in git-ignored `prototypes/<name>/` that answer one design question: logic (terminal app over a pure module), UI variants, data model / dbt on synthetic DuckDB, Airflow flow; `prototype-review` runs and checks them |
-| `design` | Visual design loop for new UIs and redesigns, from a brief, screenshots or a running app: claude.ai/design in your own Chrome (asked each run) or a local HTML canvas with 1, 3 or 5 directions, refine rounds, then HTML, tokens and a spec in git-ignored `designs/<name>/`; `design-review` takes its own screenshots and checks any frontend |
+| `design` | Visual design loop for new UIs and redesigns, from a brief, screenshots or a running app: a private Claude Design canvas (default, approved each run) or a local HTML canvas with 1, 3 or 5 directions, refine rounds, then HTML, tokens and a spec in git-ignored `designs/<name>/`; `design-review` takes its own screenshots and checks any frontend |
 | `frontend` | UI design rules: layout, type, colour, states, accessibility |
 | `frontend-react` | Build React + TypeScript UIs with a component library; React components for Streamlit |
 | `streamlit` | Build, test, deploy Streamlit apps (any host) |

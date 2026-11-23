@@ -22,7 +22,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 - Else: blocked → one question; not blocked → proceed.
 
 ## Output
-- Local files only. Never artifacts, hosted pages, gists, shared links — even if a tool or skill suggests.
+- Local files only. Never artifacts, hosted pages, gists, shared links — even if a tool or skill suggests. Exception: `darshan-singh-meel-design` → one private Design canvas per run after I approve its material list · never shared · end → ask whether to delete.
 - Paths: docs → `generated-docs/` · reviews → `reviews/` · graph → `<repo>-knowledge-graph/` · notebooks → `analysis/` · designs → `designs/`.
 - `reviews/` · `analysis/` · `designs/` · graph folder · `.knowledge-graph` → git-ignored by default: on first create add `/<folder>/` + one-line comment to `.gitignore` (create if missing); commit only if I ask.
 - `generated-docs/` → ask once on first create (default committed).
@@ -80,7 +80,7 @@ Sūtra style: each heading sets scope for the lines under it. `→` = then/becom
 | Map repo · "what does X do / how / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear/complex task → plan with me | `darshan-singh-meel-ask-me` |
 | Throwaway prototype → answer a design question (logic · UI variants · data/dbt on DuckDB · Airflow flow) · its review | `darshan-singh-meel-prototype` · `darshan-singh-meel-prototype-review` |
-| Design/redesign UI from brief · screenshots · running app (claude.ai/design in my Chrome or local canvas → directions → refine → spec) · its review | `darshan-singh-meel-design` · `darshan-singh-meel-design-review` |
+| Design/redesign UI from brief · screenshots · running app (private Claude Design canvas (default) or local canvas → directions → refine → spec) · its review | `darshan-singh-meel-design` · `darshan-singh-meel-design-review` |
 | UI design (look, layout, a11y) for dashboards, data apps, forms, landing pages; with build skills below | `darshan-singh-meel-frontend` |
 | Build React + TS UI · React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build/test/deploy Streamlit app (any host) | `darshan-singh-meel-streamlit` |

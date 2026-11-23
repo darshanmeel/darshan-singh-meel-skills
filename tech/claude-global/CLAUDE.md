@@ -23,7 +23,7 @@
 - Otherwise: blocked → ask one question; not blocked → proceed.
 
 ## Output: local files only
-- **Never create artifacts**, published pages, hosted output, gists, or shared links — even if a tool or skill suggests it.
+- **Never create artifacts**, published pages, hosted output, gists, or shared links — even if a tool or skill suggests it. One exception: `darshan-singh-meel-design` may create one private Design canvas per run after I approve its material list; never shared, and I am asked at the end whether to delete it.
 - Output goes to the current project: docs → `generated-docs/`, reviews → `reviews/`, graph → `<repo>-knowledge-graph/`, notebooks → `analysis/`, designs → `designs/`.
 - `reviews/`, `analysis/`, `designs/`, the graph folder and `.knowledge-graph` are **git-ignored by default** — on first creation add `/<folder>/` plus a one-line comment to `.gitignore` (create it if missing). Committed only if I ask.
 - `generated-docs/`: ask once on first creation whether to commit (default: committed).
@@ -85,7 +85,7 @@
 | Map a repo; answer "what does X do / how does Y work / what calls what" | `darshan-singh-meel-knowledge-graph` |
 | Unclear or complex task — plan it with me first | `darshan-singh-meel-ask-me` |
 | Throwaway prototype to answer a design question (logic, UI variants, data model/dbt on DuckDB, Airflow flow) / review one | `darshan-singh-meel-prototype` / `darshan-singh-meel-prototype-review` |
-| Design or redesign a UI from a brief, screenshots or a running app: claude.ai/design in my Chrome or a local canvas, several directions, refine rounds, spec for other agents / review one | `darshan-singh-meel-design` / `darshan-singh-meel-design-review` |
+| Design or redesign a UI from a brief, screenshots or a running app: private Claude Design canvas (default) or a local canvas, several directions, refine rounds, spec for other agents / review one | `darshan-singh-meel-design` / `darshan-singh-meel-design-review` |
 | App UI design: look, layout, accessibility (dashboards, data apps, forms, landing pages); used together with the build skills below | `darshan-singh-meel-frontend` |
 | Build a React + TypeScript UI, or a React component for Streamlit | `darshan-singh-meel-frontend-react` |
 | Build, test, deploy a Streamlit app (any host) | `darshan-singh-meel-streamlit` |

@@ -21,7 +21,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 - **"Other findings":** optional and last, only if worth it. Each one: what · why it matters · impact of doing vs not doing.
 - **A question only** (e.g. "don't change anything, just…") → answer, change nothing.
 - **Questions to me:** AskUserQuestion, up to 4 per prompt, recommended option first. Defaults are never answers.
-- **Output:** local files only, never artifacts, hosted pages or shared links. Relative paths only.
+- **Output:** local files only, never artifacts, hosted pages or shared links (one exception: the design skill's private canvas, approved each run). Relative paths only.
 - **Model choice:** cheapest that works.
   - Haiku: mechanical work.
   - Sonnet: coding, building, answers.
@@ -52,7 +52,7 @@ Two versions, always updated together and always delivered as **complete zips**,
 | `-dbt` (+ `-review`) | all dbt work (Core, Fusion, platform) on Snowflake and Databricks: models, incrementals, snapshots, tests, macros, slim CI, cost per model, lineage from `manifest.json`, health from `run_results.json`, debugging; never runs dbt commands that hit the warehouse; warehouse-side answers as read-only SQL in a notebook · on screen · `.sql` |
 | `-ask-me` | plans unclear tasks with me, one question at a time |
 | `-prototype` (+ `-review`) | throwaway prototype answering one design question: logic · UI variants · DuckDB/dbt on synthetic data · Airflow flow, `prototypes/<name>/` |
-| `-design` (+ `-review`) | UI design and redesign from a brief, screenshots or a running app: claude.ai/design in my Chrome (asked each run, untested) · local canvas · both · handoff prompt; 1/3/5 directions, refine rounds, HTML + tokens + spec in `designs/<name>/`; never edits app code |
+| `-design` (+ `-review`) | UI design and redesign from a brief, screenshots or a running app: private Claude Design canvas (default, approved each run, delete offered) · local canvas · both · handoff prompt; 1/3/5 directions, refine rounds, HTML + tokens + spec in `designs/<name>/`; never edits app code |
 | `-frontend` | UI design rules (look, layout, accessibility) for dashboards, data apps; used with the build skills below |
 | `-frontend-react` | build React + TypeScript + component-library UIs; package a React component for Streamlit |
 | `-streamlit` | build, test, deploy open-source Streamlit apps on any host |

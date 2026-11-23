@@ -7,3 +7,6 @@ __pycache__/
 
 # local list of private names for tools/check_repo.py (never commit)
 /.private-names
+
+# Design work (local only)
+/designs/

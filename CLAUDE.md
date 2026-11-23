@@ -32,7 +32,7 @@ New topic area → new top folder with the same full + panini pair (e.g. `music/
   - Bullets; tables only to compare.
   - Diagrams only where they explain.
 - **Global rules that skills inherit**, so don't contradict them:
-  - local files only, never artifacts or published pages;
+  - local files only, never artifacts or published pages (one exception: the design skill's private canvas, approved each run);
   - paths relative to the repo root;
   - never open secret files, never read data rows, no real student or personal data;
   - questions via AskUserQuestion (max 4, recommended option first);
