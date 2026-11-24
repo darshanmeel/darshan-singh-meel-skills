@@ -265,8 +265,15 @@ def check_direction(path, final=False):
     return attrs.get("direction", path.stem[:1].upper()), structure_key(html)
 
 
+def wanted_shots(folder):
+    brief = next((d / "brief.md" for d in folder.resolve().parents if (d / "brief.md").is_file()), None)
+    m = re.search(r"^- Devices:\s*(desktop|phone|both)\s*$", brief.read_text(encoding="utf-8"), re.M) if brief else None
+    device = m.group(1) if m else "both"
+    return [s for s in SHOTS if device == "both" or s.startswith("390") == (device == "phone")]
+
+
 def check_shots(folder, files):
-    missing = [f"{p.stem}-{s}" for p in files for s in SHOTS if not (folder / "shots" / f"{p.stem}-{s}.png").is_file()]
+    missing = [f"{p.stem}-{s}" for p in files for s in wanted_shots(folder) if not (folder / "shots" / f"{p.stem}-{s}.png").is_file()]
     if missing:
         say("WARN", (folder / "shots").as_posix(), f"required screenshots missing ({len(missing)}): {', '.join(missing[:4])}… run screenshot.py")
 

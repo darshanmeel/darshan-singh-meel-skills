@@ -36,7 +36,7 @@ Interactive states for every control: default · hover · focus-visible (`--focu
 | ≥ 1280 | <full layout> |
 | 720–1279 | <detail panel becomes a drawer; 3 KPI columns → 2> |
 | ≤ 719 | <one column; table → cards or horizontal scroll inside the table only; primary action at 44px> |
-No page-level horizontal scroll at 390.
+No page-level horizontal scroll at the chosen device widths. A device that was not designed: "Not designed: <phone>; layout left to the implementer".
 
 ## Accessibility
 - Landmarks: one `<main>`, one `<h1>`, `<nav aria-label>`; heading levels in order.
@@ -71,7 +71,7 @@ Paths in backticks must exist in the project; files to create are written withou
 
 ## Acceptance checks
 Each check names the file, the viewport and the value, so it can be run without this spec's context.
-- [ ] `screenshot.py final/index.html --viewports 1280x800,390x844 --themes light,dark --keyboard 20`: 0 WARN lines (overflow, targets, text size, labels, placeholder, accent-color, focus)
+- [ ] `screenshot.py final/index.html --viewports <chosen devices: 1280x800 and/or 390x844> --themes light,dark --keyboard 20`: 0 WARN lines (overflow, targets, text size, labels, placeholder, accent-color, focus)
 - [ ] KEYS line at 1280 light lists, in order: <nav links → primary action → chips → search>
 - [ ] `check_design.py designs/NAME --final`: 0 FAIL
 - [ ] `states.html` shows, for every view in States: loading, empty, error (count: <n> frames)

@@ -21,7 +21,8 @@ Status: round 1 | round N | final
 
 ## Constraints
 - Fonts: system stacks (no network) | fonts already in the project: <names, files>
-- Viewports: desktop 1280, mobile 390 (+ tablet 834 when the app is used there)
+- Devices: desktop | phone | both
+- Viewports: desktop 1280 · phone 390 (the chosen devices only; + tablet 834 when the app is used there)
 - Themes: light and dark
 - Must keep: <navigation, component library, brand colour, …>
 - Accessibility: WCAG AA, keyboard, reduced motion

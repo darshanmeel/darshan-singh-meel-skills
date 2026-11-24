@@ -21,7 +21,7 @@ Light and dark from the same tokens. Fonts: system stacks only (<the stacks>), o
 
 **Directions must differ in at least two of:** layout, hierarchy (first and largest element), primary action and its place, navigation model. Not a direction: another colour, font or spacing. Avoid the generic look: identical soft-shadow cards everywhere, decorative gradients, all-caps tracked labels on every heading, numbered markers on non-sequences, a highlighted word in a headline, entrance animations on every section. Original work: no copy of a named product's UI or brand.
 
-**Quality floor:** responsive to 390px without horizontal scroll; WCAG AA contrast (text 4.5:1, controls 3:1) in both themes; visible focus; targets ≥ 24px; loading, empty and error state for every data view; status by text and icon, never colour alone; `prefers-reduced-motion` respected; sentence case, buttons say what happens.
+**Quality floor:** no horizontal scroll on the chosen devices (<desktop 1280 | phone 390 | both>); WCAG AA contrast (text 4.5:1, controls 3:1) in both themes; visible focus; targets ≥ 24px; loading, empty and error state for every data view; status by text and icon, never colour alone; `prefers-reduced-motion` respected; sentence case, buttons say what happens.
 
 **Deliver:** one self-contained HTML file per direction and screen (inline CSS, no external resources), tokens as CSS custom properties, and a short note per direction: the bet, layout, hierarchy, primary action.
 
